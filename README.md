@@ -1,1 +1,76 @@
-# MySafar
+# Safar Academy Enfield dashboards
+
+One page holds the Master overview and a full class dashboard (Dashboard,
+Input, Warnings, Quran, Memo) for every classroom. The dashboard starts empty:
+classrooms and students are added by uploading a CSV on the Master page.
+
+**Railway deployment:** see [RAILWAY.md](RAILWAY.md) for GitHub connection steps,
+the required variables, shared storage in PostgreSQL, and the HTTPS/port
+settings. The hosted server uses `PORT` (recommended `8080`), Railway PostgreSQL
+through `DATABASE_URL`, and a staff username/password.
+
+## Adding students
+
+On the Master page, **Upload students** takes a CSV file with one row per
+student and these six columns, with the column names in the first row:
+
+```csv
+Student ID,Student Name,Gender,School Year Group,Current Teacher [Quran and Memorisation],Current Teacher [Islamic Studies]
+ST001,Aisha Khan,Female,Year 3,Yr3-A-QM-Br Ahmed,Yr3-A-AI-Sr Maryam
+ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
+```
+
+- **Current Teacher [Quran and Memorisation]** is the student's classroom.
+  Classrooms that don't exist yet are created, with the first class day
+  chosen next to the file.
+- **Student ID** identifies the student on later uploads. If their Quran and
+  Memorisation teacher changes, the student moves to the new classroom with all
+  of their passes, merits, warnings and Quran scores. Changed details (name,
+  gender, year group, Islamic Studies teacher) are updated. Nobody is added
+  twice.
+- **Student Name**, **Gender**, **School Year Group** and **Current Teacher
+  [Islamic Studies]** are saved with the student and shown in the classroom's
+  Input tab; the Student ID and year group also appear on each student's card.
+- Columns are found by their names, in any order. Student Name and the Quran
+  and Memorisation teacher are required. Without a Student ID column, students
+  are matched by name within their classroom.
+- Before anything changes, a preview lists each classroom with the students
+  who are new, moving in, updated or unchanged, the students on the dashboard
+  who aren't in the file (they are left as they are), and any problems, such
+  as one Student ID used for two different names.
+- Commas, semicolons or tabs between columns all work.
+
+Each classroom's Input tab can rename it (click the title), set its first
+class day, add students by hand, and delete the classroom.
+
+A classroom can be opened directly by adding its code to the end of the
+dashboard's link, for example `#yr3-a-qm-br-ahmed` for "Yr3-A-QM-Br Ahmed". The code is the classroom's
+name when it was created, in lower case with dashes.
+
+## Where records are kept
+
+| How the page is opened | Records are kept in |
+| --- | --- |
+| Railway (`server.py`) | The `classrooms` table in Railway PostgreSQL |
+| Claude artifact | The artifact's database, collection `classroom` |
+| `Master_Dashboard_standalone.html` opened as a file | That browser only |
+
+Records from the earlier version, which shipped with fixed classes, have been
+deleted: the Railway server removes its old `classes` table when it starts.
+
+## Files
+
+- `Master_Dashboard_standalone.html`: the dashboard as a complete web page.
+  The Railway server serves this file.
+- `Master_Dashboard.html`: the version published as a Claude artifact (the
+  artifact host adds the page skeleton).
+- `src/page.html`: the page's markup and script. `LEVELS` at the top of the
+  script sets how many targets each level has (L1 to L10).
+- `src/template.css`, `src/logo.b64`: styles and logo taken from the class
+  dashboard template.
+- `railway-storage.js`: shared storage for the page when it is served by
+  Railway.
+- `server.py`, `test_server.py`: the Railway server and its tests.
+- `tools/build.py`: rebuilds both HTML files from `src/`. Run
+  `python3 tools/build.py` after editing `src/page.html`, and commit the
+  generated files.
