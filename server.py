@@ -55,6 +55,10 @@ def valid_state(state):
         for key in ("log", "lt", "ml"):
             if not isinstance(student.get(key), list) or not all(type(n) in (int, float) and n >= 0 for n in student[key]):
                 return False
+        # Fails are dated like passes but never change the target or the pass count.
+        fails = student.get("fl", [])
+        if not isinstance(fails, list) or not all(type(n) in (int, float) and n >= 0 for n in fails):
+            return False
         if not isinstance(student.get("lx"), list) or not all(isinstance(x, str) for x in student["lx"]):
             return False
         # Details from the CSV upload: Student ID, gender, year group, Islamic Studies teacher.

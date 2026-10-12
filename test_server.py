@@ -103,6 +103,15 @@ class DashboardTests:
         student["q"] = {"2026-10-10": 6}
         self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
 
+    def test_fails_and_surah_passes(self):
+        student = {"name": "A", "target": 4, "passes": 2, "merits": 0, "warn": 0, "log": [1, 2], "lt": [3, 4],
+                   "lx": ["", ""], "ml": [], "fl": [3], "q": {}}
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        book_done = dict(student, target=10, lt=[3, 10], lx=["", "Surah Al-Mulk"])
+        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[book_done])).status_code, 200)
+        student["fl"] = ["x"]
+        self.assertEqual(self.write(revision=2, state=dict(self.state, S=[student])).status_code, 400)
+
     def test_student_details_from_csv(self):
         student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
                    "ml": [], "q": {}, "sid": "ST001", "gender": "Female", "year": "Year 3", "ist": "Yr3-A-AI-Sr Maryam"}

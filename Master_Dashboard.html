@@ -270,7 +270,7 @@ function fix(a,old){var mv=old&&old.join()!==LEVELS.join();a.forEach(function(s)
  if(!s.q)s.q={};if(!s.log){s.log=[];s.hit=null;s.target=1}
  if(!s.lt||s.lt.length!==s.log.length){s.lt=s.log.map(function(_,k){return Math.max(1,s.target-(s.log.length-k))})}
  if(!s.lx||s.lx.length!==s.log.length){var o=s.lx||[];s.lx=s.log.map(function(_,k){return o[k]||""})}
- if(!s.ml)s.ml=[];s.passes=s.passes||0;s.merits=s.merits||0;s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
+ if(!s.ml)s.ml=[];if(!s.fl)s.fl=[];s.passes=s.passes||0;s.merits=s.merits||0;s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
 var PRIZE=5;
 function ms0(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),1).getTime()}
 function mpc(s){var m=ms0();return s.log.filter(function(t){return t>=m}).length}
@@ -373,7 +373,7 @@ function render(){
  document.getElementById("grid").innerHTML=S.length?S.map(function(s,i){var p=Math.min(100,(s.target-1)/(NB-1)*100);
   return '<div class="tile'+(rc(s)?' done':'')+'" style="--h:'+Math.round(i*360/S.length)+'"><span class="av">'+esc(s.name.split(" ").map(function(w){return w[0]}).slice(0,2).join(""))+'</span><b'+(late(s)?' class="late"':'')+'>'+esc(s.name)+(rc(s)?' 🎁':'')+(s.sid||s.year?'<span class="meta">'+esc([s.sid,s.year].filter(Boolean).join(" · "))+'</span>':'')+'</b><div class="st4"><div><small>Current target</small><strong>'+bl(s.target)+'</strong></div><div><small>Total passes</small><strong>'+s.passes+'</strong></div><div><small>Total merits</small><strong>'+s.merits+'</strong></div><div><small>Weeks since last pass</small><strong>'+since(s)+'</strong></div></div><div class="bar"><i style="width:'+p+'%"></i></div></div>'}).join(""):'<div class="card sub">No students in this class yet. Add them in the Input tab.</div>';
  var b=document.getElementById("body");
- if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;b.innerHTML=S.map(function(s,i){return '<tr><td>'+(i+1)+'</td><td><input data-i="'+i+'" data-f="name" value="'+esc(s.name)+'" aria-label="Student name"></td><td class="ro">'+esc(s.sid||"–")+'</td><td class="ro">'+esc(s.year||"–")+'</td><td class="ro">'+esc(s.gender||"–")+'</td><td class="ro">'+esc(s.ist||"–")+'</td><td><select data-i="'+i+'" data-f="target" id="t'+i+'" aria-label="Current target">'+TO+'</select></td><td id="p'+i+'"></td><td id="m'+i+'"></td><td><span class="bg"><button class="btn p" data-a="p+" data-i="'+i+'">+ Pass</button><button class="btn" data-a="p-" data-i="'+i+'">− Pass</button></span><span class="bg"><button class="btn m" data-a="m+" data-i="'+i+'">+ Merit</button><button class="btn" data-a="m-" data-i="'+i+'">− Merit</button></span><button class="btn" data-a="rm" data-i="'+i+'">Remove student</button></td></tr>'}).join("")}
+ if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;b.innerHTML=S.map(function(s,i){return '<tr><td>'+(i+1)+'</td><td><input data-i="'+i+'" data-f="name" value="'+esc(s.name)+'" aria-label="Student name"></td><td class="ro">'+esc(s.sid||"–")+'</td><td class="ro">'+esc(s.year||"–")+'</td><td class="ro">'+esc(s.gender||"–")+'</td><td class="ro">'+esc(s.ist||"–")+'</td><td><select data-i="'+i+'" data-f="target" id="t'+i+'" aria-label="Current target">'+TO+'</select></td><td id="p'+i+'"></td><td id="m'+i+'"></td><td><span class="bg"><button class="btn p" data-a="p+" data-i="'+i+'">+ Pass</button><button class="btn" data-a="p-" data-i="'+i+'">− Pass</button></span><span class="bg"><button class="btn m" data-a="m+" data-i="'+i+'">+ Merit</button><button class="btn" data-a="m-" data-i="'+i+'">− Merit</button></span><span class="bg"><button class="btn" data-a="f+" data-i="'+i+'">+ Fail</button><button class="btn" data-a="f-" data-i="'+i+'">− Fail</button></span><button class="btn" data-a="rm" data-i="'+i+'">Remove student</button></td></tr>'}).join("")}
  S.forEach(function(s,i){document.getElementById("t"+i).value=s.target;document.getElementById("p"+i).textContent=s.passes;document.getElementById("m"+i).textContent=s.merits})}
 document.getElementById("body").addEventListener("click",function(e){var a=e.target.dataset.a;if(!a)return;var i=+e.target.dataset.i,s=S[i],c=CID;if(!s)return;
  var nm=s.name.split(" ")[0],msg="";
@@ -381,6 +381,8 @@ document.getElementById("body").addEventListener("click",function(e){var a=e.tar
  if(a==="p+"){if(s.target<NB){var old=s.target;s.passes++;s.log.push(Date.now());s.lt.push(old);s.lx.push("");s.target++;msg=nm+" passed "+bl(old)+". Next target: "+bl(s.target)}
   else{ask(nm+" has completed the book. What did they pass?","+ Add pass",function(v){if(!same(c,i,s))return;s.passes++;s.log.push(Date.now());s.lt.push(NB);s.lx.push(v);s.hit=s.log[s.log.length-1];save();render();toast(nm+" passed "+v)},"For example: Surah Al-Mulk");return}}
  if(a==="p-"&&s.passes>0){var lab=s.lx.pop();s.passes--;s.log.pop();s.lt.pop();if(!lab&&s.target>1)s.target--;msg="Pass removed for "+nm}
+ if(a==="f+"){s.fl.push(Date.now());msg=nm+" did not pass this time. Target stays at "+bl(s.target)}
+ if(a==="f-"&&s.fl.length){s.fl.pop();msg="Fail removed for "+nm}
  if(a==="m+"){s.merits++;s.ml.push(Date.now());msg="Merit added for "+nm}
  if(a==="m-"&&s.merits>0){s.merits--;s.ml.pop();msg="Merit removed for "+nm}
  s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();if(msg)toast(msg)});
@@ -391,8 +393,8 @@ function past(){var sS=document.getElementById("pS"),v=sS.value;
  sS.innerHTML=S.map(function(s,i){return '<option value="'+i+'">'+esc(s.name)+'</option>'}).join("");sS.value=v&&S[+v]?v:"0";
  var pT=document.getElementById("pT");if(!pT.options.length)pT.innerHTML=TOP;
  var pD=document.getElementById("pD");pD.min=FCD;pD.max=dk(Date.now());if(!pD.value)pD.value=dk(Date.now());
- var E=[];S.forEach(function(s,i){s.log.forEach(function(t,k){E.push({i:i,k:k,t:t,l:s.lt[k],x:pl(s,k)})})});E.sort(function(a,b){return b.t-a.t||b.l-a.l});
- document.getElementById("hist").innerHTML=E.length?E.map(function(e){return '<div class="hr"><span>'+ds(e.t)+'</span><b>'+esc(S[e.i].name)+'</b><span>'+esc(e.x)+'</span><button class="btn" data-hi="'+e.i+'" data-hk="'+e.k+'">Remove</button></div>'}).join(""):'<span class="sub">No passes recorded yet.</span>'}
+ var E=[];S.forEach(function(s,i){s.log.forEach(function(t,k){E.push({i:i,k:k,t:t,l:s.lt[k],x:pl(s,k)})});s.fl.forEach(function(t,k){E.push({i:i,k:k,t:t,l:0,x:"Fail",f:1})})});E.sort(function(a,b){return b.t-a.t||b.l-a.l});
+ document.getElementById("hist").innerHTML=E.length?E.map(function(e){return '<div class="hr"><span>'+ds(e.t)+'</span><b>'+esc(S[e.i].name)+'</b><span>'+esc(e.x)+'</span><button class="btn" data-hi="'+e.i+'" data-hk="'+e.k+'"'+(e.f?' data-hf="1"':'')+'>Remove</button></div>'}).join(""):'<span class="sub">No passes or fails recorded yet.</span>'}
 document.getElementById("pA").onclick=function(){var s=S[+document.getElementById("pS").value],v=document.getElementById("pD").value,t=+document.getElementById("pT").value;
  if(!s){toast("Add a student first",1);return}if(!v){toast("Pick a date first",1);return}
  if(v<FCD){toast("The first class day was "+ds(sd().getTime()),1);return}
@@ -402,6 +404,7 @@ document.getElementById("pA").onclick=function(){var s=S[+document.getElementByI
  s.log=a.map(function(x){return x[0]});s.lt=a.map(function(x){return x[1]});s.lx=a.map(function(x){return x[2]});s.passes++;if(s.target<=t)s.target=Math.min(t+1,NB);
  s.hit=s.log[s.log.length-1];save();render();toast(s.name.split(" ")[0]+" passed "+bl(t)+" on "+ds(ts))};
 document.getElementById("hist").addEventListener("click",function(e){var i=e.target.dataset.hi;if(i===undefined)return;var s=S[+i],k=+e.target.dataset.hk;
+ if(e.target.dataset.hf){s.fl.splice(k,1);save();render();toast("Fail removed for "+s.name.split(" ")[0]);return}
  s.log.splice(k,1);s.lt.splice(k,1);s.lx.splice(k,1);s.passes=Math.max(0,s.passes-1);s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();toast("Pass removed for "+s.name.split(" ")[0])});
 var QC=["#ef4444","#f97316","#f59e0b","#84cc16","#22c55e","#10b981"];
 function qlab(k){var p=k.split("-");return ds(new Date(+p[0],+p[1]-1,+p[2],12).getTime())}
@@ -428,7 +431,7 @@ document.getElementById("wrows").addEventListener("click",function(e){var i=e.ta
  s.warn=v;save();render();toast(nm+": "+WL[v]+" given")});
 function clearW(){S.forEach(function(s){s.warn=0});save();render();toast("All warnings cleared")}
 document.getElementById("cw2").onclick=clearW;document.getElementById("cw").onclick=clearW;
-function blank(n){return {name:n,target:1,passes:0,merits:0,hit:null,log:[],lt:[],lx:[],ml:[],q:{},warn:0}}
+function blank(n){return {name:n,target:1,passes:0,merits:0,hit:null,log:[],lt:[],lx:[],ml:[],fl:[],q:{},warn:0}}
 document.getElementById("add").onclick=function(){S.push(blank("New student"));save();render();toast("Student added")};
 document.getElementById("rst").onclick=function(){var c=CID;ask("Reset all passes and merits for "+ST[c].name+"?","Reset scores",function(){if(CID!==c)return;S.forEach(function(s){s.passes=0;s.merits=0;s.ml=[];s.hit=null;s.log=[];s.lt=[];s.lx=[]});save();render();toast("All scores reset")},null,1)};
 function tab(n){["D","I","W","Q","T"].forEach(function(k){document.getElementById("v"+k).classList.toggle("hide",k!==n);document.getElementById("t"+k).classList.toggle("on",k===n)})}
