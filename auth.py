@@ -128,6 +128,14 @@ def set_cookie(response, name, value, max_age=None):
                         httponly=True, samesite="Lax")
 
 
+LINK_TOKEN = re.compile(r"(/(?:invite|reset)/)[^/?#\s\"]+")
+
+
+def hide_link_tokens(text):
+    """Takes the one-time token out of invite and reset links, so they can be written to a log."""
+    return LINK_TOKEN.sub(r"\1[hidden]", text)
+
+
 def public_url(path):
     base = current_app.config["PUBLIC_URL"] or request.host_url
     return base.rstrip("/") + path

@@ -11,6 +11,7 @@ classrooms an admin has assigned to them. Every save and delete is recorded in
 """
 import base64
 import json
+import logging
 import os
 import re
 import time
@@ -120,8 +121,15 @@ def script_json(value):
     return json.dumps(value).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
 
 
+def hide_link_tokens(record):
+    """Flask logs the path of a request that fails; an invite or reset link's token stays out of it."""
+    record.msg, record.args = auth.hide_link_tokens(record.getMessage()), None
+    return True
+
+
 def create_app(test_config=None):
     app = Flask(__name__, static_folder=None, template_folder=str(ROOT / "templates"))
+    app.logger.addFilter(hide_link_tokens)
     app.config.update(
         MAX_CONTENT_LENGTH=2 * 1024 * 1024,
         DATABASE_URL=os.environ.get("DATABASE_URL", ""),

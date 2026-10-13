@@ -7,6 +7,7 @@ dropped afterwards, so existing tables in that database are never touched.
 import json
 import os
 import re
+import runpy
 import sqlite3
 import tempfile
 import time
@@ -405,6 +406,29 @@ class DashboardTests:
             self.form(anonymous, "/forgot", "/forgot", email="ahmed@example.com")
         self.assertEqual(len(mailer.sent), 4)  # limited to 3 a quarter of an hour
 
+    def test_admin_resets_a_teachers_password_without_seeing_it(self):
+        user_id = self.add_user("t@example.com")
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        stored = self.query("SELECT password_hash FROM users WHERE id = ?", (user_id,))[0]["password_hash"]
+        self.assertEqual(self.form(teacher, "/account", f"/admin/users/{user_id}/link").status_code, 403)
+        response = self.form(self.client, "/admin/users", f"/admin/users/{user_id}/link")
+        text = response.get_data(as_text=True)
+        link = re.search(r'value="https?://[^/"]+(/reset/[^"]+)"', text).group(1)
+        for page in (text, self.client.get("/admin/users").get_data(as_text=True),
+                     self.client.get("/admin/activity").get_data(as_text=True)):
+            self.assertNotIn(stored, page)
+            self.assertNotIn("teacher-password-1", page)
+        # Nothing changes until the teacher chooses a new password.
+        self.assertEqual(teacher.get("/api/classes").status_code, 200)
+        new = self.app.test_client()
+        page = new.get(link)
+        new.post(link, data={"csrf": csrf_of(page), "password": "river stone evening", "confirm": "river stone evening"})
+        self.assertEqual(teacher.get("/api/classes").status_code, 401)
+        self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").last.status_code, 401)
+        self.assertEqual(self.sign_in("t@example.com", "river stone evening").last.status_code, 302)
+        self.assertEqual(self.app.test_client().get(link).status_code, 410)
+        self.assertEqual(self.client.get("/api/classes", headers=self.headers).status_code, 200)
+
     def test_reset_links_expire(self):
         self.add_user("t@example.com")
         mailer = FakeMailer()
@@ -537,6 +561,35 @@ class DashboardTests:
         self.assertEqual(anonymous.get(link).status_code, 404)
         self.assertEqual(anonymous.get(link + "/data").status_code, 404)
         self.assertIn("No TV links yet", self.client.get("/admin/tv").get_data(as_text=True))
+
+
+class LogTests(unittest.TestCase):
+    token = "Zx9-aB_cD3eF4gH5iJ6kL7mN8oP9qR0sT1uV2wX3yZ4"
+
+    def test_access_log_hides_link_tokens(self):
+        from datetime import timedelta
+        from types import SimpleNamespace
+
+        from gunicorn.config import Config
+        conf = runpy.run_path(str(Path(__file__).with_name("gunicorn.conf.py")))
+        logger = conf["logger_class"](Config())
+        environ = {"REQUEST_METHOD": "POST", "RAW_URI": f"/reset/{self.token}?x=1", "PATH_INFO": f"/reset/{self.token}",
+                   "QUERY_STRING": "x=1", "SERVER_PROTOCOL": "HTTP/1.1", "REMOTE_ADDR": "203.0.113.5"}
+        request = SimpleNamespace(headers=[("REFERER", f"https://example.com/invite/{self.token}")])
+        response = SimpleNamespace(status="302", response_length=0, sent=0, headers=[])
+        atoms = logger.atoms(response, request, environ, timedelta(seconds=1))
+        self.assertNotIn(self.token, json.dumps(atoms))
+        self.assertEqual(atoms["r"], "POST /reset/[hidden]?x=1 HTTP/1.1")
+        self.assertEqual(atoms["{referer}i"], "https://example.com/invite/[hidden]")
+
+    def test_error_log_hides_link_tokens(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        app = create_app({"TESTING": True, "DATABASE_URL": "", "DATA_DIR": temp.name,
+                          "ADMIN_EMAIL": ADMIN[0], "DASHBOARD_PASSWORD": ADMIN[1]})
+        with self.assertLogs(app.logger) as logs:
+            app.logger.error("Exception on %s [POST]", f"/invite/{self.token}")
+        self.assertEqual(logs.records[0].getMessage(), "Exception on /invite/[hidden] [POST]")
 
 
 class SQLiteTest(DashboardTests, unittest.TestCase):
