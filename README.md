@@ -45,6 +45,28 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
   as one Student ID used for two different names.
 - Commas, semicolons or tabs between columns all work.
 
+## House points
+
+Every student belongs to one of three houses: **Makkah**, **Al-Aqsa** or
+**Madinah**. Houses come from an optional **House** column in the student CSV.
+Spellings are matched loosely ("al aqsa", "Medina"), and anything else is
+listed in the upload preview and left unchanged. A later upload with a House
+column updates each student's house; one without it leaves houses as they are.
+
+Each classroom's **Houses** tab gives tokens:
+
+| Token | Points |
+| --- | --- |
+| Green | 5 |
+| Blue | 20 |
+| Red (book completion) | 50 |
+
+**−** takes back the latest token of that colour. The tab shows the class's
+points per house. The Master page shows the whole school's totals, and on
+Railway teachers see those totals too, without seeing other classes'
+students. The points are set in `TOK` near the top of the script in
+`src/page.html` and in `TOKEN_POINTS` in `server.py`; change both together.
+
 ## After the book: the Juz items
 
 The book ends at L10 T14. After that, targets carry on through numbered items,

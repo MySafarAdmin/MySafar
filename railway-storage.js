@@ -122,8 +122,18 @@
       if (first || (updated && (!editing || !CID))) changed();
       status("All changes saved online. Records are shared across devices.");
       retry.hidden = true;
+      refreshHouses();
     } catch (error) { problem(error); }
     finally { reading = false; }
+  }
+  // Whole-school house points for the Master page; teachers only load their own classrooms.
+  async function refreshHouses() {
+    try {
+      var totals = await api("/api/houses");
+      var before = JSON.stringify(window.HOUSE_TOTALS);
+      window.HOUSE_TOTALS = totals;
+      if (before !== JSON.stringify(totals) && !CID) master();
+    } catch (error) { /* The totals refresh with the next poll. */ }
   }
   async function flush() {
     if (sending || failed) return;

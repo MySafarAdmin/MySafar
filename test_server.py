@@ -190,6 +190,23 @@ class DashboardTests:
         student["sid"], student["sy"] = "ST001", 4
         self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
 
+    def test_house_points(self):
+        student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                   "ml": [], "q": {}, "house": "Makkah", "tg": [1, 2], "tb": [3], "tr": [4]}
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        other = dict(student, name="B", house="Madinah", tg=[5], tb=[], tr=[])
+        no_house = dict(student, name="C", house="", tg=[6] * 10)
+        self.assertEqual(self.write("Yr4-B", class_id="yr4-b", state=dict(self.state, S=[other, no_house])).status_code, 200)
+        self.assertEqual(self.client.get("/api/houses").get_json(), {"Makkah": 80, "Al-Aqsa": 0, "Madinah": 5})
+        # Teachers see whole-school totals, but still only their own classrooms.
+        self.add_user("t@example.com", classes=["yr4-b"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        self.assertEqual(teacher.get("/api/houses").get_json()["Makkah"], 80)
+        self.assertEqual(list(self.records(teacher)), ["yr4-b"])
+        self.assertEqual(self.app.test_client().get("/api/houses").status_code, 401)
+        for bad in ({"house": "Hogwarts"}, {"house": None}, {"tg": "1"}, {"tb": [-1]}, {"tr": ["x"]}):
+            self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, **bad)])).status_code, 400)
+
     def test_write_validation_and_cross_origin_protection(self):
         self.assertEqual(self.write(headers={}).status_code, 403)
         self.assertEqual(self.write(headers=dict(self.headers, **{"Sec-Fetch-Site": "cross-site"})).status_code, 403)

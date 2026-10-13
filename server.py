@@ -28,6 +28,9 @@ from mailer import Mailer
 ROOT = Path(__file__).resolve().parent
 CLASS_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
 MAX_CLASSES = 500
+HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
+# House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
+TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # Reachable without signing in.
 PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css"}
 PUBLIC_PREFIXES = ("/invite/", "/reset/")
@@ -73,6 +76,13 @@ def valid_state(state):
         # Islamic Studies teacher.
         if not all(isinstance(student.get(k, ""), str) for k in ("sid", "gender", "year", "sy", "ist")):
             return False
+        # House points: the student's house (from the CSV) and the times each token was given.
+        if student.get("house", "") not in ("",) + HOUSES:
+            return False
+        for key in TOKEN_POINTS:
+            tokens = student.get(key, [])
+            if not isinstance(tokens, list) or not all(type(n) in (int, float) and n >= 0 for n in tokens):
+                return False
         if len(student["log"]) != len(student["lt"]) or len(student["log"]) != len(student["lx"]):
             return False
         # The Quran tab scores out of 5, starting at 0.
@@ -110,7 +120,6 @@ def script_json(value):
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder=None, template_folder=str(ROOT / "templates"))
-    public_domain = os.environ.get("RAILWAY_PUBLIC_DOMAIN", "")
     app.config.update(
         MAX_CONTENT_LENGTH=2 * 1024 * 1024,
         DATABASE_URL=os.environ.get("DATABASE_URL", ""),
@@ -118,7 +127,9 @@ def create_app(test_config=None):
         ADMIN_EMAIL=os.environ.get("ADMIN_EMAIL", ""),
         DASHBOARD_PASSWORD=os.environ.get("DASHBOARD_PASSWORD", ""),
         COOKIE_SECURE=os.environ.get("COOKIE_SECURE", "1") != "0",
-        PUBLIC_URL=os.environ.get("PUBLIC_URL", "") or (f"https://{public_domain}" if public_domain else ""),
+        # The site's address in invite and reset links. Railway's own RAILWAY_PUBLIC_DOMAIN can name a
+        # domain that no longer exists, so it isn't used; without PUBLIC_URL the request's address is.
+        PUBLIC_URL=os.environ.get("PUBLIC_URL", ""),
         TRUST_PROXY=bool(os.environ.get("RAILWAY_ENVIRONMENT_ID")),
         RESEND_API_KEY=os.environ.get("RESEND_API_KEY", ""),
         MAIL_FROM=os.environ.get("MAIL_FROM", ""),
@@ -251,6 +262,18 @@ def create_app(test_config=None):
                 rows = db.execute("SELECT c.id, c.json, c.revision FROM classrooms c JOIN classroom_members m "
                                   "ON m.class_id = c.id WHERE m.user_id = ? ORDER BY c.id", (g.user["id"],)).fetchall()
             return jsonify({row["id"]: {"json": row["json"], "revision": row["revision"]} for row in rows})
+
+    @app.get("/api/houses")
+    def house_totals():
+        """Whole-school house points. Only totals, so teachers can see them too."""
+        totals = dict.fromkeys(HOUSES, 0)
+        with database.transaction() as db:
+            rows = db.execute("SELECT json FROM classrooms").fetchall()
+        for row in rows:
+            for student in json.loads(row["json"]).get("S", []):
+                if student.get("house") in totals:
+                    totals[student["house"]] += sum(len(student.get(k, [])) * v for k, v in TOKEN_POINTS.items())
+        return jsonify(totals)
 
     @app.put("/api/classes/<class_id>")
     def write_class(class_id):
