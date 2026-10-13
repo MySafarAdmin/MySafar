@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Safar Academy · Live</title>
+<style>
+:root{--bg:#0b1026;--panel:#141b3d;--line:#26306a;--text:#fff;--mute:#aab3d9;--gold:#fbbf24;--silver:#cbd5e1;--bronze:#f59e0b;
+ --makkah:#fbbf24;--aqsa:#38bdf8;--madinah:#34d399;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{display:flex;flex-direction:column;padding:2.2vh 2.4vw;gap:2vh}
+header{display:flex;align-items:center;gap:2vw}
+header img{height:9vh;background:#fff;border-radius:1.4vh;padding:.6vh}
+header h1{font-size:5vh;margin:0;flex:1;font-weight:900;letter-spacing:.02em}
+header .clock{font-size:5vh;font-weight:800;font-variant-numeric:tabular-nums}
+.dots{display:flex;gap:1vh}.dots i{width:1.8vh;height:1.8vh;border-radius:50%;background:var(--line)}.dots i.on{background:var(--gold)}
+main{flex:1;position:relative;min-height:0}
+.slide{position:absolute;inset:0;display:grid;gap:2vh 2vw;opacity:0;transition:opacity .8s;pointer-events:none}
+.slide.on{opacity:1}
+#s1{grid-template-columns:1.1fr 1fr}#s2{grid-template-columns:1.6fr 1fr}
+.panel{background:var(--panel);border:.3vh solid var(--line);border-radius:3vh;padding:2.6vh 2vw;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.panel h2{margin:0 0 2vh;font-size:4.6vh;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.panel h2 small{display:block;font-size:2.6vh;color:var(--mute);font-weight:700;text-transform:none;letter-spacing:0}
+.fit{flex:1;min-height:0;overflow:hidden}
+.houses{display:flex;flex-direction:column;gap:2.4vh;justify-content:center;height:100%}
+.house{display:grid;grid-template-columns:17vw 1fr auto;align-items:center;gap:1.4vw}
+.house .hn{font-size:5.4vh;font-weight:900;white-space:nowrap}
+.house .track{height:10vh;background:rgba(255,255,255,.07);border-radius:2vh;overflow:hidden;position:relative}
+.house .track i{position:absolute;inset:0 auto 0 0;border-radius:2vh}
+.house .pts{font-size:6.4vh;font-weight:900;font-variant-numeric:tabular-nums;min-width:4ch;text-align:right}
+.house.first .hn::after{content:" 👑"}
+.Makkah .hn{color:var(--makkah)}.Makkah i{background:var(--makkah)}
+.Al-Aqsa .hn{color:var(--aqsa)}.Al-Aqsa i{background:var(--aqsa)}
+.Madinah .hn{color:var(--madinah)}.Madinah i{background:var(--madinah)}
+.stages{display:grid;grid-template-rows:1fr 1fr;gap:2vh}
+.stage h3{margin:0 0 1.2vh;font-size:3.6vh;color:var(--gold);font-weight:900;text-transform:uppercase}
+.podium{display:flex;flex-direction:column;gap:1vh}
+.pod{display:grid;grid-template-columns:7vh 1fr auto;align-items:center;gap:1.2vw;font-size:4.4vh;font-weight:800;background:rgba(255,255,255,.05);border-radius:1.6vh;padding:.8vh 1.2vw}
+.pod .m{font-size:5vh;text-align:center}.pod .c{display:block;font-size:2.4vh;color:var(--mute);font-weight:600}
+.pod .n{font-variant-numeric:tabular-nums;color:var(--gold);font-weight:900}
+.stars{display:grid;gap:1.4vh 1vw;height:100%;align-content:start}
+.star{background:rgba(255,255,255,.05);border-radius:1.6vh;padding:1em .9em;border-left:.5vh solid var(--gold);min-width:0}
+.star .c{font-size:.62em;color:var(--mute);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.star .n{font-size:1.1em;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.star .w{font-size:.62em;color:var(--gold);font-weight:700}
+.star.none .n{color:var(--mute);font-weight:700}
+.books{columns:1;column-gap:2vw}
+.book{break-inside:avoid;padding:.35em 0;border-bottom:.2vh solid var(--line);font-weight:800}
+.book small{display:block;font-size:.6em;color:var(--mute);font-weight:600}
+.empty{color:var(--mute);font-size:3.4vh;font-weight:700}
+footer{height:1vh;background:var(--line);border-radius:1vh;overflow:hidden}
+footer i{display:block;height:100%;width:0;background:var(--gold)}
+footer i.run{width:100%;transition:width linear}
+#off{position:fixed;inset:0;display:none;align-items:center;justify-content:center;text-align:center;background:var(--bg);font-size:4vh;font-weight:800;padding:5vw}
+</style>
+</head>
+<body>
+<header><img src="/logo.png" alt=""><h1 id="title">Safar Academy</h1><div class="dots"><i class="on"></i><i></i></div><div class="clock" id="clock"></div></header>
+<main>
+  <section class="slide on" id="s1">
+    <div class="panel"><h2>House points<small>Who's leading the school</small></h2><div class="fit"><div class="houses" id="houses"></div></div></div>
+    <div class="panel"><h2>Memorisation<small>Most passes in <span class="month"></span></small></h2><div class="fit stages">
+      <div class="stage"><h3>Primary</h3><div class="podium" id="primary"></div></div>
+      <div class="stage"><h3>Secondary</h3><div class="podium" id="secondary"></div></div>
+    </div></div>
+  </section>
+  <section class="slide" id="s2">
+    <div class="panel"><h2>⭐ Star of the week<small>Most passes and merits since Monday, in each class</small></h2><div class="fit" id="starsFit"><div class="stars" id="stars"></div></div></div>
+    <div class="panel"><h2>📖 Passed a book<small>Well done, all of <span class="month"></span></small></h2><div class="fit" id="booksFit"><div class="books" id="books"></div></div></div>
+  </section>
+</main>
+<footer><i id="prog"></i></footer>
+<div id="off"></div>
+<script>
+(function(){
+var SLIDE_MS=30000,DATA_MS=60000,MEDALS=["🥇","🥈","🥉"];
+var path=location.pathname.replace(/\/+$/,""),URL=path==="/tv"?"/api/tv":path+"/data";
+var slide=0,data=null;
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return "&#"+c.charCodeAt(0)+";"})}
+function $(id){return document.getElementById(id)}
+function clock(){var d=new Date();$("clock").textContent=d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
+/* Shrinks the text in a box until it fits, so a long list never runs off the screen. */
+function fit(box,inner,start){var size=start;inner.style.fontSize=size+"vh";
+ while(size>1.6&&inner.scrollHeight>box.clientHeight+2){size-=.2;inner.style.fontSize=size+"vh"}}
+function render(){if(!data)return;
+ Array.prototype.forEach.call(document.querySelectorAll(".month"),function(e){e.textContent=data.month});
+ var top=Math.max(1,data.houses[0].points);
+ $("houses").innerHTML=data.houses.map(function(h,i){return '<div class="house '+esc(h.house)+(i===0&&h.points>0?' first':'')+'"><div class="hn">'+esc(h.house)+'</div><div class="track"><i style="width:'+Math.max(4,h.points/top*100)+'%"></i></div><div class="pts">'+h.points+'</div></div>'}).join("");
+ ["primary","secondary"].forEach(function(k){var L=data.passes[k];
+  $(k).innerHTML=L.length?L.map(function(p,i){return '<div class="pod"><span class="m">'+MEDALS[i]+'</span><span>'+esc(p.name)+'<span class="c">'+esc(p.class)+'</span></span><span class="n">'+p.passes+'</span></div>'}).join(""):'<div class="empty">No passes yet this month. Who will be first?</div>'});
+ var S=data.stars,cols=S.length>16?4:S.length>6?3:S.length>2?2:1;
+ $("stars").style.gridTemplateColumns="repeat("+cols+",minmax(0,1fr))";
+ $("stars").innerHTML=S.length?S.map(function(s){return s.name?'<div class="star"><div class="c">'+esc(s.class)+'</div><div class="n">'+esc(s.name)+'</div><div class="w">'+s.passes+(s.passes===1?" pass":" passes")+' · '+s.merits+(s.merits===1?" merit":" merits")+'</div></div>':'<div class="star none"><div class="c">'+esc(s.class)+'</div><div class="n">Could it be you?</div></div>'}).join(""):'<div class="empty">No classes yet.</div>';
+ var B=data.books;$("books").style.columns=B.length>8?2:1;
+ $("books").innerHTML=B.length?B.map(function(b){return '<div class="book">'+esc(b.name)+'<small>'+esc(b.class)+'</small></div>'}).join(""):'<div class="empty">No books completed yet this month. Keep going!</div>';
+ fit($("starsFit"),$("stars"),cols>2?3.4:4.4);fit($("booksFit"),$("books"),4.2)}
+function show(n){slide=n;["s1","s2"].forEach(function(id,i){$(id).classList.toggle("on",i===n)});
+ Array.prototype.forEach.call(document.querySelectorAll(".dots i"),function(d,i){d.classList.toggle("on",i===n)});
+ var p=$("prog");p.className="";p.style.transitionDuration="0ms";void p.offsetWidth;p.style.transitionDuration=SLIDE_MS+"ms";p.className="run";
+ render()}
+function load(){fetch(URL,{credentials:"same-origin",cache:"no-store"}).then(function(r){
+  if(r.status===404||r.status===401){$("off").style.display="flex";$("off").textContent=r.status===404?"This screen's link has been turned off. Ask an administrator for a new one.":"Sign in to see the dashboard.";return null}
+  return r.ok?r.json():null}).then(function(d){if(d){data=d;$("off").style.display="none";render()}}).catch(function(){/* keep showing the last data */})}
+clock();setInterval(clock,1000);load();setInterval(load,DATA_MS);show(0);
+setInterval(function(){show(1-slide)},SLIDE_MS);
+/* Pick up new versions of this page, unless the network is down. */
+setInterval(function(){fetch(location.href,{cache:"no-store"}).then(function(r){if(r.ok)location.reload()}).catch(function(){})},6*3600*1000);
+window.addEventListener("resize",render);
+})();
+</script>
+</body>
+</html>

@@ -99,7 +99,20 @@ def _m2_accounts(db, postgres):
     db.execute("CREATE INDEX classroom_history_class ON classroom_history (class_id, saved_at)")
 
 
-MIGRATIONS = [_m1_classrooms, _m2_accounts]
+def _m3_tv_screens(db, postgres):
+    t = _types(postgres)
+    # TV screen links (see tv.py). The token is stored only as a SHA-256 hash.
+    db.execute(f"""CREATE TABLE tv_screens (
+        id {t['id']},
+        name TEXT NOT NULL,
+        token_hash TEXT NOT NULL UNIQUE,
+        created_by {t['ref']} REFERENCES users (id) ON DELETE SET NULL,
+        created_at BIGINT NOT NULL,
+        last_seen_at BIGINT,
+        revoked_at BIGINT)""")
+
+
+MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens]
 
 
 class Database:

@@ -12,6 +12,7 @@ import tempfile
 import time
 import unittest
 import uuid
+from datetime import datetime
 from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
@@ -20,6 +21,7 @@ import psycopg
 from psycopg.conninfo import make_conninfo
 
 import auth
+import tv
 from server import create_app
 
 ADMIN = ("admin@example.com", "bootstrap-password-1")
@@ -473,6 +475,68 @@ class DashboardTests:
         self.assertEqual(self.query("SELECT id FROM audit_log"), [])
         self.assertEqual(self.query("SELECT id FROM classroom_history"), [])
         self.assertEqual(list(self.records()), ["yr3-a"])
+
+    def tv_student(self, name, **fields):
+        return dict({"name": name, "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                     "ml": [], "q": {}}, **fields)
+
+    def test_tv_dashboard_figures(self):
+        now = datetime(2026, 10, 14, 12, tzinfo=auth.LONDON)  # a Wednesday
+        ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
+        monday, last_month = ms(2026, 10, 12, 9), ms(2026, 9, 30, 9)
+        rows = [{"id": "yr3-a", "json": json.dumps({"name": "Yr3-A", "S": [
+                    self.tv_student("Aisha Bint Khan", house="Makkah", log=[monday] * 3, ml=[monday], tr=[monday], tg=[1]),
+                    self.tv_student("Yusuf Ali", house="Madinah", log=[monday] * 3 + [last_month], ml=[], tb=[1]),
+                    self.tv_student("Old Book", year="Year 3", tr=[last_month], log=[last_month])]})},
+                {"id": "yr8-b", "json": json.dumps({"name": "Yr8-B", "S": [
+                    self.tv_student("Zara", year="Year 4", log=[monday]),  # her Safar year group wins over the class
+                    self.tv_student("Omar Farooq", sy="Year 9", log=[monday] * 2)]})},
+                {"id": "yr9-c", "json": json.dumps({"name": "Yr9-C", "S": [self.tv_student("Idle")]})}]
+        data = tv.summary(rows, now)
+        self.assertEqual(data["houses"], [{"house": "Makkah", "points": 55}, {"house": "Madinah", "points": 20},
+                                          {"house": "Al-Aqsa", "points": 0}])
+        self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Yr3-A")])
+        self.assertEqual([(s["class"], s["name"]) for s in data["stars"]],
+                         [("Yr3-A", "Aisha K."), ("Yr8-B", "Omar F."), ("Yr9-C", None)])
+        self.assertEqual([(p["name"], p["passes"]) for p in data["passes"]["primary"]],
+                         [("Aisha K.", 3), ("Yusuf A.", 3), ("Zara", 1)])
+        self.assertEqual([(p["name"], p["passes"]) for p in data["passes"]["secondary"]], [("Omar F.", 2)])
+        self.assertEqual(data["month"], "October")
+        self.assertNotIn("Khan", json.dumps(data))
+
+    def test_tv_screen_links(self):
+        student = self.tv_student("Aisha Khan", house="Makkah", tg=[1])
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        anonymous = self.app.test_client()
+        self.assertEqual(anonymous.get("/tv").status_code, 302)
+        self.assertEqual(anonymous.get("/api/tv").status_code, 401)
+        self.assertEqual(anonymous.get("/tv/not-a-real-link").status_code, 404)
+        self.assertEqual(anonymous.get("/tv/not-a-real-link/data").status_code, 404)
+        # Staff can preview it; only admins make links.
+        self.add_user("t@example.com")
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        self.assertEqual(teacher.get("/tv").status_code, 200)
+        self.assertEqual(teacher.get("/api/tv").get_json()["houses"][0], {"house": "Makkah", "points": 5})
+        self.assertEqual(teacher.get("/admin/tv").status_code, 403)
+        self.assertEqual(teacher.post("/admin/tv/new", data={"name": "Hall"}).status_code, 403)
+        page = self.form(self.client, "/admin/tv", "/admin/tv/new", name="Admin area TV").get_data(as_text=True)
+        link = re.search(r'value="http://localhost(/tv/[^"]+)"', page).group(1)
+        self.assertEqual(self.query("SELECT COUNT(*) AS n FROM tv_screens WHERE token_hash = ?",
+                                    (auth.token_hash(link[4:]),))[0]["n"], 1)
+        response = anonymous.get(link)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("script-src 'self' 'unsafe-inline'", response.headers["Content-Security-Policy"])
+        data = anonymous.get(link + "/data").get_json()
+        self.assertEqual(data["houses"][0]["points"], 5)
+        # The link opens nothing else.
+        for path in ("/", "/api/classes", "/api/tv", "/admin/tv"):
+            self.assertIn(anonymous.get(path).status_code, (302, 401))
+        self.assertIn("Made a TV screen link", self.client.get("/admin/activity").get_data(as_text=True))
+        screen_id = self.query("SELECT id FROM tv_screens")[0]["id"]
+        self.form(self.client, "/admin/tv", f"/admin/tv/{screen_id}/off")
+        self.assertEqual(anonymous.get(link).status_code, 404)
+        self.assertEqual(anonymous.get(link + "/data").status_code, 404)
+        self.assertIn("No TV links yet", self.client.get("/admin/tv").get_data(as_text=True))
 
 
 class SQLiteTest(DashboardTests, unittest.TestCase):

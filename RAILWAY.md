@@ -28,6 +28,29 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
   15 minutes. Sessions end after 8 hours without use, and after 12 hours (or 30
   days with "Keep me signed in").
 
+## TV dashboard
+
+A TV in the admin area can show a live dashboard without anyone signing in on
+it. An administrator opens **TV screens**, names the TV and makes a link, then
+opens that link on the TV once and leaves it open. The link works on its own
+and shows only the dashboard: it can't open the classrooms or change anything.
+**Turn off link** stops it within a minute (the TV then shows a message); make
+a new one if a link is lost or seen by someone it shouldn't be.
+
+The dashboard has two slides that switch every 30 seconds and updates every
+minute:
+
+1. **House points** for the whole school, leader first, and **Memorisation**:
+   the top 3 students by passes this month, for primary (Reception to Year 6)
+   and secondary (Year 7 onwards). A student's stage comes from their Safar
+   year group, then the classroom name (`Yr7-...`), then their school year.
+2. **Star of the week** for each class: the student with the most passes and
+   merits since Monday (ties go to more passes). **Passed a book**: students
+   given a red (book completion) token this month.
+
+Students are shown by first name and surname initial (`Aisha K.`) with their
+classroom. Signed-in staff can preview it at `/tv`.
+
 ## Variables for the MySafar service
 
 | Variable | Value |

@@ -32,7 +32,7 @@
   label.textContent = (ME.name || "") + (ME.role === "admin" ? " · Administrator" : " · Teacher");
   who.appendChild(label);
   var links = [["Account", "/account"]];
-  if (ME.role === "admin") links.unshift(["Manage users", "/admin/users"], ["Class history", "/admin/history"]);
+  if (ME.role === "admin") links.unshift(["Manage users", "/admin/users"], ["Class history", "/admin/history"], ["TV screens", "/admin/tv"]);
   links.forEach(function (l) {
     var a = document.createElement("a");
     a.textContent = l[0]; a.href = l[1]; a.style.color = "inherit";
