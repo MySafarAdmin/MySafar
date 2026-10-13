@@ -8,14 +8,18 @@ dashboard's own screens are styled in `src/template.css`, the admin pages in
 
 ## Direction
 
-A mixed-surface workspace rooted in Safar's navy. Navy carries navigation and
-the one band that opens every page (title, the class or school's key numbers,
-and the book ribbon). Below it the page is light: a pale canvas, white working
-surfaces and a few tinted modules. Colour is assigned by meaning, not
-decoration: sky blue for learning and passes, teal for progress over time,
-gold for achievement, and the house, level, token and warning colours keep
-their existing meanings. Each page has one title; rules and instructions live
-in "?" help popovers rather than paragraphs on the page.
+A workspace that fits the screen. Navy carries identity and navigation: the
+rail, and one compact head per page that holds the title, the key numbers on a
+single line and the tabs. The selected tab is white and opens straight into a
+white workspace on a pale canvas, so the work itself is the largest surface.
+Tinted modules (sky, teal, gold, amber for attention) mark insight, never
+chrome. Daily work happens without scrolling: at 1280×720 the head and tabs
+take under a fifth of the screen and a class of 20 is in view at once; details
+are one selection away in a side panel, a drawer, a tab or a "?" popover.
+Colour is assigned by meaning: sky blue for learning and passes, teal for
+activity over time, gold for achievement, amber and red for attention, and the
+house, level, token and warning colours keep their existing meanings. Each
+page has one title; rules live in "?" help rather than paragraphs.
 
 ## Palette
 
@@ -42,42 +46,55 @@ every token.
 
 Atkinson Hyperlegible Next, self-hosted (`static/fonts`, SIL Open Font
 License), chosen for legibility at small sizes and at a distance, with tabular
-figures for every count. Weights 400/600/700/800. Scale: 13, 14, 15, 16 (body),
-18 (module titles), 24 to 32 (page title, by screen width), 40 (band figures).
-Numbers that matter are the largest thing in their module. Sentence case
+figures for every count. Weights 400/600/700/800. Scale: 12 and 13 (meta,
+labels), 15 and 16 (body), 18 (section titles), 20 (counts in the roster and
+head figures), 24 (page title), 32 (attention counts), 36 (house totals).
+Numbers that matter are the boldest thing in their row. Sentence case
 throughout; no all-caps labels, no eyebrows above titles.
 
 ## Layout
 
 One shell everywhere: a 232px navy rail on screens 960px and wider and a navy
-top bar with a Menu button below that. Pages open with the navy band
-(`.band`, `.band.slim` on admin pages) and continue on a 12-column grid
-(`.g12` with `.s4` to `.s8` spans from 1100px). Modules differ by purpose:
+top bar with a Menu button below that. The dashboard opens with the compact
+navy head (`.head`: title, Switch class on small screens, save status, figures
+on one line, folder tabs) above the white workspace (`.ws`). The head is
+sticky on wide screens. Admin pages use the shorter `.band`.
 
-- `.mod` white working surface, `.mod.line` bordered, `.mod.sky`, `.teal`,
-  `.gold` tinted for the contexts above. Paired modules use `.g12.eq` to share
-  a height; everything else aligns to the top so short modules leave no holes.
-- Tables and lists run full width; summaries sit in narrower columns beside them.
-- Below 640px modules go full-bleed and the band becomes a 3-column figure grid.
+**Overview** tabs:
 
-**Overview** has three tabs. Summary: band figures and the book ribbon, then
-attention summarised by category with the top classes for each and "See all N"
-opening the complete list grouped by class in a drawer; passes per week and
-the latest passes beside it; the searchable class directory; houses and the top
-classes with a link to the full rankings. Rankings: class ranking, furthest
-along, most passes, most merits (each complete on demand). Houses: points by
-house, tokens by house, points by class.
+- **Summary**, one screen: Needs attention (each kind as a large count that
+  opens its full list, the warning levels, and the class most affected), passes
+  per week with the latest passes, house points, top classes this month, and
+  students by level as columns whose heights are the counts.
+- **Attention**: warnings, no pass in 3+ weeks, quiet classes; one list at a
+  time, grouped by class, ten a page.
+- **Classes**: the searchable directory, seven a page, and the CSV upload.
+- **Rankings**: class ranking, furthest along, most passes, most merits side by
+  side, five a page each, This month or All time.
+- **Houses**: house totals, tokens by house, points by class (six a page).
 
-**Class** has a compact identity (the band title; "Switch class" opens a
-searchable drawer on small screens) and seven tabs: Record (default: the roster
-with Pass / Merit / Fail counters, target and a "…" menu, with attention,
-leaders and the latest records beside it from 1280px), Warnings, Quran, Memo,
-Progress (position in the book, students by level, the students table, passes
-per week and the complete pass history), Rewards (one Leaders module with
-Passes/Merits and This month/All time controls, the prize, house points) and
-Settings (class settings, adding students, and a separate danger panel).
-Dated records default to a useful current period (this month, the last six
-weeks, recent memo dates) with "All" one press away.
+**Class** tabs:
+
+- **Record**: the roster in two columns from 1100px (one below), each row a
+  name with its target and flags, then Passes and Merits as a count and a +.
+  Selecting a name opens the editor beside the roster (in the drawer on
+  smaller screens): target, Passes / Merits / Fails with − and +, details,
+  Details and history, Rename, Remove. With nobody selected the panel shows
+  who needs attention, the latest records and this month's leaders. Arrow
+  keys move between names.
+- **Warnings** and **Quran**: two columns of one-line rows; Quran switches
+  between recording a day and the By class day sheet.
+- **Memo**: the sheet, scrolling inside its frame.
+- **Progress**: Levels (position in the book in two columns, students by
+  level), Students (the table), Pass history (passes per week, the history and
+  Add a past pass).
+- **Rewards**: Leaders and prize, or House points (token counts with + and −
+  for each colour in two columns, house totals in the toolbar).
+- **Settings**: name and first class day, adding students, reset and delete.
+
+Long school-wide lists are paged with Previous and Next and a "1–10 of 61"
+count; class lists stay whole. Below 640px modules go full-bleed and tables
+become labelled rows.
 
 ## Components and states
 
@@ -98,7 +115,8 @@ the status shows "Needs attention").
 
 Rankings use competition ranking (1, 1, 3); ties are shown as "=1". Only values
 above zero are ranked, and the rest are listed by name ("Not yet: ...").
-Nothing is cut off at a podium: every ranked list can show everyone.
+Nothing is cut off at a podium: every ranked list pages through everyone.
+Count badges never wrap their digits.
 
 ## Administration
 
@@ -113,8 +131,10 @@ The TV keeps its two slides, rotation and privacy rules (first name and
 surname initial, whole-school totals). House points are columns on one
 baseline with heights in proportion to points; "Leading" and a gold number
 appear only when a house is strictly ahead. Every joint first place is
-highlighted. "Passed a book" leads with the count in gold and fits up to three
-columns of names. Type is sized in viewport units for reading across a hall.
+highlighted. Star of the week and Passed a book shrink to fit, but never below
+2.6% and 2.8% of the screen height; a list that still does not fit is split
+into pages that turn every 10 seconds ("Page 1 of 3"), and the slide stays up
+until every page has been shown. Names wrap rather than being cut off.
 
 ## Design skills in this repository
 
@@ -122,6 +142,8 @@ columns of names. Type is sized in viewport units for reading across a hall.
 `.claude/skills/ui-ux-pro-max` (uipro-cli) are installed for every Claude
 session. Run `.claude/skills/impeccable/scripts/impeccable detect --json src/template.css`
 for the static scan, and inject its `detect.js` into the running dashboard for
-the in-browser scan. UI UX Pro Max's generic design-system suggestion (a
-storytelling landing pattern, Fira type and an orange CTA) does not fit an
-operations dashboard and is not used; its accessibility and touch checks are.
+the in-browser scan. UI UX Pro Max's design-system search for an education
+classroom operations dashboard recommends a data-dense, drill-down dashboard;
+that pattern is used. Its suggested dark palette and Fira type are not, because
+the Safar navy, white workspace and Atkinson type are fixed by the brief.
+`PRODUCT.md` records the product facts the skills read.
