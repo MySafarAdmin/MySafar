@@ -92,8 +92,20 @@ figures on the canvas.
   side, five a page each, This month or All time.
 - **Houses**: house totals, tokens by house, points by class (six a page).
 
-**Class** tabs:
+**Class** tabs (a class opens on Quran):
 
+- **Quran**: the day-by-day sheet. The focused class day sits in a soft navy
+  lane between the student names and their houses, with up to three earlier
+  days fading out to the left and three later ones to the right (one each side
+  on phones). Only the focused column can be changed: tap a box for the 0 to 5
+  picker, or select it and type a digit, which moves down to the next student.
+  The arrows (or Left and Right on a box) move one class day; the names and
+  houses fade out, the columns slide one place left like the next column of a
+  page, and the names come back. Class days are the weekends from the first
+  class day, any day with a score, and any day chosen with the calendar icon.
+  The add-student icon opens a short form (name, house, optional Student ID)
+  and the student is saved with the class straight away. Full sheet shows the
+  whole table by class day.
 - **Record**: All / Warnings / Waiting filters with counts, then the roster in
   two columns from 1100px (one below), each row a name with its target and a
   dotted marker (Warning 1, Warning 2, Miss break, Waiting, No passes), then
@@ -105,8 +117,7 @@ figures on the canvas.
   latest records and Add a past pass, Leaders and prize and Add students (on
   narrow screens this follows the roster). Arrow keys move between the visible
   names.
-- **Warnings** and **Quran**: two columns of one-line rows; Quran switches
-  between recording a day and the By class day sheet.
+- **Warnings**: two columns of one-line rows.
 - **Memo**: the sheet, scrolling inside its frame.
 - **Progress**: Levels (position in the book in two columns, students by
   level with empty levels named once in a line instead of zero rows),
@@ -181,3 +192,12 @@ pairing were not used, because the Safar navy and Atkinson type are fixed by
 the brief. Its interaction guidance (hover, pressed, disabled and focus states)
 is applied to every control.
 `PRODUCT.md` records the product facts the skills read.
+
+## Motion
+
+Motion explains a change of place and is never decoration. The selected tab is
+one marker that slides to the tab chosen; a tab under the pointer lifts by a
+pixel and shows a short graphite edge; the new page slides in from the side its
+tab is on. The Quran sheet slides its columns when the class day changes. All
+of it is off when the device asks for reduced motion (the rule at the end of
+`src/tokens.css`).
