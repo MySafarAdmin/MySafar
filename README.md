@@ -1,6 +1,6 @@
 # Safar Academy Enfield dashboards
 
-One page holds the school overview (Summary, Rankings, Houses) and a full class
+One page holds the school overview (Summary, Attention, Classes, Rankings, Houses) and a full class
 dashboard (Record, Warnings, Quran, Memo, Progress, Rewards, Settings) for every
 classroom. The dashboard starts empty:
 classrooms and students are added by uploading a CSV on the overview.
@@ -12,7 +12,7 @@ see everything.
 
 ## Adding students
 
-On the overview (Summary tab), an administrator's **Upload students** takes a CSV file with one row per
+On the overview (Classes tab), an administrator's **Upload students from a CSV file** takes a CSV file with one row per
 student and these six columns, with the column names in the first row:
 
 ```csv

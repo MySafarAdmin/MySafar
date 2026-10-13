@@ -126,11 +126,12 @@ a:hover{color:var(--primary-hover)}
  .content{padding:16px 16px 40px}
 }
 
-/* ---------- Page band: the navy opening of every page, with its title and key figures ---------- */
-.band{background:var(--navy);color:var(--band-ink);border-radius:16px;padding:22px 28px 24px;margin-bottom:24px;position:relative}
+/* ---------- Page band: the navy opening of the admin and account pages, with its title and key figures.
+   The dashboard uses the same navy in its compact head (.head in template.css). ---------- */
+.band{background:var(--navy);color:var(--band-ink);border-radius:14px;padding:16px 24px 18px;margin-bottom:20px;position:relative}
 .band a{color:#fff}
 .band-top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;min-height:40px}
-.band h1{font-size:2rem;font-weight:800;letter-spacing:-.015em;line-height:1.1;overflow-wrap:anywhere;color:#fff;margin-right:auto}
+.band h1{font-size:1.625rem;font-weight:800;letter-spacing:-.015em;line-height:1.1;overflow-wrap:anywhere;color:#fff;margin-right:auto}
 .band .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .band .btn{background:#fff;border-color:#fff;color:var(--navy)}
 .band .btn:hover{background:#e6eef7;border-color:#e6eef7}
@@ -138,15 +139,15 @@ a:hover{color:var(--primary-hover)}
 .band .btn.ghost:hover{background:rgba(255,255,255,.1)}
 .band :focus-visible{outline-color:#fff}
 .band .lede{color:var(--band-mute);margin:6px 0 0;max-width:60ch}
-.figs{display:flex;flex-wrap:wrap;gap:12px 40px;margin-top:18px}
+.figs{display:flex;flex-wrap:wrap;gap:8px 32px;margin-top:12px}
 .fig{min-width:0}
-.fig b{display:block;font-size:2.5rem;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#fff}
+.fig b{display:block;font-size:2rem;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#fff}
 .fig span{display:block;margin-top:6px;font-size:.875rem;color:var(--band-mute)}
 .fig.alert b{color:#ffd27a}
 .fig.quiet b{font-size:1.5rem;padding-top:.75rem}
 /* Admin and account pages: a shorter band */
-.band.slim{padding:20px 24px}
-.band.slim h1{font-size:1.75rem}
+.band.slim{padding:16px 24px}
+.band.slim h1{font-size:1.5rem}
 @media (max-width:959.98px){
  .band{border-radius:0;margin:-16px -16px 16px;padding:16px 16px 18px}
  .band h1{font-size:1.5rem}
