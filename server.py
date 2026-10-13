@@ -120,7 +120,6 @@ def script_json(value):
 
 def create_app(test_config=None):
     app = Flask(__name__, static_folder=None, template_folder=str(ROOT / "templates"))
-    public_domain = os.environ.get("RAILWAY_PUBLIC_DOMAIN", "")
     app.config.update(
         MAX_CONTENT_LENGTH=2 * 1024 * 1024,
         DATABASE_URL=os.environ.get("DATABASE_URL", ""),
@@ -128,7 +127,9 @@ def create_app(test_config=None):
         ADMIN_EMAIL=os.environ.get("ADMIN_EMAIL", ""),
         DASHBOARD_PASSWORD=os.environ.get("DASHBOARD_PASSWORD", ""),
         COOKIE_SECURE=os.environ.get("COOKIE_SECURE", "1") != "0",
-        PUBLIC_URL=os.environ.get("PUBLIC_URL", "") or (f"https://{public_domain}" if public_domain else ""),
+        # The site's address in invite and reset links. Railway's own RAILWAY_PUBLIC_DOMAIN can name a
+        # domain that no longer exists, so it isn't used; without PUBLIC_URL the request's address is.
+        PUBLIC_URL=os.environ.get("PUBLIC_URL", ""),
         TRUST_PROXY=bool(os.environ.get("RAILWAY_ENVIRONMENT_ID")),
         RESEND_API_KEY=os.environ.get("RESEND_API_KEY", ""),
         MAIL_FROM=os.environ.get("MAIL_FROM", ""),

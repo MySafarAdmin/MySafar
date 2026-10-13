@@ -39,6 +39,7 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
 | `RESEND_API_KEY` | API key from [Resend](https://resend.com) for invite and reset emails. Optional. |
 | `MAIL_FROM` | The sender, for example `Safar Dashboard <dashboard@safaracademy.org>`. Its domain must be verified in Resend. |
 | `MAIL_REDIRECT_TO` | Testing only: every email goes to this address instead of the real recipient. Remove it to go live. |
+| `PUBLIC_URL` | The site's address, used in invite and reset links: `https://mysafar-prod.up.railway.app`. Change it if the address changes (for example a custom domain). |
 | `RETENTION_DAYS` | How long class history and the activity log are kept. Default `14`. |
 
 `DASHBOARD_USERNAME` is no longer used and can be deleted.
