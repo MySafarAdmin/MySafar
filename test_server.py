@@ -112,6 +112,18 @@ class DashboardTests:
         student["fl"] = ["x"]
         self.assertEqual(self.write(revision=2, state=dict(self.state, S=[student])).status_code, 400)
 
+    def test_targets_run_on_through_the_juz_items(self):
+        levels = self.state["L"]
+        student = {"name": "A", "target": sum(levels) + 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [],
+                   "lx": [], "ml": [], "q": {}}
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        student["target"] = sum(levels) + 136
+        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
+        self.assertEqual(self.write(revision=1, state=dict(self.state, Q=135, S=[student])).status_code, 200)
+        student["target"] = sum(levels) + 137
+        self.assertEqual(self.write(revision=2, state=dict(self.state, Q=135, S=[student])).status_code, 400)
+        self.assertEqual(self.write(revision=2, state=dict(self.state, Q="135", S=[student])).status_code, 400)
+
     def test_student_details_from_csv(self):
         student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
                    "ml": [], "q": {}, "sid": "ST001", "gender": "Female", "year": "Year 3", "sy": "Year 4", "ist": "Yr3-A-AI-Sr Maryam"}

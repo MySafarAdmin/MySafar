@@ -42,6 +42,10 @@ def valid_state(state):
     levels = state.get("L")
     if not isinstance(levels, list) or not levels or not all(type(n) is int and n > 0 for n in levels):
         return False
+    # Numbered Juz items that follow the book (198 An-Naba onwards). Older records have none.
+    juz_items = state.get("Q", 0)
+    if type(juz_items) is not int or juz_items < 0:
+        return False
     students = state.get("S")
     if not isinstance(students, list):
         return False
@@ -50,7 +54,7 @@ def valid_state(state):
             return False
         if not all(type(student.get(k)) is int and student[k] >= 0 for k in ("target", "passes", "merits", "warn")):
             return False
-        if not 1 <= student["target"] <= sum(levels) + 1 or student["warn"] > 3:
+        if not 1 <= student["target"] <= sum(levels) + juz_items + 1 or student["warn"] > 3:
             return False
         for key in ("log", "lt", "ml"):
             if not isinstance(student.get(key), list) or not all(type(n) in (int, float) and n >= 0 for n in student[key]):

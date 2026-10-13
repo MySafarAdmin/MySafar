@@ -74,7 +74,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
  <div class="card">
   <table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Student ID</th><th>Safar year</th><th>School year</th><th>Gender</th><th>Islamic Studies teacher</th><th>Current target</th><th>Passes</th><th>Merits</th><th>Add / remove</th></tr></thead><tbody id="body"></tbody></table>
   <p class="sub" id="st">Saved on this device only.</p>
-  <p class="sub">Pressing + Pass means the student has passed their current target and moves on to the next one. Once a student has completed the book, + Pass asks for the number and surah they passed (for example 200 At-Takwir).</p>
+  <p class="sub">Pressing + Pass means the student has passed their current target and moves on to the next one. After the book (L10 T14), targets carry on through the numbered Juz items: 198 An-Naba (Juz 30) onwards.</p>
   <p><button class="btn" id="add">+ Add student</button> <button class="btn" id="cw">Clear warnings</button> <button class="btn" id="rst">Reset all scores</button></p>
  </div>
  <div class="card" style="margin-top:16px"><h2 style="margin:0 0 6px;font-size:1.3rem">⏪ Add a past pass</h2>
@@ -91,19 +91,49 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 <div id="dlg" class="dlg hide" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="card"><p id="dlgT"></p><input id="dlgI" class="hide" maxlength="60" autocomplete="off"><div class="acts"><button class="btn" id="dlgN">Cancel</button><button class="btn p" id="dlgY">OK</button></div></div></div>
 <div id="toast"></div>
 <script>
-var LEVELS=[9,9,9,9,10,10,10,12,15,12]; /* TARGETS IN EACH LEVEL, L1 to L10. If a level has more or fewer targets, change its number here; saved records are moved across automatically. */
+var LEVELS=[9,9,9,9,10,10,10,12,15,14]; /* TARGETS IN EACH LEVEL, L1 to L10. If a level has more or fewer targets, change its number here; saved records are moved across automatically. */
 var S=[],FCD="";
-var BOOK=[],LVS=[];LEVELS.forEach(function(n,l){LVS.push(BOOK.length);for(var t=1;t<=n;t++)BOOK.push("L"+(l+1)+" T"+t)});
-BOOK.push("Book complete");var NB=BOOK.length;
-/* After the book: a pass is a number from 1 to 604 and one of these surahs, saved as "200 At-Takwir". */
-var SURAHS="Al-Fatiha,Al-Baqarah,Al-Imran,An-Nisa,Al-Ma'idah,Al-Anam,Al-A'raf,Al-Anfal,At-Taubah,Yunus,Hud,Yusuf,Ar-Ra'd,Ibrahim,Al-Hijr,An-Nahl,Al-Isra,Al-Kahf,Maryam,Ta-Ha,Al-Anbiya,Al-Hajj,Al-Mu'minun,An-Nur,Al-Furqan,Ash-Shu'ara,An-Naml,Al-Qasas,Al-Ankabut,Ar-Rum,Luqman,As-Sajdah,Al-Ahzab,Saba,Fatir,Ya-Sin,As-Saffat,Sad,Az-Zumar,Ghafir,Fussilat,Ash-Shura,Az-Zukhruf,Ad-Dukhan,Al-Jathiyah,Al-Ahqaf,Muhammad,Al-Fath,Al-Hujurat,Qaf,Adh-Dhariyat,At-Tur,An-Najm,Al-Qamar,Ar-Rahman,Al-Waqi'ah,Al-Hadid,Al-Mujadila,Al-Hashr,Al-Mumtahanah,As-Saff,Al-Jumu'ah,Al-Munafiqun,At-Taghabun,At-Talaq,At-Tahrim,Al-Mulk,Al-Qalam,Al-Haqqah,Al-Ma'arij,Nuh,Al-Jinn,Al-Muzzammil,Al-Muddaththir,Al-Qiyamah,Al-Insan,Al-Mursalat,An-Naba,An-Nazi'at,Abasa,At-Takwir,Al-Infitar,Al-Mutaffifin,Al-Inshiqaq,Al-Buruj,At-Tariq,Al-Ala,Al-Ghashiyah,Al-Fajr,Al-Balad,Ash-Shams,Al-Lail,Ad-Duha,Ash-Sharh,At-Tin,Al-Alaq,Al-Qadr,Al-Bayyina,Az-Zalzalah,Al-Adiyat,Al-Qari'ah,At-Takathur,Al-Asr,Al-Humazah,Al-Fil,Quraysh,Al-Ma'un,Al-Kawthar,Al-Kafirun,An-Nasr,Al-Masad,Al-Ikhlas,Al-Falaq,An-Nas".split(",");
-/* Spelling is matched loosely: case, hyphens, apostrophes, doubled letters, a final "h", "Surah" and a missing "Al-" are ignored. */
-function skey(x){return String(x).toLowerCase().replace(/[^a-z]/g,"").replace(/(.)\1+/g,"$1").replace(/h$/,"")}
-var SK={};SURAHS.forEach(function(n){SK[skey(n)]=n});SURAHS.forEach(function(n){var m=/^(al|an|at|ash|ad|adh|ar|as|az)-(.+)$/i.exec(n),k=m&&skey(m[2]);if(k&&!SK[k])SK[k]=n});
-function surahPass(v){var m=/^\s*(\d{1,3})\s*[.):-]?\s*(?:surah?t?\s+)?(.+?)\s*$/i.exec(String(v||""));if(!m||+m[1]<1||+m[1]>604)return null;var n=SK[skey(m[2])];return n?(+m[1])+" "+n:null}
+var BOOK=[],GRP=[],LVS=[];LEVELS.forEach(function(n,l){LVS.push(BOOK.length);for(var t=1;t<=n;t++){BOOK.push("L"+(l+1)+" T"+t);GRP.push("Level "+(l+1))}});
+var BL=BOOK.length; /* targets 1..BL are the book; BL+1 onwards are the Juz items */
+/* After the book (L10 T14) students memorise the Quran from Juz 30 backwards, one numbered item at a time:
+   198 An-Naba ... 234 An-Nas (Juz 30), then 235 Al-Mulk (Juz 29), and so on to 332 Al-Baqarah (Juz 1).
+   Each entry is [juz, first item number, surahs in that juz]. A surah split across two juz is listed in both. */
+var JUZ=[[30,198,"An-Naba,An-Nazi'at,Abasa,At-Takwir,Al-Infitar,Al-Mutaffifin,Al-Inshiqaq,Al-Buruj,At-Tariq,Al-Ala,Al-Ghashiyah,Al-Fajr,Al-Balad,Ash-Shams,Al-Lail,Ad-Duha,Ash-Sharh,At-Tin,Al-Alaq,Al-Qadr,Al-Bayyinah,Az-Zalzalah,Al-Adiyat,Al-Qari'ah,At-Takathur,Al-Asr,Al-Humazah,Al-Fil,Quraysh,Al-Ma'un,Al-Kawthar,Al-Kafirun,An-Nasr,Al-Masad,Al-Ikhlas,Al-Falaq,An-Nas"],
+ [29,235,"Al-Mulk,Al-Qalam,Al-Haqqah,Al-Ma'arij,Nuh,Al-Jinn,Al-Muzzammil,Al-Muddaththir,Al-Qiyamah,Al-Insan,Al-Mursalat"],
+ [28,246,"Al-Mujadila,Al-Hashr,Al-Mumtahanah,As-Saff,Al-Jumu'ah,Al-Munafiqun,At-Taghabun,At-Talaq,At-Tahrim"],
+ [27,255,"Adh-Dhariyat,At-Tur,An-Najm,Al-Qamar,Ar-Rahman,Al-Waqi'ah,Al-Hadid"],
+ [26,262,"Al-Ahqaf,Muhammad,Al-Fath,Al-Hujurat,Qaf,Adh-Dhariyat"],
+ [25,268,"Fussilat,Ash-Shura,Az-Zukhruf,Ad-Dukhan,Al-Jathiyah"],
+ [24,273,"Az-Zumar,Ghafir,Fussilat"],
+ [23,276,"Ya-Sin,As-Saffat,Sad,Az-Zumar"],
+ [22,280,"Al-Ahzab,Saba,Fatir,Ya-Sin"],
+ [21,284,"Al-Ankabut,Ar-Rum,Luqman,As-Sajdah,Al-Ahzab"],
+ [20,289,"An-Naml,Al-Qasas,Al-Ankabut"],
+ [19,292,"Al-Furqan,Ash-Shu'ara,An-Naml"],
+ [18,295,"Al-Mu'minun,An-Nur,Al-Furqan"],
+ [17,298,"Al-Anbiya,Al-Hajj"],
+ [16,300,"Al-Kahf,Maryam,Ta-Ha"],
+ [15,303,"Al-Isra,Al-Kahf"],
+ [14,305,"Al-Hijr,An-Nahl"],
+ [13,307,"Yusuf,Ar-Ra'd,Ibrahim"],
+ [12,310,"Hud,Yusuf"],
+ [11,312,"At-Tawbah,Yunus,Hud"],
+ [10,315,"Al-Anfal,At-Tawbah"],
+ [9,317,"Al-A'raf,Al-Anfal"],
+ [8,319,"Al-An'am,Al-A'raf"],
+ [7,321,"Al-Ma'idah,Al-An'am"],
+ [6,323,"An-Nisa,Al-Ma'idah"],
+ [5,325,"An-Nisa"],
+ [4,326,"Aal-Imran,An-Nisa"],
+ [3,328,"Al-Baqarah,Aal-Imran"],
+ [2,330,"Al-Baqarah"],
+ [1,331,"Al-Fatiha,Al-Baqarah"]];
+JUZ.forEach(function(j){j[2].split(",").forEach(function(n,k){BOOK.push((j[1]+k)+" "+n);GRP.push("Juz "+j[0])})});
+var QN=BOOK.length-BL;BOOK.push("Quran complete");GRP.push("Juz 1");var NB=BOOK.length;
 function remap(n,old,cur){var l=0,t=n;while(l<old.length&&t>old[l]){t-=old[l];l++}
- if(l>=old.length||l>=LEVELS.length)return NB;
- if(t>LEVELS[l])return cur?(l+1<LEVELS.length?LVS[l+1]+1:NB):LVS[l]+LEVELS[l];
+ if(l>=old.length)return Math.min(BL+t,NB); /* past the book: Juz items keep their place */
+ if(l>=LEVELS.length)return BL+1;
+ if(t>LEVELS[l])return cur?(l+1<LEVELS.length?LVS[l+1]+1:BL+1):LVS[l]+LEVELS[l];
  return LVS[l]+t}
 function fix(a,old){var mv=old&&old.join()!==LEVELS.join();a.forEach(function(s){
  if(mv){s.target=remap(s.target||1,old,1);if(s.lt)s.lt=s.lt.map(function(x){return remap(x,old,0)})}
@@ -121,11 +151,11 @@ function late(s){if(!s.passes)return true;if(!s.log.length)return false;return M
 function since(s){if(!s.passes)return"Not yet";if(!s.log.length)return"–";var w=Math.round((wk0(Date.now())-wk0(s.log[s.log.length-1]))/(7*864e5));return w<1?"This week":w+(w===1?" week":" weeks")}
 function bl(n){return BOOK[Math.min(Math.max(n,1),NB)-1]}
 function pl(s,k){return s.lx[k]||bl(s.lt[k])}
-function opts(a){return a.map(function(b,i){return '<option value="'+(i+1)+'">'+b+'</option>'}).join("")}
+function opts(a){var h="",g=null;a.forEach(function(b,i){if(GRP[i]!==g){h+=(g===null?"":"</optgroup>")+'<optgroup label="'+GRP[i]+'">';g=GRP[i]}h+='<option value="'+(i+1)+'">'+b+'</option>'});return h+(g===null?"":"</optgroup>")}
 var TO=opts(BOOK),TOP=opts(BOOK.slice(0,NB-1));
 var LC=["#8b5a2b","#2563eb","#14c8b4","#facc15","#ef4444","#16a34a","#f97316","#ec4899","#64748b","#1e3a8a"],BC="#8b5cf6";
 var LN=["L1 brown","L2 blue","L3 turquoise","L4 yellow","L5 red"];
-function lv(n){if(n>=NB)return LEVELS.length;for(var l=LEVELS.length-1;l>0;l--)if(n>LVS[l])return l;return 0}
+function lv(n){if(n>BL)return LEVELS.length;for(var l=LEVELS.length-1;l>0;l--)if(n>LVS[l])return l;return 0}
 function lc(n){var l=lv(n);return l>=LEVELS.length?BC:LC[l%LC.length]}
 function ink(n){return lc(n)==="#facc15"?";color:#422006":""}
 
@@ -148,7 +178,7 @@ function changed(c){navL();
  if(HASH&&ST[HASH]){var h=HASH;HASH="";go(h);return}
  if(CID){if(c===undefined||c===CID)setClass(CID)}else master()}
 function setSt(t){var e=document.getElementById("st");if(e)e.textContent=t}
-function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS})}
+function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
 function push(c){if(!DB||!ST[c])return;var j=cj(c);if(j===LJ[c])return;if(PU[c]){PD[c]=1;return}
  PU[c]=1;LJ[c]=j;DB.doc(COL+"/"+c).set({json:j,at:Date.now()}).then(function(){setSt("☁️ Saved online. It will be here next week.")},function(e){LJ[c]="";
   if(e&&e.code==="invalid_argument"){setSt("⚠️ You can look at this dashboard but not save to it. Ask the owner for edit access.");toast("Not saved online. You need edit access.",1)}
@@ -171,9 +201,9 @@ function rank(k){var a=S.slice().sort(function(x,y){return y[k]-x[k]||x.name.loc
  return a.map(function(s,i){if(s[k]!==prev){r=i+1;prev=s[k]}return {s:s,r:r}})}
 function lb(id,k){var L=rank(k).slice(0,10),m=Math.max(1,L.length?L[0].s[k]:0);
  document.getElementById(id).innerHTML=L.length?L.map(function(o){return '<div class="lr"><div class="rk '+(o.r<4?'r'+o.r:'')+'">'+o.r+'</div><div><div class="n">'+esc(o.s.name)+'</div><div class="tr"><i style="width:'+(o.s[k]/m*100)+'%"></i></div></div><div class="v">'+o.s[k]+'</div></div>'}).join(""):'<div class="sub">No students yet</div>'}
-function legend(){document.getElementById("leg").innerHTML=LEVELS.map(function(_,l){return '<span><b style="background:'+LC[l%LC.length]+'"></b>'+(LN[l]||"L"+(l+1))+'</span>'}).join("")+'<span><b style="background:'+BC+'"></b>Book complete</span><span>· highest target on the left</span>'}
+function legend(){document.getElementById("leg").innerHTML=LEVELS.map(function(_,l){return '<span><b style="background:'+LC[l%LC.length]+'"></b>'+(LN[l]||"L"+(l+1))+'</span>'}).join("")+'<span><b style="background:'+BC+'"></b>Juz (after the book)</span><span>· highest target on the left</span>'}
 function chart(){var A=S.slice().sort(function(a,b){return b.target-a.target});
- document.getElementById("chart").innerHTML=A.map(function(s){return '<div class="col"><div class="pair"><div class="bt" style="height:'+(s.target/NB*100)+'%;background:'+lc(s.target)+'"><span class="tl">'+bl(s.target).replace("Book complete","Done")+'</span></div></div><div class="nm">'+esc(s.name.split(" ")[0])+'</div></div>'}).join("")}
+ document.getElementById("chart").innerHTML=A.map(function(s){return '<div class="col"><div class="pair"><div class="bt" style="height:'+(s.target/NB*100)+'%;background:'+lc(s.target)+'"><span class="tl">'+bl(s.target).replace("Quran complete","Done")+'</span></div></div><div class="nm">'+esc(s.name.split(" ")[0])+'</div></div>'}).join("")}
 
 var WL=["","Warning 1","Warning 2","Miss break"];
 var WE=["","⚠️ Warning 1","🔥 Warning 2","🚫 Miss break"];
@@ -219,7 +249,7 @@ document.getElementById("body").addEventListener("click",function(e){var a=e.tar
  var nm=s.name.split(" ")[0],msg="";
  if(a==="rm"){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);save();render();toast(nm+" removed")},null,1);return}
  if(a==="p+"){if(s.target<NB){var old=s.target;s.passes++;s.log.push(Date.now());s.lt.push(old);s.lx.push("");s.target++;msg=nm+" passed "+bl(old)+". Next target: "+bl(s.target)}
-  else{ask(nm+" has completed the book. Enter the number (1 to 604) and the surah they passed.","+ Add pass",function(v){if(!same(c,i,s))return;var lab=surahPass(v);if(!lab){toast("Enter a number from 1 to 604, then a surah. For example: 200 At-Takwir",1);return}v=lab;s.passes++;s.log.push(Date.now());s.lt.push(NB);s.lx.push(v);s.hit=s.log[s.log.length-1];save();render();toast(nm+" passed "+v)},"For example: 200 At-Takwir");return}}
+  else{toast(nm+" has completed every item, up to Juz 1.");return}}
  if(a==="p-"&&s.passes>0){var lab=s.lx.pop();s.passes--;s.log.pop();s.lt.pop();if(!lab&&s.target>1)s.target--;msg="Pass removed for "+nm}
  if(a==="f+"){s.fl.push(Date.now());msg=nm+" did not pass this time. Target stays at "+bl(s.target)}
  if(a==="f-"&&s.fl.length){s.fl.pop();msg="Fail removed for "+nm}

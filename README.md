@@ -45,14 +45,15 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
   as one Student ID used for two different names.
 - Commas, semicolons or tabs between columns all work.
 
-## Passes after the book
+## After the book: the Juz items
 
-Once a student has completed the book, **+ Pass** asks what they passed: a
-number from 1 to 604 followed by a surah, for example `200 At-Takwir`. The
-surah must be one of the 114 surahs listed in `SURAHS` in `src/page.html`.
-Capitals, hyphens, apostrophes, doubled letters, the word "Surah" and a missing
-"Al-" are ignored, so `200. Surah At-Takwir` and `200 takwir` both work. It is
-saved in the form `200 At-Takwir`.
+The book ends at L10 T14. After that, targets carry on through numbered items,
+starting from Juz 30 and working back to Juz 1: `198 An-Naba` (Juz 30) through
+`234 An-Nas`, then `235 Al-Mulk` (Juz 29), and so on to `332 Al-Baqarah`
+(Juz 1). **+ Pass** moves a student to the next item, just like a book target,
+and the target lists group the items by Juz. The items are listed in `JUZ` near
+the top of the script in `src/page.html`. A surah that spans two juz (for
+example Adh-Dhariyat) has an item in each.
 
 Each classroom's Input tab can rename it (click the title), set its first
 class day, add students by hand, and delete the classroom.
