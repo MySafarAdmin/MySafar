@@ -83,10 +83,10 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 <section id="vT" class="ws hide" role="tabpanel" aria-labelledby="tT">
  <div class="toolbar mtbar">
   <p class="qsum mrec" id="mSum"></p>
-  <div class="seg mrec" id="mO" role="group" aria-label="Order"><button type="button" data-p="c" aria-pressed="true">Class order</button><button type="button" data-p="w" aria-pressed="false">Waiting</button><button type="button" data-p="l" aria-pressed="false">Furthest on</button></div>
+  <div class="seg mrec" id="mO" role="group" aria-label="Order"><button type="button" data-p="c" aria-pressed="true">Class order</button><button type="button" data-p="w" aria-pressed="false">Longest wait</button><button type="button" data-p="l" aria-pressed="false">Furthest on</button></div>
   <div class="seg mhis" id="tP" role="group" aria-label="Days shown"><button type="button" data-p="r" aria-pressed="true">Recent</button><button type="button" data-p="a" aria-pressed="false">All</button></div><div class="leg mhis" id="leg"></div>
-  <div class="tools"><div class="seg" id="tV" role="group" aria-label="Show"><button type="button" data-v="rec" aria-pressed="true">Levels</button><button type="button" data-v="his" aria-pressed="false">Full sheet</button></div>
-   <details class="help"><summary aria-label="How the memo page works">?</summary><div class="hb"><p>Each student's current level, the target they are working on now and how long it has been since their last pass. A gold mark means three weeks or more since their last pass, counted Monday to Sunday, the same as Waiting for a pass at the top.</p><p>The calendar marks the days students passed. Select a student to see only their passes, and select a day to see who passed then.</p><p>Passes are recorded on the Record tab. Full sheet shows every pass as a table, one column per class day.</p></div></details></div></div>
+  <div class="tools"><div class="seg" id="tV" role="group" aria-label="Show"><button type="button" data-v="rec" aria-pressed="true">Students</button><button type="button" data-v="his" aria-pressed="false">Full sheet</button></div>
+   <details class="help"><summary aria-label="How the memo page works">?</summary><div class="hb"><p>One card per student, with their level, the target they are working on and how long since their last pass. The card's colour is the student's house once houses are set.</p><p>Students with three weeks or more since their last pass are shown first, under Should pass soon.</p><p>Select a student to see the days they passed on the calendar and every target they passed with its date. Select a marked day to see who passed then.</p><p>Passes are recorded on the Record tab. Full sheet shows every pass as a table, one column per class day.</p></div></details></div></div>
  <div class="pane" data-pane="rec"><div class="mboard">
   <div class="mlist" id="mL"></div>
   <aside class="mcal" aria-label="Pass calendar">
@@ -508,19 +508,22 @@ function mOrder(){var I=S.map(function(_,i){return i});
  return I}
 function mLadder(g,col){if(g.len>16)return '<span class="mbar" aria-hidden="true"><i style="width:'+(g.pos/g.len*100)+'%;background:'+col+'"></i></span>';
  var h="";for(var k=0;k<g.len;k++)h+='<i'+(k<g.pos?' class="d" style="background:'+col+'"':k===g.pos?' class="c" style="border-color:'+col+'"':'')+'></i>';return '<span class="mlad" aria-hidden="true">'+h+'</span>'}
-function mRow(s,i){var n=nod(s),g=mGrp(s.target),col=lc(s.target),juz=s.target>BL,t=mLast(s),lt=mLate(s),
-  lvl=n?'<span class="zero">–</span>':chip(col,juz?g.name:"L"+(lv(s.target)+1)),
-  tg=n?'<span class="zero">No data yet</span>':s.target>=NB?'<b>Quran complete</b>':'<b>'+esc(juz?bl(s.target):"T"+(g.pos+1))+'</b><small>'+(juz?(g.pos+1)+' of '+g.len:'of '+g.len)+'</small>'+mLadder(g,col),
-  ago=t?'<b>'+mAgo(t)+'</b><small>'+ds(t)+'</small>':'<span class="zero">No pass yet</span>';
- var lab=s.name+": "+(n?"no data yet":(juz?"":"Level "+(lv(s.target)+1)+", ")+"working on "+bl(s.target))+". "+(t?"Last pass "+ds(t)+(lt?", waiting three weeks or more":""):"No pass yet")+".";
- return '<li><button type="button" class="mrow'+(lt?' late':'')+'" data-mi="'+i+'" aria-pressed="'+(MS===i)+'" aria-label="'+esc(lab)+'"><span class="mn"><b>'+esc(s.name)+'</b></span><span class="mlv">'+lvl+'</span><span class="mtg">'+tg+'</span><span class="mago">'+ago+(lt?'<span class="mwait" title="Three weeks or more since the last pass"></span>':'')+'</span></button></li>'}
+/* One card per student: a coloured top holding their level, target and last pass, and their name below. The colour
+   is the student's house when one is set, otherwise one calm placeholder colour. */
+var MHC={Makkah:"var(--makkah)","Al-Aqsa":"var(--aqsa)",Madinah:"var(--madinah)"};
+function mCard(s,i){var n=nod(s),g=mGrp(s.target),col=lc(s.target),juz=s.target>BL,t=mLast(s),lt=mLate(s),
+  lvl=n?'<span class="mnd">No data yet</span>':chip(col,juz?g.name:"L"+(lv(s.target)+1)),
+  tg=n?'':s.target>=NB?'<span class="mtg"><b>Quran complete</b></span>':'<span class="mtg"><b title="'+esc(bl(s.target))+'">'+esc(juz?bl(s.target):"T"+(g.pos+1))+'</b><small>'+(g.pos+1)+' of '+g.len+'</small>'+mLadder(g,col)+'</span>',
+  ago=t?'<span class="mago">'+(/day$/.test(mAgo(t))?'Passed <b>'+mAgo(t).toLowerCase()+'</b>':'Passed <b>'+mAgo(t)+' ago</b>')+'</span>':'<span class="mago">No pass yet</span>';
+ var lab=s.name+": "+(n?"no data yet":(juz?"":"Level "+(lv(s.target)+1)+", ")+"working on "+bl(s.target))+". "+(t?"Last pass "+ds(t)+(lt?", should pass soon":""):"No pass yet")+".";
+ return '<li><button type="button" class="mcard'+(lt?' late':'')+'" data-mi="'+i+'" aria-pressed="'+(MS===i)+'" aria-label="'+esc(lab)+'" style="--hc:'+(MHC[s.house]||"var(--sky)")+'"><span class="mtop"><span class="mtl">'+lvl+(lt?'<span class="mwait" title="Three weeks or more since the last pass"></span>':'')+'</span>'+tg+ago+'</span><span class="mname">'+esc(s.name)+'</span></button></li>'}
+/* Students who should pass (three weeks or more since their last pass) come first, under their own heading. */
 function mList(){var L=$("mL");
- if(!S.length){L.innerHTML='<div class="empty"><b>No students yet</b><button type="button" class="btn sm" data-ct="S">Add students in Settings</button></div>';L.removeAttribute("style");return}
- var top=L.getBoundingClientRect().top,fb=window.matchMedia("(pointer: coarse)").matches?48:40,
-  rh=Math.max(fb,Math.min(56,Math.floor((window.innerHeight-Math.max(top,120)-24-34)/S.length)));
- L.style.setProperty("--rh",rh+"px");
- L.innerHTML='<div class="mhd" aria-hidden="true"><span>Student</span><span>Level</span><span>Target</span><span>Since last pass</span></div><ol class="mrows">'+mOrder().map(function(i){return mRow(S[i],i)}).join("")+'</ol>';
- var R=L.querySelector(".mrows");R.style.maxHeight=window.innerWidth>=960?Math.max(5*rh,window.innerHeight-Math.max(top,120)-34-20)+"px":""}
+ if(!S.length){L.innerHTML='<div class="empty"><b>No students yet</b><button type="button" class="btn sm" data-ct="S">Add students in Settings</button></div>';return}
+ var I=mOrder(),due=I.filter(function(i){return mLate(S[i])}),rest=I.filter(function(i){return !mLate(S[i])}),top=L.getBoundingClientRect().top,h="";
+ if(due.length)h+='<section class="mgrp due" aria-labelledby="mDueH"><div class="mgh"><h3 id="mDueH"><span class="mwait" aria-hidden="true"></span>Should pass soon <span class="mct">'+due.length+'</span></h3><p>Three weeks or more since their last pass. Give them a chance to pass this class day.</p></div><ul class="mcards">'+due.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
+ if(rest.length)h+='<section class="mgrp" aria-labelledby="mAllH"><div class="mgh"><h3 id="mAllH">'+(due.length?'Everyone else':'All students')+' <span class="mct">'+rest.length+'</span></h3></div><ul class="mcards">'+rest.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
+ L.innerHTML=h;L.style.maxHeight=window.innerWidth>=960?Math.max(240,window.innerHeight-Math.max(top,120)-20)+"px":""}
 /* Passes by day for the class, or for the selected student. */
 function mPasses(){var P={};S.forEach(function(s,i){if(MS>=0&&i!==MS)return;s.log.forEach(function(t,k){var d=dk(t);(P[d]=P[d]||[]).push({i:i,k:k,t:t})})});return P}
 function mKey(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)}
@@ -539,22 +542,26 @@ function mCal(dir){var G=$("mG");if(!G)return;var now=mKey(today0());if(!MM||MM>
  G.innerHTML=h;if(dir&&!QM.matches){G.classList.remove("in-l","in-r");void G.offsetWidth;G.classList.add(dir>0?"in-r":"in-l")}
  mDayDraw(P)}
 function mDayDraw(P){var E=$("mDay"),mon=$("mMon").textContent.split(" ")[0],who=MS>=0?S[MS]:null,h="";
- if(MD&&P[MD]){var L=P[MD];h='<h3>'+qDate(MD).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</h3><ul class="mpl">'+L.map(function(o){var s=S[o.i];return '<li><b>'+esc(s.name)+'</b>'+chip(lc(s.lt[o.k]),esc(pl(s,o.k)))+'</li>'}).join("")+'</ul>'}
+ if(MD&&P[MD]){var L=P[MD];h='<h3>'+qDate(MD).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</h3><ul class="mpl">'+L.map(function(o){var s=S[o.i];return '<li><b>'+esc(s.name)+'</b>'+chip(lc(s.lt[o.k]),esc(pl(s,o.k)))+'</li>'}).join("")+'</ul>';
+  if(who)h+='<button type="button" class="btn sm quiet" data-mmd="1">All of '+esc(fn(who))+'\'s passes</button>'}
+ else if(who){var K=who.log.map(function(_,k){return k}).reverse();
+  h='<h3>'+esc(who.name)+'</h3><p class="cap">'+(K.length?plural(K.length,"target")+' passed. The latest is first.':'No targets passed yet.')+'</p>'
+   +(K.length?'<ul class="mpl">'+K.map(function(k){return '<li><span class="mpd">'+ds(who.log[k])+'</span>'+chip(lc(who.lt[k]),esc(pl(who,k)))+'</li>'}).join("")+'</ul>':'')}
  else{var M=[],ss={};Object.keys(P).forEach(function(d){if(d.slice(0,7)===MM)P[d].forEach(function(o){M.push(o);ss[o.i]=1})});
-  h=who?'<p><b>'+esc(who.name)+'</b>: '+(M.length?plural(M.length,"pass","passes")+' in '+mon+'.':'no passes in '+mon+'.')+(who.log.length?' Latest '+esc(pl(who,who.log.length-1))+' on '+ds(mLast(who))+'.':'')+'</p>'
-   :'<p>'+(M.length?'<b>'+plural(M.length,"pass","passes")+'</b> in '+mon+' by '+plural(Object.keys(ss).length,"student")+'.':'No passes in '+mon+' yet.')+'</p>';
-  if(M.length)h+='<p class="cap">Select a marked day to see who passed.</p>'}
+  h='<p>'+(M.length?'<b>'+plural(M.length,"pass","passes")+'</b> in '+mon+' by '+plural(Object.keys(ss).length,"student")+'.':'No passes in '+mon+' yet.')+'</p><p class="cap">Select a student to see the days they passed and every target they passed.'+(M.length?' Select a marked day to see who passed.':'')+'</p>'}
  if(who)h+='<button type="button" class="btn sm quiet" data-mall="1">Show the whole class</button>';
  E.innerHTML=h}
 function memo(){if(MS>=S.length)MS=-1;var m=ms0(),P=S.filter(function(s){return s.log.some(function(t){return t>=m})}).length,W=S.filter(mLate).length;
- $("mSum").innerHTML=S.length?'<b>'+P+' of '+S.length+'</b> passed this month'+(W?' · <span class="mwt" title="Three weeks or more since the last pass"><span class="mwait" aria-hidden="true"></span><b>'+W+'</b> waiting 3+ weeks</span>':''):'';
+ $("mSum").innerHTML=S.length?'<b>'+P+' of '+S.length+'</b> passed this month'+(W?' · <span class="mwt"><span class="mwait" aria-hidden="true"></span><b>'+W+'</b> should pass soon</span>':''):'';
  mList();mCal(0)}
 function mMove(n){var p=MM.split("-"),d=new Date(+p[0],+p[1]-1+n,1),k=mKey(d);if(k>mKey(today0())||k<mFirst())return;MM=k;MD="";mCal(n)}
 $("mPrev").onclick=function(){mMove(-1)};$("mNext").onclick=function(){mMove(1)};
 $("mL").addEventListener("click",function(e){var b=e.target.closest("[data-mi]");if(!b)return;var i=+b.dataset.mi;MS=MS===i?-1:i;MD="";
  var s=S[MS],dir=0;if(s&&s.log.length&&!s.log.some(function(t){return dk(t).slice(0,7)===MM})){var k=mKey(new Date(mLast(s)));dir=k>MM?1:-1;MM=k}
- Array.prototype.forEach.call($("mL").querySelectorAll("[data-mi]"),function(r){r.setAttribute("aria-pressed",+r.dataset.mi===MS)});mCal(dir)});
+ Array.prototype.forEach.call($("mL").querySelectorAll("[data-mi]"),function(r){r.setAttribute("aria-pressed",+r.dataset.mi===MS)});mCal(dir);
+ if(MS>=0&&window.innerWidth<960)document.querySelector(".mcal").scrollIntoView({block:"start",behavior:QM.matches?"auto":"smooth"})});
 $("vT").addEventListener("click",function(e){var d=e.target.closest("[data-md]");if(d){MD=MD===d.dataset.md?"":d.dataset.md;mCal(0);var f=$("mG").querySelector('[data-md="'+d.dataset.md+'"]');if(f)f.focus();return}
+ if(e.target.closest("[data-mmd]")){MD="";mCal(0);return}
  if(e.target.closest("[data-mall]")){var k=MS;MS=-1;MD="";memo();var r=$("mL").querySelector('[data-mi="'+k+'"]');if(r)r.focus()}});
 $("vT").addEventListener("keydown",function(e){if(e.key==="Escape"&&MS>=0){var k=MS;MS=-1;MD="";memo();var r=$("mL").querySelector('[data-mi="'+k+'"]');if(r)r.focus()}});
 /* Score colours, red (0) to green (5), dark enough to carry text. */
