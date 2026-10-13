@@ -22,6 +22,7 @@ from flask import Flask, Response, abort, g, jsonify, redirect, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import auth
+import tv
 from db import DB_ERRORS, Database
 from mailer import Mailer
 
@@ -33,7 +34,8 @@ HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # Reachable without signing in.
 PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css"}
-PUBLIC_PREFIXES = ("/invite/", "/reset/")
+# /tv/<token> is a TV screen link; tv.py checks the token.
+PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/")
 
 
 def valid_state(state):
@@ -149,6 +151,7 @@ def create_app(test_config=None):
     app.config.setdefault("MAILER", Mailer(app.config["RESEND_API_KEY"], app.config["MAIL_FROM"],
                                            app.config["MAIL_REDIRECT_TO"]))
     app.register_blueprint(auth.bp)
+    app.register_blueprint(tv.bp)
     pruned = {"at": 0}
 
     def wants_json():
@@ -190,7 +193,9 @@ def create_app(test_config=None):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
-        response.headers["Content-Security-Policy"] = DASHBOARD_CSP if request.path == "/" else PAGE_CSP
+        dashboard = request.path in ("/", "/tv") or (request.path.startswith("/tv/") and response.mimetype == "text/html"
+                                                        and response.status_code == 200)
+        response.headers["Content-Security-Policy"] = DASHBOARD_CSP if dashboard else PAGE_CSP
         if app.config["COOKIE_SECURE"]:
             response.headers["Strict-Transport-Security"] = "max-age=31536000"
         return response
