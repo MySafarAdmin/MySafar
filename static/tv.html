@@ -28,29 +28,39 @@ main{flex:1;position:relative;min-height:0}
 .panel h2{margin:0 0 2.2vh;font-size:4.4vh;font-weight:800;letter-spacing:-.01em;line-height:1.1}
 .panel h2 small{display:block;font-size:2.5vh;color:var(--mute);font-weight:600;letter-spacing:0;margin-top:.6vh}
 .fit{flex:1;min-height:0;overflow:hidden}
-.houses{display:flex;flex-direction:column;gap:2.6vh;justify-content:center;height:100%}
-.house{display:grid;grid-template-columns:17vw 1fr auto;align-items:center;gap:1.4vw}
-.house .hn{font-size:5.2vh;font-weight:800;white-space:nowrap;display:flex;flex-direction:column;line-height:1.05}
-.house .hn em{font-style:normal;font-size:2.2vh;font-weight:700;color:var(--bg);background:var(--gold);border-radius:99px;padding:.3vh 1.1vh;align-self:flex-start;margin-top:.8vh}
-.house .track{height:9vh;background:rgba(255,255,255,.08);border-radius:1.8vh;overflow:hidden;position:relative}
-.house .track i{position:absolute;inset:0 auto 0 0;border-radius:1.8vh}
-.house .pts{font-size:6.4vh;font-weight:800;min-width:4ch;text-align:right}
-.Makkah .hn{color:var(--makkah)}.Makkah i{background:var(--makkah)}
-.Al-Aqsa .hn{color:var(--aqsa)}.Al-Aqsa i{background:var(--aqsa)}
-.Madinah .hn{color:var(--madinah)}.Madinah i{background:var(--madinah)}
+/* Houses as columns: the height is the points, the leader (only when strictly ahead) is crowned in gold. */
+.houses{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2vw;height:100%}
+.house{display:grid;grid-template-rows:5vh 11vh minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr);min-height:0;min-width:0;text-align:center}
+.house em{grid-row:1;font-style:normal;font-size:2.6vh;font-weight:800;color:#2b1d00;background:var(--gold);border-radius:99px;padding:.4vh 1.6vh;justify-self:center;align-self:start}
+.house .pts{grid-row:2;align-self:end;font-size:7.4vh;font-weight:800;line-height:1;margin-bottom:1.2vh}
+.house.lead .pts{font-size:9.6vh;color:var(--gold)}
+.house .track{grid-row:3;display:flex;align-items:flex-end;min-height:0}
+.house .track i{display:block;width:100%;border-radius:2vh 2vh .6vh .6vh;min-height:1vh}
+.house .hn{grid-row:4;font-size:4.6vh;font-weight:800;white-space:nowrap;margin-top:1.4vh;line-height:1.1}
+.Makkah .hn{color:var(--makkah)}.Makkah .track i{background:var(--makkah)}
+.Al-Aqsa .hn{color:var(--aqsa)}.Al-Aqsa .track i{background:var(--aqsa)}
+.Madinah .hn{color:var(--madinah)}.Madinah .track i{background:var(--madinah)}
 .stages{display:grid;grid-template-rows:1fr 1fr;gap:2vh}
-.stage h3{margin:0 0 1vh;font-size:3vh;color:var(--gold);font-weight:800}
+.stage h3{margin:0 0 .8vh;font-size:3vh;color:var(--gold);font-weight:800}
 .podium{display:flex;flex-direction:column;gap:1vh}
-.pod{display:grid;grid-template-columns:6vh 1fr auto;align-items:center;gap:1.2vw;font-size:3.7vh;font-weight:800;background:rgba(255,255,255,.06);border-radius:1.6vh;padding:.7vh 1.2vw;line-height:1.15}
+.pod{display:grid;grid-template-columns:6vh 1fr auto;align-items:center;gap:1.2vw;font-size:3.3vh;font-weight:800;background:rgba(255,255,255,.06);border-radius:1.6vh;padding:.6vh 1.2vw;line-height:1.15}
 .pod .m{width:5.2vh;height:5.2vh;border-radius:50%;display:grid;place-items:center;font-size:3.2vh;font-weight:800;color:#24170a;background:var(--gold);box-shadow:0 0 0 .4vh rgba(245,197,66,.25)}
 .pod .m.r2{background:var(--silver);box-shadow:0 0 0 .4vh rgba(215,224,234,.2)}.pod .m.r3{background:var(--bronze);box-shadow:0 0 0 .4vh rgba(227,154,91,.22)}
 .pod .c{display:block;font-size:2.1vh;color:var(--mute);font-weight:600}
 .pod .n{color:var(--gold);font-weight:800}
+/* First place (every student who shares it) is the moment to celebrate. */
+.pod.top{font-size:4.1vh;padding:.8vh 1.2vw;background:rgba(245,197,66,.16);box-shadow:inset 0 0 0 .3vh rgba(245,197,66,.55)}
+.pod.top .m{width:5.8vh;height:5.8vh;font-size:3.5vh}
+.pod.top .c{font-size:2.2vh}
 .stars{display:grid;gap:1.4vh 1vw;height:100%;align-content:start}
 .star{background:rgba(255,255,255,.06);border-radius:1.6vh;padding:1em .9em;border-left:.5vh solid var(--gold);min-width:0}
 .star .c{font-size:.62em;color:var(--mute);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .star .n{font-size:1.1em;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .star .w{font-size:.62em;color:var(--gold);font-weight:700}
+.bookhead{display:flex;align-items:baseline;gap:1.2vw;margin:-.6vh 0 1.6vh}
+.bookhead b{font-size:9vh;font-weight:800;color:var(--gold);line-height:1}
+.bookhead span{font-size:2.8vh;font-weight:700;color:var(--mute)}
+.books.many .book small{display:none}
 .star.none{border-left-color:var(--line)}.star.none .n{color:var(--mute);font-weight:700;white-space:normal;font-size:.9em}
 .books{columns:1;column-gap:2vw}
 .book{break-inside:avoid;padding:.35em 0;border-bottom:.2vh solid var(--line);font-weight:800}
@@ -75,7 +85,7 @@ footer i.run{width:100%;transition:width linear}
   </section>
   <section class="slide" id="s2">
     <div class="panel"><h2>Star of the week<small>Most passes and merits since Monday, in each class</small></h2><div class="fit" id="starsFit"><div class="stars" id="stars"></div></div></div>
-    <div class="panel"><h2>Passed a book<small>Well done, all of <span class="month"></span></small></h2><div class="fit" id="booksFit"><div class="books" id="books"></div></div></div>
+    <div class="panel"><h2>Passed a book<small>Well done, all of <span class="month"></span></small></h2><div class="bookhead" id="bookhead"></div><div class="fit" id="booksFit"><div class="books" id="books"></div></div></div>
   </section>
 </main>
 <footer><i id="prog"></i></footer>
@@ -94,13 +104,14 @@ function fit(box,inner,start){var size=start;inner.style.fontSize=size+"vh";
 function render(){if(!data)return;
  Array.prototype.forEach.call(document.querySelectorAll(".month"),function(e){e.textContent=data.month});
  var top=Math.max(1,data.houses[0].points);
- $("houses").innerHTML=data.houses.map(function(h,i){return '<div class="house '+esc(h.house)+'"><div class="hn">'+esc(h.house)+(i===0&&h.points>(data.houses[1]||{}).points?'<em>Leading</em>':'')+'</div><div class="track"><i style="width:'+Math.max(4,h.points/top*100)+'%"></i></div><div class="pts">'+h.points+'</div></div>'}).join("");
+ $("houses").innerHTML=data.houses.map(function(h,i){var lead=i===0&&h.points>(data.houses[1]||{}).points;return '<div class="house '+esc(h.house)+(lead?' lead':'')+'">'+(lead?'<em>Leading</em>':'')+'<div class="pts">'+h.points+'</div><div class="track"><i style="height:'+Math.max(2,h.points/top*100)+'%"></i></div><div class="hn">'+esc(h.house)+'</div></div>'}).join("");
  ["primary","secondary"].forEach(function(k){var L=data.passes[k];
-  $(k).innerHTML=L.length?L.map(function(p,i){var r=1;while(r-1<i&&L[r-1].passes!==p.passes)r++;return '<div class="pod"><span class="m r'+r+'"'+(r<=i?' title="Joint '+r+'"':'')+'>'+r+'</span><span>'+esc(p.name)+'<span class="c">'+esc(p.class)+'</span></span><span class="n">'+p.passes+'</span></div>'}).join(""):'<div class="empty">No passes yet this month. Who will be first?</div>'});
+  $(k).innerHTML=L.length?L.map(function(p,i){var r=1;while(r-1<i&&L[r-1].passes!==p.passes)r++;return '<div class="pod'+(r===1?' top':'')+'"><span class="m r'+r+'"'+(r<=i?' title="Joint '+r+'"':'')+'>'+r+'</span><span>'+esc(p.name)+'<span class="c">'+esc(p.class)+'</span></span><span class="n">'+p.passes+'</span></div>'}).join(""):'<div class="empty">No passes yet this month. Who will be first?</div>'});
  var S=data.stars,cols=S.length>16?4:S.length>6?3:S.length>2?2:1;
  $("stars").style.gridTemplateColumns="repeat("+cols+",minmax(0,1fr))";
- $("stars").innerHTML=S.length?S.map(function(s){return s.name?'<div class="star"><div class="c">'+esc(s.class)+'</div><div class="n">'+esc(s.name)+'</div><div class="w">'+s.passes+(s.passes===1?" pass":" passes")+' · '+s.merits+(s.merits===1?" merit":" merits")+'</div></div>':'<div class="star none"><div class="c">'+esc(s.class)+'</div><div class="n">Could it be you?</div></div>'}).join(""):'<div class="empty">No classes yet.</div>';
- var B=data.books;$("books").style.columns=B.length>8?2:1;
+ $("stars").innerHTML=S.length?S.map(function(s){return s.name?'<div class="star"><div class="c">'+esc(s.class)+'</div><div class="n">'+esc(s.name)+'</div><div class="w">'+s.passes+(s.passes===1?" pass":" passes")+', '+s.merits+(s.merits===1?" merit":" merits")+'</div></div>':'<div class="star none"><div class="c">'+esc(s.class)+'</div><div class="n">Could it be you?</div></div>'}).join(""):'<div class="empty">No classes yet.</div>';
+ var B=data.books;$("books").style.columns=B.length>24?3:B.length>8?2:1;$("books").classList.toggle("many",B.length>16);
+ $("bookhead").innerHTML=B.length?'<b>'+B.length+'</b><span>'+(B.length===1?"student":"students")+'</span>':"";
  $("books").innerHTML=B.length?B.map(function(b){return '<div class="book">'+esc(b.name)+'<small>'+esc(b.class)+'</small></div>'}).join(""):'<div class="empty">No books completed yet this month. Keep going!</div>';
  fit($("starsFit"),$("stars"),cols>2?3.4:4.4);fit($("booksFit"),$("books"),4.2)}
 function show(n){slide=n;["s1","s2"].forEach(function(id,i){$(id).classList.toggle("on",i===n)});

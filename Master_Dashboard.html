@@ -12,7 +12,7 @@
  /* Brand: Safar navy, taken from the logo (#003B6B). */
  --navy:#003b6b;--navy-2:#0a4a80;--navy-ink:#e6eef7;--navy-mute:#a9bfd6;--navy-line:rgba(255,255,255,.14);
  /* Surfaces and text */
- --bg:#f3f6f9;--surface:#fff;--surface-2:#f7f9fb;--sunk:#eaf0f5;--line:#d8e1ea;--line-2:#c3cfdb;
+ --bg:#eef2f6;--surface:#fff;--surface-2:#f6f8fb;--sunk:#e8eef4;--line:#d8e1ea;--line-2:#c3cfdb;
  --ink:#13243a;--ink-2:#33465d;--mute:#56677c;
  /* Actions and status. Every colour that carries white text is at least 4.5:1. */
  --primary:#0b5cad;--primary-hover:#094c8f;--primary-soft:#e5f0fb;--primary-ink:#0a4f94;
@@ -20,6 +20,11 @@
  --warn:#b45309;--warn-soft:#fff3df;--warn-ink:#7c3a00;
  --bad:#b42318;--bad-soft:#fdecea;--bad-ink:#911c13;
  --focus:#2f7fd8;
+ /* Context colours: sky for learning and progress, teal for activity, gold for achievement.
+    Each has a soft module tint and an ink for text on that tint (all above 4.5:1). */
+ --sky:#1f7fc4;--sky-soft:#e6f2fb;--sky-ink:#0b5287;
+ --teal:#0f857a;--teal-soft:#def3ef;--teal-ink:#0a5c54;
+ --gold:#c4910f;--gold-soft:#fcf2d6;--gold-ink:#664700;
  /* Meaningful colours kept from the original dashboard: houses and house tokens */
  --makkah:#c9930c;--aqsa:#2386d1;--madinah:#1c9a68;
  --tok-g:#16a34a;--tok-b:#2563eb;--tok-r:#dc2626;
@@ -30,7 +35,9 @@
  --font:"Atkinson Next",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
  --shadow:0 1px 2px rgba(16,36,58,.06),0 1px 1px rgba(16,36,58,.04);
  --shadow-lift:0 12px 32px rgba(10,30,55,.22);
- --rail:248px;
+ --rail:232px;
+ /* The navy band that opens every page */
+ --band-ink:#fff;--band-mute:#bcd0e4;--band-line:rgba(255,255,255,.16);
  color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
  --navy:#06213b;--navy-2:#0c3157;--navy-line:rgba(255,255,255,.1);
@@ -38,14 +45,14 @@
  --ink:#e8eef5;--ink-2:#c6d3e1;--mute:#9db0c4;
  --primary:#5ea8ec;--primary-hover:#7ab8f0;--primary-soft:#163a5c;--primary-ink:#8cc4f5;
  --ok:#3fb27a;--ok-soft:#123826;--ok-ink:#7ed3a8;--warn:#e59a3a;--warn-soft:#3a2810;--warn-ink:#f3c27e;
- --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;color-scheme:dark}}
+ --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;--sky:#5aaee8;--sky-soft:#12304a;--sky-ink:#a4d2f4;--teal:#3cc2b2;--teal-soft:#0f3431;--teal-ink:#8fe0d6;--gold:#e0b33f;--gold-soft:#36290b;--gold-ink:#f2d58a;color-scheme:dark}}
 :root[data-theme="dark"]{
  --navy:#06213b;--navy-2:#0c3157;--navy-line:rgba(255,255,255,.1);
  --bg:#0c1a2a;--surface:#11243a;--surface-2:#142a43;--sunk:#0a1726;--line:#22384f;--line-2:#2f4a66;
  --ink:#e8eef5;--ink-2:#c6d3e1;--mute:#9db0c4;
  --primary:#5ea8ec;--primary-hover:#7ab8f0;--primary-soft:#163a5c;--primary-ink:#8cc4f5;
  --ok:#3fb27a;--ok-soft:#123826;--ok-ink:#7ed3a8;--warn:#e59a3a;--warn-soft:#3a2810;--warn-ink:#f3c27e;
- --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;color-scheme:dark}
+ --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;--sky:#5aaee8;--sky-soft:#12304a;--sky-ink:#a4d2f4;--teal:#3cc2b2;--teal-soft:#0f3431;--teal-ink:#8fe0d6;--gold:#e0b33f;--gold-soft:#36290b;--gold-ink:#f2d58a;color-scheme:dark}
 
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -122,22 +129,76 @@ a:hover{color:var(--primary-hover)}
  .content{padding:16px 16px 40px}
 }
 
-/* ---------- Page head ---------- */
-.pagehead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
-.pagehead .crumb{font-size:.875rem;color:var(--mute);margin-bottom:4px}
-.pagehead h1{overflow-wrap:anywhere}
-.pagehead .lede{color:var(--mute);margin:6px 0 0;max-width:68ch}
-.pagehead .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* ---------- Page band: the navy opening of every page, with its title and key figures ---------- */
+.band{background:var(--navy);color:var(--band-ink);border-radius:16px;padding:22px 28px 24px;margin-bottom:24px;position:relative}
+.band a{color:#fff}
+.band-top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;min-height:40px}
+.band h1{font-size:2rem;font-weight:800;letter-spacing:-.015em;line-height:1.1;overflow-wrap:anywhere;color:#fff;margin-right:auto}
+.band .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.band .btn{background:#fff;border-color:#fff;color:var(--navy)}
+.band .btn:hover{background:#e6eef7;border-color:#e6eef7}
+.band .btn.ghost{background:none;color:#fff;border-color:var(--band-line)}
+.band .btn.ghost:hover{background:rgba(255,255,255,.1)}
+.band :focus-visible{outline-color:#fff}
+.band .lede{color:var(--band-mute);margin:6px 0 0;max-width:70ch}
+.figs{display:flex;flex-wrap:wrap;gap:12px 40px;margin-top:18px}
+.fig{min-width:0}
+.fig b{display:block;font-size:2.5rem;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#fff}
+.fig span{display:block;margin-top:6px;font-size:.875rem;color:var(--band-mute)}
+.fig.alert b{color:#ffd27a}
+.fig.quiet b{font-size:1.5rem;padding-top:.75rem}
+/* Admin and account pages: a shorter band */
+.band.slim{padding:20px 24px}
+.band.slim h1{font-size:1.75rem}
+@media (max-width:959.98px){
+ .band{border-radius:0;margin:-16px -16px 16px;padding:16px 16px 18px}
+ .band h1{font-size:1.5rem}
+ .figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 16px;margin-top:14px}
+ .fig b{font-size:1.625rem}
+ .fig span{font-size:.8125rem;margin-top:4px;line-height:1.3}
+ .fig.quiet b{font-size:1.125rem;padding-top:.4rem}
+ .band.slim h1{font-size:1.375rem}
+}
+@media (max-width:379px){.band h1{font-size:1.25rem}.fig b{font-size:1.375rem}}
 
-/* ---------- Panels ---------- */
-.panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow)}
+/* ---------- Panels and modules ----------
+   White workspaces carry the work; tinted modules (sky, teal, gold) carry insight in their own context. */
+.panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.mod{background:var(--surface);border-radius:var(--r-lg);padding:20px;min-width:0}
+.mod.line{border:1px solid var(--line)}
+.mod.sky{background:var(--sky-soft)}.mod.teal{background:var(--teal-soft)}.mod.gold{background:var(--gold-soft)}
+.mod-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:12px;min-height:36px}
+.mod-h h2{font-size:1.125rem;font-weight:750}
+.mod.sky .mod-h h2{color:var(--sky-ink)}.mod.teal .mod-h h2{color:var(--teal-ink)}.mod.gold .mod-h h2{color:var(--gold-ink)}
+.cap{font-size:.8125rem;color:var(--mute);margin:0}
+.mod.sky .cap{color:var(--sky-ink)}.mod.teal .cap{color:var(--teal-ink)}.mod.gold .cap{color:var(--gold-ink)}
+.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:start}
+.g12.eq{align-items:stretch}
+.g12>*{grid-column:1/-1}
+@media (min-width:1100px){.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}}
+.g12+.g12,.g12+.mod,.mod+.g12,.mod+.mod{margin-top:20px}
+.g12>.mod{margin-top:0}
+/* A small segmented control, for a shared period or measure */
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:.875rem;font-weight:600;border:0;background:none;color:var(--ink-2);padding:6px 12px;min-height:36px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line-2)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.seg button:focus-visible{outline-offset:-3px}
+/* Contextual help: a ? that opens the rules for the screen, by keyboard, touch or pointer */
+.help{position:relative;display:inline-block}
+.help summary{list-style:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--primary-ink);font-weight:800;cursor:pointer}
+.help summary::-webkit-details-marker{display:none}
+.help[open] summary{background:var(--primary-soft)}
+.help .hb{position:absolute;z-index:35;top:44px;right:0;width:min(360px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);padding:14px 16px;font-size:.9375rem;font-weight:400;text-align:left}
+.help .hb p{margin:0 0 8px}.help .hb p:last-child{margin:0}
+.help.left .hb{right:auto;left:0}
 .panel+.panel,.card+.card{margin-top:16px}
 .panel>h2,.card>h2,.panel-h h2{margin-bottom:4px}
 .panel-h{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:12px}
 .panel-h p{margin:0}
 .panel .sub,.card .sub{font-size:.9375rem}
 .stack>*+*{margin-top:16px}
-.cols{display:grid;gap:16px;align-items:start;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
+.cols{display:grid;gap:20px;align-items:start;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
 .section-title{font-size:1rem;font-weight:700;margin:32px 0 12px;color:var(--ink-2)}
 
 /* ---------- Buttons ---------- */
@@ -210,17 +271,31 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
-/* Dashboard screens. Shared tokens, shell and controls are in src/tokens.css (inlined before this). */
+/* Dashboard screens. Shared tokens, shell, band, modules and controls are in src/tokens.css (inlined before this). */
 html{scroll-padding-top:calc(var(--topbar,0px) + 64px)}
 body{padding-bottom:env(safe-area-inset-bottom,0px)}
-.pagehead .save{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;color:var(--mute);min-height:28px}
-.pagehead .save::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ok)}
-.pagehead .save[data-s="busy"]::before{background:var(--warn)}
-.pagehead .save[data-s="bad"]{color:var(--bad-ink);font-weight:600}
-.pagehead .save[data-s="bad"]::before{background:var(--bad)}
-.pagehead .save:empty{display:none}
-.pick{display:none}
-.titlerow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.content{max-width:1320px}
+
+/* Save status, on the navy band */
+.band .save{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;color:var(--band-mute);min-height:28px}
+.band .save::before{content:"";width:8px;height:8px;border-radius:50%;background:#4ade80}
+.band .save[data-s="busy"]::before{background:#fbbf24}
+.band .save[data-s="bad"]{color:#fff;font-weight:700;background:var(--bad);border-radius:999px;padding:2px 10px}
+.band .save[data-s="bad"]::before{background:#fff}
+.band .save:empty{display:none}
+@media (min-width:960px){.swc{display:none!important}}
+
+/* The book ribbon: where students are, level by level, in the level colours */
+.ribwrap:empty{display:none}
+.ribwrap{margin-top:20px}
+.rib{display:flex;gap:3px;align-items:flex-end}
+.rib .seg-l{display:flex;flex-direction:column;align-items:center;min-width:0}
+.rib i{font-style:normal;font-weight:800;font-size:.9375rem;line-height:1;min-height:1em;margin-bottom:5px;color:#fff;font-variant-numeric:tabular-nums}
+.rib b{display:block;width:100%;height:12px;border-radius:3px;background:var(--c);box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.rib small{font-size:.75rem;color:var(--band-mute);margin-top:4px;white-space:nowrap}
+.rib .none b{opacity:.35}
+.ribcap{margin:8px 0 0;font-size:.8125rem;color:var(--band-mute)}
+@media (max-width:640px){.ribwrap{display:none}}
 
 /* Sync banner (railway-storage.js): only shown when something needs the person's attention. */
 .sync{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;background:var(--warn-soft);color:var(--warn-ink);border-bottom:1px solid color-mix(in srgb,var(--warn) 40%,transparent);font-size:.9375rem}
@@ -228,130 +303,173 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .sync span{flex:1 1 280px}
 .sync button,.sync a{font:inherit;font-size:.875rem;font-weight:600;min-height:36px;padding:6px 12px;border-radius:var(--r);border:1px solid currentColor;background:var(--surface);color:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
 
-/* Class tabs */
-.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin;border-bottom:1px solid var(--line);margin:0 0 20px;position:sticky;top:var(--topbar,0px);z-index:15;background:var(--bg);padding-top:4px}
-.tabs button{font:inherit;font-size:.9375rem;font-weight:600;color:var(--mute);background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;min-height:44px;cursor:pointer;white-space:nowrap;border-radius:var(--r-sm) var(--r-sm) 0 0}
-.tabs button:hover{color:var(--ink);background:var(--surface-2)}
-.tabs button[aria-selected="true"]{color:var(--primary-ink);border-bottom-color:var(--primary)}
+/* Tabs, under the band */
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:thin;margin:-8px 0 20px;position:sticky;top:var(--topbar,0px);z-index:15;background:var(--bg);padding:6px 0;border-bottom:1px solid var(--line)}
+.tabs button{font:inherit;font-size:.9375rem;font-weight:650;color:var(--ink-2);background:none;border:0;padding:10px 16px;min-height:44px;cursor:pointer;white-space:nowrap;border-radius:999px}
+.tabs button:hover{color:var(--ink);background:var(--sunk)}
+.tabs button[aria-selected="true"]{color:#fff;background:var(--navy)}
 .tabs button:focus-visible{outline-offset:-3px}
 
-/* Stat strip */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px}
-.stat{padding:14px 16px;min-width:0;box-shadow:1px 0 0 var(--line),0 1px 0 var(--line)}
-.stat b{display:block;font-size:1.625rem;font-weight:750;line-height:1.1;font-variant-numeric:tabular-nums}
-.stat span{display:block;color:var(--mute);font-size:.875rem;margin-top:2px}
-.stat.warnish b{color:var(--warn-ink)}
+/* Toolbars at the top of a tab: no repeated heading, just the controls for it */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-bottom:14px}
+.toolbar .tools{margin-left:auto;display:flex;gap:8px;align-items:center}
+.toolbar .cap{flex:1 1 240px}
+.segs{display:flex;flex-wrap:wrap;gap:8px}
+label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.9375rem}
+.none{color:var(--mute);margin:0}
+.lk{font:inherit;color:var(--primary-ink);background:none;border:0;padding:2px 0;text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-underline-offset:.2em;overflow-wrap:anywhere}
+.lk:hover{text-decoration-color:currentColor}
+.zero{color:var(--mute)}
+.late{color:var(--bad-ink)}
+.mod h3{font-size:.9375rem;font-weight:700;color:var(--ink-2);margin:16px 0 6px}
+.stackc{display:flex;flex-direction:column;gap:20px}
 
-/* Attention */
-.attn{border-left:4px solid var(--warn)}
-.attn.calm{border-left-color:var(--ok)}
-.attn h2{display:flex;align-items:center;gap:8px}
-.attn-grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))}
-.attn h3{font-size:.9375rem;margin:0 0 6px;color:var(--ink-2)}
+/* ---------- Overview ---------- */
+.calmbox{display:flex;align-items:center}
+.calmline{display:flex;gap:10px;align-items:center;color:var(--ok-ink);font-weight:650;margin:0}
+.calmline::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--ok);flex:none}
+.ablocks{display:grid;gap:0}
+.ab{display:grid;grid-template-columns:minmax(150px,200px) minmax(0,1fr) auto;gap:8px 20px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+.ab:first-child{border-top:0;padding-top:0}
+.abh b{display:block;font-size:2.25rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.abh span{display:block;font-size:.875rem;color:var(--ink-2);margin-top:4px;line-height:1.3}
+.ab.warn .abh b{color:var(--warn-ink)}.ab.late .abh b{color:var(--bad-ink)}.ab.quietc .abh b{color:var(--ink-2)}
+.ab .lv{grid-column:2;margin:0;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-weight:700;font-variant-numeric:tabular-nums}
+.ab .lv span.lvn{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.ab .cchips{grid-column:2}
+.ab>.btn{grid-column:3;grid-row:1/span 2;align-self:center}
+.ab.warn .cchips{grid-row:2}
+.cchips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.cchips .lk{display:inline-flex;align-items:center;gap:8px;text-decoration:none;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:4px 6px 4px 12px;font-size:.875rem;color:var(--ink);min-height:32px}
+.cchips .lk:hover{border-color:var(--primary);color:var(--primary-ink)}
+.cchips .lk b{background:var(--sunk);border-radius:999px;padding:0 8px;font-size:.8125rem;font-variant-numeric:tabular-nums}
+.cchips li:nth-child(n+4){display:none}
+@media (min-width:641px){.cchips li:nth-child(n+4){display:list-item}}
+@media (max-width:700px){.ab{grid-template-columns:1fr}.ab .lv,.ab .cchips,.ab>.btn{grid-column:1;grid-row:auto;justify-self:start}}
+
+.dirmod .mod-h input{flex:0 1 320px;width:100%;min-height:40px}
+.dir td.lead .lk{font-weight:700;min-height:32px}
+.dir tbody tr:hover{background:var(--surface-2)}
+.dir td.lead{min-width:220px}
+.dir .wcount{color:var(--warn-ink);font-weight:750}
+.dirmod .tablewrap{border:0;border-radius:0}
+.dirmod{padding-bottom:8px}
+
+/* Feeds: latest passes, history in the drawer */
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:grid;grid-template-columns:92px minmax(0,1fr) auto;gap:2px 12px;align-items:baseline;padding:7px 0;border-bottom:1px solid color-mix(in srgb,var(--ink) 10%,transparent)}
+.feed li:last-child{border-bottom:0}
+.feed .d{color:var(--ink-2);font-size:.8125rem}
+.feed b{font-weight:650;overflow-wrap:anywhere;min-width:0}
+.feed b small{display:block;font-weight:400;font-size:.8125rem;color:var(--ink-2)}
+.feed .x{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.feed .fail{color:var(--bad-ink)}
+.dbody .feed li{grid-template-columns:110px minmax(0,1fr)}
+.recside .feed li{grid-template-columns:minmax(0,1fr) auto;padding:6px 0}
+.recside .feed .d{grid-column:1/-1;font-size:.75rem}
+
+/* Passes per week */
+.wk{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;align-items:end;height:150px;margin-bottom:4px}
+.wkc{display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}
+.wkc b{font-size:.875rem;font-weight:750;font-variant-numeric:tabular-nums;color:var(--teal-ink)}
+.wkb{flex:1;width:100%;display:flex;align-items:flex-end;margin:3px 0}
+.wkb i{display:block;width:100%;min-height:2px;border-radius:4px 4px 0 0;background:color-mix(in srgb,var(--teal) 55%,transparent)}
+.wkc.now .wkb i{background:var(--teal)}
+.wkc small{font-size:.6875rem;color:var(--teal-ink);text-align:center;line-height:1.15;min-height:2.3em;max-width:100%}
+.wkc.now small{font-weight:750}
+.mod.teal h3{color:var(--teal-ink)}
+
+/* Houses */
+.houses{display:grid;gap:14px}
+.house{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center}
+.hn{display:inline-flex;align-items:center;gap:8px;font-weight:650}
+.house .tr{grid-column:1/-1;height:10px;background:color-mix(in srgb,var(--gold-ink) 12%,transparent);border-radius:6px;overflow:hidden}
+.house .tr i{display:block;height:100%;border-radius:6px}
+.house .pts{font-weight:800;font-size:1.25rem;font-variant-numeric:tabular-nums;text-align:right}
+.house.Makkah .tr i{background:var(--makkah)}.house.Al-Aqsa .tr i{background:var(--aqsa)}.house.Madinah .tr i{background:var(--madinah)}
+.pill.lead{background:var(--gold);color:#2b1d00;font-size:.75rem;padding:1px 8px}
+.mod.gold .cap{margin-top:12px}
+.hbig{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--surface);border-radius:var(--r-lg);overflow:hidden;margin-bottom:8px}
+.hcol{padding:18px 20px;border-top:6px solid var(--line-2);background:var(--surface)}
+.hcol b{display:block;font-size:2.75rem;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums;margin-top:6px}
+.hcol small{color:var(--mute);font-size:.875rem}
+.hcol.Makkah{border-top-color:var(--makkah)}.hcol.Al-Aqsa{border-top-color:var(--aqsa)}.hcol.Madinah{border-top-color:var(--madinah)}
+.tdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.tdot.g{background:var(--tok-g)}.tdot.b{background:var(--tok-b)}.tdot.r{background:var(--tok-r)}
+#vMH>.cap{margin-bottom:20px}
+@media (max-width:640px){.hbig{grid-template-columns:1fr}.hcol{display:flex;align-items:baseline;gap:12px;padding:12px 16px;border-top:0;border-left:6px solid var(--line-2)}.hcol b{font-size:1.75rem;margin:0 0 0 auto}.hcol.Makkah{border-left-color:var(--makkah)}.hcol.Al-Aqsa{border-left-color:var(--aqsa)}.hcol.Madinah{border-left-color:var(--madinah)}}
+.hcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px}
+.hcard{border-radius:var(--r);padding:12px 14px;background:var(--surface-2);border-top:4px solid var(--line-2)}
+.hcard b{display:block;font-size:1.75rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;margin-top:4px}
+.hcard small{color:var(--mute);font-size:.8125rem}
+.hcard.Makkah{border-top-color:var(--makkah)}.hcard.Al-Aqsa{border-top-color:var(--aqsa)}.hcard.Madinah{border-top-color:var(--madinah)}
+@media (max-width:480px){.hcards{gap:6px}.hcard{padding:10px}.hcard b{font-size:1.375rem}.hcard .hn{font-size:.8125rem}}
+
+/* Ranked lists */
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.rank li:last-child{border-bottom:0}
+.rk{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;font-size:.8125rem;font-weight:750;background:var(--sunk);color:var(--ink-2);font-variant-numeric:tabular-nums}
+/* Medal colours only for a real achievement (a value above zero). */
+.rk.r1{background:#f2c94c;color:#3d2a00}.rk.r2{background:#d5dde6;color:#243447}.rk.r3{background:#e0a46e;color:#3d1f05}
+.rank .n{min-width:0}
+.rank .n b{font-weight:650;overflow-wrap:anywhere}
+.rank .n small{display:block;color:var(--mute);font-size:.8125rem}
+.rank .tr{height:6px;background:var(--sunk);border-radius:4px;margin-top:5px;overflow:hidden}
+.rank .tr i{display:block;height:100%;background:var(--primary);border-radius:4px}
+.rank.sky .tr i{background:var(--sky)}.rank.gold .tr i{background:var(--gold)}
+.rank .v{font-weight:800;font-variant-numeric:tabular-nums;font-size:1.125rem;text-align:right}
+.rank.mini li{padding:5px 0;border-bottom-color:color-mix(in srgb,var(--gold-ink) 15%,transparent)}
+.rank-note{margin:10px 0 0;font-size:.875rem;color:var(--mute)}
+.more-btn{margin-top:8px}
+
+/* Attention (class sidebar) and simple lists */
+.attn h3{margin:12px 0 4px}
+.attn .mod-h{margin-bottom:0}
+.attn .mod-h h2{color:var(--warn-ink)}
+.attn{box-shadow:inset 0 4px 0 var(--warn)}
 .alist{list-style:none;margin:0;padding:0}
 .alist li{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);min-width:0}
 .alist li:last-child{border-bottom:0}
-.alist .who{min-width:0;display:flex;flex-direction:column}
-.alist .who b{font-weight:600;overflow-wrap:anywhere}
-.alist .who button,.alist .who a{font:inherit;font-size:.8125rem;color:var(--primary-ink);background:none;border:0;padding:0;text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:.18em;overflow-wrap:anywhere}
-.alist .v{flex:none;font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:.875rem}
-.more{font-size:.875rem;color:var(--mute);margin:6px 0 0}
-.calmline{display:flex;gap:10px;align-items:center;color:var(--ok-ink);font-weight:600}
-.calmline::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--ok);flex:none}
+.alist .who{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.alist .who b{font-weight:650;overflow-wrap:anywhere}
+.alist .who .lk{font-size:.8125rem}
+.alist .v{flex:none;font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:.875rem;font-weight:650}
 
 /* Warning levels */
 .wl{display:inline-flex;align-items:center;font-size:.8125rem;font-weight:700;border-radius:999px;padding:2px 10px;white-space:nowrap;line-height:1.35}
 .wl1{background:var(--w1);color:var(--w1-ink)}.wl2{background:var(--w2);color:#fff}.wl3{background:var(--w3);color:#fff}
+.wsum{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-weight:750;font-variant-numeric:tabular-nums}
+.wsum .wl{margin-right:6px}
+.wsum .calm{color:var(--ok-ink);font-weight:650}
 
-/* House totals */
-.houses{display:grid;gap:12px}
-.house{display:grid;grid-template-columns:minmax(80px,auto) 1fr auto;gap:12px;align-items:center}
-.house .hn{display:flex;align-items:center;gap:8px;font-weight:600}
-.house .tr{height:10px;background:var(--sunk);border-radius:6px;overflow:hidden}
-.house .tr i{display:block;height:100%;border-radius:6px}
-.house .pts{font-weight:750;font-variant-numeric:tabular-nums;min-width:4ch;text-align:right}
-.house.Makkah .tr i{background:var(--makkah)}.house.Al-Aqsa .tr i{background:var(--aqsa)}.house.Madinah .tr i{background:var(--madinah)}
-.hcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
-.hcard{border:1px solid var(--line);border-top:4px solid var(--line-2);border-radius:var(--r-lg);padding:12px 14px;background:var(--surface)}
-.hcard b{display:block;font-size:1.5rem;font-weight:750;font-variant-numeric:tabular-nums}
-.hcard span{color:var(--mute);font-size:.875rem}
-.hcard.Makkah{border-top-color:var(--makkah)}.hcard.Al-Aqsa{border-top-color:var(--aqsa)}.hcard.Madinah{border-top-color:var(--madinah)}
-
-/* Class directory */
-.dirtools{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:12px}
-.dirtools input{flex:0 1 320px;width:100%}
-.dir td.lead button{font:inherit;font-weight:700;color:var(--primary-ink);background:none;border:0;padding:4px 0;cursor:pointer;text-align:left;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:.2em;overflow-wrap:anywhere;min-height:32px}
-.dir td.lead button:hover{text-decoration-color:currentColor}
-.dir tbody tr:hover{background:var(--surface-2)}
-.dir td.lead{min-width:220px}
-.zero{color:var(--mute)}
-.dir .wcount{color:var(--warn-ink);font-weight:700}
-
-/* Ranked lists */
-.rank{list-style:none;margin:0;padding:0}
-.rank li{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
-.rank li:last-child{border-bottom:0}
-.rk{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;font-size:.875rem;font-weight:750;background:var(--sunk);color:var(--ink-2);font-variant-numeric:tabular-nums}
-/* Medal colours only for a real achievement (a value above zero). */
-.rk.r1{background:#f2c94c;color:#3d2a00}.rk.r2{background:#d5dde6;color:#243447}.rk.r3{background:#e0a46e;color:#3d1f05}
-.rank .n{min-width:0}
-.rank .n b{font-weight:600;overflow-wrap:anywhere}
-.rank .n .tg{margin-left:6px}
-.rank .n small{display:block;color:var(--mute);font-size:.8125rem}
-.rank .tr{height:6px;background:var(--sunk);border-radius:4px;margin-top:5px;overflow:hidden}
-.rank .tr i{display:block;height:100%;background:var(--primary);border-radius:4px}
-.rank .v{font-weight:750;font-variant-numeric:tabular-nums;font-size:1.0625rem;text-align:right}
-.rank-note{margin:8px 0 0;font-size:.875rem;color:var(--mute)}
-
-/* Prize */
-.prize{border-left:4px solid #d4a017}
-.prize .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
-.prize .chips span{background:#fdf3d0;color:#4a3200;border-radius:999px;padding:3px 12px;font-weight:600;font-size:.9375rem}
-
-/* Progress chart */
-.leg{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--mute);font-size:.8125rem;margin:4px 0 8px}
-.leg span{display:inline-flex;align-items:center;gap:6px}
-.leg b{display:inline-block;width:12px;height:12px;border-radius:3px}
-.chartwrap{overflow-x:auto;padding-bottom:4px}
-.chart{display:flex;align-items:flex-end;gap:6px;height:240px;padding-top:28px;min-width:min-content}
-.col{flex:1;min-width:40px;max-width:72px;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
-.pair{display:flex;align-items:flex-end;width:100%;flex:1}
-.pair .bt{position:relative;width:100%;border-radius:6px 6px 0 0;min-height:3px}
-.tl{position:absolute;left:50%;transform:translateX(-50%);top:-22px;font-size:.75rem;font-weight:700;white-space:nowrap;color:var(--ink-2)}
-.nm{font-size:.75rem;color:var(--mute);margin-top:6px;max-width:72px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-/* Student tiles */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:12px}
-.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0}
-.tile .tn{display:flex;gap:8px;justify-content:space-between;align-items:flex-start}
-.tile .tn b{font-size:1rem;font-weight:700;overflow-wrap:anywhere;min-width:0}
-.tile .meta{display:block;font-size:.8125rem;color:var(--mute);font-weight:400;margin-top:2px}
-.tile .flag{flex:none}
-.tile.stale{border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
-.tile.done{border-color:color-mix(in srgb,#d4a017 60%,var(--line))}
-.st4{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
-.st4 small{display:block;color:var(--mute);font-size:.75rem}
-.st4 strong{font-size:1rem;font-weight:700;font-variant-numeric:tabular-nums}
-.bar{height:6px;background:var(--sunk);border-radius:4px;overflow:hidden}
-.bar i{display:block;height:100%;border-radius:4px}
-
-/* Roster (Input tab): one row per student, essential actions next to the name */
+/* ---------- Class: Record ---------- */
+.recgrid{display:grid;gap:20px;align-items:start;grid-template-columns:minmax(0,1fr)}
+.recside{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));align-items:start}
+@media (min-width:1280px){.recgrid{grid-template-columns:minmax(0,1fr) 300px}.recside{grid-template-columns:1fr;position:sticky;top:76px}}
+.recmain{padding:8px 20px 16px}
 .roster{list-style:none;margin:0;padding:0}
-.rhead,.rrow{display:grid;grid-template-columns:minmax(200px,1.4fr) minmax(150px,170px) repeat(3,minmax(150px,auto)) 44px;gap:10px 16px;align-items:center}
-.rhead{font-size:.8125rem;font-weight:700;color:var(--mute);padding:0 4px 8px;border-bottom:1px solid var(--line)}
-.rrow{padding:12px 4px;border-bottom:1px solid var(--line)}
+.rhead,.rrow{display:grid;grid-template-columns:minmax(160px,1fr) 132px repeat(3,118px) 40px;gap:8px 12px;align-items:center}
+.rhead{font-size:.8125rem;font-weight:700;color:var(--mute);padding:6px 0 8px;border-bottom:1px solid var(--line);min-height:52px}
+.rhead .tools{justify-self:end}
+.rrow{padding:10px 0;border-bottom:1px solid var(--line)}
 .rrow:last-child{border-bottom:0}
+.rrow.flag .rname b::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-left:8px;vertical-align:2px}
 .rname{min-width:0}
 .rname b{display:block;font-size:1rem;font-weight:700;overflow-wrap:anywhere;line-height:1.3}
 .rname small{display:block;color:var(--mute);font-size:.8125rem;overflow-wrap:anywhere}
+.rname small:empty{display:none}
 .rrow select{width:100%;min-height:40px;padding:6px 8px;font-size:.9375rem}
-.ctr{display:flex;align-items:center;gap:6px}
-.ctr .cnt{min-width:2.4ch;text-align:right;font-weight:750;font-variant-numeric:tabular-nums;font-size:1.0625rem}
+.ctr{display:flex;align-items:center;gap:4px}
+.ctr .cnt{min-width:2.2ch;flex:1;text-align:left;font-weight:800;font-variant-numeric:tabular-nums;font-size:1.125rem;margin-right:4px}
 .ctr .lbl{display:none}
-.ctr .btn{min-height:40px;padding:6px 10px}
-.ctr .btn.minus{min-width:40px;padding:6px;color:var(--mute)}
-.btn.m{background:#fdf3d0;border-color:#e6c86a;color:#4a3200}
+.ctr .btn{min-height:40px;min-width:40px;padding:6px 10px}
+.ctr .btn.minus{padding:6px;color:var(--mute)}
+.ctr .plus{font-size:1.125rem;font-weight:800}
+.ctr .bl{display:none}
+.btn.m{background:var(--gold-soft);border-color:#e6c86a;color:var(--gold-ink)}
 .btn.m:hover{background:#fbe9ad;border-color:#d4a017}
+.recfoot{display:flex;flex-wrap:wrap;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
 .rmore{position:relative}
 .rmore summary{list-style:none;display:grid;place-items:center;width:40px;height:40px;border-radius:var(--r);border:1px solid var(--line-2);cursor:pointer;color:var(--ink-2);background:var(--surface)}
 .rmore summary::-webkit-details-marker{display:none}
@@ -362,41 +480,84 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .rmenu dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0 0 4px;font-size:.875rem}
 .rmenu dt{color:var(--mute)}.rmenu dd{margin:0;overflow-wrap:anywhere}
 .rmenu .btn{justify-content:flex-start}
-.rhint{font-size:.875rem;color:var(--mute);margin:0 0 12px;max-width:80ch}
-@media (max-width:1180px){
- .rhead{display:none}
- .rrow{grid-template-columns:minmax(0,1fr) 44px;grid-template-areas:"name more" "target target" "ctrs ctrs";padding:14px 4px}
+.recside .mod{padding:16px 18px}
+.recside .mod-h{margin-bottom:6px}
+.recside .mod-h h2{font-size:1rem}
+@media (max-width:1100px){
+ .rhead{grid-template-columns:1fr auto;min-height:0;padding:8px 0}
+ .rhead>span:not(.tools){display:none}
+ .rhead::before{content:"Record passes, merits and fails";font-weight:650;color:var(--ink-2)}
+ .rrow{grid-template-columns:minmax(0,1fr) 40px;grid-template-areas:"name more" "target target" "ctrs ctrs";padding:14px 0}
  .rname{grid-area:name}.rmore{grid-area:more}.rtarget{grid-area:target}
  .ctrs{grid-area:ctrs;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
- .ctr{flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:8px}
- .ctr .lbl{display:block;flex-basis:100%;font-size:.75rem;color:var(--mute);font-weight:600}
- .ctr .cnt{text-align:left;margin-right:auto}
+ .ctr{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:8px}
+ .ctr .lbl{display:block;font-size:.8125rem;color:var(--ink-2);font-weight:650;align-self:center}
+ .ctr .cnt{text-align:right;margin:0}
+ .ctr .btn{min-height:44px;min-width:0;width:100%}
+ .ctr .plus{font-size:.9375rem}
+ .ctr .bl{display:inline}
  .rtarget{display:flex;align-items:center;gap:10px}
- .rtarget::before{content:"Target";font-size:.8125rem;color:var(--mute);font-weight:600}
+ .rtarget::before{content:"Target";font-size:.8125rem;color:var(--mute);font-weight:650}
 }
-@media (min-width:1181px){.ctrs{display:contents}}
-@media (max-width:560px){
- .ctrs{grid-template-columns:1fr}
- .ctr{flex-wrap:nowrap}
- .ctr .lbl{flex-basis:auto;min-width:56px;font-size:.8125rem}
- .ctr .cnt{margin-right:auto}
-}
+@media (max-width:620px){.ctr .bl{display:none}.ctr .plus{font-size:1.25rem}.ctr{padding:6px}.rrow{gap:8px 10px;padding:12px 0}}
+@media (max-width:379px){.ctrs{grid-template-columns:1fr;gap:6px}.ctr{grid-template-columns:minmax(0,1fr) auto 52px 52px;align-items:center;padding:4px 4px 4px 10px}.ctr .cnt{min-width:3ch}.ctr .btn{min-height:44px}}
+@media (min-width:1101px){.ctrs{display:contents}}
+
+/* ---------- Class: Progress ---------- */
+.lanes{list-style:none;margin:0;padding:0}
+.lanes li{display:grid;grid-template-columns:minmax(120px,220px) minmax(0,1fr) 88px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.lanes li:last-child{border-bottom:0}
+.lanes .ln{font-weight:650;overflow-wrap:anywhere;min-width:0}
+.lanes .lt{height:14px;border-radius:7px;background:var(--sunk);overflow:hidden}
+.lanes .lt i{display:block;height:100%;border-radius:7px;min-width:4px}
+.lanes b{font-variant-numeric:tabular-nums;font-weight:750;text-align:right}
+.lanes b.z{color:var(--mute);font-weight:500}
+@media (max-width:560px){.lanes li{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}.lanes .lt{grid-column:1/-1;grid-row:2}}
+.dist{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:4px}
+.dist li{display:grid;grid-template-columns:56px minmax(0,1fr) 3ch;gap:10px;align-items:center;font-size:.875rem}
+.dist li span:first-child{font-weight:650;color:var(--sky-ink)}
+.dist .db{height:12px;background:color-mix(in srgb,var(--sky-ink) 10%,transparent);border-radius:3px;overflow:hidden}
+.dist .db i{display:block;height:100%;border-radius:3px}
+.dist b{text-align:right;font-variant-numeric:tabular-nums}
+.dist li.z{opacity:.6}
+.stu td.lead .lk{font-weight:700}
+.stu .hn{font-weight:400}
 
 /* Pass history */
-.hist{max-height:360px;overflow:auto;margin-top:8px}
+.pastf{margin:0 0 12px}
+.pastf>summary{list-style:none;display:inline-flex}
+.pastf>summary::-webkit-details-marker{display:none}
+.pastf[open]>summary{background:var(--sunk)}
+.pastf .pf{margin-top:12px;padding:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg)}
+.hist{max-height:420px;overflow:auto}
 .hr{display:grid;grid-template-columns:110px minmax(0,1fr) auto auto;gap:4px 12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.hr:last-child{border-bottom:0}
 .hr span:first-child{color:var(--mute);font-size:.875rem}
-.hr b{font-weight:600;overflow-wrap:anywhere}
+.hr b{font-weight:650;overflow-wrap:anywhere}
 .hr .fail{color:var(--bad-ink)}
+.hist .empty .btn{margin-top:8px}
 @media (max-width:560px){.hr{grid-template-columns:minmax(0,1fr) auto;}.hr span:first-child{grid-column:1/-1}}
 
-/* Forms in panels */
-.pf{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
-.pf label{display:flex;flex-direction:column;font-size:.875rem;font-weight:600;color:var(--ink-2);gap:6px;min-width:0}
+/* ---------- Class: Rewards ---------- */
+.pz-won{font-size:1.0625rem;margin:0 0 8px;color:var(--gold-ink)}
+.mod.gold h3{color:var(--gold-ink);margin-top:14px}
+.pz{list-style:none;margin:0;padding:0}
+.pz li{display:grid;grid-template-columns:minmax(0,1fr) auto 5.5ch;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid color-mix(in srgb,var(--gold-ink) 15%,transparent)}
+.pz li:last-child{border-bottom:0}
+.pz b{font-weight:650;overflow-wrap:anywhere}
+.pz span:last-child{text-align:right;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--gold-ink);font-weight:650}
+.dots{display:inline-flex;gap:4px}
+.dots i{width:12px;height:12px;border-radius:50%;border:2px solid color-mix(in srgb,var(--gold-ink) 45%,transparent)}
+.dots i.on{background:var(--gold);border-color:var(--gold)}
+.pz li.won b{color:var(--gold-ink)}
+
+/* Forms in modules */
+.pf{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
+.pf label{display:flex;flex-direction:column;font-size:.875rem;font-weight:650;color:var(--ink-2);gap:6px;min-width:0}
 .pf select,.pf input{max-width:100%}
-.setgrid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))}
-.setgrid h3{margin:0 0 6px}
+.mod>h2{margin-bottom:4px}
 .danger-panel{border-color:color-mix(in srgb,var(--bad) 30%,var(--line))}
+.danger-panel h2{color:var(--bad-ink);margin-bottom:4px}
 .drow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
 .drow:first-of-type{border-top:0}
 .drow p{margin:0;max-width:60ch}
@@ -406,33 +567,37 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 /* Toggle rows (Warnings, Quran) */
 .trow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:10px 0 10px 12px;border-bottom:1px solid var(--line)}
 .trow:last-child{border-bottom:0}
-.trow>b{flex:1 1 200px;font-weight:600;overflow-wrap:anywhere;min-width:0}
+.trow>b{flex:1 1 200px;font-weight:650;overflow-wrap:anywhere;min-width:0}
 .tset{display:flex;gap:6px;flex-wrap:wrap}
-.tbtn{font:inherit;font-size:.9375rem;font-weight:600;min-height:44px;min-width:44px;padding:8px 12px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+.tbtn{font:inherit;font-size:.9375rem;font-weight:650;min-height:44px;min-width:44px;padding:8px 12px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
 .tbtn:hover{border-color:var(--mute)}
 .tbtn[aria-pressed="true"]{background:var(--c,var(--primary));border-color:var(--c,var(--primary));color:var(--on,#fff)}
 .tbtn.b1{--c:var(--w1);--on:var(--w1-ink)}.tbtn.b2{--c:var(--w2)}.tbtn.b3{--c:var(--w3)}
 .trow.s1{box-shadow:inset 3px 0 0 var(--w1)}.trow.s2{box-shadow:inset 3px 0 0 var(--w2)}.trow.s3{box-shadow:inset 3px 0 0 var(--w3)}
-.qv{min-width:7ch;text-align:right;color:var(--mute);font-size:.875rem}
+.qv{min-width:11ch;text-align:right;color:var(--mute);font-size:.875rem}
 .qv b{color:var(--ink);font-size:1rem}
+.qsum{margin:0;color:var(--ink-2)}
 
-/* Houses tab */
+/* Houses tab rows */
 .hrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
 .hrow:last-child{border-bottom:0}
 .hrow .who{flex:1 1 220px;min-width:0;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
-.hrow .who b{font-weight:600;overflow-wrap:anywhere}
+.hrow .who b{font-weight:650;overflow-wrap:anywhere}
 .tkb{display:flex;flex-wrap:wrap;gap:8px}
 .tkp{display:inline-flex;align-items:center;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;background:var(--surface)}
-.tk{font:inherit;font-size:.9375rem;font-weight:600;border:0;background:none;color:var(--ink);padding:8px 12px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.tk{font:inherit;font-size:.9375rem;font-weight:650;border:0;background:none;color:var(--ink);padding:8px 12px;min-height:44px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .tk:hover{background:var(--surface-2)}
 .tk i{display:inline-block;width:12px;height:12px;border-radius:50%}
 .tk.g i{background:var(--tok-g)}.tk.b i{background:var(--tok-b)}.tk.r i{background:var(--tok-r)}
-.tk.minus{border-left:1px solid var(--line);color:var(--mute);min-width:40px;justify-content:center}
-.tkn{min-width:2ch;text-align:center;font-weight:750;font-variant-numeric:tabular-nums;padding:0 4px}
+.tk.minus{border-left:1px solid var(--line);color:var(--mute);min-width:44px;justify-content:center}
+.tkn{min-width:2ch;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;padding:0 4px}
 .hpts{min-width:90px;text-align:right;font-variant-numeric:tabular-nums;color:var(--mute)}
-.hpts b{color:var(--ink);font-size:1.0625rem}
+.hpts b{color:var(--ink);font-size:1.125rem}
 
 /* Sheets (Memo and Quran record) */
+.leg{display:flex;flex-wrap:wrap;gap:4px 12px;color:var(--mute);font-size:.8125rem}
+.leg span{display:inline-flex;align-items:center;gap:5px}
+.leg b{display:inline-block;width:12px;height:12px;border-radius:3px}
 .sheetwrap{overflow:auto;max-height:70vh;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
 .sh{border-collapse:separate;border-spacing:0;font-size:.875rem;width:max-content;min-width:100%}
 .sh th,.sh td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 10px;min-width:104px;vertical-align:top;text-align:left;background:var(--surface)}
@@ -440,14 +605,14 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .sh thead th.fu{color:var(--mute);font-weight:500}
 .sh thead th.td{background:var(--primary-soft);color:var(--primary-ink)}
 .sh thead th small{font-weight:700}
-.sh .t1{position:sticky;left:0;z-index:2;min-width:180px;max-width:240px;font-weight:600;overflow-wrap:anywhere;box-shadow:1px 0 0 var(--line)}
+.sh .t1{position:sticky;left:0;z-index:2;min-width:180px;max-width:240px;font-weight:650;overflow-wrap:anywhere;box-shadow:1px 0 0 var(--line)}
 .sh thead .t1{z-index:4}
 .sh tbody tr:nth-child(even) td,.sh tbody tr:nth-child(even) th{background:var(--surface-2)}
-.sh .late{color:var(--bad-ink)}
 .sh .late::after{content:" (no recent pass)";font-weight:400;font-size:.75rem;color:var(--mute)}
 .nc{display:inline-block;margin:2px 4px 2px 0;padding:1px 8px;border-radius:999px;font-weight:700;font-size:.8125rem;color:#fff}
 
 /* CSV upload */
+.up{margin-top:20px}
 .up summary{cursor:pointer;list-style:none;display:flex;gap:12px;align-items:center;justify-content:space-between;font-weight:700;font-size:1.0625rem;min-height:32px}
 .up summary::-webkit-details-marker{display:none}
 .up summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);flex:none}
@@ -456,18 +621,46 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .ex{display:block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8125rem;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;white-space:pre;margin:0 0 14px;max-width:100%;overflow-x:auto}
 #csvP{margin-top:14px}#csvP .tablewrap{margin:12px 0}
 #csvP .tbl td:nth-child(n+2),#csvP .tbl th:nth-child(n+2){text-align:right;font-variant-numeric:tabular-nums}
-.warnline{color:var(--warn-ink);font-weight:600}
+.warnline{color:var(--warn-ink);font-weight:650}
 .csvl{margin:4px 0 12px;padding-left:20px;max-height:220px;overflow:auto}.csvl li{margin:2px 0}
 .cmap{margin:8px 0 12px}.cmap summary{cursor:pointer;color:var(--primary-ink)}.cmap .pf{margin-top:10px}.cmap select{max-width:260px}
-.late{color:var(--bad-ink)}
+
+/* Drawer: complete lists, student records and the class switcher */
+.drawer{position:fixed;inset:0;z-index:90;background:rgba(6,20,36,.5);display:flex;justify-content:flex-end;overscroll-behavior:contain}
+.dpanel{width:min(480px,100%);height:100%;background:var(--surface);display:flex;flex-direction:column;box-shadow:var(--shadow-lift)}
+.dhead{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--navy);color:#fff}
+.dhead h2{font-size:1.25rem;font-weight:800;overflow-wrap:anywhere}
+.dhead .btn{background:#fff;color:var(--navy);border-color:#fff}
+.dhead :focus-visible{outline-color:#fff}
+.dbody{flex:1;overflow:auto;padding:16px 20px 32px}
+.dbody h3{font-size:1rem;margin:20px 0 6px}
+.dgroup+.dgroup{margin-top:4px}
+.dgroup h3 .lk{font-weight:750}
+.dlist{list-style:none;margin:0;padding:0}
+.dlist li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.dlist li:last-child{border-bottom:0}
+.dlist b{font-weight:650;overflow-wrap:anywhere}
+.dlist .v{color:var(--ink-2);font-size:.875rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dfigs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;margin-bottom:12px}
+.dfigs div{background:var(--surface);padding:10px 12px}
+.dfigs b{display:block;font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums}
+.dfigs span{font-size:.8125rem;color:var(--mute)}
+.ddl{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:0;font-size:.9375rem}
+.ddl dt{color:var(--mute)}.ddl dd{margin:0;overflow-wrap:anywhere}
+.dsearch{width:100%;margin-bottom:8px}
+.swl{list-style:none;margin:0;padding:0}
+.swl button{display:flex;flex-direction:column;align-items:flex-start;width:100%;font:inherit;font-weight:650;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 4px;min-height:52px;cursor:pointer;color:var(--ink);overflow-wrap:anywhere}
+.swl button small{font-weight:400;color:var(--mute);font-size:.8125rem}
+.swl button[aria-current="page"]{color:var(--primary-ink)}
+.swl button:hover{background:var(--surface-2)}
 
 /* Dialog and toast */
 .dlg{position:fixed;inset:0;overscroll-behavior:contain;background:rgba(6,20,36,.55);display:grid;place-items:center;padding:16px;z-index:100}
 .dlg .card{max-width:460px;width:100%;box-shadow:var(--shadow-lift);padding:22px}
-.dlg p{margin:0 0 14px;font-size:1.0625rem;font-weight:600}
+.dlg p{margin:0 0 14px;font-size:1.0625rem;font-weight:650}
 .dlg input{width:100%}
 .dlg .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:#0b2540;color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-weight:600;font-size:.9375rem;box-shadow:var(--shadow-lift);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;max-width:min(92vw,520px);text-align:left;display:flex;gap:10px;align-items:center}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:#0b2540;color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-weight:650;font-size:.9375rem;box-shadow:var(--shadow-lift);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;max-width:min(92vw,520px);text-align:left;display:flex;gap:10px;align-items:center}
 #toast::before{content:"";width:8px;height:8px;border-radius:50%;background:#4ade80;flex:none}
 #toast.info::before{background:#93c5fd}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -475,16 +668,22 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (max-width:959.98px){
  :root{--topbar:52px}
  .rail{min-height:52px}
- .pick{display:block;width:100%}
- .pagehead{margin-bottom:12px}
- .pagehead .crumb{display:none}
- .tabs button{padding:10px 11px}
- .pagehead h1{font-size:1.375rem}
- .pagehead .lede{font-size:.9375rem;margin-top:2px}
- .pagehead .acts{width:100%}
- .tabs{margin:0 -16px 16px;padding:4px 12px 0}
+ .tabs{margin:-16px -16px 16px;padding:6px 12px;gap:0}
+ .tabs button{padding:10px 13px}
+ .mod{padding:16px}
+ .recmain{padding:4px 16px 14px}
+ .g12{gap:16px}
+ .g12+.g12,.g12+.mod,.mod+.g12,.mod+.mod{margin-top:16px}
+ .g12>.mod{margin-top:0}
+ .recgrid,.recside,.stackc{gap:16px}
 }
-@media print{.shell>header,.tabs,.sync,#toast{display:none!important}.shell{display:block}}
+@media (max-width:640px){
+ .mod.line,.mod{border-radius:0;margin-left:-16px;margin-right:-16px}
+ .recside .mod,.stackc .mod{margin-left:-16px;margin-right:-16px}
+ .feed li{grid-template-columns:minmax(0,1fr) auto}.feed .d{grid-column:1/-1}
+ .hbig{margin-left:-16px;margin-right:-16px;border-radius:0}
+}
+@media print{.shell>header,.tabs,.sync,#toast,.drawer{display:none!important}.shell{display:block}.band{background:none;color:#000}}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -503,90 +702,107 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div></header>
 <div class="work">
 <main><div class="content" id="main" tabindex="-1">
-<div class="pagehead">
- <div class="ph-main"><p class="crumb" id="crumb">Safar Academy Enfield</p><h1 id="ttl">School overview</h1><p class="lede" id="sm"></p></div>
- <div class="acts"><span class="save" id="st" role="status" aria-live="polite"></span><select id="nSel" class="pick" aria-label="Open a class"></select></div>
+<div class="band" id="band">
+ <div class="band-top"><h1 id="ttl">School overview</h1><div class="acts"><span class="save" id="st" role="status" aria-live="polite"></span><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button></div></div>
+ <div class="figs" id="figs"></div>
+ <div class="ribwrap" id="rib"></div>
+</div>
+<div class="tabs" id="mt" role="tablist" aria-label="Overview pages">
+ <button id="mS" role="tab" aria-controls="vMS" aria-selected="true">Summary</button><button id="mR" role="tab" aria-controls="vMR" aria-selected="false" tabindex="-1">Rankings</button><button id="mH" role="tab" aria-controls="vMH" aria-selected="false" tabindex="-1">Houses</button>
 </div>
 <div class="tabs hide" id="sub" role="tablist" aria-label="Class pages">
- <button id="tD" role="tab" aria-controls="vD" aria-selected="true">Dashboard</button><button id="tI" role="tab" aria-controls="vI" aria-selected="false" tabindex="-1">Input</button><button id="tW" role="tab" aria-controls="vW" aria-selected="false" tabindex="-1">Warnings</button><button id="tQ" role="tab" aria-controls="vQ" aria-selected="false" tabindex="-1">Quran</button><button id="tT" role="tab" aria-controls="vT" aria-selected="false" tabindex="-1">Memo</button><button id="tH" role="tab" aria-controls="vH" aria-selected="false" tabindex="-1">Houses</button>
+ <button id="tI" role="tab" aria-controls="vI" aria-selected="true">Record</button><button id="tW" role="tab" aria-controls="vW" aria-selected="false" tabindex="-1">Warnings</button><button id="tQ" role="tab" aria-controls="vQ" aria-selected="false" tabindex="-1">Quran</button><button id="tT" role="tab" aria-controls="vT" aria-selected="false" tabindex="-1">Memo</button><button id="tD" role="tab" aria-controls="vD" aria-selected="false" tabindex="-1">Progress</button><button id="tH" role="tab" aria-controls="vH" aria-selected="false" tabindex="-1">Rewards</button><button id="tS" role="tab" aria-controls="vS" aria-selected="false" tabindex="-1">Settings</button>
 </div>
 
-<section id="vM" aria-labelledby="ttl"><div id="mst"><div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div></div>
- <details class="panel up" id="up"><summary>Upload students from a CSV file</summary>
+<section id="vM" aria-labelledby="ttl">
+ <div id="vMS" role="tabpanel" aria-labelledby="mS"><div id="mst"><div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div></div>
+ <details class="mod line up" id="up"><summary>Upload students from a CSV file</summary>
   <p class="sub">One row per student, with the column names in the first row. Each student goes into the classroom of their Quran and Memorisation teacher, and classrooms that don't exist yet are created. Students are recognised by their Student ID, so uploading an updated list moves students with all of their records, updates changed details and never adds anyone twice. An optional <b>House</b> column (Makkah, Al-Aqsa or Madinah) sets each student's house. Your own column names are fine: the preview shows which column was taken for each detail and lets you change it.</p>
   <div class="ex">Student ID,Student Name,Gender,School Year Group,Current Teacher [Quran and Memorisation],Current Teacher [Islamic Studies]
 ST001,Aisha Khan,Female,Year 3,Yr3-A-QM-Br Ahmed,Yr3-A-AI-Sr Maryam
 ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
   <div class="pf"><label>CSV file<input type="file" id="csvF" accept=".csv,text/csv"></label><label>First class day for new classrooms<input type="date" id="csvD"></label></div>
   <div id="csvP" aria-live="polite"></div>
- </details>
-</section>
-
-<section id="vD" class="hide" role="tabpanel" aria-labelledby="tD">
- <div class="stats" id="cStats"></div>
- <div class="panel attn" id="wp" hidden></div>
- <div class="cols" style="margin-top:16px">
-  <div class="panel"><div class="panel-h"><h2>Passes this month</h2></div><ol class="rank" id="lbP"></ol></div>
-  <div class="panel"><div class="panel-h"><h2>Merits</h2><p class="sub">All time</p></div><ol class="rank" id="lbM"></ol></div>
-  <div class="panel prize"><h2>Prize this month</h2><div class="chips" id="ll"></div><p class="sub" id="llS"></p></div>
- </div>
- <div class="panel" style="margin-top:16px"><div class="panel-h"><h2>Where everyone is in the book</h2><p class="sub" id="chS"></p></div>
-  <div class="leg" id="leg"></div><div class="chartwrap"><div class="chart" id="chart" role="img" aria-label="Each student's current target"></div></div></div>
- <h2 class="section-title">Students</h2>
- <div class="grid" id="grid"></div>
+ </details></div>
+ <div id="vMR" role="tabpanel" aria-labelledby="mR" class="hide"></div>
+ <div id="vMH" role="tabpanel" aria-labelledby="mH" class="hide"></div>
 </section>
 
 <section id="vI" class="hide" role="tabpanel" aria-labelledby="tI">
- <div class="panel">
-  <div class="panel-h"><h2>Record progress</h2></div>
-  <p class="rhint">+ Pass means the student passed their current target and moves to the next one. After the book (L10 T14), targets carry on through the numbered Juz items, starting at 198 An-Naba (Juz 30). Each − takes back the latest one.</p>
-  <div class="rhead" aria-hidden="true"><span>Student</span><span>Current target</span><span>Passes</span><span>Merits</span><span>Fails</span><span></span></div>
-  <ul class="roster" id="body"></ul>
- </div>
- <div class="panel">
-  <h2>Add a past pass</h2>
-  <p class="sub">Forgot to add a pass? Pick the student, the day and the target they passed.</p>
-  <div class="pf"><label>Student<select id="pS"></select></label><label>Date<input type="date" id="pD"></label><label>Target passed<select id="pT"></select></label><button class="btn p" id="pA">Add past pass</button></div>
-  <h3 style="margin:20px 0 0">Pass history</h3><div class="hist" id="hist"></div>
- </div>
- <div class="panel">
-  <h2>Class settings</h2>
-  <div class="setgrid" style="margin-top:12px">
-   <div><h3>Name and first class day</h3><p class="sub">The memo and Quran sheets start from the first class day.</p>
-    <div class="pf"><label>First class day<input type="date" id="fcd"></label><button class="btn" id="ren" type="button">Rename class</button></div></div>
-   <div><h3>Add students</h3><label class="field" for="bulk">Names, one per line</label>
-    <textarea id="bulk" rows="4" autocomplete="off" placeholder="Aisha Khan&#10;Yusuf Ali"></textarea>
-    <div class="pf" style="margin-top:10px"><button class="btn" id="bulkA">Add these students</button><button class="btn quiet" id="add">Add one blank student</button></div></div>
+ <div class="recgrid">
+  <div class="mod line recmain">
+   <div class="rhead"><span>Student</span><span>Current target</span><span>Passes</span><span>Merits</span><span>Fails</span><span class="tools"><details class="help"><summary aria-label="How recording works">?</summary><div class="hb"><p><b>+</b> under Passes means the student passed their current target and moves to the next one. After the book (L10 T14), targets carry on through the numbered Juz items, starting at 198 An-Naba (Juz 30).</p><p><b>−</b> takes back the latest pass, merit or fail.</p><p>The … menu holds each student's details, and renames or removes them. Changes save as you go.</p></div></details></span></div>
+   <ul class="roster" id="body"></ul>
+   <div class="recfoot"><button class="btn sm" id="goPast" type="button">Add a past pass</button><button class="btn sm quiet" type="button" data-ct="S">Add students</button></div>
   </div>
- </div>
- <div class="panel danger-panel">
-  <h2>Reset and delete</h2>
-  <div class="drow"><p><b>Clear warnings</b><span class="sub">Removes every student's warning in this class.</span></p><button class="btn danger" id="cw">Clear warnings</button></div>
-  <div class="drow"><p><b>Reset all scores</b><span class="sub">Sets every student's passes and merits back to zero. Fails, Quran scores and house tokens are kept.</span></p><button class="btn danger" id="rst">Reset all scores</button></div>
-  <div class="drow" id="delWrap"><p><b>Delete this classroom</b><span class="sub">Deletes the classroom, its students and all of their records.</span></p><button class="btn danger solid" id="delC">Delete classroom</button></div>
+  <aside class="recside" aria-label="This class at a glance">
+   <div class="mod line attn" id="wp" hidden></div>
+   <div class="mod gold" id="sideLead"></div>
+   <div class="mod teal" id="sideRecent"></div>
+  </aside>
  </div>
 </section>
 
-<section id="vW" class="hide" role="tabpanel" aria-labelledby="tW"><div class="panel">
- <div class="panel-h"><div><h2>Warnings</h2><p class="sub">Tap a warning to give it. Tap it again to take it away.</p></div><button class="btn danger" id="cw2">Clear all warnings</button></div>
+<section id="vW" class="hide" role="tabpanel" aria-labelledby="tW"><div class="mod line">
+ <div class="toolbar"><div class="wsum" id="wsum"></div><div class="tools"><button class="btn danger sm" id="cw2" type="button">Clear all warnings</button><details class="help"><summary aria-label="How warnings work">?</summary><div class="hb"><p>Tap a warning to give it. Tap it again to take it away.</p><p>Warning 1, then Warning 2, then Miss break. Each student holds one level at a time.</p></div></details></div></div>
  <div id="wrows"></div></div></section>
 
-<section id="vQ" class="hide" role="tabpanel" aria-labelledby="tQ"><div class="panel">
- <div class="panel-h"><div><h2>Quran scores</h2><p class="sub">Pick the class day, then tap each student's score out of 5. Tap the same score again to clear it.</p></div><div class="pf"><label>Class day<input type="date" id="qD"></label></div></div>
- <div id="qrows"></div></div>
- <div class="panel"><div class="panel-h"><h2>Quran record</h2><p class="sub">Blank means not recorded</p></div><div class="sheetwrap" id="qSheet" tabindex="0" aria-label="Quran record, scrollable"></div></div></section>
+<section id="vQ" class="hide" role="tabpanel" aria-labelledby="tQ">
+ <div class="mod line">
+  <div class="toolbar"><label class="inl">Class day<input type="date" id="qD"></label><p class="qsum" id="qSum" aria-live="polite"></p><div class="tools"><details class="help"><summary aria-label="How Quran scores work">?</summary><div class="hb"><p>Pick the class day, then tap each student's score out of 5. Tap the same score again to clear it.</p><p>A blank day means the score was not recorded, which is different from 0.</p></div></details></div></div>
+  <div id="qrows"></div></div>
+ <div class="mod line"><div class="mod-h"><h2>Scores by class day</h2><div class="seg" id="qP" role="group" aria-label="Days shown"><button type="button" data-p="r" aria-pressed="true">Last 6 weeks</button><button type="button" data-p="a" aria-pressed="false">All</button></div></div>
+  <div class="sheetwrap" id="qSheet" tabindex="0" aria-label="Quran scores by class day, scrollable"></div></div>
+</section>
 
-<section id="vH" class="hide" role="tabpanel" aria-labelledby="tH"><div class="panel">
- <div class="panel-h"><div><h2>House points</h2><p class="sub">Green is 5 points, blue is 20 and red (book completion) is 50. − takes back the latest token of that colour.</p></div></div>
- <div class="hcards" id="hClass"></div><div id="hrows"></div></div></section>
-
-<section id="vT" class="hide" role="tabpanel" aria-labelledby="tT"><div class="panel">
- <div class="panel-h"><div><h2>Memo</h2><p class="sub">Each row is a student and each column a class day, from the first class day to six weeks ahead. A box shows the target passed that day.</p></div></div>
+<section id="vT" class="hide" role="tabpanel" aria-labelledby="tT"><div class="mod line">
+ <div class="toolbar"><div class="seg" id="tP" role="group" aria-label="Days shown"><button type="button" data-p="r" aria-pressed="true">Recent</button><button type="button" data-p="a" aria-pressed="false">All</button></div><div class="leg" id="leg"></div><div class="tools"><details class="help"><summary aria-label="How the memo sheet works">?</summary><div class="hb"><p>One row per student and one column per class day. A box shows the target passed that day, in its level colour.</p><p>Recent shows the last four weeks and the next two. All starts from the first class day.</p></div></details></div></div>
  <div class="sheetwrap" id="sheet" tabindex="0" aria-label="Memo sheet, scrollable"></div></div></section>
+
+<section id="vD" class="hide" role="tabpanel" aria-labelledby="tD">
+ <div class="g12 eq">
+  <div class="mod line s8"><div class="mod-h"><h2>Position in the book</h2><p class="cap" id="posCap"></p></div><ol class="lanes" id="lanes"></ol></div>
+  <div class="mod sky s4"><div class="mod-h"><h2>Students by level</h2></div><div id="dist"></div></div>
+ </div>
+ <div class="mod line"><div class="mod-h"><h2>Students</h2><p class="cap">Select a name for their details and history</p></div><div class="tablewrap"><table class="tbl stackable stu" id="stuT"></table></div></div>
+ <div class="g12 eq">
+  <div class="mod teal s4"><div class="mod-h"><h2>Passes per week</h2><p class="cap">Last 8 weeks, Monday to Sunday</p></div><div id="wk"></div></div>
+  <div class="mod line s8" id="histMod"><div class="mod-h"><h2>Pass history</h2><div class="seg" id="hP" role="group" aria-label="Period shown"><button type="button" data-p="m" aria-pressed="true">This month</button><button type="button" data-p="a" aria-pressed="false">All</button></div></div>
+   <details class="pastf" id="pastD"><summary class="btn sm">Add a past pass</summary>
+    <div class="pf"><label>Student<select id="pS"></select></label><label>Date<input type="date" id="pD"></label><label>Target passed<select id="pT"></select></label><button class="btn p" id="pA" type="button">Add past pass</button></div></details>
+   <div class="hist" id="hist"></div></div>
+ </div>
+</section>
+
+<section id="vH" class="hide" role="tabpanel" aria-labelledby="tH">
+ <div class="g12 eq">
+  <div class="mod line s7"><div class="mod-h"><h2>Leaders</h2><div class="segs"><div class="seg" id="lK" role="group" aria-label="Measure"><button type="button" data-k="p" aria-pressed="true">Passes</button><button type="button" data-k="m" aria-pressed="false">Merits</button></div><div class="seg" id="lT" role="group" aria-label="Period"><button type="button" data-t="m" aria-pressed="true">This month</button><button type="button" data-t="a" aria-pressed="false">All time</button></div></div></div><div id="lead"></div></div>
+  <div class="mod gold s5"><div class="mod-h"><h2>Prize this month</h2><details class="help"><summary aria-label="How the prize works">?</summary><div class="hb"><p>A student who records 5 passes in one calendar month wins a prize. The count starts again on the 1st.</p></div></details></div><div id="prize"></div></div>
+ </div>
+ <div class="mod line"><div class="mod-h"><h2>House points</h2><details class="help"><summary aria-label="How house points work">?</summary><div class="hb"><p>Green is 5 points, blue is 20 and red (book completion) is 50.</p><p>− takes back the latest token of that colour. Points count for the student's house.</p></div></details></div>
+  <div class="hcards" id="hClass"></div><div id="hrows"></div></div>
+</section>
+
+<section id="vS" class="hide" role="tabpanel" aria-labelledby="tS">
+ <div class="g12">
+  <div class="mod line s6"><h2>Name and first class day</h2><p class="cap">The memo and Quran sheets start from the first class day.</p>
+   <div class="pf"><label>First class day<input type="date" id="fcd"></label><button class="btn" id="ren" type="button">Rename class</button></div></div>
+  <div class="mod line s6"><h2><label for="bulk">Add students</label></h2><p class="cap">Names, one per line</p>
+   <textarea id="bulk" rows="4" autocomplete="off" placeholder="Aisha Khan&#10;Yusuf Ali"></textarea>
+   <div class="pf"><button class="btn" id="bulkA" type="button">Add these students</button><button class="btn quiet" id="add" type="button">Add one blank student</button></div></div>
+ </div>
+ <div class="mod line danger-panel">
+  <h2>Reset and delete</h2>
+  <div class="drow"><p><b>Clear warnings</b><span class="sub">Removes every student's warning in this class.</span></p><button class="btn danger" id="cw" type="button">Clear warnings</button></div>
+  <div class="drow"><p><b>Reset all scores</b><span class="sub">Sets every student's passes and merits back to zero. Fails, Quran scores and house tokens are kept.</span></p><button class="btn danger" id="rst" type="button">Reset all scores</button></div>
+  <div class="drow" id="delWrap"><p><b>Delete this classroom</b><span class="sub">Deletes the classroom, its students and all of their records.</span></p><button class="btn danger solid" id="delC" type="button">Delete classroom</button></div>
+ </div>
+</section>
 </div></main>
 </div>
 </div>
-<div id="dlg" class="dlg hide" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="card"><p id="dlgT"></p><input id="dlgI" class="hide" maxlength="60" autocomplete="off" aria-labelledby="dlgT"><div class="acts"><button class="btn" id="dlgN">Cancel</button><button class="btn p" id="dlgY">OK</button></div></div></div>
+<div id="drw" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drwT" hidden><div class="dpanel"><div class="dhead"><h2 id="drwT"></h2><button class="btn sm" id="drwX" type="button">Close</button></div><div class="dbody" id="drwB"></div></div></div>
+<div id="dlg" class="dlg hide" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="card"><p id="dlgT"></p><input id="dlgI" class="hide" maxlength="60" autocomplete="off" aria-labelledby="dlgT"><div class="acts"><button class="btn" id="dlgN" type="button">Cancel</button><button class="btn p" id="dlgY" type="button">OK</button></div></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
 var LEVELS=[9,9,9,9,10,10,10,12,15,14]; /* TARGETS IN EACH LEVEL, L1 to L10. If a level has more or fewer targets, change its number here; saved records are moved across automatically. */
@@ -716,26 +932,59 @@ function rank(k){var a=S.filter(function(s){return s[k]>0}).sort(function(x,y){r
  return a.map(function(s,i){if(s[k]!==prev){r=i+1;prev=s[k]}return {s:s,r:r}})}
 function tied(L,o){return L.filter(function(x){return x.r===o.r}).length>1}
 function rkHtml(r,tie){return '<span class="rk'+(r<4?' r'+r:'')+'"'+(tie?' title="Joint '+r+'"':'')+'>'+(tie?'='+r:r)+'</span>'}
-function lb(id,k,none){var all=rank(k),L=all.slice(0,10),m=Math.max(1,L.length?L[0].s[k]:0),zero=S.length-all.length;
- $(id).innerHTML=(L.length?L.map(function(o){return '<li>'+rkHtml(o.r,tied(all,o))+'<div class="n"><b>'+esc(o.s.name)+'</b><div class="tr"><i style="width:'+(o.s[k]/m*100)+'%"></i></div></div><span class="v">'+o.s[k]+'</span></li>'}).join(""):'<li class="zero" style="display:block">'+(S.length?none:'No students in this class yet.')+'</li>')
-  +(L.length&&zero?'<li class="zero" style="display:block;font-size:.875rem">'+plural(zero,"student")+' not yet.</li>':"")}
-function legend(){$("leg").innerHTML=LEVELS.map(function(_,l){return '<span><b style="background:'+LC[l%LC.length]+'"></b>'+(LN[l]||"L"+(l+1))+'</span>'}).join("")+'<span><b style="background:'+BC+'"></b>Juz (after the book)</span>'}
-/* Bars are scaled to the end of the book (or the furthest student, if past it), so early progress stays visible. */
-function chart(){var A=S.slice().sort(function(a,b){return b.target-a.target}),top=Math.max(BL+1,A.length?A[0].target:0);
- $("chS").textContent="Highest target on the left. Full height is "+(top>BL+1?bl(top):"the end of the book")+".";
- $("chart").innerHTML=A.length?A.map(function(s){return '<div class="col" title="'+esc(s.name)+': '+esc(ct(s))+'"><div class="pair"><div class="bt" style="height:'+(s.target/top*100)+'%;background:'+lc(s.target)+'"><span class="tl">'+esc(ct(s).replace("Quran complete","Done"))+'</span></div></div><div class="nm">'+esc(s.name.split(" ")[0])+'</div></div>'}).join(""):'<p class="sub">No students yet.</p>'}
-
 var WL=["","Warning 1","Warning 2","Miss break"];
 function wl(l){return '<span class="wl wl'+l+'">'+WL[l]+'</span>'}
-/* Shown only when a student in the class has a warning or needs a pass. */
-function wpanel(){var e=$("wp"),W=S.filter(function(s){return s.warn}).sort(function(a,b){return b.warn-a.warn||a.name.localeCompare(b.name)}),
-  N=S.filter(function(s){return late(s)});
- if(!W.length&&!N.length){e.hidden=true;e.innerHTML="";return}
- var h='<div class="panel-h"><h2>Needs attention</h2></div><div class="attn-grid">';
- if(W.length)h+='<div><h3>'+plural(W.length,"warning")+'</h3><ul class="alist">'+W.map(function(s){return '<li><span class="who"><b>'+esc(s.name)+'</b></span>'+wl(s.warn)+'</li>'}).join("")+'</ul></div>';
- if(N.length)h+='<div><h3>'+plural(N.length,"student")+' waiting for a pass</h3><ul class="alist">'+N.slice(0,8).map(function(s){return '<li><span class="who"><b>'+esc(s.name)+'</b></span><span class="v">'+(s.passes?since(s)+" since a pass":"No passes yet")+'</span></li>'}).join("")+'</ul>'+(N.length>8?'<p class="more">and '+(N.length-8)+' more</p>':'')+'</div>';
- e.innerHTML=h+'</div>';e.hidden=false}
+function mmc(s){var m=ms0();return (s.ml||[]).filter(function(t){return t>=m}).length}
+function sumOf(L,f){return L.reduce(function(t,s){return t+f(s)},0)}
+function fn(s){return s.name.split(" ")[0]}
+function ds(t){return new Date(t).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}
+function dm(t){return new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}
+function dk(t){var d=new Date(t);return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function sd(){var p=FCD.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+function addDays(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n)}
+function today0(){var n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())}
+
+/* ---------- Visualisations ---------- */
+/* The book as a ribbon: a segment for each level, as wide as its number of targets, then the Juz items.
+   The number on each segment is how many students' current target is in that level. */
+function levelCounts(L){var c=LEVELS.map(function(){return 0}),juz=0,none=0;
+ L.forEach(function(s){if(nod(s)){none++;return}if(s.target>BL)juz++;else c[lv(s.target)]++});return {c:c,juz:juz,none:none}}
+function ribbon(L){var k=levelCounts(L),segs=LEVELS.map(function(n,l){return {w:n,c:LC[l%LC.length],lab:"L"+(l+1),k:k.c[l]}}).concat([{w:Math.round(BL*.14),c:BC,lab:"Juz",k:k.juz}]);
+ var say=segs.filter(function(x){return x.k}).map(function(x){return (x.lab==="Juz"?"past the book ":x.lab+" ")+x.k}).join(", ");
+ return '<div class="rib" role="img" aria-label="Students at each level: '+(say||"none yet")+(k.none?". "+k.none+" with no data yet":"")+'">'+segs.map(function(x){
+  return '<span class="seg-l'+(x.k?'':' none')+'" style="flex:'+x.w+';--c:'+x.c+'"><i>'+(x.k||"")+'</i><b></b><small>'+x.lab+'</small></span>'}).join("")+'</div>'
+  +'<p class="ribcap">Students at each level of the book'+(k.none?'. '+plural(k.none,"student")+' with no data yet':'')+'</p>'}
+/* Students by level as bars, with the count and the class size as the denominator. */
+function distHtml(L){var k=levelCounts(L),rows=LEVELS.map(function(_,l){return ["L"+(l+1),k.c[l],LC[l%LC.length]]}).concat([["Juz",k.juz,BC]]);if(k.none)rows.push(["No data",k.none,"var(--line-2)"]);
+ var mx=Math.max(1,Math.max.apply(null,rows.map(function(r){return r[1]})));
+ return L.length?'<ul class="dist">'+rows.map(function(r){return '<li'+(r[1]?'':' class="z"')+'><span>'+r[0]+'</span><span class="db"><i style="width:'+(r[1]/mx*100)+'%;background:'+r[2]+'"></i></span><b>'+r[1]+'</b></li>'}).join("")+'</ul><p class="cap">Number of students whose current target is in each level, out of '+L.length+'.</p>':'<p class="cap">No students yet.</p>'}
+/* Passes in each of the last n weeks (Monday to Sunday), oldest first. */
+function weeks(ts,n){var w0=new Date(wk0(Date.now())),W=[];for(var k=n-1;k>=0;k--)W.push({t:addDays(w0,-7*k).getTime(),n:0});
+ ts.forEach(function(t){var s=wk0(t);for(var i=0;i<W.length;i++)if(W[i].t===s){W[i].n++;break}});return W}
+function weekChart(ts){var W=weeks(ts,8),mx=Math.max(1,Math.max.apply(null,W.map(function(w){return w.n})));
+ return '<div class="wk" role="img" aria-label="Passes per week, last 8 weeks: '+W.map(function(w,i){return (i===7?"this week":"week of "+dm(w.t))+" "+w.n}).join(", ")+'">'+W.map(function(w,i){
+  return '<div class="wkc'+(i===7?' now':'')+'"><b>'+w.n+'</b><span class="wkb"><i style="height:'+(w.n/mx*100)+'%"></i></span><small>'+(i===7?'This week':dm(w.t))+'</small></div>'}).join("")+'</div>'}
+function allLogs(L){var a=[];L.forEach(function(s){a=a.concat(s.log)});return a}
+
+/* ---------- Ranked lists ---------- */
+/* Competition ranking (1, 1, 3) of the items with a value above zero; zero is "not yet", never ranked. */
+function ranked(items){var a=items.filter(function(o){return o.v>0}).sort(function(x,y){return y.v-x.v||x.name.localeCompare(y.name)}),r=0,p=null;
+ a.forEach(function(o,i){if(o.v!==p){r=i+1;p=o.v}o.r=r});return a}
+var EXP={};
+function rankList(key,items,o){o=o||{};var a=ranked(items),lim=o.limit||10,show=EXP[key]?a:a.slice(0,lim),mx=a.length?a[0].v:1,zero=items.length-a.length;
+ if(!a.length)return '<p class="none">'+o.none+'</p>';
+ var h='<ol class="rank'+(o.tone?' '+o.tone:'')+'">'+show.map(function(x){return '<li>'+rkHtml(x.r,tied(a,x))+'<div class="n"><b>'+(x.open?'<button type="button" class="lk" data-open="'+esc(x.open)+'"'+(x.tab?' data-tab="'+x.tab+'"':'')+'>'+esc(x.name)+'</button>':esc(x.name))+'</b>'+(x.sub?'<small>'+x.sub+'</small>':'')+'<div class="tr"><i style="width:'+(x.v/mx*100)+'%"></i></div></div><span class="v">'+(o.fmt?o.fmt(x.v):x.v)+'</span></li>'}).join("")+'</ol>';
+ if(a.length>lim)h+='<button type="button" class="btn sm quiet more-btn" data-exp="'+key+'" aria-expanded="'+!!EXP[key]+'">'+(EXP[key]?'Show the top '+lim:'Show all '+a.length)+'</button>';
+ if(zero&&o.zeroNote)h+='<p class="rank-note">'+o.zeroNote(zero)+'</p>';
+ return h}
+
+/* ---------- Drawer, dialog and toast ---------- */
 var tt;function toast(m,info){var e=$("toast");e.textContent=m;e.className="on"+(info?" info":"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},3200)}
+var DF=null;
+function drawer(title,html){$("drwT").textContent=title;$("drwB").innerHTML=html;if($("drw").hidden)DF=document.activeElement;$("drw").hidden=false;$("drwB").scrollTop=0;$("drwX").focus()}
+function closeDrawer(){if($("drw").hidden)return;$("drw").hidden=true;$("drwB").innerHTML="";if(DF&&document.contains(DF))DF.focus();DF=null}
+$("drwX").onclick=closeDrawer;
+$("drw").addEventListener("click",function(e){if(e.target===this)closeDrawer()});
 var AK=null,AF=null;
 /* A confirm or text-entry dialog. val prefills the text box. */
 function ask(msg,ok,cb,inp,danger,val){$("dlgT").textContent=msg;var i=$("dlgI"),y=$("dlgY");
@@ -745,56 +994,54 @@ function closeAsk(){$("dlg").classList.add("hide");AK=null;if(AF&&document.conta
 $("dlgN").onclick=closeAsk;
 $("dlgY").onclick=function(){var cb=AK,i=$("dlgI"),v=i.value.trim();if(!i.classList.contains("hide")&&!v){i.focus();return}closeAsk();if(cb)cb(v)};
 $("dlgI").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();$("dlgY").click()}});
-document.addEventListener("keydown",function(e){if(!AK)return;if(e.key==="Escape")closeAsk();
- if(e.key==="Tab"){var f=Array.prototype.filter.call($("dlg").querySelectorAll("input,button"),function(x){return !x.classList.contains("hide")}),a=f[0],z=f[f.length-1];
-  if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
 $("dlg").addEventListener("click",function(e){if(e.target===this)closeAsk()});
+function trap(e,box){var f=Array.prototype.filter.call(box.querySelectorAll("a[href],button,input,select,textarea,summary,[tabindex]:not([tabindex='-1'])"),function(x){return x.offsetParent!==null&&!x.disabled}),a=f[0],z=f[f.length-1];
+ if(!a)return;if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}
+document.addEventListener("keydown",function(e){
+ if(AK){if(e.key==="Escape")closeAsk();if(e.key==="Tab")trap(e,$("dlg"));return}
+ if(!$("drw").hidden){if(e.key==="Escape"){closeDrawer();return}if(e.key==="Tab")trap(e,$("drw"));return}
+ if(e.key!=="Escape")return;
+ var d=document.querySelector(".rmore[open],.help[open]");if(d){d.open=false;d.querySelector("summary").focus()}});
+document.addEventListener("click",function(e){Array.prototype.forEach.call(document.querySelectorAll(".rmore[open],.help[open]"),function(d){if(!d.contains(e.target))d.open=false})});
 function same(c,i,s){if(CID===c&&S[i]===s)return true;toast("The list was updated. Please try again.",1);return false}
-function dk(t){var d=new Date(t);return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
-function sd(){var p=FCD.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
-function sheet(){var ev={},days={};
- S.forEach(function(s,i){s.log.forEach(function(t,k){var d=dk(t);days[d]=t;(ev[i+"|"+d]=ev[i+"|"+d]||[]).push({n:s.lt[k],x:pl(s,k)})})});
- var n0=new Date(),t0=new Date(n0.getFullYear(),n0.getMonth(),n0.getDate()),today=dk(t0.getTime());
- var en=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()+41);
- for(var x=sd();x<=en;x=new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)){var g=x.getDay();if(g===6||g===0){var key=dk(x.getTime());if(!days[key])days[key]=x.getTime()+432e5}}
- var D=Object.keys(days).sort(),el=$("sheet");
- if(!S.length){el.innerHTML='<div class="empty"><b>No students yet</b>Add students in the Input tab.</div>';return}
- var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th>'+D.map(function(d){return '<th scope="col" class="'+(d>today?'fu':d===today?'td':'')+'">'+new Date(days[d]).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"2-digit"})+(d===today?'<br><small>Today</small>':'')+'</th>'}).join("")+'</tr></thead><tbody>';
- S.forEach(function(s,i){h+='<tr><th scope="row" class="t1'+(late(s)?' late':'')+'">'+esc(s.name)+'</th>'+D.map(function(d){var c=ev[i+"|"+d]||[];return '<td>'+c.map(function(o){return chip(lc(o.n),esc(o.x))}).join("")+'</td>'}).join("")+'</tr>'});
- el.innerHTML=h+'</tbody></table>'}
-function initials(n){return n.split(" ").map(function(w){return w[0]}).slice(0,2).join("")}
-function render(){
- sheet();past();quran();warnrows();houses();
- wpanel();
- var d=new Date(),ms=new Date(d.getFullYear(),d.getMonth(),1).getTime();S.forEach(function(s){s.mp=s.log.filter(function(t){return t>=ms}).length});
- lb("lbP","mp","No passes yet this month.");lb("lbM","merits","No merits yet.");chart();
- var H=S.filter(rc).sort(function(a,b){return wonAt(a)-wonAt(b)});
- $("ll").innerHTML=H.map(function(s){return '<span>'+esc(s.name)+' · '+mpc(s)+'</span>'}).join("");
- $("llS").textContent=H.length?plural(H.length,"student")+" reached "+PRIZE+" passes this month.":"Nobody yet. "+PRIZE+" passes in a month wins a prize.";
- var W=S.filter(function(s){return s.warn}).length;
- $("cStats").innerHTML=[[S.length,"Students"],[sumOf(S,mpc),"Passes this month"],[sumOf(S,mmc),"Merits this month"],[W,W===1?"Warning":"Warnings",W?" warnish":""],[S.filter(late).length,"Waiting for a pass"]].map(function(k){return '<div class="stat'+(k[2]||"")+'"><b>'+k[0]+'</b><span>'+k[1]+'</span></div>'}).join("");
- $("grid").innerHTML=S.length?S.map(function(s){var p=Math.min(100,(s.target-1)/(NB-1)*100),lt=late(s);
-  return '<article class="tile'+(rc(s)?' done':'')+(lt&&s.passes?' stale':'')+'"><div class="tn"><b>'+esc(s.name)+(s.sid||s.year||s.house?'<span class="meta">'+esc([s.sid,s.year,s.house].filter(Boolean).join(" · "))+'</span>':'')+'</b>'
-   +(rc(s)?'<span class="pill amber flag">Prize</span>':lt?(s.passes?'<span class="pill red flag">No pass in 3+ weeks</span>':'<span class="pill grey flag">No passes yet</span>'):s.warn?'<span class="flag">'+wl(s.warn)+'</span>':'')+'</div>'
-   +'<div class="st4"><div><small>Current target</small><strong>'+esc(ct(s))+'</strong></div><div><small>Since last pass</small><strong>'+since(s)+'</strong></div><div><small>Total passes</small><strong>'+s.passes+'</strong></div><div><small>Total merits</small><strong>'+s.merits+'</strong></div></div><div class="bar" title="Progress through the book and the Juz items"><i style="width:'+p+'%;background:'+lc(s.target)+'"></i></div></article>'}).join(""):'<div class="empty"><b>No students in this class yet</b>Add them in the Input tab.</div>';
- roster()}
+
+/* ---------- Class: attention and sidebar ---------- */
+/* Shown only when a student in the class has a warning or needs a pass. */
+function wpanel(){var e=$("wp"),W=S.filter(function(s){return s.warn}).sort(function(a,b){return b.warn-a.warn||a.name.localeCompare(b.name)}),N=S.filter(late);
+ if(!W.length&&!N.length){e.hidden=true;e.innerHTML="";return}
+ var h='<div class="mod-h"><h2>Needs attention</h2></div>';
+ if(W.length)h+='<h3>'+plural(W.length,"warning")+'</h3><ul class="alist">'+W.map(function(s){return '<li><span class="who"><b>'+esc(s.name)+'</b></span>'+wl(s.warn)+'</li>'}).join("")+'</ul>';
+ if(N.length)h+='<h3>'+plural(N.length,"student")+' waiting for a pass</h3><ul class="alist">'+N.map(function(s){return '<li><span class="who"><b>'+esc(s.name)+'</b></span><span class="v">'+(s.passes?since(s)+" since a pass":"No passes yet")+'</span></li>'}).join("")+'</ul>';
+ e.innerHTML=h;e.hidden=false}
+function events(){var E=[];S.forEach(function(s,i){s.log.forEach(function(t,k){E.push({i:i,k:k,t:t,l:s.lt[k],x:pl(s,k)})});s.fl.forEach(function(t,k){E.push({i:i,k:k,t:t,l:0,x:"Fail",f:1})})});
+ return E.sort(function(a,b){return b.t-a.t||b.l-a.l})}
+function side(){var top=ranked(S.map(function(s){return {name:s.name,v:mpc(s)}})).slice(0,5);
+ $("sideLead").innerHTML='<div class="mod-h"><h2>Passes this month</h2><button type="button" class="btn sm quiet" data-ct="H">All leaders</button></div>'
+  +(top.length?'<ol class="rank mini">'+top.map(function(x){return '<li>'+rkHtml(x.r,tied(top,x))+'<div class="n"><b>'+esc(x.name)+'</b></div><span class="v">'+x.v+'</span></li>'}).join("")+'</ol>':'<p class="none">No passes yet this month.</p>');
+ var E=events().slice(0,5);
+ $("sideRecent").innerHTML='<div class="mod-h"><h2>Latest</h2><button type="button" class="btn sm quiet" data-ct="D" data-focus="histMod">Full history</button></div>'
+  +(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(S[e.i].name)+'</b><span class="x'+(e.f?' fail':'')+'">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">Nothing recorded yet.</p>')}
+
+/* ---------- Class: Record (roster) ---------- */
 var MORE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
-function ctr(i,k,lab,plus,cls){return '<div class="ctr"><span class="lbl">'+lab+'</span><span class="cnt" id="'+k+i+'"></span><button class="btn minus" data-a="'+k+'-" data-i="'+i+'" aria-label="Take back a '+lab.toLowerCase().replace(/s$/,"")+'">−</button><button class="btn '+cls+'" data-a="'+k+'+" data-i="'+i+'">'+plus+'</button></div>'}
-/* The Input tab's rows are rebuilt only when students are added or removed, so a focused control keeps its place. */
+function ctr(i,k,lab,one,cls){return '<div class="ctr"><span class="lbl">'+lab+'</span><span class="cnt" id="'+k+i+'"></span><button class="btn minus" type="button" data-a="'+k+'-" data-i="'+i+'" aria-label="Take back a '+one+'">−</button><button class="btn plus '+cls+'" type="button" data-a="'+k+'+" data-i="'+i+'" title="Add a '+one+'"><span aria-hidden="true">+</span><span class="bl"> '+one.charAt(0).toUpperCase()+one.slice(1)+'</span></button></div>'}
+/* The rows are rebuilt only when students are added or removed, so a focused control keeps its place. */
 function roster(){var b=$("body");
  if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;b.innerHTML=S.length?S.map(function(s,i){
-  return '<li class="rrow"><div class="rname"><b id="nm'+i+'"></b><small>'+esc([s.sid,s.year,s.house].filter(Boolean).join(" · ")||"No details from the CSV")+'</small></div>'
+  return '<li class="rrow"><div class="rname"><b id="nm'+i+'"></b><small id="mt'+i+'"></small></div>'
   +'<div class="rtarget"><select data-i="'+i+'" data-f="target" id="t'+i+'" aria-label="Current target"><option value="0">No data</option>'+TO+'</select></div>'
-  +'<div class="ctrs">'+ctr(i,"p","Passes","+ Pass","p")+ctr(i,"m","Merits","+ Merit","m")+ctr(i,"f","Fails","+ Fail","")+'</div>'
-  +'<details class="rmore"><summary aria-label="More for this student">'+MORE+'</summary><div class="rmenu"><dl>'
-  +[["Student ID",s.sid],["Safar year",s.year],["School year",s.sy],["Gender",s.gender],["House",s.house],["Islamic Studies",s.ist]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")
-  +'</dl><button class="btn sm" data-a="rn" data-i="'+i+'">Rename student</button><button class="btn sm danger" data-a="rm" data-i="'+i+'">Remove student</button></div></details></li>'}).join(""):'<li class="empty"><b>No students yet</b>Add them under Class settings below.</li>'}
- S.forEach(function(s,i){$("nm"+i).textContent=s.name;$("t"+i).value=nod(s)?0:s.target;$("t"+i).setAttribute("aria-label","Current target for "+s.name);
-  $("p"+i).textContent=s.passes;$("m"+i).textContent=s.merits;$("f"+i).textContent=s.fl.length})}
-document.addEventListener("keydown",function(e){if(e.key!=="Escape"||AK)return;var d=document.querySelector(".rmore[open]");if(d){d.open=false;d.querySelector("summary").focus()}});
-document.addEventListener("click",function(e){Array.prototype.forEach.call(document.querySelectorAll(".rmore[open]"),function(d){if(!d.contains(e.target))d.open=false})});
+  +'<div class="ctrs">'+ctr(i,"p","Passes","pass","p")+ctr(i,"m","Merits","merit","m")+ctr(i,"f","Fails","fail","")+'</div>'
+  +'<details class="rmore"><summary aria-label="More for this student">'+MORE+'</summary><div class="rmenu"><dl id="dl'+i+'"></dl><button class="btn sm" type="button" data-a="dt" data-i="'+i+'">Details and history</button><button class="btn sm" type="button" data-a="rn" data-i="'+i+'">Rename student</button><button class="btn sm danger" type="button" data-a="rm" data-i="'+i+'">Remove student</button></div></details></li>'}).join(""):'<li class="empty"><b>No students yet</b><button type="button" class="btn sm" data-ct="S">Add students in Settings</button></li>'}
+ S.forEach(function(s,i){var nm=$("nm"+i);nm.textContent=s.name;$("mt"+i).textContent=[s.sid,s.year,s.house].filter(Boolean).join(", ");
+  nm.parentNode.parentNode.classList.toggle("flag",!!s.warn||late(s));
+  $("t"+i).value=nod(s)?0:s.target;$("t"+i).setAttribute("aria-label","Current target for "+s.name);
+  $("p"+i).textContent=s.passes;$("m"+i).textContent=s.merits;$("f"+i).textContent=s.fl.length;
+  ["p","m","f"].forEach(function(k){var w={p:"pass",m:"merit",f:"fail"}[k];$("body").querySelector('[data-a="'+k+'+"][data-i="'+i+'"]').setAttribute("aria-label","Add a "+w+" for "+s.name);$("body").querySelector('[data-a="'+k+'-"][data-i="'+i+'"]').setAttribute("aria-label","Take back a "+w+" from "+s.name)});
+  $("dl"+i).innerHTML=details(s)})}
+function details(s){return [["Student ID",s.sid],["Safar year",s.year],["School year",s.sy],["Gender",s.gender],["House",s.house],["Islamic Studies",s.ist]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
 $("body").addEventListener("click",function(e){var bt=e.target.closest("[data-a]");if(!bt)return;var a=bt.dataset.a,i=+bt.dataset.i,s=S[i],c=CID;if(!s)return;
- var nm=s.name.split(" ")[0],msg="";
+ var nm=fn(s),msg="";
+ if(a==="dt"){bt.closest(".rmore").open=false;student(i);return}
  if(a==="rm"){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);save();render();toast(nm+" removed")},null,1);return}
  if(a==="rn"){ask("Rename "+s.name,"Save name",function(v){if(!same(c,i,s))return;s.name=v||"Student";save();render();toast("Name updated")},"Student name",0,s.name);return}
  if(a==="p+"){if(s.target<NB){var old=s.target;s.passes++;s.log.push(Date.now());s.lt.push(old);s.lx.push("");s.target++;msg=nm+" passed "+bl(old)+". Next target: "+bl(s.target)}
@@ -806,14 +1053,33 @@ $("body").addEventListener("click",function(e){var bt=e.target.closest("[data-a]
  if(a==="m-"){if(s.merits>0){s.merits--;s.ml.pop();msg="Merit taken back for "+nm}else{toast(nm+" has no merits to take back",1);return}}
  s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();if(msg)toast(msg)});
 $("body").addEventListener("change",function(e){var t=e.target,s=S[+t.dataset.i];if(!s||t.dataset.f!=="target")return;
- s.target=Math.min(Math.max(1,+t.value||1),NB);save();render();toast(s.name.split(" ")[0]+"'s target set to "+bl(s.target))});
-function ds(t){return new Date(t).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}
+ s.target=Math.min(Math.max(1,+t.value||1),NB);save();render();toast(fn(s)+"'s target set to "+bl(s.target))});
+
+/* ---------- Class: Progress ---------- */
+function qavg(s){var v=Object.keys(s.q).map(function(k){return s.q[k]});return avg(v)}
+function lanes(){var A=S.slice().sort(function(a,b){return (nod(a)?0:b.target)-(nod(b)?0:a.target)||(nod(b)?0:b.target)-(nod(a)?0:a.target)||a.name.localeCompare(b.name)});
+ A=S.slice().sort(function(a,b){var x=nod(a)?0:a.target,y=nod(b)?0:b.target;return y-x||a.name.localeCompare(b.name)});
+ var top=Math.max(BL+1,A.length&&!nod(A[0])?A[0].target:0);
+ $("posCap").textContent="Bars run from L1 T1 to "+(top>BL+1?bl(top):"the end of the book (after L10 T14)")+".";
+ $("lanes").innerHTML=A.length?A.map(function(s){var n=nod(s);return '<li><span class="ln">'+esc(s.name)+'</span><span class="lt"><i style="width:'+(n?0:s.target/top*100)+'%;background:'+lc(s.target)+'"></i></span><b'+(n?' class="z"':'')+'>'+esc(ct(s))+'</b></li>'}).join(""):'<li class="empty"><b>No students yet</b></li>'}
+function stuTable(){var t=$("stuT");if(!S.length){t.innerHTML='<tbody><tr><td class="sub">No students yet.</td></tr></tbody>';return}
+ t.innerHTML='<thead><tr><th scope="col">Student</th><th scope="col">Current target</th><th scope="col">Since last pass</th><th scope="col" class="n">Passes</th><th scope="col" class="n">Merits</th><th scope="col" class="n">Fails</th><th scope="col" class="n">Quran average</th><th scope="col">House</th><th scope="col">Warning</th></tr></thead><tbody>'
+  +S.map(function(s,i){var q=qavg(s);return '<tr><td class="lead"><button type="button" class="lk" data-stu="'+i+'">'+esc(s.name)+'</button></td><td data-label="Current target">'+esc(ct(s))+'</td><td data-label="Since last pass"'+(late(s)&&s.passes?' class="late"':'')+'>'+since(s)+'</td><td data-label="Passes" class="n">'+s.passes+'</td><td data-label="Merits" class="n">'+s.merits+'</td><td data-label="Fails" class="n">'+s.fl.length+'</td><td data-label="Quran average" class="n">'+(q?q+"/5":'<span class="zero">Not recorded</span>')+'</td><td data-label="House">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">No house yet</span>')+'</td><td data-label="Warning">'+(s.warn?wl(s.warn):'<span class="zero">None</span>')+'</td></tr>'}).join("")+'</tbody>'}
+/* A student's full record in the drawer. */
+function student(i){var s=S[i];if(!s)return;var q=qavg(s),E=events().filter(function(e){return e.i===i});
+ drawer(s.name,'<div class="dfigs"><div><b>'+esc(ct(s))+'</b><span>Current target</span></div><div><b>'+s.passes+'</b><span>Passes</span></div><div><b>'+s.merits+'</b><span>Merits</span></div><div><b>'+s.fl.length+'</b><span>Fails</span></div><div><b>'+hp(s)+'</b><span>House points</span></div><div><b>'+(q?q:"–")+'</b><span>Quran average out of 5</span></div></div>'
+  +'<p>'+(s.warn?wl(s.warn)+' ':'')+(late(s)?'<span class="pill red">'+(s.passes?'No pass in 3+ weeks':'No passes yet')+'</span>':'<span class="pill">Last pass: '+since(s).toLowerCase()+'</span>')+'</p>'
+  +'<h3>Details</h3><dl class="ddl">'+details(s)+'</dl>'
+  +'<h3>Passes and fails</h3>'+(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><span class="x'+(e.f?' fail':'')+'">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">Nothing recorded yet.</p>'))}
+$("stuT").addEventListener("click",function(e){var b=e.target.closest("[data-stu]");if(b)student(+b.dataset.stu)});
+var HP="m";
 function past(){var sS=$("pS"),v=sS.value;
  sS.innerHTML=S.map(function(s,i){return '<option value="'+i+'">'+esc(s.name)+'</option>'}).join("");sS.value=v&&S[+v]?v:"0";
  var pT=$("pT");if(!pT.options.length)pT.innerHTML=TOP;
  var pD=$("pD");pD.min=FCD;pD.max=dk(Date.now());if(!pD.value)pD.value=dk(Date.now());
- var E=[];S.forEach(function(s,i){s.log.forEach(function(t,k){E.push({i:i,k:k,t:t,l:s.lt[k],x:pl(s,k)})});s.fl.forEach(function(t,k){E.push({i:i,k:k,t:t,l:0,x:"Fail",f:1})})});E.sort(function(a,b){return b.t-a.t||b.l-a.l});
- $("hist").innerHTML=E.length?E.map(function(e){return '<div class="hr"><span>'+ds(e.t)+'</span><b>'+esc(S[e.i].name)+'</b><span'+(e.f?' class="fail"':'')+'>'+esc(e.x)+'</span><button class="btn sm" data-hi="'+e.i+'" data-hk="'+e.k+'"'+(e.f?' data-hf="1"':'')+' aria-label="Remove '+(e.f?'fail':'pass '+esc(e.x))+' for '+esc(S[e.i].name)+' on '+ds(e.t)+'">Remove</button></div>'}).join(""):'<div class="empty"><b>No passes or fails recorded yet</b>They appear here as soon as you add one.</div>'}
+ var all=events(),m=ms0(),E=HP==="m"?all.filter(function(e){return e.t>=m}):all;
+ $("hist").innerHTML=E.length?E.map(function(e){return '<div class="hr"><span>'+ds(e.t)+'</span><b>'+esc(S[e.i].name)+'</b><span'+(e.f?' class="fail"':'')+'>'+esc(e.x)+'</span><button class="btn sm" type="button" data-hi="'+e.i+'" data-hk="'+e.k+'"'+(e.f?' data-hf="1"':'')+' aria-label="Remove '+(e.f?'fail':'pass '+esc(e.x))+' for '+esc(S[e.i].name)+' on '+ds(e.t)+'">Remove</button></div>'}).join("")
+  :'<div class="empty"><b>'+(all.length?'Nothing recorded this month':'No passes or fails recorded yet')+'</b>'+(all.length?'<button type="button" class="btn sm quiet" data-hp="a">Show all '+all.length+'</button>':'They appear here as soon as you add one.')+'</div>'}
 $("pA").onclick=function(){var s=S[+$("pS").value],v=$("pD").value,t=+$("pT").value;
  if(!s){toast("Add a student first",1);return}if(!v){toast("Pick a date first",1);return}
  if(v<FCD){toast("The first class day was "+ds(sd().getTime()),1);return}
@@ -821,122 +1087,201 @@ $("pA").onclick=function(){var s=S[+$("pS").value],v=$("pD").value,t=+$("pT").va
  var q=v.split("-"),ts=new Date(+q[0],+q[1]-1,+q[2],12).getTime();
  var a=s.log.map(function(x,k){return [x,s.lt[k],s.lx[k]]});a.push([ts,t,""]);a.sort(function(x,y){return x[0]-y[0]||x[1]-y[1]});
  s.log=a.map(function(x){return x[0]});s.lt=a.map(function(x){return x[1]});s.lx=a.map(function(x){return x[2]});s.passes++;if(s.target<=t)s.target=Math.min(t+1,NB);
- s.hit=s.log[s.log.length-1];save();render();toast(s.name.split(" ")[0]+" passed "+bl(t)+" on "+ds(ts))};
-$("hist").addEventListener("click",function(e){var b=e.target.closest("[data-hi]");if(!b)return;var i=+b.dataset.hi,s=S[i],k=+b.dataset.hk,c=CID,f=b.dataset.hf,t=f?s&&s.fl[k]:s&&s.log[k];if(!s)return;
+ s.hit=s.log[s.log.length-1];save();render();toast(fn(s)+" passed "+bl(t)+" on "+ds(ts))};
+$("hist").addEventListener("click",function(e){var p=e.target.closest("[data-hp]");if(p){setSeg("hP",p.dataset.hp);return}
+ var b=e.target.closest("[data-hi]");if(!b)return;var i=+b.dataset.hi,s=S[i],k=+b.dataset.hk,c=CID,f=b.dataset.hf,t=f?s&&s.fl[k]:s&&s.log[k];if(!s)return;
  ask("Remove "+(f?"the fail":"the pass for "+pl(s,k))+" from "+s.name+" on "+ds(t)+"?",f?"Remove fail":"Remove pass",function(){if(!same(c,i,s)||(f?s.fl[k]:s.log[k])!==t)return;
-  if(f){s.fl.splice(k,1);save();render();toast("Fail removed for "+s.name.split(" ")[0]);return}
-  s.log.splice(k,1);s.lt.splice(k,1);s.lx.splice(k,1);s.passes=Math.max(0,s.passes-1);s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();toast("Pass removed for "+s.name.split(" ")[0])},null,1)});
+  if(f){s.fl.splice(k,1);save();render();toast("Fail removed for "+fn(s));return}
+  s.log.splice(k,1);s.lt.splice(k,1);s.lx.splice(k,1);s.passes=Math.max(0,s.passes-1);s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();toast("Pass removed for "+fn(s))},null,1)});
+
+/* ---------- Class: Memo and Quran sheets ---------- */
+var TP="r",QP="r";
+/* Class days: weekends from the first class day, plus any day with a record. Recent keeps the last weeks in view. */
+function sheet(){var ev={},days={};
+ S.forEach(function(s,i){s.log.forEach(function(t,k){var d=dk(t);days[d]=t;(ev[i+"|"+d]=ev[i+"|"+d]||[]).push({n:s.lt[k],x:pl(s,k)})})});
+ var t0=today0(),today=dk(t0.getTime()),en=addDays(t0,TP==="r"?14:41),from=TP==="r"?dk(addDays(t0,-28).getTime()):"";
+ for(var x=sd();x<=en;x=addDays(x,1)){var g=x.getDay();if(g===6||g===0){var key=dk(x.getTime());if(!days[key])days[key]=x.getTime()+432e5}}
+ var D=Object.keys(days).filter(function(d){return d>=from}).sort(),el=$("sheet");
+ if(!S.length){el.innerHTML='<div class="empty"><b>No students yet</b><button type="button" class="btn sm" data-ct="S">Add students in Settings</button></div>';return}
+ var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th>'+D.map(function(d){return '<th scope="col" class="'+(d>today?'fu':d===today?'td':'')+'">'+new Date(days[d]).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"2-digit"})+(d===today?'<br><small>Today</small>':'')+'</th>'}).join("")+'</tr></thead><tbody>';
+ S.forEach(function(s,i){h+='<tr><th scope="row" class="t1'+(late(s)?' late':'')+'">'+esc(s.name)+'</th>'+D.map(function(d){var c=ev[i+"|"+d]||[];return '<td>'+c.map(function(o){return chip(lc(o.n),esc(o.x))}).join("")+'</td>'}).join("")+'</tr>'});
+ el.innerHTML=h+'</tbody></table>'}
+function legend(){$("leg").innerHTML=LEVELS.map(function(_,l){return '<span><b style="background:'+LC[l%LC.length]+'"></b>L'+(l+1)+'</span>'}).join("")+'<span><b style="background:'+BC+'"></b>Juz</span>'}
 /* Score colours, red (0) to green (5), dark enough to carry text. */
 var QC=["#b42318","#c2410c","#b45309","#4d7c0f","#15803d","#047857"];
 function qlab(k){var p=k.split("-");return ds(new Date(+p[0],+p[1]-1,+p[2],12).getTime())}
 function avg(v){return v.length?(v.reduce(function(a,b){return a+b},0)/v.length).toFixed(1):""}
 function quran(){var qd=$("qD");qd.min=FCD;qd.max=dk(Date.now());if(!qd.value)qd.value=dk(Date.now());var d=qd.value;
- $("qrows").innerHTML=S.length?S.map(function(s,i){var cur=s.q[d];return '<div class="trow"><b>'+esc(s.name)+'</b><div class="tset" role="group" aria-label="Score for '+esc(s.name)+'">'+[0,1,2,3,4,5].map(function(k){return '<button class="tbtn" style="--c:'+QC[k]+'" aria-pressed="'+(cur===k)+'" data-qi="'+i+'" data-qv="'+k+'">'+k+'</button>'}).join("")+'</div><span class="qv">'+(cur===undefined?'Not recorded':'<b>'+cur+'</b>/5')+'</span></div>'}).join(""):'<div class="empty"><b>No students yet</b>Add them in the Input tab.</div>';
- var days={};for(var x=sd(),t0=new Date();x<=t0;x=new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)){var g=x.getDay();if(g===6||g===0)days[dk(x.getTime())]=1}
+ $("qrows").innerHTML=S.length?S.map(function(s,i){var cur=s.q[d];return '<div class="trow"><b>'+esc(s.name)+'</b><div class="tset" role="group" aria-label="Score for '+esc(s.name)+'">'+[0,1,2,3,4,5].map(function(k){return '<button type="button" class="tbtn" style="--c:'+QC[k]+'" aria-pressed="'+(cur===k)+'" data-qi="'+i+'" data-qv="'+k+'">'+k+'</button>'}).join("")+'</div><span class="qv">'+(cur===undefined?'Not recorded':'<b>'+cur+'</b>/5')+'</span></div>'}).join(""):'<div class="empty"><b>No students yet</b></div>';
+ var rec=S.filter(function(s){return s.q[d]!==undefined});
+ $("qSum").innerHTML=S.length?'<b>'+rec.length+' of '+S.length+'</b> recorded'+(rec.length?', class average <b>'+avg(rec.map(function(s){return s.q[d]}))+'</b> out of 5':''):'';
+ var days={},from=QP==="r"?dk(addDays(today0(),-42).getTime()):"";for(var x=sd(),t0=new Date();x<=t0;x=addDays(x,1)){var g=x.getDay();if(g===6||g===0)days[dk(x.getTime())]=1}
  S.forEach(function(s){Object.keys(s.q).forEach(function(k){days[k]=1})});
- var D=Object.keys(days).sort();
+ var D=Object.keys(days).filter(function(k){return k>=from}).sort();
  if(!S.length){$("qSheet").innerHTML='<div class="empty"><b>Nothing recorded yet</b></div>';return}
- var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th><th scope="col">Average</th>'+D.map(function(k){return '<th scope="col">'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
- S.forEach(function(s){var v=Object.keys(s.q).map(function(k){return s.q[k]});
-  h+='<tr><th scope="row" class="t1">'+esc(s.name)+'</th><td><b>'+(avg(v)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'/5'))+'</td>'}).join("")+'</tr>'});
+ var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th><th scope="col">Average, all days</th>'+D.map(function(k){return '<th scope="col">'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
+ S.forEach(function(s){h+='<tr><th scope="row" class="t1">'+esc(s.name)+'</th><td><b>'+(qavg(s)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'/5'))+'</td>'}).join("")+'</tr>'});
  h+='<tr><th scope="row" class="t1">Class average</th><td></td>'+D.map(function(k){return '<td><b>'+avg(S.filter(function(s){return s.q[k]!==undefined}).map(function(s){return s.q[k]}))+'</b></td>'}).join("")+'</tr>';
  $("qSheet").innerHTML=h+'</tbody></table>'}
 $("qrows").addEventListener("click",function(e){var b=e.target.closest("[data-qi]");if(!b)return;var s=S[+b.dataset.qi],v=+b.dataset.qv,d=$("qD").value;if(!s)return;
  if(!d){toast("Pick a class day first",1);return}if(d<FCD){toast("The first class day was "+ds(sd().getTime()),1);return}if(d>dk(Date.now())){toast("That date is in the future",1);return}
- var lab=qlab(d),nm=s.name.split(" ")[0];
+ var lab=qlab(d),nm=fn(s);
  if(s.q[d]===v){delete s.q[d];save();render();toast(nm+"'s score cleared for "+lab);return}
  s.q[d]=v;save();render();toast(nm+" scored "+v+"/5 on "+lab)});
 $("qD").onchange=function(){render()};
-function warnrows(){$("wrows").innerHTML=S.length?S.map(function(s,i){var w=s.warn||0;return '<div class="trow s'+w+'"><b>'+esc(s.name)+'</b><div class="tset" role="group" aria-label="Warning for '+esc(s.name)+'">'+[1,2,3].map(function(l){return '<button class="tbtn b'+l+'" aria-pressed="'+(w===l)+'" data-wi="'+i+'" data-wv="'+l+'">'+WL[l]+'</button>'}).join("")+'</div></div>'}).join(""):'<div class="empty"><b>No students yet</b>Add them in the Input tab.</div>'}
-$("wrows").addEventListener("click",function(e){var b=e.target.closest("[data-wi]");if(!b)return;var s=S[+b.dataset.wi],v=+b.dataset.wv;if(!s)return;var nm=s.name.split(" ")[0];
+
+/* ---------- Class: Warnings ---------- */
+function warnrows(){var n=[0,0,0,0];S.forEach(function(s){n[s.warn||0]++});
+ $("wsum").innerHTML=n[1]+n[2]+n[3]?[3,2,1].filter(function(l){return n[l]}).map(function(l){return wl(l)+'<b>'+n[l]+'</b>'}).join(""):'<span class="calm">No warnings</span>';
+ $("wrows").innerHTML=S.length?S.map(function(s,i){var w=s.warn||0;return '<div class="trow s'+w+'"><b>'+esc(s.name)+'</b><div class="tset" role="group" aria-label="Warning for '+esc(s.name)+'">'+[1,2,3].map(function(l){return '<button type="button" class="tbtn b'+l+'" aria-pressed="'+(w===l)+'" data-wi="'+i+'" data-wv="'+l+'">'+WL[l]+'</button>'}).join("")+'</div></div>'}).join(""):'<div class="empty"><b>No students yet</b></div>'}
+$("wrows").addEventListener("click",function(e){var b=e.target.closest("[data-wi]");if(!b)return;var s=S[+b.dataset.wi],v=+b.dataset.wv;if(!s)return;var nm=fn(s);
  if(s.warn===v){s.warn=0;save();render();toast(nm+": warning removed");return}
  s.warn=v;save();render();toast(nm+": "+WL[v]+" given")});
-function houseCards(T){return HOUSES.map(function(h){return '<div class="hcard '+h+'"><b>'+(T[h]||0)+'</b><span>'+h+'</span></div>'}).join("")}
+
+/* ---------- Class: Rewards ---------- */
+var LK="p",LT="m";
+function leaders(){var f=LK==="p"?(LT==="m"?mpc:function(s){return s.passes}):(LT==="m"?mmc:function(s){return s.merits}),w=LK==="p"?["pass","passes"]:["merit","merits"];
+ var items=S.map(function(s){return {name:s.name,v:f(s)}}),a=ranked(items),z=items.filter(function(o){return !(o.v>0)}).map(function(o){return o.name}).sort();
+ $("lead").innerHTML=(S.length?rankList("lead",items,{limit:999,tone:LK==="m"?"gold":"sky",none:"No "+w[1]+" yet"+(LT==="m"?" this month.":".")}):'<p class="none">No students in this class yet.</p>')
+  +(a.length&&z.length?'<p class="rank-note"><b>Not yet:</b> '+esc(z.join(", "))+'</p>':'')}
+function prize(){var H=S.filter(rc).sort(function(a,b){return wonAt(a)-wonAt(b)}),P=S.filter(function(s){var n=mpc(s);return n>0&&n<PRIZE}).sort(function(a,b){return mpc(b)-mpc(a)||a.name.localeCompare(b.name)});
+ function dots(n){var h="";for(var k=0;k<PRIZE;k++)h+='<i'+(k<n?' class="on"':'')+'></i>';return '<span class="dots" aria-hidden="true">'+h+'</span>'}
+ $("prize").innerHTML=(H.length?'<p class="pz-won"><b>'+plural(H.length,"student")+'</b> reached '+PRIZE+' passes</p><ul class="pz">'+H.map(function(s){return '<li class="won"><b>'+esc(s.name)+'</b>'+dots(PRIZE)+'<span>'+mpc(s)+'</span></li>'}).join("")+'</ul>':'<p class="pz-won">Nobody yet this month.</p>')
+  +(P.length?'<h3>On the way</h3><ul class="pz">'+P.map(function(s){return '<li><b>'+esc(s.name)+'</b>'+dots(mpc(s))+'<span>'+mpc(s)+' of '+PRIZE+'</span></li>'}).join("")+'</ul>':'')}
+function houseCards(T){return HOUSES.map(function(h){return '<div class="hcard '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+'</span><b>'+(T[h]||0)+'</b><small>points</small></div>'}).join("")}
 function houses(){$("hClass").innerHTML=houseCards(houseTotals(S));
  $("hrows").innerHTML=S.length?S.map(function(s,i){return '<div class="hrow"><div class="who"><b>'+esc(s.name)+'</b>'+(s.house?'<span class="pill"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="pill grey" title="Set it with a House column in the student CSV">No house yet</span>')+'</div><div class="tkb">'+TOK.map(function(k){
-  return '<span class="tkp"><button class="tk '+k[1]+'" data-ti="'+i+'" data-tk="'+k[0]+'" data-tv="1" aria-label="Give '+esc(s.name)+' a '+k[2].toLowerCase()+' token, '+k[3]+' points"><i></i>'+k[2]+'</button><span class="tkn" title="'+k[2]+' tokens">'+s[k[0]].length+'</span><button class="tk minus" data-ti="'+i+'" data-tk="'+k[0]+'" data-tv="-1" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button></span>'}).join("")+'</div><div class="hpts"><b>'+hp(s)+'</b> points</div></div>'}).join(""):'<div class="empty"><b>No students yet</b>Add them in the Input tab.</div>'}
+  return '<span class="tkp"><button type="button" class="tk '+k[1]+'" data-ti="'+i+'" data-tk="'+k[0]+'" data-tv="1" aria-label="Give '+esc(s.name)+' a '+k[2].toLowerCase()+' token, '+k[3]+' points"><i></i>'+k[2]+'</button><span class="tkn" title="'+k[2]+' tokens">'+s[k[0]].length+'</span><button type="button" class="tk minus" data-ti="'+i+'" data-tk="'+k[0]+'" data-tv="-1" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button></span>'}).join("")+'</div><div class="hpts"><b>'+hp(s)+'</b> points</div></div>'}).join(""):'<div class="empty"><b>No students yet</b></div>'}
 $("hrows").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||b.dataset.ti===undefined)return;
- var s=S[+b.dataset.ti],f=b.dataset.tk,k=TOK.filter(function(t){return t[0]===f})[0];if(!s||!k)return;var nm=s.name.split(" ")[0];
+ var s=S[+b.dataset.ti],f=b.dataset.tk,k=TOK.filter(function(t){return t[0]===f})[0];if(!s||!k)return;var nm=fn(s);
  if(b.dataset.tv==="1"){s[f].push(Date.now());save();render();toast(nm+": "+k[2].toLowerCase()+" token, +"+k[3]+" points"+(s.house?" for "+s.house:""));return}
  if(!s[f].length){toast(nm+" has no "+k[2].toLowerCase()+" tokens",1);return}
  s[f].pop();save();render();toast(nm+": "+k[2].toLowerCase()+" token taken back")});
+
+/* ---------- Class: Settings ---------- */
 function clearW(){var c=CID;if(!S.some(function(s){return s.warn})){toast("No warnings to clear",1);return}
  ask("Clear every warning in "+ST[c].name+"?","Clear warnings",function(){if(CID!==c)return;S.forEach(function(s){s.warn=0});save();render();toast("All warnings cleared")},null,1)}
 $("cw2").onclick=clearW;$("cw").onclick=clearW;
 function blank(n){return {name:n,target:1,passes:0,merits:0,hit:null,log:[],lt:[],lx:[],ml:[],fl:[],q:{},warn:0,tg:[],tb:[],tr:[]}}
-$("add").onclick=function(){S.push(blank("New student"));save();render();toast("Student added. Rename them from the … menu.")};
+$("add").onclick=function(){S.push(blank("New student"));save();render();toast("Student added. Rename them from the … menu in Record.")};
 $("rst").onclick=function(){var c=CID;ask("Reset all passes and merits for "+ST[c].name+"?","Reset scores",function(){if(CID!==c)return;S.forEach(function(s){s.passes=0;s.merits=0;s.ml=[];s.hit=null;s.log=[];s.lt=[];s.lx=[]});save();render();toast("All scores reset")},null,1)};
-var TABS=["D","I","W","Q","T","H"],CUR="D";
-function tab(n,focus){CUR=n;TABS.forEach(function(k){var on=k===n,b=$("t"+k);$("v"+k).classList.toggle("hide",!on);b.setAttribute("aria-selected",on);b.tabIndex=on?0:-1});
- if(focus)$("t"+n).focus();$("t"+n).scrollIntoView({block:"nearest",inline:"nearest"})}
-TABS.forEach(function(k,i){var b=$("t"+k);b.onclick=function(){tab(k)};
- b.onkeydown=function(e){var j=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?TABS.length-1:null;if(j===null)return;e.preventDefault();tab(TABS[(j+TABS.length)%TABS.length],1)}});
 
-function navL(){var sel=$("nSel"),v=CID||"";
- sel.innerHTML='<option value="">Overview: all classes</option>'+CIDS.map(function(c){return '<option value="'+esc(c)+'">'+esc(ST[c].name)+'</option>'}).join("");sel.value=v;
+/* ---------- Class: band and render ---------- */
+function fig(v,label,cls){return '<div class="fig'+(cls?' '+cls:'')+'"><b>'+v+'</b><span>'+label+'</span></div>'}
+function classBand(){var W=S.filter(function(s){return s.warn}).length,N=S.filter(late).length;
+ $("figs").innerHTML=fig(S.length,S.length===1?"Student":"Students")+fig(sumOf(S,mpc),"Passes this month")+fig(sumOf(S,mmc),"Merits this month")+fig(W,W===1?"Warning":"Warnings",W?"alert":"")+fig(N,"Waiting for a pass",N?"alert":"")+fig(dm(sd().getTime()),"First class day","quiet");
+ $("rib").innerHTML=S.length?ribbon(S):""}
+function render(){
+ var d=new Date(),ms=new Date(d.getFullYear(),d.getMonth(),1).getTime();S.forEach(function(s){s.mp=s.log.filter(function(t){return t>=ms}).length});
+ classBand();roster();wpanel();side();
+ warnrows();quran();sheet();
+ lanes();$("dist").innerHTML=distHtml(S);$("wk").innerHTML=weekChart(allLogs(S));stuTable();past();
+ leaders();prize();houses()}
+
+/* ---------- Tabs ---------- */
+var TABS=["I","W","Q","T","D","H","S"],CUR="I",MT=["S","R","H"],MCUR="S";
+function tab(n,focus){if(TABS.indexOf(n)<0)n="I";CUR=n;TABS.forEach(function(k){var on=k===n,b=$("t"+k);$("v"+k).classList.toggle("hide",!on);b.setAttribute("aria-selected",on);b.tabIndex=on?0:-1});
+ if(focus)$("t"+n).focus();$("t"+n).scrollIntoView({block:"nearest",inline:"nearest"})}
+function mtab(n,focus){MCUR=n;MT.forEach(function(k){var on=k===n,b=$("m"+k);$("vM"+k).classList.toggle("hide",!on);b.setAttribute("aria-selected",on);b.tabIndex=on?0:-1});
+ if(focus)$("m"+n).focus();if(!CID)master()}
+function keyTabs(ids,fn,prefix){ids.forEach(function(k,i){var b=$(prefix+k);b.onclick=function(){fn(k)};
+ b.onkeydown=function(e){var j=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?ids.length-1:null;if(j===null)return;e.preventDefault();fn(ids[(j+ids.length)%ids.length],1)}})}
+keyTabs(TABS,tab,"t");keyTabs(MT,mtab,"m");
+/* Segmented controls: one choice pressed at a time. */
+function setSeg(id,v){var g=$(id);Array.prototype.forEach.call(g.querySelectorAll("button"),function(b){var k=b.dataset.p||b.dataset.k||b.dataset.t;b.setAttribute("aria-pressed",k===v)});
+ if(id==="hP")HP=v;if(id==="tP")TP=v;if(id==="qP")QP=v;if(id==="lK")LK=v;if(id==="lT")LT=v;if(id==="rP"){RP=v;master();return}
+ if(CID)render()}
+["hP","tP","qP","lK","lT"].forEach(function(id){$(id).addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg(id,b.dataset.p||b.dataset.k||b.dataset.t)})});
+
+/* ---------- Navigation ---------- */
+function navL(){
  $("nList").innerHTML=CIDS.length?CIDS.map(function(c){return '<a class="nav" href="#'+esc(c)+'" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+' title="'+esc(ST[c].name)+'">'+esc(ST[c].name)+'</a>'}).join(""):'<span class="navh" style="margin-top:0">'+(LOADED?'No classes yet':'Loading…')+'</span>';
  if(CID){var cur=$("nList").querySelector('[aria-current]');if(cur)cur.scrollIntoView({block:"nearest"})}
  $("nM").setAttribute("aria-current",CID?"false":"page")}
 function head(){var n=CID?ST[CID]:null;
- $("crumb").textContent=n?"Class dashboard":"Safar Academy Enfield";
- $("ttl").textContent=n?n.name:"School overview";
- $("sm").textContent=n?plural(n.S.length,"student")+". First class day "+ds(sd().getTime())+".":"Every class you can see, with what needs attention first.";
+ $("ttl").textContent=n?n.name:"School overview";$("swc").hidden=!n||CIDS.length<2;
  document.title=(n?n.name+" · ":"")+"Safar Enfield Dashboard"}
-function setClass(c){CID=c;S=ST[c].S;FCD=ST[c].fcd;$("body").innerHTML="";$("fcd").value=FCD;head();render()}
-function go(c,keepTab){if(c!=="M"&&!ST[c])c="M";var M=c==="M";
- $("vM").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M);
+function setClass(c){CID=c;S=ST[c].S;FCD=ST[c].fcd;$("body").innerHTML="";$("fcd").value=FCD;EXP={};head();render()}
+function go(c,keepTab){if(c!=="M"&&!ST[c])c="M";var M=c==="M";closeDrawer();
+ $("vM").classList.toggle("hide",!M);$("mt").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M);
  if(M){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master()}
- else{setClass(c);tab(keepTab||"D")}
+ else{setClass(c);tab(keepTab||"I")}
  try{history.replaceState(null,"",M?location.pathname+location.search:"#"+c)}catch(e){}
  $("navt").checked=false;navL();window.scrollTo(0,0)}
-function topList(A,val,empty){var a=A.filter(function(o){return val(o)>0}).sort(function(x,y){return val(y)-val(x)||x.s.name.localeCompare(y.s.name)});
- if(!a.length)return '<p class="sub">'+empty+'</p>';var mx=val(a[0]),r=0,p=null,R=a.map(function(o,i){var v=val(o);if(v!==p){r=i+1;p=v}return {o:o,v:v,r:r}});
- return '<ol class="rank">'+R.slice(0,10).map(function(x){return '<li>'+rkHtml(x.r,tied(R,x))+'<div class="n"><b>'+esc(x.o.s.name)+'</b><small>'+esc(ST[x.o.c].name)+'</small><div class="tr"><i style="width:'+(x.v/mx*100)+'%"></i></div></div><span class="v">'+x.v+'</span></li>'}).join("")+'</ol>'}
-function mmc(s){var m=ms0();return (s.ml||[]).filter(function(t){return t>=m}).length}
-function sumOf(L,f){return L.reduce(function(t,s){return t+f(s)},0)}
-/* Classes ranked by passes + merits this month, per student. Classes with nothing yet are listed unranked. */
-function boardHtml(){var B=CIDS.map(function(c){var L=ST[c].S,n=L.length,p=sumOf(L,mpc),m=sumOf(L,mmc);return {c:c,n:n,p:p,m:m,t:p+m,v:n?(p+m)/n:0}}).sort(function(a,b){return b.v-a.v||b.t-a.t}),mx=Math.max(B[0].v,.0001),r=0,pv=null;
- var R=B.filter(function(o){return o.v>0}).map(function(o,i){if(o.v!==pv){r=i+1;pv=o.v}o.r=r;return o}),Z=B.length-R.length;
- return '<div class="panel"><div class="panel-h"><h2>Class ranking</h2><p class="sub">Passes and merits this month, per student</p></div>'
-  +(R.length?'<ol class="rank">'+R.slice(0,10).map(function(o){return '<li>'+rkHtml(o.r,tied(R,o))+'<div class="n"><b>'+esc(ST[o.c].name)+'</b><small>'+plural(o.p,"pass","passes")+', '+plural(o.m,"merit")+', '+plural(o.n,"student")+'</small><div class="tr"><i style="width:'+(o.v/mx*100)+'%"></i></div></div><span class="v">'+o.v.toFixed(1)+'</span></li>'}).join("")+'</ol>':'<p class="sub">No passes or merits yet this month.</p>')
-  +(R.length>10?'<p class="rank-note">Top 10 of '+R.length+' classes.</p>':'')+(Z&&R.length?'<p class="rank-note">'+plural(Z,"class","classes")+' with nothing yet this month.</p>':'')+'</div>'}
-function houseBoard(all){var T=window.HOUSE_TOTALS||houseTotals(all),top=Math.max(1,Math.max.apply(null,HOUSES.map(function(h){return T[h]||0})));
- return '<div class="panel"><div class="panel-h"><h2>House points</h2><p class="sub">Whole school</p></div><div class="houses">'+HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}).map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div><span class="pts">'+v+'</span></div>'}).join("")+'</div></div>'}
+function switcher(){drawer("Switch class",'<input type="search" id="swQ" class="dsearch" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><ul class="swl" id="swL">'+CIDS.map(function(c){return '<li data-q="'+esc(nkey(ST[c].name))+'"><button type="button" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+'>'+esc(ST[c].name)+'<small>'+plural(ST[c].S.length,"student")+'</small></button></li>'}).join("")+'</ul>');
+ $("swQ").addEventListener("input",function(){var q=nkey(this.value);Array.prototype.forEach.call($("swL").children,function(li){li.hidden=!!q&&li.dataset.q.indexOf(q)<0})})}
+
+/* ---------- Overview ---------- */
+var RP="m";
 function lastPass(L){var t=0;L.forEach(function(s){var x=s.log[s.log.length-1];if(x>t)t=x});return t}
 function ago(t){if(!t)return '<span class="zero">No passes yet</span>';var w=Math.round((wk0(Date.now())-wk0(t))/(7*864e5));return w<1?"This week":w===1?"Last week":w+" weeks ago"}
-function opener(c,txt,t){return '<button type="button" data-open="'+esc(c)+'"'+(t?' data-tab="'+t+'"':'')+'>'+txt+'</button>'}
-function master(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){A.push({s:s,c:c})})});
- var now=Date.now(),all=A.map(function(o){return o.s}),h="";
- if(!CIDS.length){$("mst").innerHTML=LOADED?'<div class="empty"><b>'+(window.ME&&ME.role!=="admin"?'No classrooms have been given to you yet':'No classrooms yet')+'</b>'+(window.ME&&ME.role!=="admin"?'Ask an administrator to add you to your classrooms on Manage users.':'Upload a CSV of your students below to create them.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div>';
-  if(LOADED&&!(window.ME&&ME.role!=="admin"))$("up").open=true;return}
+function opener(c,txt,t){return '<button type="button" class="lk" data-open="'+esc(c)+'"'+(t?' data-tab="'+t+'"':'')+'>'+txt+'</button>'}
+/* Every student in the school with their class, and the three attention lists. */
+function school(){var A=[],now=Date.now();CIDS.forEach(function(c){ST[c].S.forEach(function(s){A.push({s:s,c:c})})});
  var wr=A.filter(function(o){return o.s.warn}).sort(function(a,b){return b.s.warn-a.s.warn||a.s.name.localeCompare(b.s.name)}),
-  stale=A.map(function(o){var ref=o.s.log.length?o.s.log[o.s.log.length-1]:new Date(ST[o.c].fcd+"T12:00:00").getTime();o.d=Math.floor((now-ref)/864e5);return o}).filter(function(o){return o.d>=21}).sort(function(a,b){return b.d-a.d}),
+  stale=A.map(function(o){var ref=o.s.log.length?o.s.log[o.s.log.length-1]:new Date(ST[o.c].fcd+"T12:00:00").getTime();o.d=Math.floor((now-ref)/864e5);return o}).filter(function(o){return o.d>=21}).sort(function(a,b){return b.d-a.d||a.s.name.localeCompare(b.s.name)}),
   quiet=CIDS.filter(function(c){return ST[c].S.length&&!sumOf(ST[c].S,mpc)&&!sumOf(ST[c].S,mmc)});
- /* 1. What needs attention */
- if(!A.length)h+='<div class="empty" style="margin-bottom:16px"><b>No students yet</b>Upload a CSV below, or open a class and add students in its Input tab.</div>';
- else if(!wr.length&&!stale.length&&!quiet.length)h+='<div class="panel attn calm"><p class="calmline" style="margin:0">Nothing needs attention. No warnings, every student has passed in the last 3 weeks, and every class has activity this month.</p></div>';
- else{h+='<div class="panel attn"><div class="panel-h"><h2>Needs attention</h2></div><div class="attn-grid">';
-  if(wr.length)h+='<div><h3>'+plural(wr.length,"student")+' with a warning</h3><ul class="alist">'+wr.slice(0,8).map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b>'+opener(o.c,esc(ST[o.c].name),"W")+'</span>'+wl(o.s.warn)+'</li>'}).join("")+'</ul>'+(wr.length>8?'<p class="more">and '+(wr.length-8)+' more</p>':'')+'</div>';
-  if(stale.length)h+='<div><h3>'+plural(stale.length,"student")+' with no pass in 3+ weeks</h3><ul class="alist">'+stale.slice(0,8).map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b>'+opener(o.c,esc(ST[o.c].name),"I")+'</span><span class="v">'+(o.s.log.length?o.d+" days":"None yet")+'</span></li>'}).join("")+'</ul>'+(stale.length>8?'<p class="more">and '+(stale.length-8)+' more</p>':'')+'</div>';
-  if(quiet.length)h+='<div><h3>'+plural(quiet.length,"class","classes")+' with no activity this month</h3><ul class="alist">'+quiet.slice(0,8).map(function(c){return '<li><span class="who">'+opener(c,esc(ST[c].name))+'</span><span class="v">'+plural(ST[c].S.length,"student")+'</span></li>'}).join("")+'</ul>'+(quiet.length>8?'<p class="more">and '+(quiet.length-8)+' more</p>':'')+'</div>';
-  h+='</div></div>'}
- /* 2. Headline numbers and houses */
- var K=[[CIDS.length,"Classes"],[A.length,"Students"],[sumOf(all,mpc),"Passes this month"],[sumOf(all,mmc),"Merits this month"],[sumOf(all,function(s){return s.passes}),"Total passes"],[sumOf(all,function(s){return s.merits}),"Total merits"]];
- h+='<div class="stats" style="margin-top:16px">'+K.map(function(k){return '<div class="stat"><b>'+k[0]+'</b><span>'+k[1]+'</span></div>'}).join("")+'</div>';
- /* 3. Class directory */
- h+='<div class="panel" id="dirP"><div class="dirtools"><h2>Classes</h2><input type="search" id="dirQ" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"></div>'
-  +'<div class="tablewrap"><table class="tbl stackable dir"><thead><tr><th scope="col">Class</th><th scope="col" class="n">Students</th><th scope="col" class="n">Passes this month</th><th scope="col" class="n">Merits this month</th><th scope="col" class="n">Warnings</th><th scope="col">Last pass</th></tr></thead><tbody id="dirB">'
-  +CIDS.map(function(c){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,p=sumOf(L,mpc),m=sumOf(L,mmc);
-   return '<tr data-q="'+esc(nkey(ST[c].name))+'"><td class="lead">'+opener(c,esc(ST[c].name))+'</td><td data-label="Students" class="n'+(L.length?'':' zero')+'">'+L.length+'</td><td data-label="Passes this month" class="n'+(p?'':' zero')+'">'+p+'</td><td data-label="Merits this month" class="n'+(m?'':' zero')+'">'+m+'</td><td data-label="Warnings" class="n'+(w?' wcount':' zero')+'">'+w+'</td><td data-label="Last pass">'+(L.length?ago(lastPass(L)):'<span class="zero">No students</span>')+'</td></tr>'}).join("")
-  +'<tr id="dirNone" hidden><td colspan="6" class="sub">No class matches that search.</td></tr></tbody></table></div></div>';
- /* 4. Houses and rankings */
- h+='<h2 class="section-title">This month</h2><div class="cols">'+houseBoard(all)+boardHtml()+'</div>'
-  +'<div class="cols" style="margin-top:16px"><div class="panel"><div class="panel-h"><h2>Most passes</h2><p class="sub">This month</p></div>'+topList(A,function(o){return mpc(o.s)},"No passes yet this month.")+'</div>'
-  +'<div class="panel"><div class="panel-h"><h2>Most merits</h2><p class="sub">This month</p></div>'+topList(A,function(o){return mmc(o.s)},"No merits yet this month.")+'</div>'
-  +'<div class="panel"><div class="panel-h"><h2>Furthest along</h2><p class="sub">Current target</p></div>'+(function(){var far=A.filter(function(o){return o.s.target>1}).sort(function(a,b){return b.s.target-a.s.target}).slice(0,8);
-   return far.length?'<ul class="alist">'+far.map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b><small class="sub">'+esc(ST[o.c].name)+'</small></span><span class="v">'+esc(bl(o.s.target))+'</span></li>'}).join("")+'</ul>':'<p class="sub">No progress recorded yet.</p>'})()+'</div></div>';
- var q=$("dirQ")?$("dirQ").value:"";$("mst").innerHTML=h;if(q){$("dirQ").value=q;filterDir()}}
+ return {A:A,all:A.map(function(o){return o.s}),wr:wr,stale:stale,quiet:quiet}}
+function byClass(L){var m={},o=[];L.forEach(function(x){if(!m[x.c]){m[x.c]=[];o.push(x.c)}m[x.c].push(x)});return o.map(function(c){return {c:c,L:m[c]}}).sort(function(a,b){return b.L.length-a.L.length||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true})})}
+function classChips(G,t){return '<ul class="cchips">'+G.slice(0,4).map(function(g){return '<li>'+opener(g.c,'<span>'+esc(ST[g.c].name)+'</span><b>'+g.L.length+'</b>',t)+'</li>'}).join("")+'</ul>'}
+function attnSummary(K){var h='';
+ if(!K.wr.length&&!K.stale.length&&!K.quiet.length)return '<div class="mod line s7 calmbox"><p class="calmline">Nothing needs attention. No warnings, every student has passed in the last 3 weeks, and every class has activity this month.</p></div>';
+ h+='<div class="mod line s7 attn-sum"><div class="mod-h"><h2>Needs attention</h2></div><div class="ablocks">';
+ if(K.wr.length){var n=[0,0,0,0];K.wr.forEach(function(o){n[o.s.warn]++});var G=byClass(K.wr);
+  h+='<div class="ab warn"><div class="abh"><b>'+K.wr.length+'</b><span>'+(K.wr.length===1?"student with a warning":"students with a warning")+'</span></div><p class="lv">'+[3,2,1].filter(function(l){return n[l]}).map(function(l){return '<span class="lvn">'+wl(l)+n[l]+'</span>'}).join("")+'</p>'+classChips(G,"W")+'<button type="button" class="btn sm" data-list="wr">See all '+K.wr.length+'</button></div>'}
+ if(K.stale.length){var G2=byClass(K.stale);h+='<div class="ab late"><div class="abh"><b>'+K.stale.length+'</b><span>'+(K.stale.length===1?"student":"students")+' with no pass in 3+ weeks</span></div>'+classChips(G2,"I")+'<button type="button" class="btn sm" data-list="stale">See all '+K.stale.length+'</button></div>'}
+ if(K.quiet.length)h+='<div class="ab quietc"><div class="abh"><b>'+K.quiet.length+'</b><span>'+(K.quiet.length===1?"class":"classes")+' with no activity this month</span></div><ul class="cchips">'+K.quiet.slice(0,4).map(function(c){return '<li>'+opener(c,'<span>'+esc(ST[c].name)+'</span><b>'+ST[c].S.length+'</b>')+'</li>'}).join("")+'</ul>'+(K.quiet.length>4?'<button type="button" class="btn sm" data-list="quiet">See all '+K.quiet.length+'</button>':'')+'</div>';
+ return h+'</div></div>'}
+/* The complete list behind an attention summary, grouped by class. */
+function attnList(kind){var K=school(),title,body;
+ if(kind==="quiet"){title=plural(K.quiet.length,"class","classes")+" with no activity this month";body='<ul class="dlist">'+K.quiet.map(function(c){return '<li>'+opener(c,esc(ST[c].name))+'<span class="v">'+plural(ST[c].S.length,"student")+'</span></li>'}).join("")+'</ul>'}
+ else{var L=kind==="wr"?K.wr:K.stale,t=kind==="wr"?"W":"I";title=kind==="wr"?plural(L.length,"student")+" with a warning":plural(L.length,"student")+" with no pass in 3+ weeks";
+  body=byClass(L).map(function(g){return '<section class="dgroup"><h3>'+opener(g.c,esc(ST[g.c].name),t)+' <span class="sub">'+g.L.length+'</span></h3><ul class="dlist">'+g.L.map(function(o){return '<li><b>'+esc(o.s.name)+'</b>'+(kind==="wr"?wl(o.s.warn):'<span class="v">'+(o.s.log.length?o.d+" days":"No passes yet")+'</span>')+'</li>'}).join("")+'</ul></section>'}).join("")}
+ drawer(title,body)}
+function latest(A,n){var E=[];A.forEach(function(o){o.s.log.forEach(function(t,k){E.push({t:t,s:o.s,c:o.c,x:pl(o.s,k)})})});return E.sort(function(a,b){return b.t-a.t}).slice(0,n)}
+function houseBoard(all,more){var T=window.HOUSE_TOTALS||houseTotals(all),V=HOUSES.map(function(h){return T[h]||0}),top=Math.max(1,Math.max.apply(null,V)),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null;
+ return '<div class="mod gold s4"><div class="mod-h"><h2>House points</h2>'+(more?'<button type="button" class="btn sm quiet" data-mt="H">Details</button>':'')+'</div><div class="houses">'+O.map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+(h===lead?' <span class="pill lead">Leading</span>':'')+'</span><span class="pts">'+v+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div></div>'}).join("")+'</div><p class="cap">Whole school, all time</p></div>'}
+function classRows(per){return CIDS.map(function(c){var L=ST[c].S,n=L.length,p=per==="m"?sumOf(L,mpc):sumOf(L,function(s){return s.passes}),m=per==="m"?sumOf(L,mmc):sumOf(L,function(s){return s.merits});
+ return {name:ST[c].name,open:c,v:n?Math.round((p+m)/n*10)/10:0,sub:plural(p,"pass","passes")+", "+plural(m,"merit")+", "+plural(n,"student")}})}
+function master(){var K=school(),A=K.A,all=K.all,h="";
+ $("figs").innerHTML=CIDS.length?fig(A.length,A.length===1?"Student":"Students")+fig(CIDS.length,CIDS.length===1?"Class":"Classes")+fig(sumOf(all,mpc),"Passes this month")+fig(sumOf(all,mmc),"Merits this month")+fig(K.wr.length,"With a warning",K.wr.length?"alert":"")+fig(K.stale.length,"No pass in 3+ weeks",K.stale.length?"alert":""):"";
+ $("rib").innerHTML=A.length?ribbon(all):"";
+ if(!CIDS.length){$("mst").innerHTML=LOADED?'<div class="empty"><b>'+(window.ME&&ME.role!=="admin"?'No classrooms have been given to you yet':'No classrooms yet')+'</b>'+(window.ME&&ME.role!=="admin"?'Ask an administrator to add you to your classrooms on Manage users.':'Upload a CSV of your students below to create them.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div>';
+  $("vMR").innerHTML=$("vMH").innerHTML="";if(LOADED&&!(window.ME&&ME.role!=="admin"))$("up").open=true;return}
+ if(MCUR==="S"){
+  if(!A.length)h+='<div class="empty"><b>No students yet</b>Upload a CSV below, or open a class and add students in its Settings.</div>';
+  else{var E=latest(A,5);
+   h+='<div class="g12 eq">'+attnSummary(K)+'<div class="mod teal s5"><div class="mod-h"><h2>Passes per week</h2><p class="cap">Whole school, last 8 weeks</p></div>'+weekChart(allLogs(all))
+    +'<h3>Latest passes</h3>'+(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(e.s.name)+'<small>'+esc(ST[e.c].name)+'</small></b><span class="x">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">No passes yet.</p>')+'</div></div>'}
+  h+='<div class="mod line dirmod" id="dirP"><div class="mod-h"><h2>Classes</h2><input type="search" id="dirQ" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"></div>'
+   +'<div class="tablewrap"><table class="tbl stackable dir"><thead><tr><th scope="col">Class</th><th scope="col" class="n">Students</th><th scope="col" class="n">Passes this month</th><th scope="col" class="n">Merits this month</th><th scope="col" class="n">Warnings</th><th scope="col">Last pass</th></tr></thead><tbody id="dirB">'
+   +CIDS.map(function(c){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,p=sumOf(L,mpc),m=sumOf(L,mmc);
+    return '<tr data-q="'+esc(nkey(ST[c].name))+'"><td class="lead">'+opener(c,esc(ST[c].name))+'</td><td data-label="Students" class="n'+(L.length?'':' zero')+'">'+L.length+'</td><td data-label="Passes this month" class="n'+(p?'':' zero')+'">'+p+'</td><td data-label="Merits this month" class="n'+(m?'':' zero')+'">'+m+'</td><td data-label="Warnings" class="n'+(w?' wcount':' zero')+'">'+w+'</td><td data-label="Last pass">'+(L.length?ago(lastPass(L)):'<span class="zero">No students</span>')+'</td></tr>'}).join("")
+   +'<tr id="dirNone" hidden><td colspan="6" class="sub">No class matches that search.</td></tr></tbody></table></div></div>';
+  h+='<div class="g12 eq">'+houseBoard(all,1)+'<div class="mod line s8"><div class="mod-h"><h2>Top classes this month</h2><button type="button" class="btn sm quiet" data-mt="R">Full rankings</button></div>'
+   +rankList("topc",classRows("m"),{limit:5,none:"No passes or merits yet this month.",fmt:function(v){return v.toFixed(1)}})+'<p class="cap">Passes and merits this month for each student in the class</p></div></div>';
+  var q=$("dirQ")?$("dirQ").value:"";$("mst").innerHTML=h;if(q){$("dirQ").value=q;filterDir()}}
+ if(MCUR==="R")rankings(K);
+ if(MCUR==="H")houseTab(K)}
+function rankings(K){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
+ var h='<div class="toolbar"><div class="seg" id="rP" role="group" aria-label="Period"><button type="button" data-p="m" aria-pressed="'+m+'">This month</button><button type="button" data-p="a" aria-pressed="'+!m+'">All time</button></div><p class="cap">'+(m?'Since the 1st of this month':'Every pass and merit recorded: '+plural(sumOf(K.all,function(s){return s.passes}),"pass","passes")+' and '+plural(sumOf(K.all,function(s){return s.merits}),"merit")+' in total')+'</p></div>';
+ h+='<div class="g12"><div class="mod line s6"><div class="mod-h"><h2>Class ranking</h2></div>'+rankList("rc"+RP,classRows(RP),{limit:10,none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}})+'<p class="cap">Passes and merits '+tm+', per student in the class</p></div>'
+  +'<div class="mod line s6"><div class="mod-h"><h2>Furthest along</h2><p class="cap">Current target</p></div>'+(function(){var far=A.filter(function(o){return o.s.target>1}).sort(function(a,b){return b.s.target-a.s.target||a.s.name.localeCompare(b.s.name)}),sh=EXP.far?far:far.slice(0,10);
+   return far.length?'<ul class="alist">'+sh.map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b>'+opener(o.c,esc(ST[o.c].name))+'</span><span class="v">'+esc(bl(o.s.target))+'</span></li>'}).join("")+'</ul>'+(far.length>10?'<button type="button" class="btn sm quiet more-btn" data-exp="far" aria-expanded="'+!!EXP.far+'">'+(EXP.far?'Show the top 10':'Show all '+far.length)+'</button>':''):'<p class="none">No progress recorded yet.</p>'})()+'</div></div>'
+  +'<div class="g12"><div class="mod line s6"><div class="mod-h"><h2>Most passes</h2></div>'+rankList("mp"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mpc(o.s):o.s.passes}}),{limit:10,tone:"sky",none:"No passes yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})+'</div>'
+  +'<div class="mod line s6"><div class="mod-h"><h2>Most merits</h2></div>'+rankList("mm"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mmc(o.s):o.s.merits}}),{limit:10,tone:"gold",none:"No merits yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})+'</div></div>';
+ $("vMR").innerHTML=h;$("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
+function houseTab(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null;
+ var tok={},stu={},none=0;HOUSES.forEach(function(h){tok[h]=TOK.map(function(){return 0});stu[h]=0});
+ K.all.forEach(function(s){if(!tok[s.house]){none++;return}stu[s.house]++;TOK.forEach(function(k,i){tok[s.house][i]+=(s[k[0]]||[]).length})});
+ var h='<div class="hbig">'+O.map(function(x){return '<div class="hcol '+x+'"><span class="hn"><span class="hdot '+x+'"></span>'+x+'</span><b>'+(T[x]||0)+'</b><small>points'+(x===lead?', leading':'')+'</small></div>'}).join("")+'</div><p class="cap">Whole school, all time. A house leads only when it is strictly ahead.</p>';
+ h+='<div class="mod line"><div class="mod-h"><h2>Tokens by house</h2></div><div class="tablewrap"><table class="tbl"><thead><tr><th scope="col">House</th><th scope="col" class="n">Students</th>'+TOK.map(function(k){return '<th scope="col" class="n"><span class="tdot '+k[1]+'"></span>'+k[2]+' ('+k[3]+')</th>'}).join("")+'</tr></thead><tbody>'
+  +HOUSES.map(function(x){return '<tr><th scope="row"><span class="hn"><span class="hdot '+x+'"></span>'+x+'</span></th><td class="n">'+stu[x]+'</td>'+tok[x].map(function(v){return '<td class="n'+(v?'':' zero')+'">'+v+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div><p class="cap">Tokens given in the '+plural(CIDS.length,"class","classes")+' on this dashboard. '+(none?plural(none,"student")+' with no house yet.':'')+'</p></div>'
+  +'<div class="mod line"><div class="mod-h"><h2>Points by class</h2></div><div class="tablewrap"><table class="tbl stackable"><thead><tr><th scope="col">Class</th>'+HOUSES.map(function(x){return '<th scope="col" class="n">'+x+'</th>'}).join("")+'</tr></thead><tbody>'
+  +CIDS.map(function(c){var t=houseTotals(ST[c].S);return '<tr><td class="lead">'+opener(c,esc(ST[c].name),"H")+'</td>'+HOUSES.map(function(x){return '<td data-label="'+x+'" class="n'+(t[x]?'':' zero')+'">'+t[x]+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div></div>';
+ $("vMH").innerHTML=h}
 function filterDir(){var q=nkey($("dirQ").value),n=0;Array.prototype.forEach.call($("dirB").querySelectorAll("tr[data-q]"),function(r){var on=!q||r.dataset.q.indexOf(q)>=0;r.hidden=!on;if(on)n++});$("dirNone").hidden=n>0}
+
 (function(){
 $("ren").onclick=function(){var c=CID;if(!c)return;ask("Rename this class","Save name",function(v){if(!ST[c])return;ST[c].name=v;sortC();save();navL();head();toast("Class name saved")},"Class name",0,ST[c].name)};
 var f=$("fcd");
@@ -944,9 +1289,15 @@ f.onchange=function(){if(!f.value||!CID)return;FCD=f.value;ST[CID].fcd=FCD;save(
 $("bulkA").onclick=function(){if(!CID)return;var n=$("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);$("bulk").focus();return}
  n.forEach(function(x){S.push(blank(x))});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added")};
 $("nM").onclick=function(){go("M")};$("home").onclick=function(e){e.preventDefault();go("M")};
-$("nSel").onchange=function(){var v=this.value;go(v&&CIDS.indexOf(v)>=0?v:"M")};
-$("nList").addEventListener("click",function(e){var a=e.target.closest("[data-open]");if(!a)return;e.preventDefault();go(a.dataset.open)});
-$("mst").addEventListener("click",function(e){var b=e.target.closest("[data-open]");if(b)go(b.dataset.open,b.dataset.tab)});
+$("swc").onclick=switcher;
+$("goPast").onclick=function(){tab("D");$("pastD").open=true;$("pS").focus();$("pastD").scrollIntoView({block:"center"})};
+/* Links between screens: open a class (and tab), switch an overview or class tab, expand a list, open a full list. */
+document.addEventListener("click",function(e){var b=e.target.closest("[data-open],[data-ct],[data-mt],[data-exp],[data-list]");if(!b||b.closest("#dlg"))return;
+ if(b.dataset.open){e.preventDefault();go(b.dataset.open,b.dataset.tab);return}
+ if(b.dataset.ct){tab(b.dataset.ct,1);var fz=b.dataset.focus&&$(b.dataset.focus);if(fz)fz.scrollIntoView({block:"start"});return}
+ if(b.dataset.mt){mtab(b.dataset.mt,1);return}
+ if(b.dataset.list){attnList(b.dataset.list);return}
+ if(b.dataset.exp){var k=b.dataset.exp;EXP[k]=!EXP[k];if(CID)leaders();else master();var nb=document.querySelector('[data-exp="'+k+'"]');if(nb)nb.focus()}});
 $("mst").addEventListener("input",function(e){if(e.target.id==="dirQ")filterDir()});
 window.addEventListener("hashchange",function(){var h=(location.hash||"").slice(1);if(h&&ST[h]&&h!==CID)go(h);else if(!h&&CID)go("M")});
 $("delC").onclick=function(){var c=CID;if(!c)return;
@@ -961,6 +1312,8 @@ if(MODE==="local")setSt("Saved on this device only");
 legend();go("M");
 if(HASH&&ST[HASH]){var hh=HASH;HASH="";go(hh)}
 })();
+
+
 
 
 /* CSV upload. Columns: Student ID, Student Name (or First name and Surname), Gender, School Year Group,
@@ -1080,5 +1433,4 @@ function importCSV(){if(!CSV)return;var p=planCSV(),fcd=document.getElementById(
  var said=[];if(n.add)said.push(n.add+" student"+(n.add>1?"s":"")+" added");if(n.move)said.push(n.move+" moved");if(n.update)said.push(n.update+" updated");if(made)said.push(made+" classroom"+(made>1?"s":"")+" created");
  toast(said.join(", "))}
 function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";document.getElementById("csvF").value=""}
-</script>
 </script>

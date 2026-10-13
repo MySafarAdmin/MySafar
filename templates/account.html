@@ -9,8 +9,8 @@
   <h1>Choose your own password</h1>
   <p class="lede">You signed in with the shared setup password. Choose a password only you know before continuing.</p>
 {% else %}
-<div class="pagehead"><div><h1>Your account</h1><p class="lede">{{ user.name }}, signed in as {{ user.email }}</p></div><span class="pill blue">{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></div>
-<div class="panel">
+<div class="band slim"><div class="band-top"><h1>Your account</h1></div><p class="lede">Signed in as {{ user.email }} ({{ "administrator" if user.role == "admin" else "teacher" }})</p></div>
+<div class="g12"><div class="mod line s7">
   <h2>Change your password</h2>
   <p class="sub">You'll stay signed in on this device.</p>
 {% endif %}
@@ -27,7 +27,7 @@
 {% if user.must_change %}
 <form method="post" action="/logout" class="center"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="link">Sign out</button></form>
 {% else %}
-<div class="panel">
+<div class="mod line s5">
   <h2>Other devices</h2>
   {% if others %}
   <p>You're signed in on {{ others }} other device{{ "s" if others != 1 }}.</p>
@@ -35,6 +35,6 @@
   {% else %}
   <p class="sub">You aren't signed in anywhere else.</p>
   {% endif %}
-</div>
+</div></div>
 {% endif %}
 {% endblock %}

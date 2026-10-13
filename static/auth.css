@@ -1,6 +1,11 @@
 /* Sign-in, account and admin pages. Served after src/tokens.css in /auth.css, so the shell,
    tokens and controls are the same as on the dashboard. */
 .content>h2{margin:28px 0 12px}
+.band .crumb{margin:0 0 6px;font-size:.875rem}
+.band .crumb a{color:var(--band-mute)}
+.band+.tablewrap,.band+.mod{margin-top:0}
+.mod>h2{margin-bottom:6px}
+.mod form{margin:0}
 .panel form,.card form{margin:0}
 form .field{margin:0 0 14px}
 .field input,.field select{width:100%;font-weight:400}
@@ -12,23 +17,30 @@ label.check input{margin:0}
 .rooms label.check input{margin-top:3px}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
 .actions form{margin:0}
-.linkbox{border-color:var(--primary);background:var(--primary-soft)}
+.linkbox{border-color:var(--primary);background:var(--primary-soft);margin-bottom:20px}
 .linkbox input{width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.875rem}
 
-/* Accounts */
-details.user{padding:0}
-details.user summary{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;padding:14px 20px;min-height:56px;border-radius:var(--r-lg)}
+/* Accounts: one white list, a row per person; open a row to change it */
+.accounts{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.accounts>h2{padding:16px 20px 12px;margin:0;border-bottom:1px solid var(--line)}
+details.user{border-bottom:1px solid var(--line)}
+details.user:last-child{border-bottom:0}
+details.user summary{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;padding:12px 20px;min-height:60px}
 details.user summary::-webkit-details-marker{display:none}
 details.user summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);margin-left:4px;flex:none}
 details.user[open] summary::after{transform:rotate(-135deg)}
 details.user summary:hover{background:var(--surface-2)}
+details.user[open] summary{background:var(--surface-2)}
 details.user .who{min-width:0;display:flex;flex-direction:column}
 details.user .who b{overflow-wrap:anywhere}
 details.user .who .sub{font-size:.875rem;overflow-wrap:anywhere}
 details.user .tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-left:auto}
-details.user .body{padding:4px 20px 20px;border-top:1px solid var(--line)}
-details.user .body>p:first-child{margin-top:14px}
+details.user .body{padding:4px 20px 20px;background:var(--surface-2)}
+details.user .body>p:first-child{margin-top:4px}
 details.user.off .who{opacity:.7}
+.invite{margin-top:24px;scroll-margin-top:72px}
+.invite:target,.invite:focus{outline:3px solid var(--focus);outline-offset:2px}
+@media (max-width:959.98px){.accounts{margin:0 -16px;border-radius:0;border-left:0;border-right:0}details.user summary{padding:12px 16px}details.user .body{padding:4px 16px 16px}}
 .danger-zone{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
 
 /* Sign-in and other single-card pages */

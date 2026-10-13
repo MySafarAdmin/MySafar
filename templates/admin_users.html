@@ -2,34 +2,17 @@
 {% block title %}Manage users{% endblock %}
 {% block width %} narrow{% endblock %}
 {% block content %}
-<div class="pagehead"><div><h1>Manage users</h1><p class="lede">Invite staff, choose which classrooms each teacher sees, and send password reset links.</p></div></div>
+<div class="band slim"><div class="band-top"><h1>Manage users</h1><div class="acts"><a class="btn" href="#invite">Invite staff</a></div></div>
+<div class="figs"><div class="fig"><b>{{ users|length }}</b><span>Accounts</span></div><div class="fig"><b>{{ users|selectattr("role", "equalto", "teacher")|list|length }}</b><span>Teachers</span></div><div class="fig"><b>{{ users|selectattr("role", "equalto", "admin")|list|length }}</b><span>Administrators</span></div><div class="fig{{ ' alert' if users|rejectattr('active')|rejectattr('disabled')|list }}"><b>{{ users|rejectattr("active")|rejectattr("disabled")|list|length }}</b><span>Invites not accepted</span></div></div></div>
 {% if link %}
 <div class="panel linkbox" role="status">
   <p><b>Send this link to {{ link_for }}</b>{% if not mail_enabled %} (email isn't set up yet){% else %} (the email couldn't be sent){% endif %}. It works once.</p>
   <input readonly value="{{ link }}" aria-label="Link to send">
 </div>
 {% endif %}
-<div class="panel">
-  <h2>Invite someone</h2>
-  <p class="sub">They get {{ "an email with " if mail_enabled }}a link to choose their password. It expires in 72 hours. Teachers see only the classrooms you tick; admins see everything.</p>
-  <form method="post" action="/admin/users/invite">
-    <input type="hidden" name="csrf" value="{{ csrf }}">
-    <div class="formrow">
-      <label class="field">Name<input name="name" maxlength="80" autocomplete="off" required></label>
-      <label class="field">Email<input type="email" name="email" maxlength="254" autocomplete="off" spellcheck="false" required></label>
-      <label class="field">Role<select name="role"><option value="teacher">Teacher</option><option value="admin">Administrator</option></select></label>
-    </div>
-    {% if rooms %}
-    <fieldset><legend>Classrooms (for teachers)</legend>
-      <div class="rooms">{% for id, name in rooms %}<label class="check"><input type="checkbox" name="classes" value="{{ id }}"> {{ name }}</label>{% endfor %}</div>
-    </fieldset>
-    {% endif %}
-    <button class="btn primary">Send invite</button>
-  </form>
-</div>
-<h2>Accounts <span class="sub">({{ users|length }})</span></h2>
+<section class="accounts" aria-labelledby="acch"><h2 id="acch">Accounts</h2>
 {% for u in users %}
-<details class="panel user{{ ' off' if u.disabled }}">
+<details class="user{{ ' off' if u.disabled }}">
   <summary>
     <span class="who"><b>{{ u.name }}</b><span class="sub">{{ u.email }}</span></span>
     <span class="tags">
@@ -65,4 +48,23 @@
   </div>
 </details>
 {% endfor %}
+</section>
+<div class="mod line invite" id="invite" tabindex="-1">
+  <h2>Invite staff</h2>
+  <p class="sub">They get {{ "an email with " if mail_enabled }}a link to choose their password. It expires in 72 hours. Teachers see only the classrooms you tick; admins see everything.</p>
+  <form method="post" action="/admin/users/invite">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="formrow">
+      <label class="field">Name<input name="name" maxlength="80" autocomplete="off" required></label>
+      <label class="field">Email<input type="email" name="email" maxlength="254" autocomplete="off" spellcheck="false" required></label>
+      <label class="field">Role<select name="role"><option value="teacher">Teacher</option><option value="admin">Administrator</option></select></label>
+    </div>
+    {% if rooms %}
+    <fieldset><legend>Classrooms (for teachers)</legend>
+      <div class="rooms">{% for id, name in rooms %}<label class="check"><input type="checkbox" name="classes" value="{{ id }}"> {{ name }}</label>{% endfor %}</div>
+    </fieldset>
+    {% endif %}
+    <button class="btn primary">Send invite</button>
+  </form>
+</div>
 {% endblock %}

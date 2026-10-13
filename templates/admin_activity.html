@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Activity{% endblock %}
 {% block content %}
-<div class="pagehead"><div><h1>Activity</h1><p class="lede">Sign-ins, account changes and classroom saves from the last {{ config.RETENTION_DAYS }} days, newest first (up to 300). Saves by the same person within 15 minutes are shown once.</p></div></div>
+<div class="band slim"><div class="band-top"><h1>Activity</h1></div><p class="lede">The last {{ config.RETENTION_DAYS }} days, newest first, up to 300 entries. Saves by one person within 15 minutes show once.</p></div>
 <div class="tablewrap"><table class="tbl stackable">
 <thead><tr><th scope="col">When</th><th scope="col">Who</th><th scope="col">What</th><th scope="col">Classroom</th><th scope="col">IP address</th></tr></thead>
 <tbody>
