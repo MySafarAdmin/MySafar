@@ -269,10 +269,16 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head{color:var(--ink);padding:2px 0 0}
 .head-top{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;min-height:40px}
 .head h1{margin-right:auto}
-.head .save{order:2}.head .swc{order:1}
+.head .save{order:2}.head .swc{order:1}.head .figpop{order:3}
+.head .save[data-s="ok"]{display:none}
 .head h1{font-size:1.5rem;font-weight:750;letter-spacing:-.01em;line-height:1.15;color:var(--ink);overflow-wrap:anywhere;min-width:0}
-.head .figs{order:3;flex-basis:100%;display:flex;flex-wrap:wrap;gap:2px 26px;margin:2px 0 0;align-items:baseline}
-.head .figs:empty{display:none}
+.figpop{position:relative}
+.figpop>summary{list-style:none;border:1px solid var(--line-2);background:var(--surface)}
+.figpop>summary::-webkit-details-marker{display:none}
+.figpop[open]>summary{background:var(--navy-soft);color:var(--navy);border-color:color-mix(in srgb,var(--navy) 35%,#fff)}
+.head .figpop .figs{position:absolute;z-index:40;top:46px;right:0;display:grid;grid-template-columns:1fr;gap:10px;width:max-content;min-width:220px;max-width:calc(100vw - 32px);margin:0;padding:14px 16px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift)}
+.head .figpop .fig{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:baseline;gap:20px}
+.head .figpop:has(.figs:empty){display:none}
 .head .fig{white-space:nowrap;flex:none}
 .head .fig b{font-size:1.125rem;font-weight:750}
 .head .fig span{font-size:.8125rem}
@@ -297,8 +303,6 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (max-width:959.98px){
  .head{padding:2px 0 0}
  .head h1{font-size:1.125rem;line-height:1.25}
- .head .figs{display:flex;flex-wrap:wrap;gap:2px 14px;margin:6px 0 0}
- .head .fig{flex-direction:row;gap:5px;white-space:nowrap}
  .head .fig b{font-size:1rem}
  .head .fig span{font-size:.8125rem}
  /* Every tab stays visible: they wrap onto a second row instead of scrolling sideways. */
@@ -987,7 +991,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 <div class="work">
 <main><div class="content" id="main" tabindex="-1">
 <div class="head" id="band">
- <div class="head-top"><h1 id="ttl">School overview</h1><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button><div class="figs" id="figs"></div><span class="save" id="st" role="status" aria-live="polite"></span></div>
+ <div class="head-top"><h1 id="ttl">School overview</h1><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button><span class="save" id="st" role="status" aria-live="polite"></span><details class="figpop" id="figP"><summary class="ibtn" aria-label="Figures" title="Figures"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg></summary><div class="figs" id="figs"></div></details></div>
  <div class="tabs" id="mt" role="tablist" aria-label="Overview pages">
   <button id="mS" role="tab" aria-controls="vMS" aria-selected="true">Summary</button><button id="mA" role="tab" aria-controls="vMA" aria-selected="false" tabindex="-1">Attention</button><button id="mC" role="tab" aria-controls="vMC" aria-selected="false" tabindex="-1">Classes</button><button id="mR" role="tab" aria-controls="vMR" aria-selected="false" tabindex="-1">Rankings</button><button id="mH" role="tab" aria-controls="vMH" aria-selected="false" tabindex="-1">Houses</button>
  </div>
@@ -1048,11 +1052,9 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 
 <section id="vT" class="ws hide" role="tabpanel" aria-labelledby="tT">
  <div class="toolbar mtbar">
-  <p class="qsum mrec" id="mSum"></p>
-  <div class="seg mrec" id="mO" role="group" aria-label="Order"><button type="button" data-p="c" aria-pressed="true">Class order</button><button type="button" data-p="w" aria-pressed="false">Longest wait</button><button type="button" data-p="l" aria-pressed="false">Furthest on</button></div>
   <div class="seg mhis" id="tP" role="group" aria-label="Days shown"><button type="button" data-p="r" aria-pressed="true">Recent</button><button type="button" data-p="a" aria-pressed="false">All</button></div><div class="leg mhis" id="leg"></div>
   <div class="tools"><div class="seg" id="tV" role="group" aria-label="Show"><button type="button" data-v="rec" aria-pressed="true">Students</button><button type="button" data-v="his" aria-pressed="false">Full sheet</button></div>
-   <details class="help"><summary aria-label="How the memo page works">?</summary><div class="hb"><p>One card per student, with their level, the target they are working on and how long since their last pass. The card's colour is the student's house once houses are set.</p><p>Students with three weeks or more since their last pass are shown first, under Should pass soon.</p><p>Select a student to open their profile: a calendar marking the days they passed, and every target they passed with its date.</p><p>Passes are recorded on the Record tab. Full sheet shows every pass as a table, one column per class day.</p></div></details></div></div>
+</div></div>
  <div class="pane" data-pane="rec"><div class="mlist" id="mL"></div></div>
  <div class="pane" data-pane="his" hidden><div class="sheetwrap" id="sheet" tabindex="0" aria-label="Memo sheet, scrollable"></div></div></section>
 
@@ -1452,19 +1454,15 @@ function sheet(){var ev={},days={};
  el.innerHTML=h+'</tbody></table>'}
 function legend(){$("leg").innerHTML=LEVELS.map(function(_,l){return '<span><b style="background:'+LC[l%LC.length]+'"></b>L'+(l+1)+'</span>'}).join("")+'<span><b style="background:'+BC+'"></b>Juz</span>'}
 /* The Memo tab: a view of where each student is, with a calendar of the days students passed. Nothing is recorded
-   here; passes are recorded on the Record tab. MO is the order, MS the selected student (-1 for the whole class),
+   here; passes are recorded on the Record tab. MS is the student whose profile is open (-1 for the whole class),
    MM the month shown ("2026-10") and MD the day picked on the calendar. */
-var MO="c",MS=-1,MM="",MD="";
+var MS=-1,MM="",MD="";
 /* The level or juz a target sits in, and the target's place in it. */
 function mGrp(n){var g=GRP[n-1],a=n-1,b=n-1;while(a>0&&GRP[a-1]===g)a--;while(b<NB-1&&GRP[b+1]===g)b++;return {name:g,pos:n-1-a,len:b-a+1}}
 function mLast(s){return s.log.length?s.log[s.log.length-1]:0}
 function mAgo(t){var d=Math.round((today0()-new Date(new Date(t).getFullYear(),new Date(t).getMonth(),new Date(t).getDate()))/864e5);
  return d<=0?"Today":d===1?"Yesterday":d<28?d+" days":Math.floor(d/7)+" weeks"}
 function mLate(s){return s.log.length&&late(s)}
-function mOrder(){var I=S.map(function(_,i){return i});
- if(MO==="w")I.sort(function(a,b){var x=S[a],y=S[b];return (nod(x)-nod(y))||(mLast(x)-mLast(y))||x.name.localeCompare(y.name)});
- if(MO==="l")I.sort(function(a,b){var x=S[a],y=S[b];return (nod(x)-nod(y))||(y.target-x.target)||x.name.localeCompare(y.name)});
- return I}
 function mLadder(g,col){if(g.len>16)return '<span class="mbar" aria-hidden="true"><i style="width:'+(g.pos/g.len*100)+'%;background:'+col+'"></i></span>';
  var h="";for(var k=0;k<g.len;k++)h+='<i'+(k<g.pos?' class="d" style="background:'+col+'"':k===g.pos?' class="c" style="border-color:'+col+'"':'')+'></i>';return '<span class="mlad" aria-hidden="true">'+h+'</span>'}
 /* One card per student: a coloured top holding their level, target and last pass, and their name below. The colour
@@ -1479,8 +1477,8 @@ function mCard(s,i){var n=nod(s),g=mGrp(s.target),col=lc(s.target),juz=s.target>
 /* Students who should pass (three weeks or more since their last pass) come first, under their own heading. */
 function mList(){var L=$("mL");
  if(!S.length){L.innerHTML='<div class="empty"><b>No students yet</b><button type="button" class="btn sm" data-ct="S">Add students in Settings</button></div>';return}
- var I=mOrder(),due=I.filter(function(i){return mLate(S[i])}),rest=I.filter(function(i){return !mLate(S[i])}),top=L.getBoundingClientRect().top,h="";
- if(due.length)h+='<section class="mgrp due" aria-labelledby="mDueH"><div class="mgh"><h3 id="mDueH"><span class="mwait" aria-hidden="true"></span>Should pass soon <span class="mct">'+due.length+'</span></h3><p>Three weeks or more since their last pass. Give them a chance to pass this class day.</p></div><ul class="mcards">'+due.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
+ var I=S.map(function(_,i){return i}),due=I.filter(function(i){return mLate(S[i])}),rest=I.filter(function(i){return !mLate(S[i])}),top=L.getBoundingClientRect().top,h="";
+ if(due.length)h+='<section class="mgrp due" aria-labelledby="mDueH"><div class="mgh"><h3 id="mDueH"><span class="mwait" aria-hidden="true"></span>Should pass soon <span class="mct">'+due.length+'</span></h3></div><ul class="mcards">'+due.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
  if(rest.length)h+='<section class="mgrp" aria-labelledby="mAllH"><div class="mgh"><h3 id="mAllH">'+(due.length?'Everyone else':'All students')+' <span class="mct">'+rest.length+'</span></h3></div><ul class="mcards">'+rest.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
  L.innerHTML=h;L.style.maxHeight=window.innerWidth>=960?Math.max(240,window.innerHeight-Math.max(top,120)-20)+"px":""}
 /* A student's profile opens in the side drawer: where they are, a calendar marking the days they passed,
@@ -1496,10 +1494,9 @@ function mCalHtml(){var s=S[MS],now=mKey(today0());if(!MM||MM>now)MM=now;if(MM<m
  for(var day=1;day<=n;day++){var dt=new Date(y,m,day),key=dk(dt.getTime()),w=dt.getDay(),L=P[key]||[],cls="mc"+((w===6||w===0)&&key>=FCD&&key<=today?" cd":"")+(key===today?" td":"")+(key>today?" fu":"");
   if(!L.length){g+='<span class="'+cls+'"><b>'+day+'</b></span>';continue}
   g+='<button type="button" class="'+cls+' has" data-md="'+key+'" aria-pressed="'+(MD===key)+'" aria-label="'+dt.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+', passed '+esc(L.map(function(k){return pl(s,k)}).join(" and "))+'"><b>'+day+'</b><i class="mdot" style="background:'+lc(s.lt[L[0]])+'"></i></button>'}
- var inM=s.log.filter(function(t){return mKey(new Date(t))===MM}).length;
- return '<div class="mcal"><div class="mch"><button type="button" class="ibtn" data-mnav="-1" aria-label="Previous month"'+(MM<=mFirst()?' disabled':'')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><h3 aria-live="polite">'+d1.toLocaleDateString("en-GB",{month:"long",year:"numeric"})+'</h3><button type="button" class="ibtn" data-mnav="1" aria-label="Next month"'+(MM>=now?' disabled':'')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div>'
+  return '<div class="mcal"><div class="mch"><button type="button" class="ibtn" data-mnav="-1" aria-label="Previous month"'+(MM<=mFirst()?' disabled':'')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><h3 aria-live="polite">'+d1.toLocaleDateString("en-GB",{month:"long",year:"numeric"})+'</h3><button type="button" class="ibtn" data-mnav="1" aria-label="Next month"'+(MM>=now?' disabled':'')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div>'
   +'<div class="mwd" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div><div class="mgw"><div class="mgrid">'+g+'</div></div>'
-  +'<p class="cap mcm">'+(inM?plural(inM,"pass","passes")+' this month.':'No passes this month.')+'</p></div>'}
+  +'</div>'}
 function mProfile(){var s=S[MS];if(!s)return "";var n=nod(s),g=mGrp(s.target),col=lc(s.target),juz=s.target>BL,t=mLast(s),K=s.log.map(function(_,k){return k}).reverse();
  var top='<div class="mpro" style="--hc:'+(MHC[s.house]||"var(--sky)")+'"><div class="mtl">'+(n?'<span class="mnd">No data yet</span>':chip(col,juz?g.name:"L"+(lv(s.target)+1)))+(s.house?'<span class="qhs"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'')+'</div>'
   +(n?'':'<div class="mpt"><small>Working on</small><b>'+esc(bl(s.target))+'</b>'+(s.target<NB?mLadder(g,col):'')+'</div>')
@@ -1513,9 +1510,11 @@ function mDraw(dir,focus){var B=$("drwB");if(DMODE!=="mm"||!S[MS])return;B.inner
  if(focus){var f=B.querySelector(focus);if(f&&!f.disabled)f.focus()}}
 function mOpen(i){var s=S[i];if(!s)return;MS=i;MD="";MM=s.log.length?mKey(new Date(mLast(s))):"";drawer(s.name,"");DMODE="mm";mDraw(0);mMark()}
 function mMark(){Array.prototype.forEach.call($("mL").querySelectorAll("[data-mi]"),function(r){r.setAttribute("aria-pressed",+r.dataset.mi===MS&&DMODE==="mm")})}
-function memo(){if(MS>=S.length)MS=-1;var m=ms0(),P=S.filter(function(s){return s.log.some(function(t){return t>=m})}).length,W=S.filter(mLate).length;
- $("mSum").innerHTML=S.length?'<b>'+P+' of '+S.length+'</b> passed this month'+(W?' · <span class="mwt"><span class="mwait" aria-hidden="true"></span><b>'+W+'</b> should pass soon</span>':''):'';
+function memo(){if(MS>=S.length)MS=-1;
  mList();if(DMODE==="mm"){if(S[MS]){$("drwT").textContent=S[MS].name;mDraw(0)}else closeDrawer()}}
+/* The figures behind the icon in the top right close on a click elsewhere or Escape. */
+document.addEventListener("click",function(e){var f=$("figP");if(f.open&&!f.contains(e.target))f.open=false});
+document.addEventListener("keydown",function(e){var f=$("figP");if(e.key==="Escape"&&f.open){f.open=false;f.querySelector("summary").focus()}});
 $("mL").addEventListener("click",function(e){var b=e.target.closest("[data-mi]");if(b)mOpen(+b.dataset.mi)});
 $("drwB").addEventListener("click",function(e){if(DMODE!=="mm")return;
  var nv=e.target.closest("[data-mnav]");if(nv){var p=MM.split("-"),n=+nv.dataset.mnav,k=mKey(new Date(+p[0],+p[1]-1+n,1));if(k>mKey(today0())||k<mFirst())return;MM=k;MD="";mDraw(n,'[data-mnav="'+n+'"]');return}
@@ -1723,9 +1722,9 @@ function keyTabs(ids,fn,prefix){ids.forEach(function(k,i){var b=$(prefix+k);b.on
 keyTabs(TABS,tab,"t");keyTabs(MT,mtab,"m");
 /* Segmented controls: one choice pressed at a time. */
 function setSeg(id,v){var g=$(id);Array.prototype.forEach.call(g.querySelectorAll("button"),function(b){var k=b.dataset.p||b.dataset.k||b.dataset.t;b.setAttribute("aria-pressed",k===v)});
- if(id==="hP")HP=v;if(id==="tP")TP=v;if(id==="qP")QP=v;if(id==="mO")MO=v;if(id==="lK")LK=v;if(id==="lT")LT=v;if(id==="rP"){RP=v;master();return}
+ if(id==="hP")HP=v;if(id==="tP")TP=v;if(id==="qP")QP=v;if(id==="lK")LK=v;if(id==="lT")LT=v;if(id==="rP"){RP=v;master();return}
  if(CID)render()}
-["hP","tP","qP","mO","lK","lT"].forEach(function(id){$(id).addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg(id,b.dataset.p||b.dataset.k||b.dataset.t)})});
+["hP","tP","qP","lK","lT"].forEach(function(id){$(id).addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg(id,b.dataset.p||b.dataset.k||b.dataset.t)})});
 /* Views inside a class tab (Quran, Progress, Rewards): one pane at a time, kept while moving between classes. */
 var VW={Q:"rec",D:"lv",H:"ld",T:"rec"};
 function view(k,v){VW[k]=v;var sec=$("v"+k);sec.setAttribute("data-v",v);Array.prototype.forEach.call(sec.querySelectorAll(".pane"),function(p){p.hidden=p.dataset.pane!==v});
@@ -1864,7 +1863,7 @@ $("csvF").onchange=function(){var f=this.files&&this.files[0];if(!f)return;
  var r=new FileReader();r.onload=function(){readCSV(String(r.result),f.name)};r.onerror=function(){toast("That file couldn't be read",1)};r.readAsText(f)};
 $("csvP").addEventListener("click",function(e){if(e.target.id==="csvGo")importCSV();if(e.target.id==="csvX")clearCSV()});
 $("csvP").addEventListener("change",function(e){var k=e.target.getAttribute("data-col");if(k)mapCSV(k,e.target.value)});
-if(MODE==="local")setSt("Saved on this device only");
+
 legend();go("M");
 if(HASH&&ST[HASH]){var hh=HASH;HASH="";go(hh)}
 })();

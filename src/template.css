@@ -10,10 +10,16 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head{color:var(--ink);padding:2px 0 0}
 .head-top{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;min-height:40px}
 .head h1{margin-right:auto}
-.head .save{order:2}.head .swc{order:1}
+.head .save{order:2}.head .swc{order:1}.head .figpop{order:3}
+.head .save[data-s="ok"]{display:none}
 .head h1{font-size:1.5rem;font-weight:750;letter-spacing:-.01em;line-height:1.15;color:var(--ink);overflow-wrap:anywhere;min-width:0}
-.head .figs{order:3;flex-basis:100%;display:flex;flex-wrap:wrap;gap:2px 26px;margin:2px 0 0;align-items:baseline}
-.head .figs:empty{display:none}
+.figpop{position:relative}
+.figpop>summary{list-style:none;border:1px solid var(--line-2);background:var(--surface)}
+.figpop>summary::-webkit-details-marker{display:none}
+.figpop[open]>summary{background:var(--navy-soft);color:var(--navy);border-color:color-mix(in srgb,var(--navy) 35%,#fff)}
+.head .figpop .figs{position:absolute;z-index:40;top:46px;right:0;display:grid;grid-template-columns:1fr;gap:10px;width:max-content;min-width:220px;max-width:calc(100vw - 32px);margin:0;padding:14px 16px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift)}
+.head .figpop .fig{display:flex;flex-direction:row-reverse;justify-content:space-between;align-items:baseline;gap:20px}
+.head .figpop:has(.figs:empty){display:none}
 .head .fig{white-space:nowrap;flex:none}
 .head .fig b{font-size:1.125rem;font-weight:750}
 .head .fig span{font-size:.8125rem}
@@ -38,8 +44,6 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (max-width:959.98px){
  .head{padding:2px 0 0}
  .head h1{font-size:1.125rem;line-height:1.25}
- .head .figs{display:flex;flex-wrap:wrap;gap:2px 14px;margin:6px 0 0}
- .head .fig{flex-direction:row;gap:5px;white-space:nowrap}
  .head .fig b{font-size:1rem}
  .head .fig span{font-size:.8125rem}
  /* Every tab stays visible: they wrap onto a second row instead of scrolling sideways. */
