@@ -33,7 +33,8 @@ in "?" help popovers rather than paragraphs on the page.
 Kept because they mean something: house colours (Makkah gold, Al-Aqsa sky,
 Madinah green), house token colours (green 5, blue 20, red 50), the book level
 colours (L1 brown, L2 blue, ...) and the warning levels (yellow, orange, red).
-Text on any of these is picked by luminance (`onC()` in `src/page.html`).
+House totals are compared with a proportional bar under each
+number rather than a coloured edge. Text on any of these is picked by luminance (`onC()` in `src/page.html`).
 Dark mode follows the system setting and `data-theme`, with dark variants of
 every token.
 
@@ -82,7 +83,8 @@ weeks, recent memo dates) with "All" one press away.
 
 Buttons: primary (blue), default (outlined), quiet (text), danger (red outline,
 solid red for the final irreversible step). 40px minimum height, 44px for
-toggles, tabs and recording counters on touch screens. Segmented controls
+toggles and tabs. On touch screens and below 960px every control is at
+least 44px tall. Segmented controls
 (`.seg`) use `aria-pressed`. Help is a `<details class="help">` popover that
 opens by keyboard, touch and pointer and closes with Escape. The drawer (`#drw`)
 is a dialog with a focus trap, Escape to close and focus returned to the
@@ -113,3 +115,13 @@ baseline with heights in proportion to points; "Leading" and a gold number
 appear only when a house is strictly ahead. Every joint first place is
 highlighted. "Passed a book" leads with the count in gold and fits up to three
 columns of names. Type is sized in viewport units for reading across a hall.
+
+## Design skills in this repository
+
+`.claude/skills/impeccable` (pbakaus/impeccable) and
+`.claude/skills/ui-ux-pro-max` (uipro-cli) are installed for every Claude
+session. Run `.claude/skills/impeccable/scripts/impeccable detect --json src/template.css`
+for the static scan, and inject its `detect.js` into the running dashboard for
+the in-browser scan. UI UX Pro Max's generic design-system suggestion (a
+storytelling landing pattern, Fira type and an orange CTA) does not fit an
+operations dashboard and is not used; its accessibility and touch checks are.
