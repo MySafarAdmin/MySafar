@@ -864,8 +864,8 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .qboard.moving .qn{opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease}
 /* Boxes: quiet outlines in the side columns; in the focused column, white with a navy edge. A score is the number
    on a light tint of its colour (red 0 to green 5). */
-.qc{display:grid;place-items:center;width:var(--box);height:var(--box);border-radius:9px;border:1px solid var(--line);background:var(--surface);font:inherit;font-size:1rem;font-weight:750;color:var(--mute);padding:0}
-.qc.has{background:color-mix(in srgb,var(--c) 12%,#fff);border-color:color-mix(in srgb,var(--c) 30%,#fff);color:var(--c)}
+.qc{display:grid;place-items:center;width:var(--box);height:var(--box);border-radius:9px;border:1px solid var(--line-2);background:var(--surface);font:inherit;font-size:1rem;font-weight:750;color:var(--mute);padding:0}
+.qc.has{background:color-mix(in srgb,var(--c) 16%,#fff);border-color:color-mix(in srgb,var(--c) 45%,#fff);color:var(--c)}
 .qcol:not(.on) .qc{pointer-events:none}
 .qcol.on .qc{width:calc(var(--box) + 4px);height:calc(var(--box) + 4px);border:1.5px solid color-mix(in srgb,var(--navy) 42%,#fff);box-shadow:0 1px 2px rgba(0,59,107,.08),0 0 0 3px rgba(255,255,255,.9);cursor:pointer;color:var(--navy);font-size:1.0625rem;transition:transform .15s ease,background-color .15s ease,border-color .15s ease,box-shadow .15s ease}
 .qcol.on .qc.has{border-color:color-mix(in srgb,var(--c) 55%,#fff);color:var(--c)}
@@ -1382,7 +1382,7 @@ function qDate(k){var p=k.split("-");return new Date(+p[0],+p[1]-1,+p[2],12)}
 function qGeo(W){var side=W<540?1:W<860?2:3,nameW=Math.round(Math.min(230,Math.max(side===1?96:130,W*.19))),houseW=Math.round(Math.min(150,Math.max(side===1?72:96,W*.12))),
   w=(W-nameW-houseW)/(2*side+1);
  return {side:side,w:w,nameW:nameW,houseW:houseW,x:function(k){return k<=0?(k+side)*w+(k===0?nameW:0):side*w+nameW+w+houseW+(k-1)*w}}}
-function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.72/side)}
+function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.24/side)}
 function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name);
  if(!on)return '<span class="qc'+(v===undefined?'':' has')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'>'+(v===undefined?'':v)+'</span>';
  var lab=nm+", "+qlab(d)+": "+(v===undefined?"not recorded":v+" out of 5");

@@ -499,7 +499,7 @@ function qDate(k){var p=k.split("-");return new Date(+p[0],+p[1]-1,+p[2],12)}
 function qGeo(W){var side=W<540?1:W<860?2:3,nameW=Math.round(Math.min(230,Math.max(side===1?96:130,W*.19))),houseW=Math.round(Math.min(150,Math.max(side===1?72:96,W*.12))),
   w=(W-nameW-houseW)/(2*side+1);
  return {side:side,w:w,nameW:nameW,houseW:houseW,x:function(k){return k<=0?(k+side)*w+(k===0?nameW:0):side*w+nameW+w+houseW+(k-1)*w}}}
-function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.72/side)}
+function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.24/side)}
 function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name);
  if(!on)return '<span class="qc'+(v===undefined?'':' has')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'>'+(v===undefined?'':v)+'</span>';
  var lab=nm+", "+qlab(d)+": "+(v===undefined?"not recorded":v+" out of 5");
