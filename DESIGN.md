@@ -198,6 +198,7 @@ is applied to every control.
 Motion explains a change of place and is never decoration. The selected tab is
 one marker that slides to the tab chosen; a tab under the pointer lifts by a
 pixel and shows a short graphite edge; the new page slides in from the side its
-tab is on. The Quran sheet slides its columns when the class day changes. All
+tab is on. The Quran sheet slides its columns when the class day changes, and the Memo
+calendar slides to the next or previous month. All
 of it is off when the device asks for reduced motion (the rule at the end of
 `src/tokens.css`).
