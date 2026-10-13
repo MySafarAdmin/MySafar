@@ -19,6 +19,7 @@
 .nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 header select.pick{font:inherit;border:1px solid #e3e6ee;background:#fff;color:#1b1f2a;padding:8px 12px;border-radius:10px;cursor:pointer;max-width:100%}
 header select.pick.on{border-color:#8b5cf6;box-shadow:0 0 0 2px rgba(139,92,246,.4);font-weight:700}
+.j2j{background:#0f766e;color:#fff;border-color:#0f766e;font-weight:700;text-decoration:none;white-space:nowrap}.j2j:hover{background:#115e59}.j2j:focus-visible{outline:3px solid #8b5cf6;outline-offset:2px}
 .tabs button:focus-visible,.btn:focus-visible,select:focus-visible,input:focus-visible,.qs:focus-visible,.wbt:focus-visible{outline:3px solid #8b5cf6;outline-offset:2px}
 .note{margin-bottom:16px;font-size:1.05rem}
 .hrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
@@ -47,7 +48,7 @@ header select.pick.on{border-color:#8b5cf6;box-shadow:0 0 0 2px rgba(139,92,246,
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 <header><div class="brand"><div class="logo"><img alt="Safar Academy" src="data:image/png;base64,__LOGO__"></div><div><h1 id="ttl" spellcheck="false" title="Click to rename">Master Dashboard</h1><small id="sm">Safar Academy Enfield · All classes</small></div></div>
-<div class="hdr"><div class="nav" id="nav"><div class="tabs"><button id="nM" class="on">🏫 Master</button></div><select id="nSel" class="pick" aria-label="Open a class dashboard"></select></div><div class="tabs hide" id="sub"><button id="tD" class="on">Dashboard</button> <button id="tI">Input</button> <button id="tW">Warnings</button> <button id="tQ">Quran</button> <button id="tT">Memo</button> <button id="tH">Houses</button></div></div></header>
+<div class="hdr"><div class="nav" id="nav"><a class="btn j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer" title="Registers, homework and classroom learning (opens in a new tab)">📖 Journey2Jannah ↗</a><div class="tabs"><button id="nM" class="on">🏫 Master</button></div><select id="nSel" class="pick" aria-label="Open a class dashboard"></select></div><div class="tabs hide" id="sub"><button id="tD" class="on">Dashboard</button> <button id="tI">Input</button> <button id="tW">Warnings</button> <button id="tQ">Quran</button> <button id="tT">Memo</button> <button id="tH">Houses</button></div></div></header>
 <main>
 <section id="vM"><div id="mst"></div>
  <div class="card up" id="up"><h2>📥 Upload students</h2>

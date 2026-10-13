@@ -31,6 +31,7 @@ button.link{font:inherit;background:none;border:0;padding:0;color:var(--acc);cur
 .bar .brand img{height:44px;display:block}
 .bar nav{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
 .bar nav form{margin:0}
+.bar nav a.j2j{background:#0f766e;color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;text-decoration:none}
 .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px}
 fieldset{border:1px solid var(--line);border-radius:12px;margin:0 0 12px;padding:8px 12px}
 legend{font-weight:600;padding:0 4px}
