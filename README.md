@@ -30,7 +30,12 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
   twice.
 - **Student Name**, **Gender**, **School Year Group** and **Current Teacher
   [Islamic Studies]** are saved with the student and shown in the classroom's
-  Input tab; the Student ID and year group also appear on each student's card.
+  Input tab; the Student ID and Safar year group also appear on each student's card.
+- The **Safar year group** is taken from the classroom name: `Yr7-B-QM-...` is
+  Year 7. A shared `Yr9/10` classroom takes the year from the Islamic Studies
+  class (`Yr9-AI-...` or `Yr10-AI-...`). An optional **Safar Year Group** column
+  overrides this. The **School Year Group** (the student's primary or secondary
+  school year) is kept separately.
 - Columns are found by their names, in any order. Student Name and the Quran
   and Memorisation teacher are required. Without a Student ID column, students
   are matched by name within their classroom.
@@ -39,6 +44,15 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
   who aren't in the file (they are left as they are), and any problems, such
   as one Student ID used for two different names.
 - Commas, semicolons or tabs between columns all work.
+
+## Passes after the book
+
+Once a student has completed the book, **+ Pass** asks what they passed: a
+number from 1 to 604 followed by a surah, for example `200 At-Takwir`. The
+surah must be one of the 114 surahs listed in `SURAHS` in `src/page.html`.
+Capitals, hyphens, apostrophes, doubled letters, the word "Surah" and a missing
+"Al-" are ignored, so `200. Surah At-Takwir` and `200 takwir` both work. It is
+saved in the form `200 At-Takwir`.
 
 Each classroom's Input tab can rename it (click the title), set its first
 class day, add students by hand, and delete the classroom.

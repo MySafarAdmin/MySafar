@@ -61,8 +61,9 @@ def valid_state(state):
             return False
         if not isinstance(student.get("lx"), list) or not all(isinstance(x, str) for x in student["lx"]):
             return False
-        # Details from the CSV upload: Student ID, gender, year group, Islamic Studies teacher.
-        if not all(isinstance(student.get(k, ""), str) for k in ("sid", "gender", "year", "ist")):
+        # Details from the CSV upload: Student ID, gender, Safar year group, school year group,
+        # Islamic Studies teacher.
+        if not all(isinstance(student.get(k, ""), str) for k in ("sid", "gender", "year", "sy", "ist")):
             return False
         if len(student["log"]) != len(student["lt"]) or len(student["log"]) != len(student["lx"]):
             return False

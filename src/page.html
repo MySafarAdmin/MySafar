@@ -72,9 +72,9 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
   <p class="sub" style="margin:16px 0 6px">Delete this classroom, its students and all of their records.</p>
   <p><button class="btn x" id="delC">Delete classroom</button></p></div>
  <div class="card">
-  <table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Student ID</th><th>Year group</th><th>Gender</th><th>Islamic Studies teacher</th><th>Current target</th><th>Passes</th><th>Merits</th><th>Add / remove</th></tr></thead><tbody id="body"></tbody></table>
+  <table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Student ID</th><th>Safar year</th><th>School year</th><th>Gender</th><th>Islamic Studies teacher</th><th>Current target</th><th>Passes</th><th>Merits</th><th>Add / remove</th></tr></thead><tbody id="body"></tbody></table>
   <p class="sub" id="st">Saved on this device only.</p>
-  <p class="sub">Pressing + Pass means the student has passed their current target and moves on to the next one. Once a student has completed the book, + Pass asks what they passed (for example a surah).</p>
+  <p class="sub">Pressing + Pass means the student has passed their current target and moves on to the next one. Once a student has completed the book, + Pass asks for the number and surah they passed (for example 200 At-Takwir).</p>
   <p><button class="btn" id="add">+ Add student</button> <button class="btn" id="cw">Clear warnings</button> <button class="btn" id="rst">Reset all scores</button></p>
  </div>
  <div class="card" style="margin-top:16px"><h2 style="margin:0 0 6px;font-size:1.3rem">⏪ Add a past pass</h2>
@@ -95,6 +95,12 @@ var LEVELS=[9,9,9,9,10,10,10,12,15,12]; /* TARGETS IN EACH LEVEL, L1 to L10. If 
 var S=[],FCD="";
 var BOOK=[],LVS=[];LEVELS.forEach(function(n,l){LVS.push(BOOK.length);for(var t=1;t<=n;t++)BOOK.push("L"+(l+1)+" T"+t)});
 BOOK.push("Book complete");var NB=BOOK.length;
+/* After the book: a pass is a number from 1 to 604 and one of these surahs, saved as "200 At-Takwir". */
+var SURAHS="Al-Fatiha,Al-Baqarah,Al-Imran,An-Nisa,Al-Ma'idah,Al-Anam,Al-A'raf,Al-Anfal,At-Taubah,Yunus,Hud,Yusuf,Ar-Ra'd,Ibrahim,Al-Hijr,An-Nahl,Al-Isra,Al-Kahf,Maryam,Ta-Ha,Al-Anbiya,Al-Hajj,Al-Mu'minun,An-Nur,Al-Furqan,Ash-Shu'ara,An-Naml,Al-Qasas,Al-Ankabut,Ar-Rum,Luqman,As-Sajdah,Al-Ahzab,Saba,Fatir,Ya-Sin,As-Saffat,Sad,Az-Zumar,Ghafir,Fussilat,Ash-Shura,Az-Zukhruf,Ad-Dukhan,Al-Jathiyah,Al-Ahqaf,Muhammad,Al-Fath,Al-Hujurat,Qaf,Adh-Dhariyat,At-Tur,An-Najm,Al-Qamar,Ar-Rahman,Al-Waqi'ah,Al-Hadid,Al-Mujadila,Al-Hashr,Al-Mumtahanah,As-Saff,Al-Jumu'ah,Al-Munafiqun,At-Taghabun,At-Talaq,At-Tahrim,Al-Mulk,Al-Qalam,Al-Haqqah,Al-Ma'arij,Nuh,Al-Jinn,Al-Muzzammil,Al-Muddaththir,Al-Qiyamah,Al-Insan,Al-Mursalat,An-Naba,An-Nazi'at,Abasa,At-Takwir,Al-Infitar,Al-Mutaffifin,Al-Inshiqaq,Al-Buruj,At-Tariq,Al-Ala,Al-Ghashiyah,Al-Fajr,Al-Balad,Ash-Shams,Al-Lail,Ad-Duha,Ash-Sharh,At-Tin,Al-Alaq,Al-Qadr,Al-Bayyina,Az-Zalzalah,Al-Adiyat,Al-Qari'ah,At-Takathur,Al-Asr,Al-Humazah,Al-Fil,Quraysh,Al-Ma'un,Al-Kawthar,Al-Kafirun,An-Nasr,Al-Masad,Al-Ikhlas,Al-Falaq,An-Nas".split(",");
+/* Spelling is matched loosely: case, hyphens, apostrophes, doubled letters, a final "h", "Surah" and a missing "Al-" are ignored. */
+function skey(x){return String(x).toLowerCase().replace(/[^a-z]/g,"").replace(/(.)\1+/g,"$1").replace(/h$/,"")}
+var SK={};SURAHS.forEach(function(n){SK[skey(n)]=n});SURAHS.forEach(function(n){var m=/^(al|an|at|ash|ad|adh|ar|as|az)-(.+)$/i.exec(n),k=m&&skey(m[2]);if(k&&!SK[k])SK[k]=n});
+function surahPass(v){var m=/^\s*(\d{1,3})\s*[.):-]?\s*(?:surah?t?\s+)?(.+?)\s*$/i.exec(String(v||""));if(!m||+m[1]<1||+m[1]>604)return null;var n=SK[skey(m[2])];return n?(+m[1])+" "+n:null}
 function remap(n,old,cur){var l=0,t=n;while(l<old.length&&t>old[l]){t-=old[l];l++}
  if(l>=old.length||l>=LEVELS.length)return NB;
  if(t>LEVELS[l])return cur?(l+1<LEVELS.length?LVS[l+1]+1:NB):LVS[l]+LEVELS[l];
@@ -207,13 +213,13 @@ function render(){
  document.getElementById("grid").innerHTML=S.length?S.map(function(s,i){var p=Math.min(100,(s.target-1)/(NB-1)*100);
   return '<div class="tile'+(rc(s)?' done':'')+'" style="--h:'+Math.round(i*360/S.length)+'"><span class="av">'+esc(s.name.split(" ").map(function(w){return w[0]}).slice(0,2).join(""))+'</span><b'+(late(s)?' class="late"':'')+'>'+esc(s.name)+(rc(s)?' 🎁':'')+(s.sid||s.year?'<span class="meta">'+esc([s.sid,s.year].filter(Boolean).join(" · "))+'</span>':'')+'</b><div class="st4"><div><small>Current target</small><strong>'+bl(s.target)+'</strong></div><div><small>Total passes</small><strong>'+s.passes+'</strong></div><div><small>Total merits</small><strong>'+s.merits+'</strong></div><div><small>Weeks since last pass</small><strong>'+since(s)+'</strong></div></div><div class="bar"><i style="width:'+p+'%"></i></div></div>'}).join(""):'<div class="card sub">No students in this class yet. Add them in the Input tab.</div>';
  var b=document.getElementById("body");
- if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;b.innerHTML=S.map(function(s,i){return '<tr><td>'+(i+1)+'</td><td><input data-i="'+i+'" data-f="name" value="'+esc(s.name)+'" aria-label="Student name"></td><td class="ro">'+esc(s.sid||"–")+'</td><td class="ro">'+esc(s.year||"–")+'</td><td class="ro">'+esc(s.gender||"–")+'</td><td class="ro">'+esc(s.ist||"–")+'</td><td><select data-i="'+i+'" data-f="target" id="t'+i+'" aria-label="Current target">'+TO+'</select></td><td id="p'+i+'"></td><td id="m'+i+'"></td><td><span class="bg"><button class="btn p" data-a="p+" data-i="'+i+'">+ Pass</button><button class="btn" data-a="p-" data-i="'+i+'">− Pass</button></span><span class="bg"><button class="btn m" data-a="m+" data-i="'+i+'">+ Merit</button><button class="btn" data-a="m-" data-i="'+i+'">− Merit</button></span><span class="bg"><button class="btn" data-a="f+" data-i="'+i+'">+ Fail</button><button class="btn" data-a="f-" data-i="'+i+'">− Fail</button></span><button class="btn" data-a="rm" data-i="'+i+'">Remove student</button></td></tr>'}).join("")}
+ if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;b.innerHTML=S.map(function(s,i){return '<tr><td>'+(i+1)+'</td><td><input data-i="'+i+'" data-f="name" value="'+esc(s.name)+'" aria-label="Student name"></td><td class="ro">'+esc(s.sid||"–")+'</td><td class="ro">'+esc(s.year||"–")+'</td><td class="ro">'+esc(s.sy||"–")+'</td><td class="ro">'+esc(s.gender||"–")+'</td><td class="ro">'+esc(s.ist||"–")+'</td><td><select data-i="'+i+'" data-f="target" id="t'+i+'" aria-label="Current target">'+TO+'</select></td><td id="p'+i+'"></td><td id="m'+i+'"></td><td><span class="bg"><button class="btn p" data-a="p+" data-i="'+i+'">+ Pass</button><button class="btn" data-a="p-" data-i="'+i+'">− Pass</button></span><span class="bg"><button class="btn m" data-a="m+" data-i="'+i+'">+ Merit</button><button class="btn" data-a="m-" data-i="'+i+'">− Merit</button></span><span class="bg"><button class="btn" data-a="f+" data-i="'+i+'">+ Fail</button><button class="btn" data-a="f-" data-i="'+i+'">− Fail</button></span><button class="btn" data-a="rm" data-i="'+i+'">Remove student</button></td></tr>'}).join("")}
  S.forEach(function(s,i){document.getElementById("t"+i).value=s.target;document.getElementById("p"+i).textContent=s.passes;document.getElementById("m"+i).textContent=s.merits})}
 document.getElementById("body").addEventListener("click",function(e){var a=e.target.dataset.a;if(!a)return;var i=+e.target.dataset.i,s=S[i],c=CID;if(!s)return;
  var nm=s.name.split(" ")[0],msg="";
  if(a==="rm"){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);save();render();toast(nm+" removed")},null,1);return}
  if(a==="p+"){if(s.target<NB){var old=s.target;s.passes++;s.log.push(Date.now());s.lt.push(old);s.lx.push("");s.target++;msg=nm+" passed "+bl(old)+". Next target: "+bl(s.target)}
-  else{ask(nm+" has completed the book. What did they pass?","+ Add pass",function(v){if(!same(c,i,s))return;s.passes++;s.log.push(Date.now());s.lt.push(NB);s.lx.push(v);s.hit=s.log[s.log.length-1];save();render();toast(nm+" passed "+v)},"For example: Surah Al-Mulk");return}}
+  else{ask(nm+" has completed the book. Enter the number (1 to 604) and the surah they passed.","+ Add pass",function(v){if(!same(c,i,s))return;var lab=surahPass(v);if(!lab){toast("Enter a number from 1 to 604, then a surah. For example: 200 At-Takwir",1);return}v=lab;s.passes++;s.log.push(Date.now());s.lt.push(NB);s.lx.push(v);s.hit=s.log[s.log.length-1];save();render();toast(nm+" passed "+v)},"For example: 200 At-Takwir");return}}
  if(a==="p-"&&s.passes>0){var lab=s.lx.pop();s.passes--;s.log.pop();s.lt.pop();if(!lab&&s.target>1)s.target--;msg="Pass removed for "+nm}
  if(a==="f+"){s.fl.push(Date.now());msg=nm+" did not pass this time. Target stays at "+bl(s.target)}
  if(a==="f-"&&s.fl.length){s.fl.pop();msg="Fail removed for "+nm}
@@ -327,14 +333,18 @@ legend();go("M");
 if(HASH&&ST[HASH]){var hh=HASH;HASH="";go(hh)}
 })();
 
-/* CSV upload. Columns: Student ID, Student Name, Gender, School Year Group,
+/* CSV upload. Columns: Student ID, Student Name, Gender, School Year Group, Safar Year Group (optional),
    Current Teacher [Quran and Memorisation] (the student's classroom) and
    Current Teacher [Islamic Studies]. Student Name and the Quran teacher are required. */
 var CSV=null;
+/* The Safar year group comes from the classroom name ("Yr7-B-QM-..." is Year 7).
+   A shared Yr9/10 class takes the year from the Islamic Studies class instead. */
+function safarYear(t,i){var m=/^yr\s*(\d+)(\/\d+)?/i.exec(t||"");if(!m)return"";if(!m[2])return"Year "+m[1];var n=/^yr\s*(\d+)(?!\/)/i.exec(i||"");return n?"Year "+n[1]:""}
 var COLS=[["sid","Student ID",function(h){return /^(student|pupil) ?id$|^id$|student.*\bid\b/.test(h)}],
  ["name","Student Name",function(h){return /^(student |pupil )?(full )?name$|student.*name/.test(h)}],
  ["gender","Gender",function(h){return /gender|^sex$/.test(h)}],
- ["year","School Year Group",function(h){return /year/.test(h)}],
+ ["year","Safar Year Group",function(h){return /safar/.test(h)&&/year/.test(h)}],
+ ["sy","School Year Group",function(h){return /year/.test(h)}],
  ["teacher","Current Teacher [Quran and Memorisation]",function(h){return /teacher/.test(h)&&/quran|memo/.test(h)}],
  ["ist","Current Teacher [Islamic Studies]",function(h){return /teacher/.test(h)&&/islamic/.test(h)}]];
 function parseCSV(t){t=t.replace(/^\uFEFF/,"");var line=t.split(/\r?\n/,1)[0],d=[",",";","\t"].sort(function(a,b){return line.split(b).length-line.split(a).length})[0];
@@ -356,10 +366,10 @@ function readCSV(text,file){var rows=parseCSV(text),P=document.getElementById("c
  if(miss.length){P.innerHTML='<p class="warnline">'+esc(file)+' has no '+miss.map(function(c){return '“'+esc(c[1])+'”'}).join(' or ')+' column. The first row should be: '+esc(COLS.map(function(c){return c[1]}).join(", "))+'</p>';return}
  CSV={file:file,M:M,rows:rows.slice(1)};showCSV()}
 /* Compares the file with the dashboard: who is new, who moves classroom, whose details change. */
-function planCSV(){var M=CSV.M,F=["name"].concat(["sid","gender","year","ist"].filter(function(k){return M[k]!==undefined}));
+function planCSV(){var M=CSV.M,F=["name","year"].concat(["sid","gender","sy","ist"].filter(function(k){return M[k]!==undefined}));
  function cell(r,k){return M[k]===undefined?"":clean(r[M[k]])}
  var rows=[],empty=0,dup=0,seen={},byFileId={},notes=[];
- CSV.rows.forEach(function(r){var o={sid:cell(r,"sid"),name:cell(r,"name"),gender:cell(r,"gender"),year:cell(r,"year"),teacher:cell(r,"teacher"),ist:cell(r,"ist")};
+ CSV.rows.forEach(function(r){var o={sid:cell(r,"sid"),name:cell(r,"name"),gender:cell(r,"gender"),sy:cell(r,"sy"),teacher:cell(r,"teacher"),ist:cell(r,"ist")};o.year=cell(r,"year")||safarYear(o.teacher,o.ist);
   if(!o.name||!o.teacher){empty++;return}
   var key=nkey(o.sid)+"|"+nkey(o.name)+"|"+nkey(o.teacher);if(seen[key]){dup++;return}seen[key]=1;rows.push(o);
   if(o.sid)(byFileId[nkey(o.sid)]=byFileId[nkey(o.sid)]||[]).push(o)});
