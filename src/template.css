@@ -608,13 +608,17 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .qc{display:grid;place-items:center;width:var(--box);height:var(--box);border-radius:9px;border:1px solid var(--line-2);background:var(--surface);font:inherit;font-size:1rem;font-weight:750;color:var(--mute);padding:0}
 .qc.has{background:color-mix(in srgb,var(--c) 16%,#fff);border-color:color-mix(in srgb,var(--c) 45%,#fff);color:var(--c)}
 .qcol:not(.on) .qc{pointer-events:none}
-.qcol.on .qc{width:calc(var(--box) + 4px);height:calc(var(--box) + 4px);border:1.5px solid color-mix(in srgb,var(--navy) 42%,#fff);box-shadow:0 1px 2px rgba(0,59,107,.08),0 0 0 3px rgba(255,255,255,.9);cursor:pointer;color:var(--navy);font-size:1.0625rem;transition:transform .15s ease,background-color .15s ease,border-color .15s ease,box-shadow .15s ease}
+/* Every hover and focus mark on a focused box stays inside the box, so it never covers the rows above and
+   below or the next day's column. */
+.qcol.on .qc{border:1.5px solid color-mix(in srgb,var(--navy) 42%,#fff);box-shadow:0 1px 2px rgba(0,59,107,.08);cursor:pointer;color:var(--navy);font-size:1.0625rem;transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease}
 .qcol.on .qc.has{border-color:color-mix(in srgb,var(--c) 55%,#fff);color:var(--c)}
-.qcol.on .qc:hover:not(:disabled){transform:translateY(-1px);border-color:var(--navy);box-shadow:0 4px 10px rgba(0,59,107,.14)}
-.qcol.on .qc[aria-expanded="true"],.qcol.on .qc:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.qcol.on .qc:hover:not(:disabled){border-color:var(--navy);background:var(--navy-soft);box-shadow:inset 0 0 0 1px var(--navy)}
+.qcol.on .qc.has:hover:not(:disabled){border-color:var(--c);background:color-mix(in srgb,var(--c) 22%,#fff);box-shadow:inset 0 0 0 1px var(--c)}
+.qcol.on .qc[aria-expanded="true"],.qcol.on .qc:focus-visible{outline:none;border-color:var(--focus);box-shadow:inset 0 0 0 2px var(--focus)}
 .qcol.on .qc:disabled{cursor:default;border-style:dashed;border-color:var(--line-2);box-shadow:none;background:var(--surface)}
-.qpop{position:absolute;z-index:5;display:flex;gap:4px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);animation:qpIn .16s cubic-bezier(.2,.8,.2,1)}
-.qpop button{min-width:36px;height:36px;border-radius:8px;border:1px solid color-mix(in srgb,var(--c) 30%,#fff);background:color-mix(in srgb,var(--c) 10%,#fff);color:var(--c);font:inherit;font-weight:750;cursor:pointer;transition:transform .12s ease,background-color .12s ease}
+.qr>*,.qhouses .qn>*{transition:opacity .15s ease}.qhid>*{opacity:0!important}
+.qpop{position:absolute;z-index:5;display:flex;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:0 2px 6px rgba(29,33,39,.08);animation:qpIn .16s cubic-bezier(.2,.8,.2,1)}
+.qpop button{min-width:34px;height:min(34px,calc(var(--rh) - 14px));border-radius:8px;border:1px solid color-mix(in srgb,var(--c) 30%,#fff);background:color-mix(in srgb,var(--c) 10%,#fff);color:var(--c);font:inherit;font-weight:750;cursor:pointer;transition:transform .12s ease,background-color .12s ease}
 .qpop button:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--c) 18%,#fff)}
 .qpop button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff}
 .qpop .qclr{--c:var(--ink-2);padding:0 10px;font-weight:600}
