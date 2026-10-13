@@ -2,7 +2,7 @@
 
 Usage: python3 tools/build.py
 
-Reads src/page.html, src/template.css and src/logo.b64. The dashboard starts
+Reads src/page.html, src/tokens.css (shared with the admin pages), src/template.css and src/logo.b64. The dashboard starts
 with no classrooms; they are created by uploading a CSV on its Master page.
 """
 from pathlib import Path
@@ -13,7 +13,8 @@ SRC = ROOT / "src"
 
 def build_page():
     page = (SRC / "page.html").read_text(encoding="utf-8")
-    html = page.replace("/*TEMPLATE_CSS*/", (SRC / "template.css").read_text(encoding="utf-8").rstrip())
+    css = (SRC / "tokens.css").read_text(encoding="utf-8").rstrip() + "\n\n" + (SRC / "template.css").read_text(encoding="utf-8").rstrip()
+    html = page.replace("/*TEMPLATE_CSS*/", css)
     html = html.replace("__LOGO__", (SRC / "logo.b64").read_text().strip())
     (ROOT / "Master_Dashboard.html").write_text(html, encoding="utf-8")
     # The artifact host adds the document skeleton at publish time; the

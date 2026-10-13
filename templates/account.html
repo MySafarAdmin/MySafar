@@ -1,34 +1,33 @@
 {% extends "base.html" %}
 {% block title %}Your account{% endblock %}
 {% block body_class %}{{ "solo" if user.must_change else "app" }}{% endblock %}
+{% block width %} narrow{% endblock %}
 {% block content %}
 {% if user.must_change %}
-<div class="card narrow">
-  <img class="logo" src="/logo.png" alt="Safar Academy">
+<div class="card">
+  {% include "_mark.html" %}
   <h1>Choose your own password</h1>
-  <p class="sub">You signed in with the shared setup password. Choose a password only you know before continuing.</p>
+  <p class="lede">You signed in with the shared setup password. Choose a password only you know before continuing.</p>
 {% else %}
-<h1>Your account</h1>
-<div class="card">
-  <p><b>{{ user.name }}</b><br>{{ user.email }}<br><span class="pill">{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></p>
-</div>
-<div class="card">
+<div class="pagehead"><div><h1>Your account</h1><p class="lede">{{ user.name }}, signed in as {{ user.email }}</p></div><span class="pill blue">{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></div>
+<div class="panel">
   <h2>Change your password</h2>
+  <p class="sub">You'll stay signed in on this device.</p>
 {% endif %}
   <form method="post" action="/account/password">
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <input type="email" name="email" value="{{ user.email }}" autocomplete="username" hidden>
-    <label>Current password<input type="password" name="current" autocomplete="current-password" required></label>
-    <label>New password<input type="password" name="password" autocomplete="new-password" minlength="12" required></label>
-    <label>New password again<input type="password" name="confirm" autocomplete="new-password" minlength="12" required></label>
-    <p class="hint">At least 12 characters. A few unrelated words together work well.</p>
+    <label class="field">Current password<input type="password" name="current" autocomplete="current-password" required></label>
+    <label class="field">New password<input type="password" name="password" autocomplete="new-password" minlength="12" required aria-describedby="pwhint"></label>
+    <label class="field">New password again<input type="password" name="confirm" autocomplete="new-password" minlength="12" required></label>
+    <p class="hint" id="pwhint">At least 12 characters. A few unrelated words together work well.</p>
     <button class="btn primary">Change password</button>
   </form>
 </div>
 {% if user.must_change %}
 <form method="post" action="/logout" class="center"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="link">Sign out</button></form>
 {% else %}
-<div class="card">
+<div class="panel">
   <h2>Other devices</h2>
   {% if others %}
   <p>You're signed in on {{ others }} other device{{ "s" if others != 1 }}.</p>

@@ -214,7 +214,8 @@ def keep_pre_token(response):
 
 def page(template, status=200, **context):
     return render_template(template, user=g.get("user"), csrf=form_token(),
-                           mail_enabled=current_app.config["MAILER"].enabled, **context), status
+                           mail_enabled=current_app.config["MAILER"].enabled,
+                           support_email=current_app.config.get("SUPPORT_EMAIL", ""), **context), status
 
 
 # --- Access control -----------------------------------------------------------

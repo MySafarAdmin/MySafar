@@ -1,53 +1,62 @@
-/* Sign-in, account and admin pages. Colours follow the dashboard template (src/template.css). */
-:root{--bg:#f6f7fb;--card:#fff;--text:#1b1f2a;--mute:#6b7280;--line:#e3e6ee;--acc:#4f46e5;--green:#059669;--red:#dc2626;--amber:#b45309;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#0f1220;--card:#181c30;--text:#f2f4fa;--mute:#9aa3b8;--line:#2a3050;--acc:#818cf8;--green:#34d399;--red:#f87171;--amber:#fbbf24;color-scheme:dark}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
-a{color:var(--acc)}
-h1{font-size:1.6rem;margin:0 0 8px}h2{font-size:1.2rem;margin:0 0 10px}
-main{max-width:1000px;margin:0 auto;padding:16px}
-.solo main{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px}
-.narrow{width:100%;max-width:420px}
-.logo{display:block;height:72px;margin:0 auto 12px}
-.solo h1{text-align:center}.solo .card>.sub{text-align:center}
-.sub,.hint{color:var(--mute)}.hint{font-size:.9rem;margin:0 0 12px}
-label{display:block;margin:0 0 12px;font-weight:600}
-input,select{display:block;width:100%;margin-top:4px;font:inherit;font-weight:400;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-input:focus-visible,select:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #8b5cf6;outline-offset:2px}
-label.check{display:flex;gap:8px;align-items:center;font-weight:400}
-label.check input{width:auto;margin:0}
-.btn{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--text);padding:10px 18px;border-radius:10px;cursor:pointer}
-.btn.primary{background:var(--acc);border-color:var(--acc);color:#fff}
-.solo .btn.primary{width:100%}
-.btn.danger{color:var(--red);border-color:var(--red)}
-button.link{font:inherit;background:none;border:0;padding:0;color:var(--acc);cursor:pointer;text-decoration:underline}
-.center{text-align:center}
-.notice,.error{border-radius:12px;padding:12px 16px;margin:0 0 16px;width:100%;max-width:1000px}
-.solo .notice,.solo .error{max-width:420px}
-.notice{background:rgba(5,150,105,.12);border:1px solid var(--green)}
-.error{background:rgba(220,38,38,.1);border:1px solid var(--red)}
-.bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--line)}
-.bar .brand img{height:44px;display:block}
-.bar nav{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
-.bar nav form{margin:0}
-.bar nav a.j2j{background:#0f766e;color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;text-decoration:none}
-.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px}
-fieldset{border:1px solid var(--line);border-radius:12px;margin:0 0 12px;padding:8px 12px}
-legend{font-weight:600;padding:0 4px}
-.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0 12px;max-height:260px;overflow:auto}
-.rooms label{margin:4px 0}
-.pill{display:inline-block;font-size:.8rem;font-weight:600;border-radius:999px;padding:2px 10px;background:var(--acc);color:#fff}
-.pill.grey{background:var(--mute)}.pill.amber{background:var(--amber);color:#fff}
-details.user summary{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;cursor:pointer;list-style:none}
-details.user summary::-webkit-details-marker{display:none}
-details.user[open] summary{margin-bottom:12px}
-details.user.off{opacity:.7}
-.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+/* Sign-in, account and admin pages. Served after src/tokens.css in /auth.css, so the shell,
+   tokens and controls are the same as on the dashboard. */
+.content>h2{margin:28px 0 12px}
+.panel form,.card form{margin:0}
+form .field{margin:0 0 14px}
+.field input,.field select{width:100%;font-weight:400}
+.formrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px}
+label.check{display:flex;gap:10px;align-items:center;font-weight:400;font-size:.9375rem;color:var(--ink);min-height:36px}
+label.check input{margin:0}
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:0 16px;max-height:280px;overflow:auto}
+.rooms label.check{align-items:flex-start;padding:6px 0}
+.rooms label.check input{margin-top:3px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
 .actions form{margin:0}
-.linkbox{border-color:var(--acc)}
-.linkbox input{font-family:ui-monospace,monospace;font-size:.85rem}
-.tbl{width:100%;border-collapse:collapse;display:block;overflow-x:auto}
-.tbl th,.tbl td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
-.tbl td form{margin:0}
-@media (max-width:600px){main{padding:12px}.card{padding:16px}.bar nav{gap:12px;font-size:.95rem}}
+.linkbox{border-color:var(--primary);background:var(--primary-soft)}
+.linkbox input{width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.875rem}
+
+/* Accounts */
+details.user{padding:0}
+details.user summary{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;padding:14px 20px;min-height:56px;border-radius:var(--r-lg)}
+details.user summary::-webkit-details-marker{display:none}
+details.user summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);margin-left:4px;flex:none}
+details.user[open] summary::after{transform:rotate(-135deg)}
+details.user summary:hover{background:var(--surface-2)}
+details.user .who{min-width:0;display:flex;flex-direction:column}
+details.user .who b{overflow-wrap:anywhere}
+details.user .who .sub{font-size:.875rem;overflow-wrap:anywhere}
+details.user .tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-left:auto}
+details.user .body{padding:4px 20px 20px;border-top:1px solid var(--line)}
+details.user .body>p:first-child{margin-top:14px}
+details.user.off .who{opacity:.7}
+.danger-zone{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+
+/* Sign-in and other single-card pages */
+.solo{min-height:100vh;min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto;background:var(--bg)}
+.solo-band{background:var(--navy);height:6px}
+.solo main{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 16px}
+.solo .card{width:100%;max-width:420px;padding:28px}
+.solo .notice,.solo .error{width:100%;max-width:420px}
+.solo .mark{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.solo .mark .badge{width:48px;height:48px;background:var(--navy);box-shadow:none}
+.solo .mark .badge img{width:44px;height:44px;border-radius:50%;background:#fff}
+.solo .mark b{display:block;font-size:1.0625rem}
+.solo .mark small{display:block;color:var(--mute);font-size:.875rem}
+.solo h1{font-size:1.5rem;margin-bottom:6px}
+.solo .lede{color:var(--mute);margin-bottom:20px}
+.solo .btn.primary{width:100%;min-height:48px;margin-top:4px}
+.solo .alt{margin:20px 0 0;padding-top:16px;border-top:1px solid var(--line);font-size:.9375rem}
+.solo .alt p{margin:0 0 6px}
+.solo footer{text-align:center;color:var(--mute);font-size:.8125rem;padding:16px}
+.contact{display:flex;flex-direction:column;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:0 0 16px}
+.contact b{font-size:.9375rem}
+.center{text-align:center}
+
+.solo form.center{margin-top:16px}
+.hint.after{margin:10px 0 0}
+.inline-form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.inline-form .field{margin:0;flex:1 1 240px}
+details.confirm summary{list-style:none}
+details.confirm summary::-webkit-details-marker{display:none}
+details.confirm form{margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2);max-width:300px}
+details.confirm p{font-size:.875rem;margin:0 0 8px}

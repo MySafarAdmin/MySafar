@@ -1,30 +1,33 @@
 {% extends "base.html" %}
 {% block title %}TV screens{% endblock %}
+{% block width %} narrow{% endblock %}
 {% block content %}
-<h1>TV screens</h1>
-<p class="sub">A TV in the school shows the live dashboard from its own link, without anyone signing in on it. It shows house points, book completions this month, the star of the week for each class and the top memorisation passes, with first names and surname initials only. It can't open anything else or change anything. You can also <a href="/tv">preview the dashboard</a>.</p>
+<div class="pagehead"><div><h1>TV screens</h1><p class="lede">A TV in the school shows the live dashboard from its own link, without anyone signing in on it. It shows house points, book completions this month, the star of the week for each class and the top memorisation passes, with first names and surname initials only. It can't open anything else or change anything.</p></div>
+<div class="acts"><a class="btn" href="/tv" target="_blank" rel="noopener">Preview the dashboard<span class="sr-only"> (opens in a new tab)</span></a></div></div>
 {% if link %}
-<div class="card linkbox">
-  <p><b>Open this link on {{ link_for }}</b> and leave it open; it shows only once, so make a new one if you lose it. Anyone with the link can see the dashboard, so keep it on the TV only.</p>
+<div class="panel linkbox" role="status">
+  <p><b>Open this link on {{ link_for }}</b> and leave it open. It shows only once, so make a new one if you lose it. Anyone with the link can see the dashboard, so keep it on the TV only.</p>
   <input readonly value="{{ link }}" aria-label="TV screen link">
 </div>
 {% endif %}
-<div class="card">
+<div class="panel">
   <h2>Add a TV</h2>
-  <form method="post" action="/admin/tv/new">
+  <form method="post" action="/admin/tv/new" class="inline-form">
     <input type="hidden" name="csrf" value="{{ csrf }}">
-    <label>Name<input name="name" maxlength="80" placeholder="Admin area TV" required></label>
+    <label class="field">Name<input name="name" maxlength="80" placeholder="For example, Admin area TV" autocomplete="off" required></label>
     <button class="btn primary">Make a link</button>
   </form>
 </div>
-<div class="card"><table class="tbl">
-<thead><tr><th>TV</th><th>Made</th><th>Last showing</th><th></th></tr></thead>
+<h2>Screens</h2>
+<div class="tablewrap"><table class="tbl stackable">
+<thead><tr><th scope="col">TV</th><th scope="col">Made</th><th scope="col">Last showing</th><th scope="col"><span class="sr-only">Turn off</span></th></tr></thead>
 <tbody>
 {% for s in screens %}
-<tr><td><b>{{ s.name }}</b></td><td>{{ s.created_at|when }}{% if s.created_by %} <span class="sub">by {{ s.created_by }}</span>{% endif %}</td><td>{{ s.last_seen_at|when if s.last_seen_at else "Not opened yet" }}</td>
-<td><form method="post" action="/admin/tv/{{ s.id }}/off"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn danger">Turn off link</button></form></td></tr>
+<tr><td class="lead">{{ s.name }}</td><td data-label="Made">{{ s.created_at|when }}{% if s.created_by %} <span class="sub">by {{ s.created_by }}</span>{% endif %}</td><td data-label="Last showing">{{ s.last_seen_at|when if s.last_seen_at else "Not opened yet" }}</td>
+<td><details class="confirm"><summary class="btn sm danger">Turn off link<span class="sr-only"> for {{ s.name }}</span></summary>
+<form method="post" action="/admin/tv/{{ s.id }}/off"><p>This TV stops showing the dashboard. You'll need a new link to turn it back on.</p><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn sm danger solid">Yes, turn it off</button></form></details></td></tr>
 {% else %}
-<tr><td colspan="4" class="sub">No TV links yet.</td></tr>
+<tr><td colspan="4" class="sub">No TV links yet. Add a TV above to make one.</td></tr>
 {% endfor %}
 </tbody></table></div>
 {% endblock %}

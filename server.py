@@ -35,8 +35,9 @@ HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # Reachable without signing in.
 PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css"}
+FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2"}
 # /tv/<token> is a TV screen link; tv.py checks the token.
-PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/")
+PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/")
 
 
 def valid_state(state):
@@ -98,7 +99,7 @@ def valid_state(state):
 
 DASHBOARD_CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
                  "font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
-PAGE_CSP = ("default-src 'none'; style-src 'self'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; "
+PAGE_CSP = ("default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; "
             "base-uri 'none'")
 # A classroom saved again by the same person within this time updates its latest
 # history entry instead of adding one, so that history doesn't grow with every click.
@@ -145,6 +146,8 @@ def create_app(test_config=None):
         MAIL_FROM=os.environ.get("MAIL_FROM", ""),
         MAIL_REDIRECT_TO=os.environ.get("MAIL_REDIRECT_TO", ""),
         RETENTION_DAYS=int(os.environ.get("RETENTION_DAYS", "14")),
+        # Shown on the password pages so staff can contact the school office directly.
+        SUPPORT_EMAIL=os.environ.get("SUPPORT_EMAIL", "").strip(),
     )
     if test_config:
         app.config.update(test_config)
@@ -197,7 +200,9 @@ def create_app(test_config=None):
 
     @app.after_request
     def private_responses(response):
-        response.headers["Cache-Control"] = "no-store"
+        # The font files are public and never change; everything else is private.
+        response.headers["Cache-Control"] = "public, max-age=604800" if request.path.startswith("/fonts/") \
+            and response.status_code == 200 else "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
@@ -228,7 +233,16 @@ def create_app(test_config=None):
 
     @app.get("/auth.css")
     def auth_css():
-        return Response((ROOT / "static" / "auth.css").read_text(encoding="utf-8"), mimetype="text/css")
+        # The shared shell and tokens (also inlined in the dashboard), then the admin page styles.
+        css = (ROOT / "src" / "tokens.css").read_text(encoding="utf-8") + "\n" + \
+            (ROOT / "static" / "auth.css").read_text(encoding="utf-8")
+        return Response(css, mimetype="text/css")
+
+    @app.get("/fonts/<name>")
+    def font(name):
+        if name not in FONTS:
+            abort(404)
+        return Response((ROOT / "static" / "fonts" / name).read_bytes(), mimetype="font/woff2")
 
     @app.get("/")
     def dashboard():

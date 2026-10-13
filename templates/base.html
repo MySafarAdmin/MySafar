@@ -1,29 +1,59 @@
-<!DOCTYPE html>
+{% from "_icons.html" import icon %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="same-origin">
+<meta name="theme-color" content="#003b6b">
 <title>{% block title %}{% endblock %} · Safar Academy</title>
+<link rel="preload" href="/fonts/atkinson-next-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/auth.css">
 </head>
+{% set shell = user and not user.must_change and self.body_class() != "solo" %}
 <body class="{% block body_class %}app{% endblock %}">
-{% if user and not user.must_change %}
-<header class="bar">
-  <a class="brand" href="/"><img src="/logo.png" alt="Safar Academy"></a>
-  <nav>
-    <a href="/">Dashboard</a>
-    <a class="j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">Journey2Jannah ↗</a>
-    {% if user.role == "admin" %}<a href="/admin/users">Manage users</a><a href="/admin/history">Class history</a><a href="/admin/activity">Activity</a><a href="/admin/tv">TV screens</a>{% endif %}
-    <a href="/account">Account</a>
-    <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="link">Sign out</button></form>
+{% if shell %}
+{% set here = request.path %}
+<a class="skip" href="#main">Skip to main content</a>
+<div class="shell">
+<header><div class="rail">
+  <a class="brand" href="/"><span class="badge"><img src="/logo.png" alt="" width="34" height="34"></span><span translate="no"><b>Safar Academy</b><small>Enfield</small></span></a>
+  <input type="checkbox" id="navt" class="navt" aria-label="Show the menu">
+  <label for="navt" class="menu-btn" aria-hidden="true">Menu</label>
+  <nav class="navs" aria-label="Main">
+    <a class="nav" href="/">{{ icon("home") }}Dashboard</a>
+    <a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
+    {% if user.role == "admin" %}
+    <div class="navh" id="adminh">Administration</div>
+    <a class="nav" href="/admin/users"{{ ' aria-current="page"'|safe if here == "/admin/users" }}>{{ icon("users") }}Manage users</a>
+    <a class="nav" href="/admin/history"{{ ' aria-current="page"'|safe if here.startswith("/admin/history") }}>{{ icon("history") }}Class history</a>
+    <a class="nav" href="/admin/activity"{{ ' aria-current="page"'|safe if here == "/admin/activity" }}>{{ icon("activity") }}Activity</a>
+    <a class="nav" href="/admin/tv"{{ ' aria-current="page"'|safe if here == "/admin/tv" }}>{{ icon("tv") }}TV screens</a>
+    {% endif %}
   </nav>
-</header>
-{% endif %}
-<main>
+  <div class="me">
+    <div class="who"><b>{{ user.name }}</b><span>{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></div>
+    <div class="row">
+      <a class="linkbtn" href="/account"{{ ' aria-current="page"'|safe if here == "/account" }}>Account</a>
+      <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="linkbtn">Sign out</button></form>
+    </div>
+  </div>
+</div></header>
+<div class="work">
+<main><div class="content{% block width %}{% endblock %}" id="main" tabindex="-1">
 {% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 {% block content %}{% endblock %}
+</div></main>
+</div>
+</div>
+{% else %}
+<div class="solo-band"></div>
+<main>
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+{{ self.content() }}
 </main>
+<footer>Safar Academy Enfield</footer>
+{% endif %}
 </body>
 </html>
