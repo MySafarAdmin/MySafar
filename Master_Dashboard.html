@@ -1,5 +1,5 @@
 <title>Safar Enfield Master Dashboard</title>
-<meta name="theme-color" content="#003b6b">
+<meta name="theme-color" content="#23272d">
 <style>
 /* Safar workspace: shared tokens, application shell and controls.
    Used by the dashboard (inlined by tools/build.py) and by the sign-in and admin pages (served in /auth.css).
@@ -9,50 +9,42 @@
 @font-face{font-family:"Atkinson Next";src:url(/fonts/atkinson-next-latin-ext.woff2) format("woff2");font-weight:200 800;font-display:swap;
  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
- /* Brand: Safar navy, taken from the logo (#003B6B). */
- --navy:#003b6b;--navy-2:#0a4a80;--navy-ink:#e6eef7;--navy-mute:#a9bfd6;--navy-line:rgba(255,255,255,.14);
- /* Surfaces and text */
- --bg:#eef2f6;--surface:#fff;--surface-2:#f6f8fb;--sunk:#e8eef4;--line:#d8e1ea;--line-2:#c3cfdb;
- --ink:#13243a;--ink-2:#33465d;--mute:#56677c;
+ /* Brand: Safar navy from the logo (#003B6B). Reserved for the brand, selected indicators and the one primary action. */
+ --navy:#003b6b;--navy-2:#002c52;--navy-soft:#e9eff6;
+ /* Graphite navigation */
+ --rail-bg:#23272d;--rail-ink:#e8eaed;--rail-mute:#a7adb5;--rail-line:rgba(255,255,255,.1);--rail-hover:rgba(255,255,255,.07);--rail-on:rgba(255,255,255,.13);
+ /* Surfaces and text: a light grey canvas, white working surfaces, graphite type */
+ --bg:#eceef1;--surface:#fff;--surface-2:#f6f7f9;--sunk:#eceef1;--line:#e2e5e9;--line-2:#c8cdd4;
+ --ink:#1d2127;--ink-2:#3e4651;--mute:#5b6470;
  /* Actions and status. Every colour that carries white text is at least 4.5:1. */
- --primary:#0b5cad;--primary-hover:#094c8f;--primary-soft:#e5f0fb;--primary-ink:#0a4f94;
- --ok:#1a7f4b;--ok-soft:#e3f4ea;--ok-ink:#11643a;
- --warn:#b45309;--warn-soft:#fff3df;--warn-ink:#7c3a00;
- --bad:#b42318;--bad-soft:#fdecea;--bad-ink:#911c13;
- --focus:#2f7fd8;
- /* Context colours: sky for learning and progress, teal for activity, gold for achievement.
-    Each has a soft module tint and an ink for text on that tint (all above 4.5:1). */
- --sky:#1f7fc4;--sky-soft:#e6f2fb;--sky-ink:#0b5287;
- --teal:#0f857a;--teal-soft:#def3ef;--teal-ink:#0a5c54;
- --gold:#c4910f;--gold-soft:#fcf2d6;--gold-ink:#664700;
+ --primary:#003b6b;--primary-hover:#002c52;--primary-soft:#e9eff6;--primary-ink:#0b4a82;
+ --ok:#4e7d5b;--ok-soft:#edf3ee;--ok-ink:#2f5a3b;
+ --warn:#b45309;--warn-soft:#fbf3e8;--warn-ink:#874006;
+ --bad:#b42318;--bad-soft:#fcefed;--bad-ink:#8f1d14;
+ --focus:#2563a8;
+ /* Restrained accents: sage for healthy states, gold for achievement. The sky and teal names stay for
+    older rules but now resolve to the same quiet family, so no tinted panels remain. */
+ --sage:#5e8a69;--sage-soft:#eef3ef;--sage-ink:#2f5a3b;
+ --sky:#4a6f94;--sky-soft:#f6f7f9;--sky-ink:#2f4c69;
+ --teal:#5e8a69;--teal-soft:#f6f7f9;--teal-ink:#2f5a3b;
+ --gold:#b98a1e;--gold-soft:#f8f2e2;--gold-ink:#664a0b;
  /* Meaningful colours kept from the original dashboard: houses and house tokens */
  --makkah:#c9930c;--aqsa:#2386d1;--madinah:#1c9a68;
- --tok-g:#16a34a;--tok-b:#2563eb;--tok-r:#dc2626;
+ --tok-g:#16a34a;--tok-b:#2563eb;--tok-r:#dc2626;--tok-g-ink:#15703a;--tok-b-ink:#1d4ed8;--tok-r-ink:#b91c1c;
  /* Warning levels: 1 notice, 2 serious, 3 miss break */
- --w1:#f5c84c;--w1-ink:#4a3200;--w2:#c2410c;--w3:#b42318;
+ --w1:#e2b53a;--w1-ink:#4a3200;--w2:#c2410c;--w3:#b42318;
  /* Shape, space, type */
  --r-sm:6px;--r:8px;--r-lg:12px;
  --font:"Atkinson Next",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
- --shadow:0 1px 2px rgba(16,36,58,.06),0 1px 1px rgba(16,36,58,.04);
- --shadow-lift:0 12px 32px rgba(10,30,55,.22);
+ --shadow:0 1px 2px rgba(29,33,39,.05),0 1px 1px rgba(29,33,39,.03);
+ --shadow-lift:0 12px 32px rgba(29,33,39,.18);
  --rail:232px;
- /* The navy band that opens every page */
- --band-ink:#fff;--band-mute:#bcd0e4;--band-line:rgba(255,255,255,.16);
+ /* Older names used by the admin pages */
+ --navy-ink:var(--rail-ink);--navy-mute:var(--rail-mute);--navy-line:var(--rail-line);
+ --band-ink:var(--ink);--band-mute:var(--mute);--band-line:var(--line-2);
+ /* One light look everywhere: the dashboard is used in classrooms in daylight, and an OS dark setting
+    previously turned the selected tab navy on navy. */
  color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
- --navy:#06213b;--navy-2:#0c3157;--navy-line:rgba(255,255,255,.1);
- --bg:#0c1a2a;--surface:#11243a;--surface-2:#142a43;--sunk:#0a1726;--line:#22384f;--line-2:#2f4a66;
- --ink:#e8eef5;--ink-2:#c6d3e1;--mute:#9db0c4;
- --primary:#5ea8ec;--primary-hover:#7ab8f0;--primary-soft:#163a5c;--primary-ink:#8cc4f5;
- --ok:#3fb27a;--ok-soft:#123826;--ok-ink:#7ed3a8;--warn:#e59a3a;--warn-soft:#3a2810;--warn-ink:#f3c27e;
- --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;--sky:#5aaee8;--sky-soft:#12304a;--sky-ink:#a4d2f4;--teal:#3cc2b2;--teal-soft:#0f3431;--teal-ink:#8fe0d6;--gold:#e0b33f;--gold-soft:#36290b;--gold-ink:#f2d58a;color-scheme:dark}}
-:root[data-theme="dark"]{
- --navy:#06213b;--navy-2:#0c3157;--navy-line:rgba(255,255,255,.1);
- --bg:#0c1a2a;--surface:#11243a;--surface-2:#142a43;--sunk:#0a1726;--line:#22384f;--line-2:#2f4a66;
- --ink:#e8eef5;--ink-2:#c6d3e1;--mute:#9db0c4;
- --primary:#5ea8ec;--primary-hover:#7ab8f0;--primary-soft:#163a5c;--primary-ink:#8cc4f5;
- --ok:#3fb27a;--ok-soft:#123826;--ok-ink:#7ed3a8;--warn:#e59a3a;--warn-soft:#3a2810;--warn-ink:#f3c27e;
- --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;--sky:#5aaee8;--sky-soft:#12304a;--sky-ink:#a4d2f4;--teal:#3cc2b2;--teal-soft:#0f3431;--teal-ink:#8fe0d6;--gold:#e0b33f;--gold-soft:#36290b;--gold-ink:#f2d58a;color-scheme:dark}
 
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -63,7 +55,7 @@ h2{font-size:1.125rem;font-weight:700}
 h3{font-size:1rem;font-weight:700}
 p{margin:0 0 .75rem}
 a{color:var(--primary-ink);text-underline-offset:.18em}
-button,a,summary,label,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:rgba(11,92,173,.15)}
+button,a,summary,label,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,59,107,.12)}
 a:hover{color:var(--primary-hover)}
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .skip{position:absolute;left:12px;top:-60px;z-index:200;background:#fff;color:var(--navy);font-weight:700;padding:10px 14px;border-radius:var(--r);box-shadow:var(--shadow-lift)}
@@ -74,46 +66,45 @@ a:hover{color:var(--primary-hover)}
 .hint{font-size:.875rem}
 .num{font-variant-numeric:tabular-nums}
 
-/* ---------- Application shell: navy rail on wide screens, top bar on narrow ones ---------- */
+/* ---------- Application shell: graphite rail on wide screens, top bar on narrow ones ---------- */
 .shell{min-height:100vh;min-height:100dvh}
 /* <header> and <main> stay bare tags: the server adds inert to them while records load. */
 .shell>header{display:contents}
-.rail{background:var(--navy);color:var(--navy-ink);display:flex;flex-direction:column;z-index:20}
+.rail{background:var(--rail-bg);color:var(--rail-ink);display:flex;flex-direction:column;z-index:20}
 .rail a,.rail button{color:inherit}
 .rail .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;padding:16px 16px 12px;min-width:0}
-/* The navy logo sits on a white disc so it stays visible on the navy rail and in dark mode. */
-.badge{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+/* The navy logo sits on a white disc so it stays visible on the graphite rail. */
+.badge{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff}
 .badge img{width:34px;height:34px;display:block}
 .brand b{display:block;font-size:1.0625rem;font-weight:750;line-height:1.15}
-.brand small{display:block;font-size:.8125rem;color:var(--navy-mute);line-height:1.2}
+.brand small{display:block;font-size:.8125rem;color:var(--rail-mute);line-height:1.2}
 .navt{position:absolute;opacity:0;pointer-events:none}
 .menu-btn{display:none}
 .navs{display:flex;flex-direction:column;gap:2px;padding:4px 10px 12px;flex:1;min-height:0;overflow-y:auto}
-.navh{margin:14px 8px 4px;font-size:.75rem;font-weight:700;color:var(--navy-mute);letter-spacing:.02em}
-.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:8px 10px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--navy-ink)}
-.nav:hover{background:rgba(255,255,255,.08);color:#fff}
-.nav[aria-current="page"],.nav[aria-current="true"]{background:#fff;color:var(--navy);font-weight:700}
+.navh{margin:14px 8px 4px;font-size:.8125rem;font-weight:650;color:var(--rail-mute)}
+.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:8px 10px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--rail-ink)}
+.nav:hover{background:var(--rail-hover);color:#fff}
+.nav[aria-current="page"],.nav[aria-current="true"]{background:var(--rail-on);color:#fff;font-weight:700}
 .nav:focus-visible{outline-color:#fff}
 .nav .ic{flex:none;width:18px;height:18px}
 .nav .ext{margin-left:auto;opacity:.75}
-.nav.j2j{color:#bff0e6}
-.nav.j2j .dot{width:8px;height:8px;border-radius:50%;background:#2dd4bf;flex:none;margin:0 5px}
+.nav.j2j .dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex:none;margin:0 5px}
 .classes{display:flex;flex-direction:column;gap:1px;max-height:40vh;overflow-y:auto;margin:0 -2px;padding:0 2px}
 .classes .nav{font-size:.875rem;min-height:36px;padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .me{border-top:1px solid var(--navy-line);padding:12px 16px 16px;display:flex;flex-direction:column;gap:8px;font-size:.875rem}
 .me .who b{display:block;color:#fff;font-weight:700;overflow-wrap:anywhere}
-.me .who span{color:var(--navy-mute)}
+.me .who span{color:var(--rail-mute)}
 .me .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .me form{margin:0}
-.me .linkbtn{font:inherit;font-size:.875rem;background:none;border:1px solid var(--navy-line);border-radius:var(--r-sm);padding:6px 10px;min-height:36px;cursor:pointer;color:var(--navy-ink);text-decoration:none;display:inline-flex;align-items:center}
-.me .linkbtn:hover{background:rgba(255,255,255,.08)}
-.me .linkbtn[aria-current="page"]{background:#fff;color:var(--navy);font-weight:700}
+.me .linkbtn{font:inherit;font-size:.875rem;background:none;border:1px solid var(--navy-line);border-radius:var(--r-sm);padding:6px 10px;min-height:36px;cursor:pointer;color:var(--rail-ink);text-decoration:none;display:inline-flex;align-items:center}
+.me .linkbtn:hover{background:var(--rail-hover)}
+.me .linkbtn[aria-current="page"]{background:var(--rail-on);color:#fff;font-weight:700}
 .work{min-width:0;display:flex;flex-direction:column}
 .content{width:100%;max-width:1240px;margin:0 auto;padding:24px 32px 48px}
 .content.narrow{max-width:880px}
 
 @media (min-width:960px){
- .shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);background:linear-gradient(90deg,var(--navy) var(--rail),var(--bg) var(--rail))}
+ .shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);background:linear-gradient(90deg,var(--rail-bg) var(--rail),var(--bg) var(--rail))}
  .rail{position:sticky;top:0;height:100vh;height:100dvh}
 }
 @media (max-width:959.98px){
@@ -129,50 +120,39 @@ a:hover{color:var(--primary-hover)}
  .content{padding:16px 16px 40px}
 }
 
-/* ---------- Page band: the navy opening of the admin and account pages, with its title and key figures.
-   The dashboard uses the same navy in its compact head (.head in template.css). ---------- */
-.band{background:var(--navy);color:var(--band-ink);border-radius:14px;padding:16px 24px 18px;margin-bottom:20px;position:relative}
-.band a{color:#fff}
+/* ---------- Page band: the opening of the admin and account pages, with its title and key figures.
+   It sits on the grey canvas in graphite type; the dashboard's compact head (.head in template.css) matches it. ---------- */
+.band{color:var(--ink);padding:4px 0 0;margin-bottom:16px;position:relative}
 .band-top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;min-height:40px}
-.band h1{font-size:1.625rem;font-weight:800;letter-spacing:-.015em;line-height:1.1;overflow-wrap:anywhere;color:#fff;margin-right:auto}
+.band h1{font-size:1.5rem;font-weight:750;letter-spacing:-.01em;line-height:1.15;overflow-wrap:anywhere;color:var(--ink);margin-right:auto}
 .band .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.band .btn{background:#fff;border-color:#fff;color:var(--navy)}
-.band .btn:hover{background:#e6eef7;border-color:#e6eef7}
-.band .btn.ghost{background:none;color:#fff;border-color:var(--band-line)}
-.band .btn.ghost:hover{background:rgba(255,255,255,.1)}
-.band :focus-visible{outline-color:#fff}
-.band .lede{color:var(--band-mute);margin:6px 0 0;max-width:60ch}
-.figs{display:flex;flex-wrap:wrap;gap:8px 32px;margin-top:12px}
-.fig{min-width:0}
-.fig b{display:block;font-size:2rem;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#fff}
-.fig span{display:block;margin-top:6px;font-size:.875rem;color:var(--band-mute)}
-.fig.alert b{color:#ffd27a}
-.fig.quiet b{font-size:1.5rem;padding-top:.75rem}
-/* Admin and account pages: a shorter band */
-.band.slim{padding:16px 24px}
+.band .lede{color:var(--mute);margin:6px 0 0;max-width:60ch}
+.figs{display:flex;flex-wrap:wrap;gap:6px 28px;margin-top:8px}
+.fig{min-width:0;display:flex;align-items:baseline;gap:6px}
+.fig b{font-size:1.25rem;font-weight:750;line-height:1.1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.fig span{font-size:.875rem;color:var(--mute)}
+/* A figure that needs attention keeps graphite digits and gains a small amber marker. */
+.fig.alert span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-right:6px;vertical-align:1px}
+.fig.quiet b{font-size:1.125rem}
 .band.slim h1{font-size:1.5rem}
 @media (max-width:959.98px){
- .band{border-radius:0;margin:-16px -16px 16px;padding:16px 16px 18px}
- .band h1{font-size:1.5rem}
- .figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 16px;margin-top:14px}
- .fig b{font-size:1.625rem}
- .fig span{font-size:.8125rem;margin-top:4px;line-height:1.3}
- .fig.quiet b{font-size:1.125rem;padding-top:.4rem}
- .band.slim h1{font-size:1.5rem}
+ .band h1{font-size:1.375rem}
+ .figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 12px}
+ .fig{flex-direction:column;gap:0}
+ .fig b{font-size:1.125rem}
+ .fig span{font-size:.8125rem;line-height:1.25}
 }
-@media (max-width:379px){.band h1{font-size:1.25rem}.fig b{font-size:1.375rem}}
+@media (max-width:379px){.band h1{font-size:1.25rem}}
 
 /* ---------- Panels and modules ----------
-   White workspaces carry the work; tinted modules (sky, teal, gold) carry insight in their own context. */
+   White workspaces carry the work. Modules are separated by space and headings, not by tinted fills. */
 .panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
 .mod{background:var(--surface);border-radius:var(--r-lg);padding:20px;min-width:0}
 .mod.line{border:1px solid var(--line)}
-.mod.sky{background:var(--sky-soft)}.mod.teal{background:var(--teal-soft)}.mod.gold{background:var(--gold-soft)}
+
 .mod-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:12px;min-height:36px}
 .mod-h h2{font-size:1.125rem;font-weight:750}
-.mod.sky .mod-h h2{color:var(--sky-ink)}.mod.teal .mod-h h2{color:var(--teal-ink)}.mod.gold .mod-h h2{color:var(--gold-ink)}
 .cap{font-size:.8125rem;color:var(--mute);margin:0}
-.mod.sky .cap{color:var(--sky-ink)}.mod.teal .cap{color:var(--teal-ink)}.mod.gold .cap{color:var(--gold-ink)}
 .g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:start}
 .g12.eq{align-items:stretch}
 .g12>*{grid-column:1/-1}
@@ -183,13 +163,15 @@ a:hover{color:var(--primary-hover)}
 .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;background:var(--surface)}
 .seg button{font:inherit;font-size:.875rem;font-weight:600;border:0;background:none;color:var(--ink-2);padding:6px 12px;min-height:36px;cursor:pointer}
 .seg button+button{border-left:1px solid var(--line-2)}
-.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.seg button:hover{background:var(--surface-2)}
+.seg button[aria-pressed="true"]{background:var(--navy-soft);color:var(--navy);font-weight:700;box-shadow:inset 0 -2px 0 var(--navy)}
 .seg button:focus-visible{outline-offset:-3px}
 /* Contextual help: a ? that opens the rules for the screen, by keyboard, touch or pointer */
 .help{position:relative;display:inline-block}
-.help summary{list-style:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--primary-ink);font-weight:800;cursor:pointer}
+.help summary{list-style:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);font-weight:800;cursor:pointer}
 .help summary::-webkit-details-marker{display:none}
-.help[open] summary{background:var(--primary-soft)}
+.help summary:hover{background:var(--surface-2)}
+.help[open] summary{background:var(--sunk)}
 .help .hb{position:absolute;z-index:35;top:44px;right:0;width:min(360px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);padding:14px 16px;font-size:.9375rem;font-weight:400;text-align:left}
 .help .hb p{margin:0 0 8px}.help .hb p:last-child{margin:0}
 .help.left .hb{right:auto;left:0}
@@ -217,8 +199,6 @@ a:hover{color:var(--primary-hover)}
 .btn.lg{min-height:48px;padding:12px 18px;font-size:1rem}
 .btn.wide{width:100%}
 button.link{font:inherit;background:none;border:0;padding:0;color:var(--primary-ink);cursor:pointer;text-decoration:underline;text-underline-offset:.18em}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary,:root:not([data-theme="light"]) .btn.p{color:#04213d}}
-:root[data-theme="dark"] .btn.primary,:root[data-theme="dark"] .btn.p{color:#04213d}
 
 /* ---------- Forms ---------- */
 .field{display:flex;flex-direction:column;gap:6px;font-size:.875rem;font-weight:600;color:var(--ink-2)}
@@ -278,51 +258,53 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 html{scroll-padding-top:calc(var(--topbar,0px) + 64px)}
 body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .content{max-width:1480px}
-@media (min-width:960px){.content{padding:16px 24px 16px}}
+@media (min-width:960px){.content{padding:14px 20px 10px}}
 
-/* ---------- Page head: one compact navy strip with the title, key figures and the tabs ----------
-   The selected tab is white and joins the white workspace under it. */
-.head{background:var(--navy);color:#fff;border-radius:14px 14px 0 0;padding:10px 20px 0}
-.head-top{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;min-height:40px}
+/* ---------- Page head: title, key figures and tabs on the grey canvas ----------
+   Graphite type, no fill. The selected tab is a white folder tab with a navy top edge that opens into the
+   white workspace under it, so the work is the largest and calmest surface. */
+.head{color:var(--ink);padding:2px 0 0}
+.head-top{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;min-height:40px}
 .head h1{margin-right:auto}
 .head .save{order:2}.head .swc{order:1}
-.head h1{font-size:1.5rem;font-weight:800;letter-spacing:-.01em;line-height:1.15;color:#fff;overflow-wrap:anywhere;min-width:0}
-.head .btn{background:none;color:#fff;border-color:var(--band-line)}
-.head .btn:hover{background:rgba(255,255,255,.1)}
-.head :focus-visible{outline-color:#fff}
-.head .figs{order:3;flex-basis:100%;display:flex;flex-wrap:wrap;gap:4px 24px;margin:0;align-items:baseline}
+.head h1{font-size:1.5rem;font-weight:750;letter-spacing:-.01em;line-height:1.15;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.head .figs{order:3;flex-basis:100%;display:flex;flex-wrap:wrap;gap:2px 26px;margin:2px 0 0;align-items:baseline}
 .head .figs:empty{display:none}
-.head .fig{display:flex;align-items:baseline;gap:6px;white-space:nowrap;flex:none}
-.head .fig b{display:inline;font-size:1.25rem;font-weight:800;line-height:1.1;color:#fff;letter-spacing:-.01em}
-.head .fig span{display:inline;margin:0;font-size:.8125rem;color:var(--band-mute)}
-.head .fig.alert b{color:#ffd27a}
-.head .save{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;color:var(--band-mute);min-height:28px;white-space:nowrap}
-.head .save::before{content:"";width:8px;height:8px;border-radius:50%;background:#4ade80}
-.head .save[data-s="busy"]::before{background:#fbbf24}
+.head .fig{white-space:nowrap;flex:none}
+.head .fig b{font-size:1.125rem;font-weight:750}
+.head .fig span{font-size:.8125rem}
+.head .save{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;color:var(--mute);min-height:28px;white-space:nowrap}
+.head .save::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sage)}
+.head .save[data-s="busy"]::before{background:var(--gold)}
 .head .save[data-s="bad"]{color:#fff;font-weight:700;background:var(--bad);border-radius:999px;padding:2px 10px;white-space:normal}
 .head .save[data-s="bad"]::before{background:#fff}
 .head .save:empty{display:none}
 @media (min-width:960px){.swc{display:none!important}}
-.head .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:8px -8px 0;padding:0 8px}
-.head .tabs::-webkit-scrollbar{display:none}
-.tabs button{font:inherit;font-size:.9375rem;font-weight:650;color:#cfe0f1;background:none;border:0;padding:9px 16px;min-height:42px;cursor:pointer;white-space:nowrap;border-radius:10px 10px 0 0;display:inline-flex;align-items:center;gap:6px}
-.tabs button:hover{color:#fff;background:rgba(255,255,255,.1)}
-.tabs button[aria-selected="true"]{color:var(--navy);background:var(--surface);font-weight:750}
+.head .tabs{display:flex;gap:2px;margin:8px 0 0}
+.tabs button{font:inherit;font-size:.9375rem;font-weight:600;color:var(--ink-2);background:none;border:0;padding:9px 16px;min-height:42px;cursor:pointer;white-space:nowrap;border-radius:10px 10px 0 0;display:inline-flex;align-items:center;gap:6px}
+.tabs button:hover{color:var(--ink);background:rgba(29,33,39,.06)}
+.tabs button[aria-selected="true"]{color:var(--navy);background:var(--surface);font-weight:750;box-shadow:inset 0 3px 0 var(--navy)}
 .tabs button:focus-visible{outline-offset:-3px}
-.tn{display:inline-block;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--gold);color:#2b1d00;font-size:.75rem;font-weight:800;line-height:1.5;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Counts on tabs: small and neutral; the tab name says what they count. */
+.tn{display:inline-block;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--sunk);color:var(--ink-2);font-size:.75rem;font-weight:750;line-height:1.5;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tabs button[aria-selected="true"] .tn{background:var(--navy-soft);color:var(--navy)}
 /* The workspace: white, directly under the selected tab */
-.ws{background:var(--surface);border-radius:0 0 14px 14px;padding:16px 20px 16px;box-shadow:var(--shadow);min-width:0}
-@media (min-width:960px){.head{position:sticky;top:0;z-index:15;box-shadow:0 -12px 0 var(--bg)}}
+.ws{background:var(--surface);border-radius:0 14px 14px 14px;padding:16px 20px;box-shadow:var(--shadow);min-width:0}
+@media (min-width:960px){.head{position:sticky;top:0;z-index:15;background:var(--bg);box-shadow:0 -16px 0 var(--bg)}}
 @media (max-width:959.98px){
- .head{border-radius:0;margin:-16px -16px 0;padding:10px 16px 0}
- .head h1{font-size:1.4rem}
- .head .figs{flex-wrap:nowrap;overflow-x:auto;width:100%;margin:2px 0 0;gap:18px;scrollbar-width:none;padding-bottom:2px}
- .head .figs::-webkit-scrollbar{display:none}
- .head .tabs{margin:6px -16px 0;padding:0 12px}
- .tabs button{padding:9px 13px}
+ .head{padding:2px 0 0}
+ .head h1{font-size:1.125rem;line-height:1.25}
+ .head .figs{display:flex;flex-wrap:wrap;gap:2px 14px;margin:6px 0 0}
+ .head .fig{flex-direction:row;gap:5px;white-space:nowrap}
+ .head .fig b{font-size:1rem}
+ .head .fig span{font-size:.8125rem}
+ /* Every tab stays visible: they wrap onto a second row instead of scrolling sideways. */
+ .head .tabs{flex-wrap:wrap;gap:4px;margin:8px 0 10px}
+ .tabs button{border-radius:999px;padding:8px 13px;min-height:40px;background:var(--surface);border:1px solid var(--line)}
+ .tabs button[aria-selected="true"]{box-shadow:inset 0 0 0 2px var(--navy);border-color:var(--navy)}
  .ws{margin:0 -16px;border-radius:0;padding:14px 16px 20px;box-shadow:none}
 }
-@media (max-width:379px){.head h1{font-size:1.125rem}.head .fig b{font-size:1.125rem}}
+@media (max-width:379px){.head h1{font-size:1.0625rem}.head .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.tabs button{padding:8px 2px;font-size:.8125rem;justify-content:center}}
 
 /* Sync banner (railway-storage.js): only shown when something needs the person's attention. */
 .sync{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;background:var(--warn-soft);color:var(--warn-ink);border-bottom:1px solid color-mix(in srgb,var(--warn) 40%,transparent);font-size:.9375rem}
@@ -357,13 +339,18 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .sumgrid .lvwrap .mod-h{flex-wrap:nowrap}.sumgrid .lvwrap .cap{text-align:right}
 .sumgrid .topc .rank li{padding:3px 0}
 .sumgrid .topc .mod-h{margin-bottom:2px}
-.sumgrid .house .pts{font-size:1.125rem}.sumgrid .house .tr{height:8px}
+.sumgrid .house .pts{font-size:1.0625rem}
 @media (min-width:1100px){
- .sumgrid{grid-template-columns:1.05fr 1fr 1fr;grid-template-areas:"a b c" "a l d";align-items:start;row-gap:12px}
- .sumgrid>.attn{grid-area:a;align-self:stretch}.sumgrid>.act{grid-area:b}.sumgrid .hb{grid-area:c}.sumgrid .topc{grid-area:d}.sumgrid>.lvwrap{grid-area:l}
+ .sumgrid{grid-template-columns:1fr 1fr 1fr;grid-template-areas:"a b c" "l l d";align-items:start;row-gap:16px}
+ .sumgrid>.attn{grid-area:a}.sumgrid>.act{grid-area:b}.sumgrid .hb{grid-area:c}.sumgrid .topc{grid-area:d}.sumgrid>.lvwrap{grid-area:l}
  .sumgrid .lvi small{white-space:normal;text-align:center;line-height:1.1;height:2.2em}
+ /* Columns divided by hairlines, not by tinted panels */
+ .sumgrid{column-gap:28px}
+ .sumgrid>.act,.sumgrid .hb,.sumgrid .topc{border-left:1px solid var(--line);padding-left:28px!important}
+ .sumgrid>.lvwrap,.sumgrid .topc{border-top:1px solid var(--line);padding-top:14px!important}
+ .sumgrid .lvc{height:104px}
 }
-.sumgrid .mod{padding:14px 16px}
+.sumgrid .mod{padding:4px 0;border-radius:0}
 .sumgrid .mod-h{margin-bottom:8px;min-height:0}
 .sumgrid .mod-h h2{font-size:1rem}
 .sumgrid h3{margin:8px 0 2px}
@@ -371,21 +358,21 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .sumgrid .feed .d{display:none}
 .sumgrid .feed b small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sumgrid .houses{gap:8px}
-.sumgrid .mod.gold .cap{margin-top:6px}
 .topc,.lvwrap{padding:4px 2px 0}
 .topc .rank li,.sumgrid .rank li{padding:4px 0}
 /* Attention blocks: a count that opens its full list, then the classes most affected */
-.attn{background:var(--warn-soft);border-color:transparent}
-.attn .mod-h h2,.attn>h2{color:var(--warn-ink)}
-.attn.calm{background:var(--ok-soft);display:flex;flex-direction:column;gap:10px}
-.attn.calm h2{color:var(--ok-ink);font-size:1rem}
-.ab{grid-template-columns:minmax(0,1fr);padding:8px 0;border-top:1px solid color-mix(in srgb,var(--warn-ink) 16%,transparent);display:grid;gap:6px}
+.attn{border-color:transparent}
+.attn.calm{display:flex;flex-direction:column;gap:10px}
+.attn.calm h2{font-size:1rem}
+.ab{grid-template-columns:minmax(0,1fr);padding:10px 0;border-top:1px solid var(--line);display:grid;gap:6px}
 .ab:first-of-type{border-top:0;padding-top:0}
 .abh{display:flex;align-items:baseline;gap:10px;font:inherit;background:none;border:0;padding:2px 0;text-align:left;cursor:pointer;color:var(--ink);min-height:36px}
 .abh b{font-size:2rem;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
 .abh span{font-size:.9375rem;font-weight:650;color:var(--ink-2);text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-underline-offset:.2em}
 .abh:hover span{text-decoration-color:currentColor}
-.ab.wr .abh b{color:var(--warn-ink)}.ab.stale .abh b{color:var(--bad-ink)}.ab.quiet .abh b{color:var(--ink-2)}
+/* Graphite counts with a small marker for the kind of attention */
+.abh span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px;background:var(--line-2)}
+.ab.wr .abh span::before{background:var(--warn)}.ab.stale .abh span::before{background:var(--bad)}
 .ab .lv{margin:0;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
 .lvn{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .lvn b{font-weight:800;font-variant-numeric:tabular-nums}
@@ -415,16 +402,16 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .dir .wcount{color:var(--warn-ink);font-weight:750}
 .ws .tablewrap,.ws .sheetwrap{border:0;border-radius:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .ws .mod.line{border:0}
-.ws .tbl th,.ws .tbl td{padding:8px 12px}
+.ws .tbl th,.ws .tbl td{padding:7px 12px}
 .rk4{display:grid;gap:16px 24px;grid-template-columns:minmax(0,1fr)}
 @media (min-width:700px){.rk4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (min-width:1200px){.rk4{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .rk4 .grp>.cap{margin:-8px 0 6px}
 .rk4 .mod-h{margin-bottom:8px;min-height:0}
-.rk4 .rank li{padding:5px 0}
+.rk4 .rank li{padding:3px 0}
 .rk4 .rank .n b,.rk4 .alist .who b{font-size:.9375rem;line-height:1.25}
 .rk4 .rank .n small{font-size:.75rem;line-height:1.3}
-.rk4 .rank .tr{height:4px;margin-top:3px}
+.rk4 .rank .tr{height:4px;margin-top:2px}
 .rk4 .rank .v{font-size:1rem}
 .rk4 .alist li{padding:5px 0}
 .grp>h2{margin-bottom:8px}
@@ -443,24 +430,24 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 /* Passes per week */
 .wk{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;align-items:end;height:150px;margin-bottom:4px}
 .wkc{display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}
-.wkc b{font-size:.875rem;font-weight:750;font-variant-numeric:tabular-nums;color:var(--teal-ink)}
+.wkc b{font-size:.875rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink-2)}
 .wkb{flex:1;width:100%;display:flex;align-items:flex-end;margin:3px 0}
-.wkb i{display:block;width:100%;min-height:2px;border-radius:4px 4px 0 0;background:color-mix(in srgb,var(--teal) 55%,transparent)}
-.wkc.now .wkb i{background:var(--teal)}
-.wkc small{font-size:.6875rem;color:var(--teal-ink);text-align:center;line-height:1.15;min-height:2.3em;max-width:100%}
+.wkb i{display:block;width:100%;min-height:2px;border-radius:3px 3px 0 0;background:var(--line-2)}
+.wkc.now .wkb i{background:var(--navy)}
+.wkc.now b{color:var(--navy)}
+.wkc small{font-size:.6875rem;color:var(--mute);text-align:center;line-height:1.15;min-height:2.3em;max-width:100%}
 .wkc.now small{font-weight:750}
-.mod.teal h3{color:var(--teal-ink)}
 
 /* Houses */
 .houses{display:grid;gap:14px}
 .house{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center}
 .hn{display:inline-flex;align-items:center;gap:8px;font-weight:650}
-.house .tr{grid-column:1/-1;height:10px;background:color-mix(in srgb,var(--gold-ink) 12%,transparent);border-radius:6px;overflow:hidden}
+.house .tr{grid-column:1/-1;height:6px;background:var(--sunk);border-radius:4px;overflow:hidden}
 .house .tr i{display:block;height:100%;border-radius:6px}
 .house .pts{font-weight:800;font-size:1.25rem;font-variant-numeric:tabular-nums;text-align:right}
 .house.Makkah .tr i{background:var(--makkah)}.house.Al-Aqsa .tr i{background:var(--aqsa)}.house.Madinah .tr i{background:var(--madinah)}
-.pill.lead{background:var(--gold);color:#2b1d00;font-size:.75rem;padding:1px 8px}
-.mod.gold .cap{margin-top:12px}
+.pill.lead{background:var(--gold-soft);color:var(--gold-ink);font-size:.75rem;padding:1px 8px}
+.hb .cap{margin-top:10px}
 .hbig{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--surface);border-radius:var(--r-lg);overflow:hidden;margin-bottom:8px}
 .hcol{padding:6px 20px 10px 0;background:var(--surface)}
 .hbar{display:block;height:8px;border-radius:4px;background:var(--surface-2);margin-top:12px;overflow:hidden}.hbar i{display:block;height:100%;border-radius:4px;background:var(--line-2)}
@@ -505,99 +492,112 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .alist .v{flex:none;font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:.875rem;font-weight:650}
 
 /* Warning levels */
-.wl{display:inline-flex;align-items:center;font-size:.8125rem;font-weight:700;border-radius:999px;padding:2px 10px;white-space:nowrap;line-height:1.35}
-.wl1{background:var(--w1);color:var(--w1-ink)}.wl2{background:var(--w2);color:#fff}.wl3{background:var(--w3);color:#fff}
+/* Warning levels as a neutral label with a coloured marker; the colour keeps its meaning without a filled badge. */
+.wl{display:inline-flex;align-items:center;gap:6px;font-size:.8125rem;font-weight:650;border-radius:999px;padding:2px 10px 2px 8px;white-space:nowrap;line-height:1.35;background:var(--sunk);color:var(--ink)}
+.wl::before{content:"";width:8px;height:8px;border-radius:50%;flex:none}
+.wl1::before{background:var(--w1)}.wl2::before{background:var(--w2)}.wl3::before{background:var(--w3)}
 .wsum{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-weight:750;font-variant-numeric:tabular-nums}
 .wsum .wl{margin-right:6px}
 .wsum .calm{color:var(--ok-ink);font-weight:650}
 
 /* ---------- Class: Record ----------
-   The roster fills two columns on wide screens so a class of 20 is in view at once; the selected
-   student's editor, attention and latest records sit in the panel beside it (in the drawer on narrow screens). */
-.rec{display:grid;gap:16px 20px;grid-template-columns:minmax(0,1fr);align-items:start}
-.rtool{display:flex;justify-content:flex-end}
-.rtool .tools{display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:flex-end}
-.rheads{display:grid;grid-template-columns:minmax(0,1fr);column-gap:28px;border-bottom:1px solid var(--line-2)}
-.rheads>span{display:grid;grid-template-columns:minmax(0,1fr) 72px 72px;gap:6px;padding:0 0 4px 10px}
+   The whole class in two calm columns on wide screens. Row actions are quiet outlines; the one strong button is
+   the selected student's Pass in the panel beside the roster (the drawer on narrow screens). Attention shows as
+   markers on the rows and as the Warnings and Waiting filters. */
+.rec{display:grid;gap:10px 28px;grid-template-columns:minmax(0,1fr);align-items:start}
+.rtool{display:flex;align-items:center;gap:8px}
+.rtool .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;width:100%}
+.rtool .help{margin-left:auto}
+.rf button{display:inline-flex;align-items:center;gap:6px}
+.rf button[aria-pressed="true"] .tn{background:#fff;color:var(--navy)}
+.rfnone{padding:16px 10px}
+.rheads{display:grid;grid-template-columns:minmax(0,1fr);column-gap:32px;border-bottom:1px solid var(--line-2)}
+.rheads>span{display:grid;grid-template-columns:minmax(0,1fr) 68px 68px;gap:6px;padding:0 0 4px 10px}
 .rheads>span+span{display:none}
-.rheads i{font-style:normal;font-size:.8125rem;font-weight:700;color:var(--mute)}
+.rheads i{font-style:normal;font-size:.8125rem;font-weight:650;color:var(--mute)}
 .rheads i+i{text-align:right;padding-right:2px}
-.roster{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);column-gap:28px}
-.rrow{display:grid;grid-template-columns:minmax(0,1fr) 72px 72px;gap:6px;align-items:center;padding:2px 0;border-bottom:1px solid var(--line);min-width:0}
-.rname{font:inherit;text-align:left;background:none;border:0;border-radius:var(--r);padding:3px 8px 3px 10px;min-height:42px;cursor:pointer;color:var(--ink);min-width:0}
+.roster{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);column-gap:32px}
+.rrow{display:grid;grid-template-columns:minmax(0,1fr) 68px 68px;gap:6px;align-items:center;padding:1px 0;border-bottom:1px solid var(--line);min-width:0}
+.rname{font:inherit;text-align:left;background:none;border:0;border-radius:var(--r);padding:3px 8px 3px 10px;min-height:40px;cursor:pointer;color:var(--ink);min-width:0}
 .rname:hover{background:var(--surface-2)}
-.rrow.sel .rname{background:var(--primary-soft);box-shadow:inset 0 0 0 2px var(--primary)}
-.rname b{display:block;font-size:1rem;font-weight:700;line-height:1.22;overflow-wrap:anywhere}
+.rrow.sel .rname{background:var(--navy-soft);box-shadow:inset 0 0 0 2px var(--navy)}
+.rname b{display:block;font-size:.9688rem;font-weight:650;line-height:1.22;overflow-wrap:anywhere}
 .rname small{display:flex;flex-wrap:wrap;gap:0 8px;font-size:.75rem;line-height:1.3;color:var(--mute)}
-.rname .tg{background:none;border-radius:0;padding:0;font-size:.75rem;font-weight:650;color:var(--sky-ink)}
-.fl{font-weight:750}.fl.w{color:var(--warn-ink)}.fl.l{color:var(--bad-ink)}
-.q{display:flex;align-items:center;justify-content:flex-end;gap:6px}
-.q .cnt{min-width:2ch;text-align:right;font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.q .btn{flex:none;width:40px;min-height:40px;padding:0;font-size:1.25rem;font-weight:800}
+.rname .tg{background:none;border-radius:0;padding:0;font-size:.75rem;font-weight:600;color:var(--ink-2)}
+/* Row markers: a small dot and a word, never a filled badge */
+.fl{display:inline-flex;align-items:center;gap:4px;font-weight:650;color:var(--ink-2)}
+.fl::before{content:"";width:6px;height:6px;border-radius:50%;flex:none}
+.fl.w::before{background:var(--warn)}.fl.w3::before{background:var(--bad)}.fl.l::before{background:var(--bad)}
+.q{display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.q .cnt{min-width:2ch;text-align:right;font-size:1.125rem;font-weight:750;font-variant-numeric:tabular-nums;color:var(--ink)}
+.q .btn{flex:none;width:36px;min-height:36px;padding:0;font-size:1.125rem;font-weight:700;background:var(--surface);border-color:var(--line-2);color:var(--ink-2)}
+.q .btn:hover{background:var(--surface-2);border-color:var(--mute);color:var(--ink)}
+.q .btn.m{color:var(--gold-ink)}
+.roster .q .btn.plus{background:var(--surface);border-color:var(--line-2);color:var(--ink-2)}
+.roster .q .btn.plus:hover{background:var(--surface-2);border-color:var(--mute);color:var(--ink)}
+.roster .q .btn.plus.m{color:var(--gold-ink)}
 .btn.plus.p{background:var(--primary);border-color:var(--primary);color:#fff}
 .btn.plus.p:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
-.btn.m{background:var(--gold-soft);border-color:#e6c86a;color:var(--gold-ink)}
-.btn.m:hover{background:#fbe9ad;border-color:#d4a017}
+.btn.m{color:var(--gold-ink)}
 .roster .empty{grid-column:1/-1;margin-top:12px}
-.sidebtn{display:none}
 .recside{min-width:0}
-.sidec{background:var(--bg);border-radius:var(--r-lg);padding:14px 16px}
-.sgrp+.sgrp{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-.sgrp h2{font-size:1rem;font-weight:750}
+.sidec{padding:2px 0 2px 20px;border-left:1px solid var(--line)}
+.sgrp+.sgrp{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.sgrp h2{font-size:1rem;font-weight:700}
 .sgrp .mod-h{margin-bottom:4px;min-height:0}
-.sgrp.attn{background:none}
-.sgrp.attn h2{color:var(--warn-ink)}
-.sgrp h3{font-size:.8125rem;font-weight:700;color:var(--ink-2);margin:8px 0 2px}
-.sgrp .alist li{padding:4px 0}
-.alist .who.lk{font-weight:650;color:var(--ink);text-decoration-color:color-mix(in srgb,currentColor 25%,transparent)}
+.sidehint{margin:0;color:var(--mute);font-size:.9375rem;max-width:34ch}
+.sidea{display:flex;flex-wrap:wrap;gap:6px}
 .sgrp .feed li{grid-template-columns:minmax(0,1fr) auto;padding:5px 0}
-.sgrp .feed .d{grid-column:1/-1;font-size:.75rem}
+.sgrp .feed .d{grid-column:1/-1;font-size:.75rem;color:var(--mute)}
 @media (min-width:1100px){
- .rec{grid-template-columns:minmax(0,1fr) 280px}
- .recside{position:sticky;top:140px;display:flex;flex-direction:column;gap:6px;max-height:calc(100vh - 180px);max-height:calc(100dvh - 180px)}
- .sidec{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain}
- .rtool{margin-top:-8px}
+ .rec{grid-template-columns:minmax(0,1fr) 256px}
+ .rtool{grid-column:1/-1}
+ .recside{position:sticky;top:148px}
+ .sidec{max-height:calc(100vh - 220px);max-height:calc(100dvh - 220px);overflow:auto;overscroll-behavior:contain}
  .rheads{grid-template-columns:repeat(2,minmax(0,1fr))}
  .rheads>span+span{display:grid}
  .roster{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:column;grid-template-rows:repeat(var(--rows,10),auto)}
 }
-@media (max-width:1099.98px){.recside{order:-1}.sidec{display:none}.sidebtn{display:inline-flex;order:-1}.rec{gap:6px}.rtool .tools{justify-content:flex-start;width:100%}.rtool .help{margin-left:auto}}
-@media (max-width:559.98px){.rtool [data-ct="S"]{display:none}}
-@media (max-width:959.98px){.rrow,.rheads>span{grid-template-columns:minmax(0,1fr) 84px 84px}}
-@media (max-width:379px){.rrow,.rheads>span{grid-template-columns:minmax(0,1fr) 80px 80px;gap:4px}.q{gap:4px}.rname{padding-left:6px}}
+/* Narrow screens: the selected student opens in the drawer; latest records follow the roster. */
+@media (max-width:1099.98px){.rec{gap:8px}.sidec{border-left:0;padding:14px 0 0;border-top:1px solid var(--line-2);margin-top:8px}}
+@media (max-width:959.98px){.rrow,.rheads>span{grid-template-columns:minmax(0,1fr) 84px 84px}.q .btn{width:44px}}
+@media (max-width:379px){.rrow,.rheads>span{grid-template-columns:minmax(0,1fr) 80px 80px;gap:4px}.q{gap:4px}.rname{padding-left:6px}.rf button{padding:6px 7px;font-size:.8125rem;gap:4px}.rf .tn{padding:0 4px;min-width:0}.rtool .tools{gap:6px}}
 /* The selected student's editor */
 .ed-h{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
-.ed-h h2{font-size:1.25rem;font-weight:800;overflow-wrap:anywhere;line-height:1.2}
-.ed-st{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.ed-h h2{font-size:1.25rem;font-weight:750;overflow-wrap:anywhere;line-height:1.2}
+.ed-st{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
 .ed-t{display:flex;flex-direction:column;gap:4px;font-size:.8125rem;font-weight:650;color:var(--ink-2)}
 .ed-t select{width:100%}
-.ed .ctrs{display:grid;gap:6px;margin:10px 0}
-.ed .ctr{display:grid;grid-template-columns:minmax(0,1fr) 44px 3.2ch 44px;gap:6px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:4px 4px 4px 12px}
-.ed .ctr .lbl{font-weight:700;color:var(--ink-2);font-size:.9375rem}
-.ed .ctr .cnt{text-align:center;font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums}
-.ed .ctr .btn{min-height:42px;padding:0;font-size:1.25rem;font-weight:800}
+.ed .ctrs{display:grid;gap:8px;margin:12px 0}
+.ed .ctr{display:grid;grid-template-columns:minmax(0,1fr) 44px 3.2ch 44px;gap:6px;align-items:center;padding:2px 0}
+.ed .ctr+.ctr{border-top:1px solid var(--line);padding-top:8px}
+.ed .ctr .lbl{font-weight:650;color:var(--ink-2);font-size:.9375rem}
+.ed .ctr .cnt{text-align:center;font-size:1.25rem;font-weight:750;font-variant-numeric:tabular-nums}
+.ed .ctr .btn{min-height:42px;padding:0;font-size:1.25rem;font-weight:700}
 .ed .ctr .btn.minus{color:var(--ink-2)}
 .ed .ddl{font-size:.875rem;gap:2px 12px;margin:0 0 10px}
 .ed-a{display:flex;flex-wrap:wrap;gap:6px}
-.dbody .ed .ctr{background:var(--surface-2)}
+.edd{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 /* Two columns of rows on wide screens (Warnings, Quran) */
 .cols2{display:grid;grid-template-columns:minmax(0,1fr);column-gap:32px}
 @media (min-width:1100px){.cols2{grid-template-columns:repeat(2,minmax(0,1fr))}.cols2>.empty{grid-column:1/-1}}
 
 /* ---------- Class: Progress ---------- */
 .lanes{list-style:none;margin:0;padding:0}
-.lanes li{display:grid;grid-template-columns:minmax(120px,220px) minmax(0,1fr) 88px;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.lanes li{display:grid;grid-template-columns:minmax(110px,1fr) minmax(60px,1.1fr) 6ch;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
 .lanes li:last-child{border-bottom:0}
 .lanes .ln{font-weight:650;overflow-wrap:anywhere;min-width:0}
-.lanes .lt{height:14px;border-radius:7px;background:var(--sunk);overflow:hidden}
+.lanes .lt{height:10px;border-radius:5px;background:var(--sunk);overflow:hidden}
 .lanes .lt i{display:block;height:100%;border-radius:7px;min-width:4px}
 .lanes b{font-variant-numeric:tabular-nums;font-weight:750;text-align:right}
 .lanes b.z{color:var(--mute);font-weight:500}
 @media (max-width:560px){.lanes li{grid-template-columns:minmax(0,1fr) auto;gap:4px 10px}.lanes .lt{grid-column:1/-1;grid-row:2}}
 .dist{list-style:none;margin:0 0 10px;padding:0;display:grid;gap:4px}
 .dist li{display:grid;grid-template-columns:56px minmax(0,1fr) 3ch;gap:10px;align-items:center;font-size:.875rem}
-.dist li span:first-child{font-weight:650;color:var(--sky-ink)}
-.dist .db{height:12px;background:color-mix(in srgb,var(--sky-ink) 10%,transparent);border-radius:3px;overflow:hidden}
+.dist li span:first-child{font-weight:650;color:var(--ink-2)}
+.dist .db{height:10px;background:var(--sunk);border-radius:3px;overflow:hidden}
+.distg{padding-left:24px;border-left:1px solid var(--line)}
+@media (max-width:1099.98px){.distg{padding-left:0;border-left:0}}
 .dist .db i{display:block;height:100%;border-radius:3px}
 .dist b{text-align:right;font-variant-numeric:tabular-nums}
 .dist li.z span:first-child,.dist li.z b{color:var(--ink-2);font-weight:600}.dist li.z .db{opacity:.6}
@@ -611,6 +611,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .pastf[open]>summary{background:var(--sunk)}
 .pastf .pf{margin-top:12px;padding:14px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg)}
 .hist{max-height:420px;overflow:auto}
+@media (min-width:1100px){.hist{max-height:calc(100vh - 340px);max-height:calc(100dvh - 340px)}}
 .hr{display:grid;grid-template-columns:110px minmax(0,1fr) auto auto;gap:4px 12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
 .hr:last-child{border-bottom:0}
 .hr span:first-child{color:var(--mute);font-size:.875rem}
@@ -619,18 +620,20 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .hist .empty .btn{margin-top:8px}
 @media (max-width:560px){.hr{grid-template-columns:minmax(0,1fr) auto;}.hr span:first-child{grid-column:1/-1}}
 
-/* ---------- Class: Rewards ---------- */
-.pz-won{font-size:1.0625rem;margin:0 0 8px;color:var(--gold-ink)}
-.mod.gold h3{color:var(--gold-ink);margin-top:14px}
-.pz{list-style:none;margin:0;padding:0}
-.pz li{display:grid;grid-template-columns:minmax(0,1fr) auto 5.5ch;gap:12px;align-items:center;padding:6px 0;border-bottom:1px solid color-mix(in srgb,var(--gold-ink) 15%,transparent)}
-.pz li:last-child{border-bottom:0}
-.pz b{font-weight:650;overflow-wrap:anywhere}
-.pz span:last-child{text-align:right;font-variant-numeric:tabular-nums;font-size:.875rem;color:var(--gold-ink);font-weight:650}
-.dots{display:inline-flex;gap:4px}
-.dots i{width:12px;height:12px;border-radius:50%;border:2px solid color-mix(in srgb,var(--gold-ink) 45%,transparent)}
+/* ---------- Class: Rewards ----------
+   One ranked list. For passes this month each row also shows progress to the prize (5 passes in a month). */
+.prizeline{margin:0 0 10px;color:var(--ink-2)}
+.prizeline b{color:var(--ink)}
+.lead2 .rank{display:grid;grid-template-columns:minmax(0,1fr);column-gap:36px}
+@media (min-width:1100px){.lead2 .rank{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:column;grid-template-rows:repeat(var(--rows,10),auto)}}
+.lead2 .rank li{padding:5px 0}
+.lead2 .rank .tr{height:4px;margin-top:4px}
+.pzx{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.dots{display:inline-flex;gap:3px}
+.dots i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--line-2)}
 .dots i.on{background:var(--gold);border-color:var(--gold)}
-.pz li.won b{color:var(--gold-ink)}
+.rank .v .pzx{margin-right:12px;font-size:.75rem;font-weight:400;vertical-align:2px}
+.won{font-size:.75rem;font-weight:700;color:var(--gold-ink);background:var(--gold-soft);border-radius:999px;padding:1px 8px}
 
 /* Forms in modules */
 .pf{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
@@ -652,30 +655,31 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .tset{display:flex;gap:6px;flex-wrap:wrap}
 .tbtn{font:inherit;font-size:.9375rem;font-weight:650;min-height:44px;min-width:44px;padding:8px 12px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
 .tbtn:hover{border-color:var(--mute)}
-.tbtn[aria-pressed="true"]{background:var(--c,var(--primary));border-color:var(--c,var(--primary));color:var(--on,#fff)}
-.tbtn.b1{--c:var(--w1);--on:var(--w1-ink)}.tbtn.b2{--c:var(--w2)}.tbtn.b3{--c:var(--w3)}
-.trow.s1{box-shadow:inset 3px 0 0 var(--w1)}.trow.s2{box-shadow:inset 3px 0 0 var(--w2)}.trow.s3{box-shadow:inset 3px 0 0 var(--w3)}
+/* The chosen option: a light tint and a ring in its meaning colour, graphite text */
+.tbtn[aria-pressed="true"]{background:color-mix(in srgb,var(--c,var(--navy)) 13%,#fff);border-color:var(--c,var(--navy));box-shadow:inset 0 0 0 1px var(--c,var(--navy));color:var(--ink);font-weight:750}
+.tbtn.b1{--c:var(--w1)}.tbtn.b2{--c:var(--w2)}.tbtn.b3{--c:var(--w3)}
 .qv{min-width:11ch;text-align:right;color:var(--mute);font-size:.875rem}
 .qv b{color:var(--ink);font-size:1rem}
 .qsum{margin:0;color:var(--ink-2)}
 
 /* Houses tab rows */
 /* House tokens: two columns of one-line rows; each colour is a count, give (+) and take back (−) */
-.hheads>span{grid-template-columns:minmax(0,1fr) repeat(3,92px) 48px;padding-left:0}
+.hheads>span{grid-template-columns:minmax(0,1fr) repeat(3,82px) 44px;padding-left:0}
 .hheads i{text-align:center!important;padding:0!important;white-space:nowrap}
 .hheads i:last-child{text-align:right!important}
 .hgrid{display:grid;grid-template-columns:minmax(0,1fr);column-gap:28px}
-.hrow{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,92px) 48px;gap:4px;align-items:center;padding:2px 0;border-bottom:1px solid var(--line)}
+.hrow{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,82px) 44px;gap:4px;align-items:center;padding:2px 0;border-bottom:1px solid var(--line)}
 .hrow .who{min-width:0}
 .hrow .who b{display:block;font-weight:700;overflow-wrap:anywhere;line-height:1.2}
 .hrow .who small{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--ink-2);font-weight:600}
 .tkc{display:flex;align-items:center;justify-content:center;gap:3px}
 .tkn{min-width:2ch;text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
-.tk{font:inherit;font-size:1.125rem;font-weight:800;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);border-radius:var(--r);width:34px;min-height:40px;padding:0;cursor:pointer}
+.tk{font:inherit;font-size:1.125rem;font-weight:800;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);border-radius:var(--r);width:30px;min-height:36px;padding:0;cursor:pointer}
 .tk:hover{background:var(--surface-2)}
-.tk.add{color:#fff;border-color:transparent}
-.tk.g{background:var(--tok-g)}.tk.b{background:var(--tok-b)}.tk.r{background:var(--tok-r)}
-.tk.add:hover{filter:brightness(.9)}
+/* Give buttons are quiet outlines with the token colour in the +; the dot in the column head names the colour. */
+.tk.add{font-weight:800}
+.tk.add.g{color:var(--tok-g-ink)}.tk.add.b{color:var(--tok-b-ink)}.tk.add.r{color:var(--tok-r-ink)}
+.tk.add:hover{border-color:currentColor;background:var(--surface-2)}
 .hpts{text-align:right;font-variant-numeric:tabular-nums}
 .hpts b{color:var(--ink);font-size:1.125rem;font-weight:800}
 @media (min-width:1100px){.hgrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:column;grid-template-rows:repeat(var(--rows,10),auto)}}
@@ -714,12 +718,10 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .cmap{margin:8px 0 12px}.cmap summary{cursor:pointer;color:var(--primary-ink)}.cmap .pf{margin-top:10px}.cmap select{max-width:260px}
 
 /* Drawer: complete lists, student records and the class switcher */
-.drawer{position:fixed;inset:0;z-index:90;background:rgba(6,20,36,.5);display:flex;justify-content:flex-end;overscroll-behavior:contain}
+.drawer{position:fixed;inset:0;z-index:90;background:rgba(29,33,39,.45);display:flex;justify-content:flex-end;overscroll-behavior:contain}
 .dpanel{width:min(480px,100%);height:100%;background:var(--surface);display:flex;flex-direction:column;box-shadow:var(--shadow-lift)}
-.dhead{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--navy);color:#fff}
-.dhead h2{font-size:1.25rem;font-weight:800;overflow-wrap:anywhere}
-.dhead .btn{background:#fff;color:var(--navy);border-color:#fff}
-.dhead :focus-visible{outline-color:#fff}
+.dhead{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--surface);color:var(--ink);border-bottom:1px solid var(--line)}
+.dhead h2{font-size:1.25rem;font-weight:750;overflow-wrap:anywhere}
 .dbody{flex:1;overflow:auto;padding:16px 20px 32px}
 .dbody h3{font-size:1rem;margin:20px 0 6px}
 .dgroup+.dgroup{margin-top:4px}
@@ -743,12 +745,12 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .swl button:hover{background:var(--surface-2)}
 
 /* Dialog and toast */
-.dlg{position:fixed;inset:0;overscroll-behavior:contain;background:rgba(6,20,36,.55);display:grid;place-items:center;padding:16px;z-index:100}
+.dlg{position:fixed;inset:0;overscroll-behavior:contain;background:rgba(29,33,39,.5);display:grid;place-items:center;padding:16px;z-index:100}
 .dlg .card{max-width:460px;width:100%;box-shadow:var(--shadow-lift);padding:22px}
 .dlg p{margin:0 0 14px;font-size:1.0625rem;font-weight:650}
 .dlg input{width:100%}
 .dlg .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:#0b2540;color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-weight:650;font-size:.9375rem;box-shadow:var(--shadow-lift);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;max-width:min(92vw,520px);text-align:left;display:flex;gap:10px;align-items:center}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--rail-bg);color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-weight:650;font-size:.9375rem;box-shadow:var(--shadow-lift);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;max-width:min(92vw,520px);text-align:left;display:flex;gap:10px;align-items:center}
 #toast::before{content:"";width:8px;height:8px;border-radius:50%;background:#4ade80;flex:none}
 #toast.info::before{background:#93c5fd}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -790,15 +792,17 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
  .tablewrap.fit thead th{position:sticky;top:0;z-index:2}
 }
 .lanes li{padding:3px 0;font-size:.9375rem}
-.cols2 .trow{padding:4px 0 4px 12px;gap:4px 10px;flex-wrap:nowrap}
+.cols2 .trow{padding:3px 0 3px 4px;gap:4px 10px;flex-wrap:nowrap}
 .cols2 .tset{flex-wrap:nowrap;flex:none;gap:4px}
 .cols2 .qv{flex:none}
 #wrows .tbtn{padding:6px 10px;font-size:.875rem}
 .cols2 .trow>b{flex:1 1 0;min-width:0}
-.cols2 .tbtn{min-height:42px}
-#qrows .tbtn{min-width:40px;padding:6px 8px}
+.cols2 .tbtn{min-height:38px}
+#qrows .tbtn{min-width:38px;padding:4px 8px}
 #qrows .qv{min-width:4ch}
 @media print{.head{background:none;color:#000}.head .tabs{display:none}}
+/* Narrow phones: a toggle row puts the name on its own line above its buttons. */
+@media (max-width:559.98px){.cols2 .trow{flex-wrap:wrap;padding:8px 0}.cols2 .trow>b{flex:1 1 100%}.cols2 .tset{flex-wrap:wrap}}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -845,13 +849,14 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 
 <section id="vI" class="ws hide" role="tabpanel" aria-labelledby="tI">
  <div class="rec">
+  <div class="rtool"><div class="tools"><div class="seg rf" id="rF" role="group" aria-label="Show students"></div><details class="help"><summary aria-label="How recording works">?</summary><div class="hb"><p><b>+</b> under Passes means the student passed their current target and moves to the next one. After the book (L10 T14), targets carry on through the numbered Juz items, starting at 198 An-Naba (Juz 30).</p><p>Select a name to change the target, record a fail, take something back, or see the student's details and history.</p><p>Warnings and Waiting show only the students who need attention. Waiting means no pass in 3 or more weeks, or none yet.</p><p>Use the arrow keys to move between names. Changes save as you go.</p></div></details></div></div>
   <div class="recmain">
    <div class="rheads" aria-hidden="true"><span><i>Student</i><i>Passes</i><i>Merits</i></span><span><i>Student</i><i>Passes</i><i>Merits</i></span></div>
    <ul class="roster" id="body" aria-label="Students"></ul>
+   <p class="none rfnone" id="rfNone" hidden></p>
   </div>
   <aside class="recside">
-   <div class="rtool"><div class="tools"><button class="btn sm quiet" id="goPast" type="button">Add a past pass</button><button class="btn sm quiet" type="button" data-ct="S">Add students</button><button class="btn sm sidebtn" id="sideBtn" type="button" aria-haspopup="dialog">Attention and latest</button><details class="help"><summary aria-label="How recording works">?</summary><div class="hb"><p><b>+</b> under Passes means the student passed their current target and moves to the next one. After the book (L10 T14), targets carry on through the numbered Juz items, starting at 198 An-Naba (Juz 30).</p><p>Select a name to change the target, record a fail, take something back, or see the student's details and history.</p><p>Use the arrow keys to move between names. Changes save as you go.</p></div></details></div></div>
-   <div class="sidec" id="side" aria-label="Selected student, attention and latest records" role="region"></div>
+   <div class="sidec" id="side" aria-label="Selected student and latest records" role="region"></div>
   </aside>
  </div>
 </section>
@@ -877,11 +882,11 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
  <div class="toolbar"><div class="seg" id="dV" role="group" aria-label="Show"><button type="button" data-v="lv" aria-pressed="true">Levels</button><button type="button" data-v="st" aria-pressed="false">Students</button><button type="button" data-v="hi" aria-pressed="false">Pass history</button></div><p class="cap" id="posCap"></p></div>
  <div class="pane" data-pane="lv"><div class="g12 eq">
   <div class="grp s8"><h2>Position in the book</h2><ol class="lanes" id="lanes"></ol></div>
-  <div class="mod sky s4"><h2>Students by level</h2><div id="dist"></div></div>
+  <div class="grp s4 distg"><h2>Students by level</h2><div id="dist"></div></div>
  </div></div>
  <div class="pane" data-pane="st" hidden><div class="tablewrap fit"><table class="tbl stackable stu" id="stuT"></table></div></div>
  <div class="pane" data-pane="hi" hidden><div class="g12 eq">
-  <div class="mod teal s4"><h2>Passes per week</h2><p class="cap">Last 8 weeks, Monday to Sunday</p><div id="wk"></div></div>
+  <div class="grp s4"><h2>Passes per week</h2><p class="cap">Last 8 weeks, Monday to Sunday</p><div id="wk"></div></div>
   <div class="grp s8" id="histMod"><div class="mod-h"><h2>Pass history</h2><div class="seg" id="hP" role="group" aria-label="Period shown"><button type="button" data-p="m" aria-pressed="true">This month</button><button type="button" data-p="a" aria-pressed="false">All</button></div></div>
    <details class="pastf" id="pastD"><summary class="btn sm">Add a past pass</summary>
     <div class="pf"><label>Student<select id="pS"></select></label><label>Date<input type="date" id="pD"></label><label>Target passed<select id="pT"></select></label><button class="btn p" id="pA" type="button">Add past pass</button></div></details>
@@ -893,9 +898,8 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
  <div class="toolbar"><div class="seg" id="hV" role="group" aria-label="Show"><button type="button" data-v="ld" aria-pressed="true">Leaders and prize</button><button type="button" data-v="hs" aria-pressed="false">House points</button></div>
   <div class="hcards hsv" id="hClass"></div><div class="segs hld"><div class="seg" id="lK" role="group" aria-label="Measure"><button type="button" data-k="p" aria-pressed="true">Passes</button><button type="button" data-k="m" aria-pressed="false">Merits</button></div><div class="seg" id="lT" role="group" aria-label="Period"><button type="button" data-t="m" aria-pressed="true">This month</button><button type="button" data-t="a" aria-pressed="false">All time</button></div></div>
   <div class="tools"><details class="help"><summary aria-label="How the prize and house points work">?</summary><div class="hb"><p>A student who records 5 passes in one calendar month wins a prize. The count starts again on the 1st.</p><p>House tokens: green is 5 points, blue is 20 and red (book completion) is 50. − takes back the latest token of that colour. Points count for the student's house.</p></div></details></div></div>
- <div class="pane" data-pane="ld"><div class="g12 eq">
-  <div class="grp s7"><h2 id="leadH">Leaders</h2><div id="lead" class="scrollp"></div></div>
-  <div class="mod gold s5"><h2>Prize this month</h2><div id="prize" class="scrollp"></div></div>
+ <div class="pane" data-pane="ld"><div>
+  <div class="lead2"><p class="prizeline" id="prize"></p><div id="lead"></div></div>
  </div></div>
  <div class="pane" data-pane="hs" hidden><div class="rheads hheads" id="hHead" aria-hidden="true"></div><div id="hrows" class="hgrid"></div></div>
 </section>
@@ -1073,10 +1077,11 @@ function levelCounts(L){var c=LEVELS.map(function(){return 0}),juz=0,none=0;
 function levelCols(L){var k=levelCounts(L),rows=LEVELS.map(function(_,l){return ["L"+(l+1),k.c[l],LC[l%LC.length]]}).concat([["Juz",k.juz,BC]]);if(k.none)rows.push(["No data",k.none,"#c3ccd8"]);
  var mx=Math.max(1,Math.max.apply(null,rows.map(function(r){return r[1]})));
  return '<div class="lvc" role="img" aria-label="Students at each level: '+rows.map(function(r){return r[0]+" "+r[1]}).join(", ")+'">'+rows.map(function(r){return '<span class="lvi'+(r[1]?'':' z')+'"><b>'+r[1]+'</b><span class="lvb"><i style="height:'+(r[1]/mx*100)+'%;background:'+r[2]+'"></i></span><small>'+r[0]+'</small></span>'}).join("")+'</div>'}
-/* Students by level as bars, with the count and the class size as the denominator. */
+/* Students by level as bars, with the count and the class size as the denominator. Empty levels are named once below. */
 function distHtml(L){var k=levelCounts(L),rows=LEVELS.map(function(_,l){return ["L"+(l+1),k.c[l],LC[l%LC.length]]}).concat([["Juz",k.juz,BC]]);if(k.none)rows.push(["No data",k.none,"var(--line-2)"]);
  var mx=Math.max(1,Math.max.apply(null,rows.map(function(r){return r[1]})));
- return L.length?'<ul class="dist">'+rows.map(function(r){return '<li'+(r[1]?'':' class="z"')+'><span>'+r[0]+'</span><span class="db"><i style="width:'+(r[1]/mx*100)+'%;background:'+r[2]+'"></i></span><b>'+r[1]+'</b></li>'}).join("")+'</ul><p class="cap">Number of students whose current target is in each level, out of '+L.length+'.</p>':'<p class="cap">No students yet.</p>'}
+ var Z=rows.filter(function(r){return !r[1]}).map(function(r){return r[0]});rows=rows.filter(function(r){return r[1]});
+ return L.length?'<ul class="dist">'+rows.map(function(r){return '<li'+(r[1]?'':' class="z"')+'><span>'+r[0]+'</span><span class="db"><i style="width:'+(r[1]/mx*100)+'%;background:'+r[2]+'"></i></span><b>'+r[1]+'</b></li>'}).join("")+'</ul>'+(Z.length?'<p class="cap">None yet at '+Z.join(", ")+'.</p>':'')+'<p class="cap">Students whose current target is in each level, out of '+L.length+'.</p>':'<p class="cap">No students yet.</p>'}
 /* Passes in each of the last n weeks (Monday to Sunday), oldest first. */
 function weeks(ts,n){var w0=new Date(wk0(Date.now())),W=[];for(var k=n-1;k>=0;k--)W.push({t:addDays(w0,-7*k).getTime(),n:0});
  ts.forEach(function(t){var s=wk0(t);for(var i=0;i<W.length;i++)if(W[i].t===s){W[i].n++;break}});return W}
@@ -1098,7 +1103,7 @@ function pagerHtml(key,n,size,what){var pages=Math.ceil(n/size),p=PG[key]||0;if(
 function rankList(key,items,o){o=o||{};var a=ranked(items),lim=o.limit||10,mx=a.length?a[0].v:1,zero=items.length-a.length,show;
  if(!a.length)return '<p class="none">'+o.none+'</p>';
  if(o.page){var p=pager(key,a.length,lim);show=a.slice(p*lim,(p+1)*lim)}else show=EXP[key]?a:a.slice(0,lim);
- var h='<ol class="rank'+(o.tone?' '+o.tone:'')+'">'+show.map(function(x){return '<li>'+rkHtml(x.r,tied(a,x))+'<div class="n"><b>'+(x.open?'<button type="button" class="lk" data-open="'+esc(x.open)+'"'+(x.tab?' data-tab="'+x.tab+'"':'')+'>'+esc(x.name)+'</button>':esc(x.name))+'</b>'+(x.sub?'<small>'+x.sub+'</small>':'')+'<div class="tr"><i style="width:'+(x.v/mx*100)+'%"></i></div></div><span class="v">'+(o.fmt?o.fmt(x.v):x.v)+'</span></li>'}).join("")+'</ol>';
+ var h='<ol class="rank'+(o.tone?' '+o.tone:'')+'">'+show.map(function(x){return '<li>'+rkHtml(x.r,tied(a,x))+'<div class="n"><b>'+(x.open?'<button type="button" class="lk" data-open="'+esc(x.open)+'"'+(x.tab?' data-tab="'+x.tab+'"':'')+'>'+esc(x.name)+'</button>':esc(x.name))+'</b>'+(x.sub?'<small>'+x.sub+'</small>':'')+'<div class="tr"><i style="width:'+(x.v/mx*100)+'%"></i></div></div><span class="v">'+(o.after?o.after(x):'')+(o.fmt?o.fmt(x.v):x.v)+'</span></li>'}).join("")+'</ol>';
  if(o.page)h+=pagerHtml(key,a.length,lim,o.what||"results");
  else if(a.length>lim&&!o.noMore)h+='<button type="button" class="btn sm quiet more-btn" data-exp="'+key+'" aria-expanded="'+!!EXP[key]+'">'+(EXP[key]?'Show the top '+lim:'Show all '+a.length)+'</button>';
  if(zero&&o.zeroNote)h+='<p class="rank-note">'+o.zeroNote(zero)+'</p>';
@@ -1134,30 +1139,30 @@ function same(c,i,s){if(CID===c&&S[i]===s)return true;toast("The list was update
 /* ---------- Class: Record ---------- */
 /* SEL is the selected student. On wide screens their editor sits beside the roster; on narrow ones it opens in the drawer. */
 var SEL=-1,WIDE=window.matchMedia("(min-width: 1100px)");
-function attnHtml(){var W=S.filter(function(s){return s.warn}).sort(function(a,b){return b.warn-a.warn||a.name.localeCompare(b.name)}),N=S.filter(late);
- function who(s){return '<button type="button" class="lk who" data-sel="'+S.indexOf(s)+'">'+esc(s.name)+'</button>'}
- if(!W.length&&!N.length)return '<section class="sgrp"><h2>Needs attention</h2><p class="none">Nobody. No warnings, and every student has passed in the last 3 weeks.</p></section>';
- var h='<section class="sgrp attn"><h2>Needs attention</h2>';
- if(W.length)h+='<h3>'+plural(W.length,"warning")+'</h3><ul class="alist">'+W.map(function(s){return '<li>'+who(s)+wl(s.warn)+'</li>'}).join("")+'</ul>';
- if(N.length)h+='<h3>'+plural(N.length,"student")+' waiting for a pass</h3><ul class="alist">'+N.map(function(s){return '<li>'+who(s)+'<span class="v">'+(s.passes?since(s)+" since a pass":"No passes yet")+'</span></li>'}).join("")+'</ul>';
- return h+'</section>'}
+/* Attention lives on the roster itself: markers on each row and the Warnings and Waiting filters above it. */
+var RF="";
+function rfOk(s){return !RF||(RF==="w"?!!s.warn:late(s))}
+function rfHtml(){var W=S.filter(function(s){return s.warn}).length,N=S.filter(late).length;
+ return [["","All",S.length],["w","Warnings",W],["l","Waiting",N]].map(function(x){return '<button type="button" data-rf="'+x[0]+'" aria-pressed="'+(RF===x[0])+'">'+x[1]+' <span class="tn">'+x[2]+'</span></button>'}).join("")}
 function events(){var E=[];S.forEach(function(s,i){s.log.forEach(function(t,k){E.push({i:i,k:k,t:t,l:s.lt[k],x:pl(s,k)})});s.fl.forEach(function(t,k){E.push({i:i,k:k,t:t,l:0,x:"Fail",f:1})})});
  return E.sort(function(a,b){return b.t-a.t||b.l-a.l})}
-function sideHtml(){var top=ranked(S.map(function(s){return {name:s.name,v:mpc(s)}})).slice(0,5),E=events().slice(0,5);
- return attnHtml()
+/* Beside the roster when nobody is selected: what to do next, the latest records and the less frequent actions. */
+function sideHtml(){var E=events().slice(0,6);
+ return '<section class="sgrp"><p class="sidehint">Select a student to record a fail, change their target, or see their details and history.</p></section>'
   +'<section class="sgrp"><div class="mod-h"><h2>Latest</h2><button type="button" class="btn sm quiet" data-ct="D" data-pv="hi">Full history</button></div>'
   +(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(S[e.i].name)+'</b><span class="x'+(e.f?' fail':'')+'">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">Nothing recorded yet.</p>')+'</section>'
-  +'<section class="sgrp"><div class="mod-h"><h2>Passes this month</h2><button type="button" class="btn sm quiet" data-ct="H">All leaders</button></div>'
-  +(top.length?'<ol class="rank mini">'+top.map(function(x){return '<li>'+rkHtml(x.r,tied(top,x))+'<div class="n"><b>'+esc(x.name)+'</b></div><span class="v">'+x.v+'</span></li>'}).join("")+'</ol>':'<p class="none">No passes yet this month.</p>')+'</section>'}
+  +'<section class="sgrp sidea"><button type="button" class="btn sm" data-past="1">Add a past pass</button><button type="button" class="btn sm" data-ct="H">Leaders and prize</button><button type="button" class="btn sm" data-ct="S">Add students</button></section>'}
 function ctr(i,k,lab,one,cls,n){var nm=esc(S[i].name);return '<div class="ctr"><span class="lbl">'+lab+'</span><button class="btn minus" type="button" data-a="'+k+'-" data-i="'+i+'" aria-label="Take back a '+one+' from '+nm+'">−</button><b class="cnt">'+n+'</b><button class="btn plus '+cls+'" type="button" data-a="'+k+'+" data-i="'+i+'" aria-label="Add a '+one+' for '+nm+'">+</button></div>'}
-/* The selected student's editor: target, the three counters, details and the less frequent actions. */
+/* The selected student's editor: the current target and today's recording first. Details (with rename and
+   remove) open in place; History opens the full record in the drawer. EDD remembers whether Details is open. */
+var EDD=false;
 function editor(i,inDrawer){var s=S[i];
- return '<div class="ed">'+(inDrawer?'':'<div class="ed-h"><h2>'+esc(s.name)+'</h2><button type="button" class="btn sm quiet" data-unsel="1" aria-label="Close '+esc(s.name)+' and show attention and latest">Close</button></div>')
+ return '<div class="ed">'+(inDrawer?'':'<div class="ed-h"><h2>'+esc(s.name)+'</h2><button type="button" class="btn sm quiet" data-unsel="1" aria-label="Close '+esc(s.name)+'">Close</button></div>')
   +'<p class="ed-st">'+(s.warn?wl(s.warn)+' ':'')+(late(s)?'<span class="pill red">'+(s.passes?'No pass in 3+ weeks':'No passes yet')+'</span>':'<span class="pill">Last pass: '+since(s).toLowerCase()+'</span>')+'</p>'
   +'<label class="ed-t">Current target<select data-i="'+i+'" data-f="target" aria-label="Current target for '+esc(s.name)+'"><option value="0">No data</option>'+TO+'</select></label>'
   +'<div class="ctrs">'+ctr(i,"p","Passes","pass","p",s.passes)+ctr(i,"m","Merits","merit","m",s.merits)+ctr(i,"f","Fails","fail","",s.fl.length)+'</div>'
-  +'<dl class="ddl">'+details(s)+'</dl>'
-  +'<div class="ed-a"><button class="btn sm" type="button" data-a="dt" data-i="'+i+'">Details and history</button><button class="btn sm" type="button" data-a="rn" data-i="'+i+'">Rename</button><button class="btn sm danger" type="button" data-a="rm" data-i="'+i+'">Remove</button></div></div>'}
+  +'<div class="ed-a"><button class="btn sm" type="button" data-a="dd" data-i="'+i+'" aria-expanded="'+EDD+'" aria-controls="edd'+i+'">Details</button><button class="btn sm" type="button" data-a="dt" data-i="'+i+'">History</button></div>'
+  +'<div class="edd" id="edd'+i+'"'+(EDD?'':' hidden')+'><dl class="ddl">'+details(s)+'</dl><div class="ed-a"><button class="btn sm" type="button" data-a="rn" data-i="'+i+'">Rename</button><button class="btn sm danger" type="button" data-a="rm" data-i="'+i+'">Remove student</button></div></div></div>'}
 /* Replace a panel's content, keeping keyboard focus on the same control. */
 function refill(el,html){var a=document.activeElement,key=null;
  if(a&&el.contains(a))key=a.dataset.a?'[data-a="'+a.dataset.a+'"]':a.dataset.f?'[data-f="'+a.dataset.f+'"]':a.dataset.sel?'[data-sel="'+a.dataset.sel+'"]':null;
@@ -1175,23 +1180,29 @@ function marks(){Array.prototype.forEach.call($("body").querySelectorAll(".rname
 /* The rows are rebuilt only when students are added or removed, so a focused control keeps its place.
    Two columns on wide screens: rows fill the first column, then the second. */
 function roster(){var b=$("body");
- if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;b.style.setProperty("--rows",Math.max(1,Math.ceil(S.length/2)));
+ if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;
   b.innerHTML=S.length?S.map(function(s,i){
   return '<li class="rrow" id="r'+i+'"><button type="button" class="rname" data-sel="'+i+'" aria-pressed="false"><b id="nm'+i+'"></b><small id="mt'+i+'"></small></button>'
   +'<div class="q"><b class="cnt" id="p'+i+'"></b><button class="btn plus p" type="button" data-a="p+" data-i="'+i+'"><span aria-hidden="true">+</span></button></div>'
   +'<div class="q"><b class="cnt" id="m'+i+'"></b><button class="btn plus m" type="button" data-a="m+" data-i="'+i+'"><span aria-hidden="true">+</span></button></div></li>'}).join(""):'<li class="empty"><b>No students yet</b><button type="button" class="btn sm" data-ct="S">Add students in Settings</button></li>'}
  S.forEach(function(s,i){$("nm"+i).textContent=s.name;
-  $("mt"+i).innerHTML='<span class="tg">'+esc(ct(s))+'</span>'+(s.warn?'<span class="fl w">'+WL[s.warn]+'</span>':'')+(late(s)?'<span class="fl l">'+(s.passes?'Waiting':'No passes')+'</span>':'');
+  $("mt"+i).innerHTML='<span class="tg">'+esc(ct(s))+'</span>'+(s.warn?'<span class="fl w'+(s.warn===3?' w3':'')+'">'+WL[s.warn]+'</span>':'')+(late(s)?'<span class="fl l">'+(s.passes?'Waiting':'No passes')+'</span>':'');
   $("r"+i).classList.toggle("flag",!!s.warn||late(s));
   $("p"+i).textContent=s.passes;$("m"+i).textContent=s.merits;
   var r=$("r"+i);r.querySelector('[data-a="p+"]').setAttribute("aria-label","Add a pass for "+s.name);r.querySelector('[data-a="m+"]').setAttribute("aria-label","Add a merit for "+s.name);
-  r.querySelector('[data-a="p+"]').title="Passed "+bl(s.target);r.querySelector('[data-a="m+"]').title="Add a merit"});
+  r.querySelector('[data-a="p+"]').title="Passed "+bl(s.target);r.querySelector('[data-a="m+"]').title="Add a merit";
+  r.hidden=!rfOk(s)});
+ var shown=S.filter(rfOk).length;b.style.setProperty("--rows",Math.max(1,Math.ceil(shown/2)));
+ $("rF").innerHTML=S.length?rfHtml():"";
+ var nn=$("rfNone");nn.hidden=!(S.length&&!shown);nn.textContent=RF==="w"?"No warnings in this class.":"Every student has passed in the last 3 weeks.";
  marks()}
+$("rF").addEventListener("click",function(e){var x=e.target.closest("[data-rf]");if(!x)return;RF=x.dataset.rf;roster();var n=$("rF").querySelector('[data-rf="'+RF+'"]');if(n)n.focus()});
 function details(s){return [["Student ID",s.sid],["Safar year",s.year],["School year",s.sy],["Gender",s.gender],["House",s.house],["Islamic Studies",s.ist]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
 /* Recording: the same actions from the roster, the editor beside it and the editor in the drawer. */
 document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]");if(!bt||!bt.closest("#body,#side,#drwB"))return;var a=bt.dataset.a,i=+bt.dataset.i,s=S[i],c=CID;if(!s)return;
  var nm=fn(s),msg="";
  if(a==="dt"){student(i);return}
+ if(a==="dd"){EDD=!EDD;var box=bt.closest(".ed");box.querySelector(".edd").hidden=!EDD;bt.setAttribute("aria-expanded",EDD);return}
  if(a==="rm"){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);SEL=-1;if(DMODE==="ed")closeDrawer();save();render();toast(nm+" removed")},null,1);return}
  if(a==="rn"){ask("Rename "+s.name,"Save name",function(v){if(!same(c,i,s))return;s.name=v||"Student";save();render();toast("Name updated")},"Student name",0,s.name);return}
  if(a==="p+"){if(s.target<NB){var old=s.target;s.passes++;s.log.push(Date.now());s.lt.push(old);s.lx.push("");s.target++;msg=nm+" passed "+bl(old)+". Next target: "+bl(s.target)}
@@ -1205,8 +1216,9 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
 document.addEventListener("change",function(e){var t=e.target;if(t.dataset.f!=="target"||!t.closest("#side,#drwB"))return;var s=S[+t.dataset.i];if(!s)return;
  s.target=Math.min(Math.max(1,+t.value||1),NB);save();render();toast(fn(s)+"'s target set to "+bl(s.target))});
 /* Arrow keys move between names; Home and End jump to the first and last. */
-$("body").addEventListener("keydown",function(e){var b=e.target.closest(".rname");if(!b)return;var i=+b.dataset.sel,j=e.key==="ArrowDown"?i+1:e.key==="ArrowUp"?i-1:e.key==="Home"?0:e.key==="End"?S.length-1:null;
- if(j===null||!S[j])return;e.preventDefault();$("body").querySelector('[data-sel="'+j+'"]').focus()});
+$("body").addEventListener("keydown",function(e){var b=e.target.closest(".rname");if(!b)return;
+ var V=Array.prototype.filter.call($("body").querySelectorAll(".rname"),function(x){return !x.parentNode.hidden}),i=V.indexOf(b),j=e.key==="ArrowDown"?i+1:e.key==="ArrowUp"?i-1:e.key==="Home"?0:e.key==="End"?V.length-1:null;
+ if(j===null||!V[j])return;e.preventDefault();V[j].focus()});
 (WIDE.addEventListener?WIDE.addEventListener.bind(WIDE,"change"):WIDE.addListener.bind(WIDE))(function(){if(CID){if(WIDE.matches&&(DMODE==="ed"||DMODE==="side"))closeDrawer();side()}});
 
 /* ---------- Class: Progress ---------- */
@@ -1294,14 +1306,17 @@ $("wrows").addEventListener("click",function(e){var b=e.target.closest("[data-wi
 
 /* ---------- Class: Rewards ---------- */
 var LK="p",LT="m";
-function leaders(){var f=LK==="p"?(LT==="m"?mpc:function(s){return s.passes}):(LT==="m"?mmc:function(s){return s.merits}),w=LK==="p"?["pass","passes"]:["merit","merits"];
- var items=S.map(function(s){return {name:s.name,v:f(s)}}),a=ranked(items),z=items.filter(function(o){return !(o.v>0)}).map(function(o){return o.name}).sort();
- $("lead").innerHTML=(S.length?rankList("lead",items,{limit:999,tone:LK==="m"?"gold":"sky",none:"No "+w[1]+" yet"+(LT==="m"?" this month.":".")}):'<p class="none">No students in this class yet.</p>')
+function pdots(n){var h="";for(var k=0;k<PRIZE;k++)h+='<i'+(k<n?' class="on"':'')+'></i>';return '<span class="dots" aria-hidden="true">'+h+'</span>'}
+/* Leaders and the prize in one list: for passes this month each row carries its progress to the prize. */
+function leaders(){var pm=LK==="p"&&LT==="m",f=LK==="p"?(LT==="m"?mpc:function(s){return s.passes}):(LT==="m"?mmc:function(s){return s.merits}),w=LK==="p"?["pass","passes"]:["merit","merits"];
+ var items=S.map(function(s){return {name:s.name,v:f(s),s:s}}),a=ranked(items),z=items.filter(function(o){return !(o.v>0)}).map(function(o){return o.name}).sort();
+ $("lead").style.setProperty("--rows",Math.max(1,Math.ceil(a.length/2)));
+ $("lead").innerHTML=(S.length?rankList("lead",items,{limit:999,noMore:1,tone:LK==="m"?"gold":"sky",none:"No "+w[1]+" yet"+(LT==="m"?" this month.":"."),
+   after:pm?function(x){var n=Math.min(mpc(x.s),PRIZE);return '<span class="pzx">'+(rc(x.s)?'<span class="won">Prize won</span>':'<span class="sr-only">'+n+' of '+PRIZE+' towards the prize, </span>')+pdots(n)+'</span>'}:null}):'<p class="none">No students in this class yet.</p>')
   +(a.length&&z.length?'<p class="rank-note"><b>Not yet:</b> '+esc(z.join(", "))+'</p>':'')}
-function prize(){var H=S.filter(rc).sort(function(a,b){return wonAt(a)-wonAt(b)}),P=S.filter(function(s){var n=mpc(s);return n>0&&n<PRIZE}).sort(function(a,b){return mpc(b)-mpc(a)||a.name.localeCompare(b.name)});
- function dots(n){var h="";for(var k=0;k<PRIZE;k++)h+='<i'+(k<n?' class="on"':'')+'></i>';return '<span class="dots" aria-hidden="true">'+h+'</span>'}
- $("prize").innerHTML=(H.length?'<p class="pz-won"><b>'+plural(H.length,"student")+'</b> reached '+PRIZE+' passes</p><ul class="pz">'+H.map(function(s){return '<li class="won"><b>'+esc(s.name)+'</b>'+dots(PRIZE)+'<span>'+mpc(s)+'</span></li>'}).join("")+'</ul>':'<p class="pz-won">Nobody yet this month.</p>')
-  +(P.length?'<h3>On the way</h3><ul class="pz">'+P.map(function(s){return '<li><b>'+esc(s.name)+'</b>'+dots(mpc(s))+'<span>'+mpc(s)+' of '+PRIZE+'</span></li>'}).join("")+'</ul>':'')}
+function prize(){var H=S.filter(rc).sort(function(a,b){return wonAt(a)-wonAt(b)}),pm=LK==="p"&&LT==="m";
+ $("prize").innerHTML=(H.length?'<b>Prize this month:</b> '+H.map(function(s){return esc(s.name)+' ('+dm(wonAt(s))+')'}).join(", ")+'.':'<b>Prize this month:</b> nobody has reached '+PRIZE+' passes yet.')
+  +(pm?'':' Progress towards it shows under Passes, This month.')}
 function houseCards(T){return HOUSES.map(function(h){return '<span class="hcard '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+'</span><b>'+(T[h]||0)+'</b><span class="sr-only"> points</span></span>'}).join("")}
 /* House tokens, one row per student: a count, give (+) and take back (−) for each colour. Two columns on wide screens. */
 function houses(){$("hClass").innerHTML=houseCards(houseTotals(S));var hh='<span><i>Student</i>'+TOK.map(function(k){return '<i><span class="tdot '+k[1]+'"></span>'+k[2]+' '+k[3]+'</i>'}).join("")+'<i>Points</i></span>';
@@ -1361,7 +1376,7 @@ function navL(){
 function head(){var n=CID?ST[CID]:null;
  $("ttl").textContent=n?n.name:"School overview";$("swc").hidden=!n||CIDS.length<2;
  document.title=(n?n.name+" · ":"")+"Safar Enfield Dashboard"}
-function setClass(c){if(c!==CID)SEL=-1;CID=c;S=ST[c].S;FCD=ST[c].fcd;$("body").innerHTML="";$("fcd").value=FCD;EXP={};head();render()}
+function setClass(c){if(c!==CID){SEL=-1;RF=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("body").innerHTML="";$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if(c!=="M"&&!ST[c])c="M";var M=c==="M";closeDrawer();
  $("vM").classList.toggle("hide",!M);$("mt").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M);
  if(M){CID=null;SEL=-1;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master()}
@@ -1382,9 +1397,8 @@ function school(){var A=[],now=Date.now();CIDS.forEach(function(c){ST[c].S.forEa
   quiet=CIDS.filter(function(c){return ST[c].S.length&&!sumOf(ST[c].S,mpc)&&!sumOf(ST[c].S,mmc)});
  return {A:A,all:A.map(function(o){return o.s}),wr:wr,stale:stale,quiet:quiet}}
 function byClass(L){var m={},o=[];L.forEach(function(x){if(!m[x.c]){m[x.c]=[];o.push(x.c)}m[x.c].push(x)});return o.map(function(c){return {c:c,L:m[c]}}).sort(function(a,b){return b.L.length-a.L.length||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true})})}
-function classChips(G,t,n){return '<ul class="cchips">'+G.slice(0,n||4).map(function(g){return '<li>'+opener(g.c,'<span>'+esc(ST[g.c].name)+'</span><b>'+g.L.length+'</b>',t)+'</li>'}).join("")+'</ul>'}
 var AK3=[["wr","Warnings"],["stale","No pass in 3+ weeks"],["quiet","Quiet classes"]];
-/* Summary: each kind of attention as a count, its busiest classes and a way into the full list. */
+/* Summary: each kind of attention as a count with a way into its full list (grouped by class in the Attention tab). */
 function attnBox(K){
  if(!K.wr.length&&!K.stale.length&&!K.quiet.length)return '<div class="mod line attn calm"><h2>Needs attention</h2><p class="calmline">Nothing needs attention. No warnings, every student has passed in the last 3 weeks, and every class has activity this month.</p></div>';
  var n=[0,0,0,0];K.wr.forEach(function(o){n[o.s.warn]++});
@@ -1394,7 +1408,7 @@ function attnBox(K){
  return '<div class="mod line attn"><div class="mod-h"><h2>Needs attention</h2></div>'+R.filter(function(r){return r[1]}).map(function(r){
   return '<div class="ab '+r[0]+'"><button type="button" class="abh" data-list="'+r[0]+'" aria-label="See all '+r[1]+' '+r[2]+'"><b>'+r[1]+'</b><span>'+r[2]+'</span></button>'
    +(r[0]==="wr"?'<p class="lv">'+[3,2,1].filter(function(l){return n[l]}).map(function(l){return '<span class="lvn">'+wl(l)+'<b>'+n[l]+'</b></span>'}).join("")+'</p>':'')
-   +classChips(r[3],r[4],1)+'</div>'}).join("")+'</div>'}
+   +'</div>'}).join("")+'</div>'}
 function latest(A,n){var E=[];A.forEach(function(o){o.s.log.forEach(function(t,k){E.push({t:t,s:o.s,c:o.c,x:pl(o.s,k)})})});return E.sort(function(a,b){return b.t-a.t}).slice(0,n)}
 function houseBoard(all,more){var T=window.HOUSE_TOTALS||houseTotals(all),V=HOUSES.map(function(h){return T[h]||0}),top=Math.max(1,Math.max.apply(null,V)),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null;
  return '<div class="mod gold hb"><div class="mod-h"><h2>House points</h2>'+(more?'<button type="button" class="btn sm quiet" data-mt="H">Houses</button>':'')+'</div><div class="houses">'+O.map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+(h===lead?' <span class="pill lead">Leading</span>':'')+'</span><span class="pts">'+v+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div></div>'}).join("")+'</div><p class="cap">Whole school, all time</p></div>'}
@@ -1413,9 +1427,9 @@ function summary(K){var A=K.A,all=K.all;
  $("mst").innerHTML='<div class="sumgrid">'+attnBox(K)
   +'<div class="mod teal act"><div class="mod-h"><h2>Passes per week</h2><span class="cap">Whole school, last 8 weeks</span></div>'+weekChart(allLogs(all))
   +'<h3>Latest passes</h3>'+(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(e.s.name)+'<small>'+esc(ST[e.c].name)+'</small></b><span class="x">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">No passes yet.</p>')+'</div>'
-  +'<div class="sumcol">'+houseBoard(all,1)+'<div class="grp topc"><div class="mod-h"><h2>Top classes this month</h2><button type="button" class="btn sm quiet" data-mt="R">Rankings</button></div>'
-  +rankList("topc",classRows("m"),{limit:3,noMore:1,none:"No passes or merits yet this month.",fmt:function(v){return v.toFixed(1)}})+'<p class="cap">Passes and merits per student</p></div></div>'
-  +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target of all '+plural(all.length,"student")+'</span></div>'+levelCols(all)+'</div></div>'}
+  +'<div class="sumcol">'+houseBoard(all,1)+'<div class="grp topc"><div class="mod-h"><h2>Top classes</h2><button type="button" class="btn sm quiet" data-mt="R">Rankings</button></div>'
+  +rankList("topc",classRows("m"),{limit:3,noMore:1,none:"No passes or merits yet this month.",fmt:function(v){return v.toFixed(1)}})+'<p class="cap">This month, passes and merits per student</p></div></div>'
+  +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target, all '+plural(all.length,"student")+'</span></div>'+levelCols(all)+'</div></div>'}
 /* Attention: the complete lists, one kind at a time, grouped by class and paged. */
 function attnTab(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],size=10,h;
  h='<div class="toolbar"><div class="seg" id="aK" role="group" aria-label="Show">'+AK3.map(function(x){return '<button type="button" data-k="'+x[0]+'" aria-pressed="'+(k===x[0])+'">'+x[1]+' <span class="tn">'+L[x[0]].length+'</span></button>'}).join("")+'</div>'
@@ -1463,8 +1477,8 @@ $("bulkA").onclick=function(){if(!CID)return;var n=$("bulk").value.split("\n").m
  n.forEach(function(x){S.push(blank(x))});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added")};
 $("nM").onclick=function(){go("M")};$("home").onclick=function(e){e.preventDefault();go("M")};
 $("swc").onclick=switcher;
-$("goPast").onclick=function(){tab("D");view("D","hi");$("pastD").open=true;$("pS").focus()};
-$("sideBtn").onclick=function(){drawer("Attention and latest",sideHtml());DMODE="side"};
+function goPast(){if(DMODE==="side")closeDrawer();tab("D");view("D","hi");$("pastD").open=true;$("pS").focus()}
+document.addEventListener("click",function(e){if(e.target.closest("[data-past]"))goPast()});
 /* Links between screens: open a class (and tab), switch an overview or class tab, expand a list, open a full list. */
 document.addEventListener("click",function(e){var b=e.target.closest("[data-open],[data-ct],[data-mt],[data-exp],[data-list],[data-sel],[data-unsel],[data-pg]");if(!b||b.closest("#dlg"))return;
  if(b.dataset.open){e.preventDefault();go(b.dataset.open,b.dataset.tab);return}

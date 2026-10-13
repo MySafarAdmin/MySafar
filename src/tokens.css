@@ -6,50 +6,42 @@
 @font-face{font-family:"Atkinson Next";src:url(/fonts/atkinson-next-latin-ext.woff2) format("woff2");font-weight:200 800;font-display:swap;
  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
- /* Brand: Safar navy, taken from the logo (#003B6B). */
- --navy:#003b6b;--navy-2:#0a4a80;--navy-ink:#e6eef7;--navy-mute:#a9bfd6;--navy-line:rgba(255,255,255,.14);
- /* Surfaces and text */
- --bg:#eef2f6;--surface:#fff;--surface-2:#f6f8fb;--sunk:#e8eef4;--line:#d8e1ea;--line-2:#c3cfdb;
- --ink:#13243a;--ink-2:#33465d;--mute:#56677c;
+ /* Brand: Safar navy from the logo (#003B6B). Reserved for the brand, selected indicators and the one primary action. */
+ --navy:#003b6b;--navy-2:#002c52;--navy-soft:#e9eff6;
+ /* Graphite navigation */
+ --rail-bg:#23272d;--rail-ink:#e8eaed;--rail-mute:#a7adb5;--rail-line:rgba(255,255,255,.1);--rail-hover:rgba(255,255,255,.07);--rail-on:rgba(255,255,255,.13);
+ /* Surfaces and text: a light grey canvas, white working surfaces, graphite type */
+ --bg:#eceef1;--surface:#fff;--surface-2:#f6f7f9;--sunk:#eceef1;--line:#e2e5e9;--line-2:#c8cdd4;
+ --ink:#1d2127;--ink-2:#3e4651;--mute:#5b6470;
  /* Actions and status. Every colour that carries white text is at least 4.5:1. */
- --primary:#0b5cad;--primary-hover:#094c8f;--primary-soft:#e5f0fb;--primary-ink:#0a4f94;
- --ok:#1a7f4b;--ok-soft:#e3f4ea;--ok-ink:#11643a;
- --warn:#b45309;--warn-soft:#fff3df;--warn-ink:#7c3a00;
- --bad:#b42318;--bad-soft:#fdecea;--bad-ink:#911c13;
- --focus:#2f7fd8;
- /* Context colours: sky for learning and progress, teal for activity, gold for achievement.
-    Each has a soft module tint and an ink for text on that tint (all above 4.5:1). */
- --sky:#1f7fc4;--sky-soft:#e6f2fb;--sky-ink:#0b5287;
- --teal:#0f857a;--teal-soft:#def3ef;--teal-ink:#0a5c54;
- --gold:#c4910f;--gold-soft:#fcf2d6;--gold-ink:#664700;
+ --primary:#003b6b;--primary-hover:#002c52;--primary-soft:#e9eff6;--primary-ink:#0b4a82;
+ --ok:#4e7d5b;--ok-soft:#edf3ee;--ok-ink:#2f5a3b;
+ --warn:#b45309;--warn-soft:#fbf3e8;--warn-ink:#874006;
+ --bad:#b42318;--bad-soft:#fcefed;--bad-ink:#8f1d14;
+ --focus:#2563a8;
+ /* Restrained accents: sage for healthy states, gold for achievement. The sky and teal names stay for
+    older rules but now resolve to the same quiet family, so no tinted panels remain. */
+ --sage:#5e8a69;--sage-soft:#eef3ef;--sage-ink:#2f5a3b;
+ --sky:#4a6f94;--sky-soft:#f6f7f9;--sky-ink:#2f4c69;
+ --teal:#5e8a69;--teal-soft:#f6f7f9;--teal-ink:#2f5a3b;
+ --gold:#b98a1e;--gold-soft:#f8f2e2;--gold-ink:#664a0b;
  /* Meaningful colours kept from the original dashboard: houses and house tokens */
  --makkah:#c9930c;--aqsa:#2386d1;--madinah:#1c9a68;
- --tok-g:#16a34a;--tok-b:#2563eb;--tok-r:#dc2626;
+ --tok-g:#16a34a;--tok-b:#2563eb;--tok-r:#dc2626;--tok-g-ink:#15703a;--tok-b-ink:#1d4ed8;--tok-r-ink:#b91c1c;
  /* Warning levels: 1 notice, 2 serious, 3 miss break */
- --w1:#f5c84c;--w1-ink:#4a3200;--w2:#c2410c;--w3:#b42318;
+ --w1:#e2b53a;--w1-ink:#4a3200;--w2:#c2410c;--w3:#b42318;
  /* Shape, space, type */
  --r-sm:6px;--r:8px;--r-lg:12px;
  --font:"Atkinson Next",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
- --shadow:0 1px 2px rgba(16,36,58,.06),0 1px 1px rgba(16,36,58,.04);
- --shadow-lift:0 12px 32px rgba(10,30,55,.22);
+ --shadow:0 1px 2px rgba(29,33,39,.05),0 1px 1px rgba(29,33,39,.03);
+ --shadow-lift:0 12px 32px rgba(29,33,39,.18);
  --rail:232px;
- /* The navy band that opens every page */
- --band-ink:#fff;--band-mute:#bcd0e4;--band-line:rgba(255,255,255,.16);
+ /* Older names used by the admin pages */
+ --navy-ink:var(--rail-ink);--navy-mute:var(--rail-mute);--navy-line:var(--rail-line);
+ --band-ink:var(--ink);--band-mute:var(--mute);--band-line:var(--line-2);
+ /* One light look everywhere: the dashboard is used in classrooms in daylight, and an OS dark setting
+    previously turned the selected tab navy on navy. */
  color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
- --navy:#06213b;--navy-2:#0c3157;--navy-line:rgba(255,255,255,.1);
- --bg:#0c1a2a;--surface:#11243a;--surface-2:#142a43;--sunk:#0a1726;--line:#22384f;--line-2:#2f4a66;
- --ink:#e8eef5;--ink-2:#c6d3e1;--mute:#9db0c4;
- --primary:#5ea8ec;--primary-hover:#7ab8f0;--primary-soft:#163a5c;--primary-ink:#8cc4f5;
- --ok:#3fb27a;--ok-soft:#123826;--ok-ink:#7ed3a8;--warn:#e59a3a;--warn-soft:#3a2810;--warn-ink:#f3c27e;
- --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;--sky:#5aaee8;--sky-soft:#12304a;--sky-ink:#a4d2f4;--teal:#3cc2b2;--teal-soft:#0f3431;--teal-ink:#8fe0d6;--gold:#e0b33f;--gold-soft:#36290b;--gold-ink:#f2d58a;color-scheme:dark}}
-:root[data-theme="dark"]{
- --navy:#06213b;--navy-2:#0c3157;--navy-line:rgba(255,255,255,.1);
- --bg:#0c1a2a;--surface:#11243a;--surface-2:#142a43;--sunk:#0a1726;--line:#22384f;--line-2:#2f4a66;
- --ink:#e8eef5;--ink-2:#c6d3e1;--mute:#9db0c4;
- --primary:#5ea8ec;--primary-hover:#7ab8f0;--primary-soft:#163a5c;--primary-ink:#8cc4f5;
- --ok:#3fb27a;--ok-soft:#123826;--ok-ink:#7ed3a8;--warn:#e59a3a;--warn-soft:#3a2810;--warn-ink:#f3c27e;
- --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;--sky:#5aaee8;--sky-soft:#12304a;--sky-ink:#a4d2f4;--teal:#3cc2b2;--teal-soft:#0f3431;--teal-ink:#8fe0d6;--gold:#e0b33f;--gold-soft:#36290b;--gold-ink:#f2d58a;color-scheme:dark}
 
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -60,7 +52,7 @@ h2{font-size:1.125rem;font-weight:700}
 h3{font-size:1rem;font-weight:700}
 p{margin:0 0 .75rem}
 a{color:var(--primary-ink);text-underline-offset:.18em}
-button,a,summary,label,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:rgba(11,92,173,.15)}
+button,a,summary,label,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,59,107,.12)}
 a:hover{color:var(--primary-hover)}
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .skip{position:absolute;left:12px;top:-60px;z-index:200;background:#fff;color:var(--navy);font-weight:700;padding:10px 14px;border-radius:var(--r);box-shadow:var(--shadow-lift)}
@@ -71,46 +63,45 @@ a:hover{color:var(--primary-hover)}
 .hint{font-size:.875rem}
 .num{font-variant-numeric:tabular-nums}
 
-/* ---------- Application shell: navy rail on wide screens, top bar on narrow ones ---------- */
+/* ---------- Application shell: graphite rail on wide screens, top bar on narrow ones ---------- */
 .shell{min-height:100vh;min-height:100dvh}
 /* <header> and <main> stay bare tags: the server adds inert to them while records load. */
 .shell>header{display:contents}
-.rail{background:var(--navy);color:var(--navy-ink);display:flex;flex-direction:column;z-index:20}
+.rail{background:var(--rail-bg);color:var(--rail-ink);display:flex;flex-direction:column;z-index:20}
 .rail a,.rail button{color:inherit}
 .rail .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;padding:16px 16px 12px;min-width:0}
-/* The navy logo sits on a white disc so it stays visible on the navy rail and in dark mode. */
-.badge{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+/* The navy logo sits on a white disc so it stays visible on the graphite rail. */
+.badge{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff}
 .badge img{width:34px;height:34px;display:block}
 .brand b{display:block;font-size:1.0625rem;font-weight:750;line-height:1.15}
-.brand small{display:block;font-size:.8125rem;color:var(--navy-mute);line-height:1.2}
+.brand small{display:block;font-size:.8125rem;color:var(--rail-mute);line-height:1.2}
 .navt{position:absolute;opacity:0;pointer-events:none}
 .menu-btn{display:none}
 .navs{display:flex;flex-direction:column;gap:2px;padding:4px 10px 12px;flex:1;min-height:0;overflow-y:auto}
-.navh{margin:14px 8px 4px;font-size:.75rem;font-weight:700;color:var(--navy-mute);letter-spacing:.02em}
-.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:8px 10px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--navy-ink)}
-.nav:hover{background:rgba(255,255,255,.08);color:#fff}
-.nav[aria-current="page"],.nav[aria-current="true"]{background:#fff;color:var(--navy);font-weight:700}
+.navh{margin:14px 8px 4px;font-size:.8125rem;font-weight:650;color:var(--rail-mute)}
+.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:8px 10px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--rail-ink)}
+.nav:hover{background:var(--rail-hover);color:#fff}
+.nav[aria-current="page"],.nav[aria-current="true"]{background:var(--rail-on);color:#fff;font-weight:700}
 .nav:focus-visible{outline-color:#fff}
 .nav .ic{flex:none;width:18px;height:18px}
 .nav .ext{margin-left:auto;opacity:.75}
-.nav.j2j{color:#bff0e6}
-.nav.j2j .dot{width:8px;height:8px;border-radius:50%;background:#2dd4bf;flex:none;margin:0 5px}
+.nav.j2j .dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex:none;margin:0 5px}
 .classes{display:flex;flex-direction:column;gap:1px;max-height:40vh;overflow-y:auto;margin:0 -2px;padding:0 2px}
 .classes .nav{font-size:.875rem;min-height:36px;padding:6px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .me{border-top:1px solid var(--navy-line);padding:12px 16px 16px;display:flex;flex-direction:column;gap:8px;font-size:.875rem}
 .me .who b{display:block;color:#fff;font-weight:700;overflow-wrap:anywhere}
-.me .who span{color:var(--navy-mute)}
+.me .who span{color:var(--rail-mute)}
 .me .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .me form{margin:0}
-.me .linkbtn{font:inherit;font-size:.875rem;background:none;border:1px solid var(--navy-line);border-radius:var(--r-sm);padding:6px 10px;min-height:36px;cursor:pointer;color:var(--navy-ink);text-decoration:none;display:inline-flex;align-items:center}
-.me .linkbtn:hover{background:rgba(255,255,255,.08)}
-.me .linkbtn[aria-current="page"]{background:#fff;color:var(--navy);font-weight:700}
+.me .linkbtn{font:inherit;font-size:.875rem;background:none;border:1px solid var(--navy-line);border-radius:var(--r-sm);padding:6px 10px;min-height:36px;cursor:pointer;color:var(--rail-ink);text-decoration:none;display:inline-flex;align-items:center}
+.me .linkbtn:hover{background:var(--rail-hover)}
+.me .linkbtn[aria-current="page"]{background:var(--rail-on);color:#fff;font-weight:700}
 .work{min-width:0;display:flex;flex-direction:column}
 .content{width:100%;max-width:1240px;margin:0 auto;padding:24px 32px 48px}
 .content.narrow{max-width:880px}
 
 @media (min-width:960px){
- .shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);background:linear-gradient(90deg,var(--navy) var(--rail),var(--bg) var(--rail))}
+ .shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);background:linear-gradient(90deg,var(--rail-bg) var(--rail),var(--bg) var(--rail))}
  .rail{position:sticky;top:0;height:100vh;height:100dvh}
 }
 @media (max-width:959.98px){
@@ -126,50 +117,39 @@ a:hover{color:var(--primary-hover)}
  .content{padding:16px 16px 40px}
 }
 
-/* ---------- Page band: the navy opening of the admin and account pages, with its title and key figures.
-   The dashboard uses the same navy in its compact head (.head in template.css). ---------- */
-.band{background:var(--navy);color:var(--band-ink);border-radius:14px;padding:16px 24px 18px;margin-bottom:20px;position:relative}
-.band a{color:#fff}
+/* ---------- Page band: the opening of the admin and account pages, with its title and key figures.
+   It sits on the grey canvas in graphite type; the dashboard's compact head (.head in template.css) matches it. ---------- */
+.band{color:var(--ink);padding:4px 0 0;margin-bottom:16px;position:relative}
 .band-top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;min-height:40px}
-.band h1{font-size:1.625rem;font-weight:800;letter-spacing:-.015em;line-height:1.1;overflow-wrap:anywhere;color:#fff;margin-right:auto}
+.band h1{font-size:1.5rem;font-weight:750;letter-spacing:-.01em;line-height:1.15;overflow-wrap:anywhere;color:var(--ink);margin-right:auto}
 .band .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.band .btn{background:#fff;border-color:#fff;color:var(--navy)}
-.band .btn:hover{background:#e6eef7;border-color:#e6eef7}
-.band .btn.ghost{background:none;color:#fff;border-color:var(--band-line)}
-.band .btn.ghost:hover{background:rgba(255,255,255,.1)}
-.band :focus-visible{outline-color:#fff}
-.band .lede{color:var(--band-mute);margin:6px 0 0;max-width:60ch}
-.figs{display:flex;flex-wrap:wrap;gap:8px 32px;margin-top:12px}
-.fig{min-width:0}
-.fig b{display:block;font-size:2rem;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#fff}
-.fig span{display:block;margin-top:6px;font-size:.875rem;color:var(--band-mute)}
-.fig.alert b{color:#ffd27a}
-.fig.quiet b{font-size:1.5rem;padding-top:.75rem}
-/* Admin and account pages: a shorter band */
-.band.slim{padding:16px 24px}
+.band .lede{color:var(--mute);margin:6px 0 0;max-width:60ch}
+.figs{display:flex;flex-wrap:wrap;gap:6px 28px;margin-top:8px}
+.fig{min-width:0;display:flex;align-items:baseline;gap:6px}
+.fig b{font-size:1.25rem;font-weight:750;line-height:1.1;letter-spacing:-.01em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.fig span{font-size:.875rem;color:var(--mute)}
+/* A figure that needs attention keeps graphite digits and gains a small amber marker. */
+.fig.alert span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-right:6px;vertical-align:1px}
+.fig.quiet b{font-size:1.125rem}
 .band.slim h1{font-size:1.5rem}
 @media (max-width:959.98px){
- .band{border-radius:0;margin:-16px -16px 16px;padding:16px 16px 18px}
- .band h1{font-size:1.5rem}
- .figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 16px;margin-top:14px}
- .fig b{font-size:1.625rem}
- .fig span{font-size:.8125rem;margin-top:4px;line-height:1.3}
- .fig.quiet b{font-size:1.125rem;padding-top:.4rem}
- .band.slim h1{font-size:1.5rem}
+ .band h1{font-size:1.375rem}
+ .figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 12px}
+ .fig{flex-direction:column;gap:0}
+ .fig b{font-size:1.125rem}
+ .fig span{font-size:.8125rem;line-height:1.25}
 }
-@media (max-width:379px){.band h1{font-size:1.25rem}.fig b{font-size:1.375rem}}
+@media (max-width:379px){.band h1{font-size:1.25rem}}
 
 /* ---------- Panels and modules ----------
-   White workspaces carry the work; tinted modules (sky, teal, gold) carry insight in their own context. */
+   White workspaces carry the work. Modules are separated by space and headings, not by tinted fills. */
 .panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
 .mod{background:var(--surface);border-radius:var(--r-lg);padding:20px;min-width:0}
 .mod.line{border:1px solid var(--line)}
-.mod.sky{background:var(--sky-soft)}.mod.teal{background:var(--teal-soft)}.mod.gold{background:var(--gold-soft)}
+
 .mod-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:12px;min-height:36px}
 .mod-h h2{font-size:1.125rem;font-weight:750}
-.mod.sky .mod-h h2{color:var(--sky-ink)}.mod.teal .mod-h h2{color:var(--teal-ink)}.mod.gold .mod-h h2{color:var(--gold-ink)}
 .cap{font-size:.8125rem;color:var(--mute);margin:0}
-.mod.sky .cap{color:var(--sky-ink)}.mod.teal .cap{color:var(--teal-ink)}.mod.gold .cap{color:var(--gold-ink)}
 .g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:start}
 .g12.eq{align-items:stretch}
 .g12>*{grid-column:1/-1}
@@ -180,13 +160,15 @@ a:hover{color:var(--primary-hover)}
 .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;background:var(--surface)}
 .seg button{font:inherit;font-size:.875rem;font-weight:600;border:0;background:none;color:var(--ink-2);padding:6px 12px;min-height:36px;cursor:pointer}
 .seg button+button{border-left:1px solid var(--line-2)}
-.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.seg button:hover{background:var(--surface-2)}
+.seg button[aria-pressed="true"]{background:var(--navy-soft);color:var(--navy);font-weight:700;box-shadow:inset 0 -2px 0 var(--navy)}
 .seg button:focus-visible{outline-offset:-3px}
 /* Contextual help: a ? that opens the rules for the screen, by keyboard, touch or pointer */
 .help{position:relative;display:inline-block}
-.help summary{list-style:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--primary-ink);font-weight:800;cursor:pointer}
+.help summary{list-style:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);font-weight:800;cursor:pointer}
 .help summary::-webkit-details-marker{display:none}
-.help[open] summary{background:var(--primary-soft)}
+.help summary:hover{background:var(--surface-2)}
+.help[open] summary{background:var(--sunk)}
 .help .hb{position:absolute;z-index:35;top:44px;right:0;width:min(360px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);padding:14px 16px;font-size:.9375rem;font-weight:400;text-align:left}
 .help .hb p{margin:0 0 8px}.help .hb p:last-child{margin:0}
 .help.left .hb{right:auto;left:0}
@@ -214,8 +196,6 @@ a:hover{color:var(--primary-hover)}
 .btn.lg{min-height:48px;padding:12px 18px;font-size:1rem}
 .btn.wide{width:100%}
 button.link{font:inherit;background:none;border:0;padding:0;color:var(--primary-ink);cursor:pointer;text-decoration:underline;text-underline-offset:.18em}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.primary,:root:not([data-theme="light"]) .btn.p{color:#04213d}}
-:root[data-theme="dark"] .btn.primary,:root[data-theme="dark"] .btn.p{color:#04213d}
 
 /* ---------- Forms ---------- */
 .field{display:flex;flex-direction:column;gap:6px;font-size:.875rem;font-weight:600;color:var(--ink-2)}
