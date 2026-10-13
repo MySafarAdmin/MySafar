@@ -30,7 +30,12 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
   twice.
 - **Student Name**, **Gender**, **School Year Group** and **Current Teacher
   [Islamic Studies]** are saved with the student and shown in the classroom's
-  Input tab; the Student ID and year group also appear on each student's card.
+  Input tab; the Student ID and Safar year group also appear on each student's card.
+- The **Safar year group** is taken from the classroom name: `Yr7-B-QM-...` is
+  Year 7. A shared `Yr9/10` classroom takes the year from the Islamic Studies
+  class (`Yr9-AI-...` or `Yr10-AI-...`). An optional **Safar Year Group** column
+  overrides this. The **School Year Group** (the student's primary or secondary
+  school year) is kept separately.
 - Columns are found by their names, in any order. Student Name and the Quran
   and Memorisation teacher are required. Without a Student ID column, students
   are matched by name within their classroom.
@@ -39,6 +44,16 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
   who aren't in the file (they are left as they are), and any problems, such
   as one Student ID used for two different names.
 - Commas, semicolons or tabs between columns all work.
+
+## After the book: the Juz items
+
+The book ends at L10 T14. After that, targets carry on through numbered items,
+starting from Juz 30 and working back to Juz 1: `198 An-Naba` (Juz 30) through
+`234 An-Nas`, then `235 Al-Mulk` (Juz 29), and so on to `332 Al-Baqarah`
+(Juz 1). **+ Pass** moves a student to the next item, just like a book target,
+and the target lists group the items by Juz. The items are listed in `JUZ` near
+the top of the script in `src/page.html`. A surah that spans two juz (for
+example Adh-Dhariyat) has an item in each.
 
 Each classroom's Input tab can rename it (click the title), set its first
 class day, add students by hand, and delete the classroom.

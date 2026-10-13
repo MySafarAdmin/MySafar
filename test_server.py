@@ -112,13 +112,27 @@ class DashboardTests:
         student["fl"] = ["x"]
         self.assertEqual(self.write(revision=2, state=dict(self.state, S=[student])).status_code, 400)
 
+    def test_targets_run_on_through_the_juz_items(self):
+        levels = self.state["L"]
+        student = {"name": "A", "target": sum(levels) + 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [],
+                   "lx": [], "ml": [], "q": {}}
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        student["target"] = sum(levels) + 136
+        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
+        self.assertEqual(self.write(revision=1, state=dict(self.state, Q=135, S=[student])).status_code, 200)
+        student["target"] = sum(levels) + 137
+        self.assertEqual(self.write(revision=2, state=dict(self.state, Q=135, S=[student])).status_code, 400)
+        self.assertEqual(self.write(revision=2, state=dict(self.state, Q="135", S=[student])).status_code, 400)
+
     def test_student_details_from_csv(self):
         student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
-                   "ml": [], "q": {}, "sid": "ST001", "gender": "Female", "year": "Year 3", "ist": "Yr3-A-AI-Sr Maryam"}
+                   "ml": [], "q": {}, "sid": "ST001", "gender": "Female", "year": "Year 3", "sy": "Year 4", "ist": "Yr3-A-AI-Sr Maryam"}
         self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
         saved = json.loads(self.records()["yr3-a"]["json"])["S"][0]
-        self.assertEqual((saved["sid"], saved["year"]), ("ST001", "Year 3"))
+        self.assertEqual((saved["sid"], saved["year"], saved["sy"]), ("ST001", "Year 3", "Year 4"))
         student["sid"] = 1
+        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
+        student["sid"], student["sy"] = "ST001", 4
         self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
 
     def test_write_validation_and_cross_origin_protection(self):

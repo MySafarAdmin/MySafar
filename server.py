@@ -42,6 +42,10 @@ def valid_state(state):
     levels = state.get("L")
     if not isinstance(levels, list) or not levels or not all(type(n) is int and n > 0 for n in levels):
         return False
+    # Numbered Juz items that follow the book (198 An-Naba onwards). Older records have none.
+    juz_items = state.get("Q", 0)
+    if type(juz_items) is not int or juz_items < 0:
+        return False
     students = state.get("S")
     if not isinstance(students, list):
         return False
@@ -50,7 +54,7 @@ def valid_state(state):
             return False
         if not all(type(student.get(k)) is int and student[k] >= 0 for k in ("target", "passes", "merits", "warn")):
             return False
-        if not 1 <= student["target"] <= sum(levels) + 1 or student["warn"] > 3:
+        if not 1 <= student["target"] <= sum(levels) + juz_items + 1 or student["warn"] > 3:
             return False
         for key in ("log", "lt", "ml"):
             if not isinstance(student.get(key), list) or not all(type(n) in (int, float) and n >= 0 for n in student[key]):
@@ -61,8 +65,9 @@ def valid_state(state):
             return False
         if not isinstance(student.get("lx"), list) or not all(isinstance(x, str) for x in student["lx"]):
             return False
-        # Details from the CSV upload: Student ID, gender, year group, Islamic Studies teacher.
-        if not all(isinstance(student.get(k, ""), str) for k in ("sid", "gender", "year", "ist")):
+        # Details from the CSV upload: Student ID, gender, Safar year group, school year group,
+        # Islamic Studies teacher.
+        if not all(isinstance(student.get(k, ""), str) for k in ("sid", "gender", "year", "sy", "ist")):
             return False
         if len(student["log"]) != len(student["lt"]) or len(student["log"]) != len(student["lx"]):
             return False
