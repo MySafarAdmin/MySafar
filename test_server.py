@@ -357,6 +357,20 @@ class DashboardTests:
             self.assertEqual(teacher.get(path).status_code, 403)
         self.assertEqual(json.loads(self.records()["yr4-b"]["json"])["name"], "Yr4-B")
 
+    def test_teacher_adds_a_student_from_the_quran_tab(self):
+        self.write(class_id="yr3-a")
+        self.write("Yr4-B", class_id="yr4-b")
+        self.add_user("t@example.com", classes=["yr3-a"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        student = {"name": "Musa Khan", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                   "ml": [], "fl": [], "q": {}, "tg": [], "tb": [], "tr": [], "house": "Madinah", "sid": "ST099"}
+        added = dict(self.state, S=[student])
+        self.assertEqual(self.write(state=added, revision=1, client=teacher).status_code, 200)
+        saved = json.loads(self.records(teacher)["yr3-a"]["json"])["S"]
+        self.assertEqual([(s["name"], s["house"], s["sid"]) for s in saved], [("Musa Khan", "Madinah", "ST099")])
+        self.assertEqual(self.write("Yr4-B", state=added, revision=1, class_id="yr4-b", client=teacher).status_code, 403)
+        self.assertEqual(json.loads(self.records()["yr4-b"]["json"])["S"], [])
+
     def test_invite_without_email(self):
         self.write()
         response = self.form(self.client, "/admin/users", "/admin/users/invite", name="Sr Maryam",
