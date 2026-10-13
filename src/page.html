@@ -555,11 +555,13 @@ $("qCal").onclick=function(){var i=$("qD");i.min=FCD;i.value=QF;try{i.showPicker
 $("qD").onchange=function(){var d=this.value;if(!d)return;if(d<FCD){toast("The first class day was "+ds(sd().getTime()),1);return}if(qDays().indexOf(d)<0)QX[d]=1;qGo(d)};
 /* The score picker for one box in the focused column. */
 var QP_=null;
-function qPopClose(back){var p=document.querySelector(".qpop");if(p)p.remove();if(QP_)QP_.removeAttribute("aria-expanded");if(back&&QP_&&document.contains(QP_))QP_.focus();QP_=null}
+/* While the picker is open, the rest of that student's row (house and the other days) steps aside so the
+   picker sits in the row instead of covering another day's score. */
+function qPopClose(back){var p=document.querySelector(".qpop");if(p)p.remove();Array.prototype.forEach.call(document.querySelectorAll("#qB .qhid"),function(e){e.classList.remove("qhid")});if(QP_)QP_.removeAttribute("aria-expanded");if(back&&QP_&&document.contains(QP_))QP_.focus();QP_=null}
 function qPop(btn){qPopClose();var s=S[+btn.dataset.qi];if(!s)return;var cur=s.q[QF],B=$("qB");QP_=btn;
  var p=document.createElement("div");p.className="qpop";p.setAttribute("role","group");p.setAttribute("aria-label","Score for "+s.name);
  p.innerHTML=[0,1,2,3,4,5].map(function(k){return '<button type="button" style="--c:'+QC[k]+'" data-qv="'+k+'" aria-pressed="'+(cur===k)+'">'+k+'</button>'}).join("")+(cur===undefined?'':'<button type="button" class="qclr" data-qv="x">Clear</button>');
- B.appendChild(p);btn.setAttribute("aria-expanded","true");var r=btn.getBoundingClientRect(),b=B.getBoundingClientRect(),x=r.right-b.left+8;if(x+p.offsetWidth>B.clientWidth)x=Math.max(0,r.left-b.left-p.offsetWidth-8);
+ B.appendChild(p);btn.setAttribute("aria-expanded","true");Array.prototype.forEach.call(B.querySelectorAll(".qcol:not(.on)>.qr:nth-child("+(+btn.dataset.qi+1)+"),.qhouses>.qn:nth-child("+(+btn.dataset.qi+1)+")"),function(e){e.classList.add("qhid")});var r=btn.getBoundingClientRect(),b=B.getBoundingClientRect(),x=r.right-b.left+8;if(x+p.offsetWidth>B.clientWidth)x=Math.max(0,r.left-b.left-p.offsetWidth-8);
  p.style.left=x+"px";p.style.top=Math.max(0,r.top-b.top+(r.height-p.offsetHeight)/2)+"px";(p.querySelector('[aria-pressed="true"]')||p.firstChild).focus()}
 function qSet(i,v,next){var s=S[i],d=QF;if(!s)return;if(d>dk(Date.now())){toast("That class day hasn't happened yet",1);return}
  var lab=qlab(d),nm=fn(s);
