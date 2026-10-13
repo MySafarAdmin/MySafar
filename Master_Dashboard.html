@@ -167,6 +167,7 @@ header h1{background:none;-webkit-background-clip:border-box;background-clip:bor
 .bg{display:inline-flex;gap:4px;margin-right:14px}
 .late{color:#ef4444!important}
 .hide{display:none}
+.cmap{margin:8px 0 12px}.cmap summary{cursor:pointer;color:var(--mute)}.cmap .pf{margin-top:10px}.cmap select{max-width:260px}
 
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark}}
 :root[data-theme="dark"]{color-scheme:dark}
@@ -218,7 +219,7 @@ header select.pick.on{border-color:#8b5cf6;box-shadow:0 0 0 2px rgba(139,92,246,
 <main>
 <section id="vM"><div id="mst"></div>
  <div class="card up" id="up"><h2>📥 Upload students</h2>
-  <p class="sub">Choose a CSV file with one row per student and these six columns, with the column names in the first row. Each student goes into the classroom of their Quran and Memorisation teacher; classrooms that don't exist yet are created. An optional <b>House</b> column (Makkah, Al-Aqsa or Madinah) sets each student's house. Upload an updated list at any time: students are recognised by their Student ID, so a changed teacher moves the student with all of their records, changed details are updated, and nobody is added twice.</p>
+  <p class="sub">Choose a CSV file with one row per student and these six columns, with the column names in the first row. Your own column names are fine: the preview shows which column was taken for each detail and lets you change it, and the dashboard remembers your choice for files laid out the same way. A file with separate first name and surname columns works too. Each student goes into the classroom of their Quran and Memorisation teacher; classrooms that don't exist yet are created. An optional <b>House</b> column (Makkah, Al-Aqsa or Madinah) sets each student's house. Upload an updated list at any time: students are recognised by their Student ID, so a changed teacher moves the student with all of their records, changed details are updated, and nobody is added twice.</p>
   <div class="ex">Student ID,Student Name,Gender,School Year Group,Current Teacher [Quran and Memorisation],Current Teacher [Islamic Studies]
 ST001,Aisha Khan,Female,Year 3,Yr3-A-QM-Br Ahmed,Yr3-A-AI-Sr Maryam
 ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
@@ -558,19 +559,24 @@ document.getElementById("csvD").value=dk(Date.now());
 document.getElementById("csvF").onchange=function(){var f=this.files&&this.files[0];if(!f)return;
  var r=new FileReader();r.onload=function(){readCSV(String(r.result),f.name)};r.onerror=function(){toast("That file couldn't be read",1)};r.readAsText(f)};
 document.getElementById("csvP").addEventListener("click",function(e){if(e.target.id==="csvGo")importCSV();if(e.target.id==="csvX")clearCSV()});
+document.getElementById("csvP").addEventListener("change",function(e){var k=e.target.getAttribute("data-col");if(k)mapCSV(k,e.target.value)});
 legend();go("M");
 if(HASH&&ST[HASH]){var hh=HASH;HASH="";go(hh)}
 })();
 
-/* CSV upload. Columns: Student ID, Student Name, Gender, School Year Group, Safar Year Group (optional),
-   Current Teacher [Quran and Memorisation] (the student's classroom) and
-   Current Teacher [Islamic Studies]. Student Name and the Quran teacher are required. */
+/* CSV upload. Columns: Student ID, Student Name (or First name and Surname), Gender, School Year Group,
+   Safar Year Group (optional), Current Teacher [Quran and Memorisation] (the student's classroom),
+   Current Teacher [Islamic Studies] and House. A name and the Quran teacher are required.
+   Columns are matched by name; the preview lets the user pick any column instead, and that choice
+   is remembered in this browser for files with the same column names. */
 var CSV=null;
 /* The Safar year group comes from the classroom name ("Yr7-B-QM-..." is Year 7).
    A shared Yr9/10 class takes the year from the Islamic Studies class instead. */
 function safarYear(t,i){var m=/^yr\s*(\d+)(\/\d+)?/i.exec(t||"");if(!m)return"";if(!m[2])return"Year "+m[1];var n=/^yr\s*(\d+)(?!\/)/i.exec(i||"");return n?"Year "+n[1]:""}
-var COLS=[["sid","Student ID",function(h){return /^(student|pupil) ?id$|^id$|student.*\bid\b/.test(h)}],
- ["name","Student Name",function(h){return /^(student |pupil )?(full )?name$|student.*name/.test(h)}],
+var COLS=[["sid","Student ID",function(h){return /^(student|pupil) ?id$|^id$|student.*\bid\b|\b(upn|admission (no|number))\b/.test(h)}],
+ ["first","First name",function(h){return /first ?name|forename|given ?name/.test(h)}],
+ ["last","Surname",function(h){return /surname|last ?name|family ?name/.test(h)}],
+ ["name","Student Name",function(h){return /^(student |pupil )?(full )?name$|student.*name|pupil.*name/.test(h)}],
  ["gender","Gender",function(h){return /gender|^sex$/.test(h)}],
  ["year","Safar Year Group",function(h){return /safar/.test(h)&&/year/.test(h)}],
  ["sy","School Year Group",function(h){return /year/.test(h)}],
@@ -588,18 +594,38 @@ function parseCSV(t){t=t.replace(/^\uFEFF/,"");var line=t.split(/\r?\n/,1)[0],d=
  if(f!==""||row.length){row.push(f);rows.push(row)}
  return rows.filter(function(r){return r.some(function(x){return x.trim()})})}
 function clean(v){return String(v||"").replace(/\s+/g," ").trim()}
+/* Column choices made in the preview, kept per set of column names. The key must not start with LS. */
+var MAPK="safar_csvmap";
+function savedMaps(){try{return JSON.parse(localStorage.getItem(MAPK)||"{}")||{}}catch(e){return {}}}
+function autoMap(H){var M={},used={};
+ COLS.forEach(function(c){for(var i=0;i<H.length;i++)if(!used[i]&&H[i]&&c[2](H[i])){M[c[0]]=i;used[i]=1;break}});
+ // A full name column wins over first name and surname, but "Name" next to "Surname" is the first name.
+ if(M.name!==undefined&&M.last!==undefined&&M.first===undefined){M.first=M.name;delete M.name}
+ if(M.name!==undefined){delete M.first;delete M.last}
+ return M}
 function readCSV(text,file){var rows=parseCSV(text),P=document.getElementById("csvP");CSV=null;
  if(rows.length<2){P.innerHTML='<p class="warnline">'+esc(file)+' has no student rows. The first row must be the column names, with one student on each row below it.</p>';return}
- var H=rows[0].map(nkey),M={},used={};
- COLS.forEach(function(c){for(var i=0;i<H.length;i++)if(!used[i]&&c[2](H[i])){M[c[0]]=i;used[i]=1;break}});
- var miss=COLS.filter(function(c){return (c[0]==="name"||c[0]==="teacher")&&M[c[0]]===undefined});
- if(miss.length){P.innerHTML='<p class="warnline">'+esc(file)+' has no '+miss.map(function(c){return '“'+esc(c[1])+'”'}).join(' or ')+' column. The first row should be: '+esc(COLS.map(function(c){return c[1]}).join(", "))+'</p>';return}
- CSV={file:file,M:M,rows:rows.slice(1)};showCSV()}
+ var H=rows[0].map(nkey),sig=H.join("|"),M=autoMap(H),saved=savedMaps()[sig];
+ if(saved&&typeof saved==="object"){M={};COLS.forEach(function(c){var i=saved[c[0]];if(typeof i==="number"&&i>=0&&i<H.length)M[c[0]]=i})}
+ CSV={file:file,M:M,H:rows[0].map(clean),sig:sig,rows:rows.slice(1)};showCSV()}
+function needCols(M){var L=[];if(M.name===undefined&&M.first===undefined&&M.last===undefined)L.push("Student Name");if(M.teacher===undefined)L.push("Current Teacher [Quran and Memorisation]");return L}
+function mapCSV(k,v){if(!CSV)return;var M=CSV.M,i=v===""?-1:+v;
+ Object.keys(M).forEach(function(x){if(M[x]===i)delete M[x]});if(i>=0)M[k]=i;else delete M[k];
+ try{var all=savedMaps();all[CSV.sig]=M;localStorage.setItem(MAPK,JSON.stringify(all))}catch(e){}
+ CSV.open=1;showCSV()}
+/* Which column of the file is used for each detail, with a menu to change it. */
+function colsHTML(){var M=CSV.M,need=needCols(M),n=COLS.filter(function(c){return M[c[0]]!==undefined}).length,
+  unused=CSV.H.filter(function(h,i){return h&&!COLS.some(function(c){return M[c[0]]===i})});
+ var h='<details class="cmap"'+(need.length||CSV.open?' open':'')+'><summary>'+n+' of the '+CSV.H.length+' columns in this file are used'+(unused.length?' (not used: '+esc(unused.join(", "))+')':'')+'. Change which column is used for each detail</summary><div class="pf">';
+ COLS.forEach(function(c){h+='<label>'+esc(c[1])+(c[0]==="teacher"?' (classroom)':'')+'<select data-col="'+c[0]+'"><option value="">Not in this file</option>'+CSV.H.map(function(t,i){return '<option value="'+i+'"'+(M[c[0]]===i?' selected':'')+'>'+esc(t||"Column "+(i+1))+'</option>'}).join("")+'</select></label>'});
+ h+='</div></details>';
+ if(need.length)h+='<p class="warnline">Choose the column for '+need.map(function(t){return '“'+esc(t)+'”'}).join(' and ')+' above to see what this file will change.</p>';
+ return h}
 /* Compares the file with the dashboard: who is new, who moves classroom, whose details change. */
 function planCSV(){var M=CSV.M,F=["name","year"].concat(["sid","gender","sy","ist","house"].filter(function(k){return M[k]!==undefined}));
  function cell(r,k){return M[k]===undefined?"":clean(r[M[k]])}
  var rows=[],empty=0,dup=0,seen={},byFileId={},notes=[],badHouse={};
- CSV.rows.forEach(function(r){var o={sid:cell(r,"sid"),name:cell(r,"name"),gender:cell(r,"gender"),sy:cell(r,"sy"),teacher:cell(r,"teacher"),ist:cell(r,"ist")};o.year=cell(r,"year")||safarYear(o.teacher,o.ist);
+ CSV.rows.forEach(function(r){var o={sid:cell(r,"sid"),name:cell(r,"name")||clean(cell(r,"first")+" "+cell(r,"last")),gender:cell(r,"gender"),sy:cell(r,"sy"),teacher:cell(r,"teacher"),ist:cell(r,"ist")};o.year=cell(r,"year")||safarYear(o.teacher,o.ist);
   var hr=cell(r,"house");o.house=normHouse(hr);if(hr&&!o.house)badHouse[hr]=(badHouse[hr]||0)+1;
   if(!o.name||!o.teacher){empty++;return}
   var key=nkey(o.sid)+"|"+nkey(o.name)+"|"+nkey(o.teacher);if(seen[key]){dup++;return}seen[key]=1;rows.push(o);
@@ -630,8 +656,9 @@ function planCSV(){var M=CSV.M,F=["name","year"].concat(["sid","gender","sy","is
 function sumG(p,k){return p.groups.reduce(function(t,g){return t+(k==="same"?g.same:g[k].length)},0)}
 function few(L,n){return L.slice(0,n).map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+(L.length>n?'<li>…and '+(L.length-n)+' more</li>':'')}
 function showCSV(){var P=document.getElementById("csvP");if(!CSV)return;
+ if(needCols(CSV.M).length){P.innerHTML='<p><b>'+esc(CSV.file)+'</b></p>'+colsHTML()+'<p><button class="btn" id="csvX">Cancel</button></p>';return}
  var p=planCSV(),na=sumG(p,"add"),nm=sumG(p,"move"),nu=sumG(p,"update"),nc=p.groups.filter(function(g){return !g.cid}).length,nl=p.groups.reduce(function(t,g){return t+g.count},0);
- var h='<p><b>'+esc(CSV.file)+'</b>: '+nl+' students in '+p.groups.length+' classrooms.'+(p.empty?' '+p.empty+(p.empty>1?' rows':' row')+' without a name or Quran and Memorisation teacher '+(p.empty>1?'are':'is')+' left out.':'')+(p.dup?' '+p.dup+(p.dup>1?' repeated rows are':' repeated row is')+' counted once.':'')+'</p>';
+ var h='<p><b>'+esc(CSV.file)+'</b>: '+nl+' students in '+p.groups.length+' classrooms.'+(p.empty?' '+p.empty+(p.empty>1?' rows':' row')+' without a name or Quran and Memorisation teacher '+(p.empty>1?'are':'is')+' left out.':'')+(p.dup?' '+p.dup+(p.dup>1?' repeated rows are':' repeated row is')+' counted once.':'')+'</p>'+colsHTML();
  if(!p.hasId)h+='<p class="warnline">This file has no Student ID column, so students are matched by name within their classroom.</p>';
  if(p.notes.length)h+='<ul class="csvl warnline">'+few(p.notes,10)+'</ul>';
  h+='<table class="tbl"><thead><tr><th>Classroom (Quran and Memorisation teacher)</th><th>In the file</th><th>New</th><th>Moving in</th><th>Details updated</th><th>No change</th></tr></thead><tbody>'+p.groups.map(function(g){return '<tr><td>'+esc(g.name)+(g.cid?'':' <span class="tg nw">New classroom</span>')+'</td><td>'+g.count+'</td><td>'+g.add.length+'</td><td>'+g.move.length+'</td><td>'+g.update.length+'</td><td>'+g.same+'</td></tr>'}).join("")+'</tbody></table>';
