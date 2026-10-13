@@ -1,107 +1,110 @@
 <title>Safar Enfield Master Dashboard</title>
+<meta name="theme-color" content="#003b6b">
 <style>
 /*TEMPLATE_CSS*/
-
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark}}
-:root[data-theme="dark"]{color-scheme:dark}
-.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
-.kp .card{padding:14px;text-align:center}.kp b{display:block;font-size:1.9rem;font-variant-numeric:tabular-nums}.kp small{color:var(--mute)}
-.cc{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-bottom:20px}
-.cc .card{padding:18px;display:flex;flex-direction:column}.cc h3{margin:0 0 10px;font-size:1.25rem}
-.cc .card .btn{margin-top:auto;align-self:flex-start}
-.cs{display:grid;grid-template-columns:1fr auto;gap:6px 12px;margin-bottom:14px}.cs span{color:var(--mute)}.cs b{text-align:right;font-variant-numeric:tabular-nums}
-.tg{font-size:.7rem;background:var(--acc);color:#fff;border-radius:999px;padding:2px 8px;margin-left:6px;font-weight:600;white-space:nowrap}
-.pr{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}.pr b{white-space:nowrap}
-#mst .lbs{margin-bottom:16px}
-.lbs{grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr))}
-.lr>div{min-width:0}.lr .n{flex-wrap:wrap;gap:4px}
-.hdr{display:flex;flex-direction:column;gap:8px;align-items:flex-end;min-width:0;max-width:100%}
-.nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-header select.pick{font:inherit;border:1px solid #e3e6ee;background:#fff;color:#1b1f2a;padding:8px 12px;border-radius:10px;cursor:pointer;max-width:100%}
-header select.pick.on{border-color:#8b5cf6;box-shadow:0 0 0 2px rgba(139,92,246,.4);font-weight:700}
-.j2j{background:#0f766e;color:#fff;border-color:#0f766e;font-weight:700;text-decoration:none;white-space:nowrap}.j2j:hover{background:#115e59}.j2j:focus-visible{outline:3px solid #8b5cf6;outline-offset:2px}
-.tabs button:focus-visible,.btn:focus-visible,select:focus-visible,input:focus-visible,.qs:focus-visible,.wbt:focus-visible{outline:3px solid #8b5cf6;outline-offset:2px}
-.note{margin-bottom:16px;font-size:1.05rem}
-.hrow{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
-.tkb{display:flex;flex-wrap:wrap;gap:8px}.tkp{display:inline-flex;gap:4px;align-items:center}
-.tk{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--text);padding:6px 12px;border-radius:999px;cursor:pointer}
-.tk i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
-.tk.g i{background:#16a34a}.tk.b i{background:#2563eb}.tk.r i{background:#dc2626}
-.tkn{min-width:1.5em;text-align:center;font-variant-numeric:tabular-nums}
-.hpts{min-width:80px;text-align:right;font-variant-numeric:tabular-nums}
-.tk:focus-visible{outline:3px solid #8b5cf6;outline-offset:2px}
-.dlg{position:fixed;inset:0;background:rgba(15,18,32,.55);display:grid;place-items:center;padding:16px;z-index:100}
-.dlg.hide{display:none}
-.dlg .card{max-width:440px;width:100%;box-shadow:0 18px 50px rgba(0,0,0,.35)}
-.dlg p{margin:0 0 12px;font-size:1.1rem;font-weight:600}
-.dlg input{font:inherit;width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}
-.dlg .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px}
-.btn.x{background:#ef4444;color:#fff;border-color:#ef4444}
-.up{margin-top:4px}.up h2{margin:0 0 6px;font-size:1.3rem}.up .sub{margin:0 0 12px}
-.ex{display:inline-block;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9rem;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;white-space:pre;margin:0 0 12px;max-width:100%;overflow-x:auto}
-#csvP{margin-top:14px}#csvP .tbl{margin:12px 0}#csvP .tbl td:nth-child(n+2),#csvP .tbl th:nth-child(n+2){text-align:right;font-variant-numeric:tabular-nums}
-.tg.nw{background:#059669}.warnline{color:#b45309;font-weight:600}
-.tile b .meta{display:block;font-size:.78rem;font-weight:500;color:var(--mute);margin-top:1px}
-.tbl td.ro{color:var(--mute);white-space:nowrap}
-.csvl{margin:4px 0 12px;padding-left:20px;max-height:220px;overflow:auto}.csvl li{margin:2px 0}
-@media (max-width:640px){header{padding:12px 16px}main{padding:0 16px 16px}.hdr{align-items:flex-start}.nav{justify-content:flex-start}.logo img{height:56px}}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-<header><div class="brand"><div class="logo"><img alt="Safar Academy" src="data:image/png;base64,__LOGO__"></div><div><h1 id="ttl" spellcheck="false" title="Click to rename">Master Dashboard</h1><small id="sm">Safar Academy Enfield · All classes</small></div></div>
-<div class="hdr"><div class="nav" id="nav"><a class="btn j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer" title="Registers, homework and classroom learning (opens in a new tab)">📖 Journey2Jannah ↗</a><div class="tabs"><button id="nM" class="on">🏫 Master</button></div><select id="nSel" class="pick" aria-label="Open a class dashboard"></select></div><div class="tabs hide" id="sub"><button id="tD" class="on">Dashboard</button> <button id="tI">Input</button> <button id="tW">Warnings</button> <button id="tQ">Quran</button> <button id="tT">Memo</button> <button id="tH">Houses</button></div></div></header>
-<main>
-<section id="vM"><div id="mst"></div>
- <div class="card up" id="up"><h2>📥 Upload students</h2>
-  <p class="sub">Choose a CSV file with one row per student and these six columns, with the column names in the first row. Your own column names are fine: the preview shows which column was taken for each detail and lets you change it, and the dashboard remembers your choice for files laid out the same way. A file with separate first name and surname columns works too. Each student goes into the classroom of their Quran and Memorisation teacher; classrooms that don't exist yet are created. An optional <b>House</b> column (Makkah, Al-Aqsa or Madinah) sets each student's house. Upload an updated list at any time: students are recognised by their Student ID, so a changed teacher moves the student with all of their records, changed details are updated, and nobody is added twice.</p>
+<a class="skip" href="#main">Skip to main content</a>
+<div class="shell">
+<header><div class="rail">
+ <a class="brand" href="#" id="home"><span class="badge"><img alt="" width="34" height="34" src="data:image/png;base64,__LOGO__"></span><span translate="no"><b>Safar Academy</b><small>Enfield</small></span></a>
+ <input type="checkbox" id="navt" class="navt" aria-label="Show the menu">
+ <label for="navt" class="menu-btn" aria-hidden="true">Menu</label>
+ <nav class="navs" aria-label="Main" id="nav">
+  <button class="nav" id="nM" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>Overview</button>
+  <a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer" title="Registers, homework and classroom learning"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></svg><span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
+  <div class="navh" id="clsH">Classes</div>
+  <div class="classes" id="nList"></div>
+  <div id="adminNav"></div>
+ </nav>
+ <div class="me" id="me" hidden></div>
+</div></header>
+<div class="work">
+<main><div class="content" id="main" tabindex="-1">
+<div class="pagehead">
+ <div class="ph-main"><p class="crumb" id="crumb">Safar Academy Enfield</p><h1 id="ttl">School overview</h1><p class="lede" id="sm"></p></div>
+ <div class="acts"><span class="save" id="st" role="status" aria-live="polite"></span><select id="nSel" class="pick" aria-label="Open a class"></select></div>
+</div>
+<div class="tabs hide" id="sub" role="tablist" aria-label="Class pages">
+ <button id="tD" role="tab" aria-controls="vD" aria-selected="true">Dashboard</button><button id="tI" role="tab" aria-controls="vI" aria-selected="false" tabindex="-1">Input</button><button id="tW" role="tab" aria-controls="vW" aria-selected="false" tabindex="-1">Warnings</button><button id="tQ" role="tab" aria-controls="vQ" aria-selected="false" tabindex="-1">Quran</button><button id="tT" role="tab" aria-controls="vT" aria-selected="false" tabindex="-1">Memo</button><button id="tH" role="tab" aria-controls="vH" aria-selected="false" tabindex="-1">Houses</button>
+</div>
+
+<section id="vM" aria-labelledby="ttl"><div id="mst"><div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div></div>
+ <details class="panel up" id="up"><summary>Upload students from a CSV file</summary>
+  <p class="sub">One row per student, with the column names in the first row. Each student goes into the classroom of their Quran and Memorisation teacher, and classrooms that don't exist yet are created. Students are recognised by their Student ID, so uploading an updated list moves students with all of their records, updates changed details and never adds anyone twice. An optional <b>House</b> column (Makkah, Al-Aqsa or Madinah) sets each student's house. Your own column names are fine: the preview shows which column was taken for each detail and lets you change it.</p>
   <div class="ex">Student ID,Student Name,Gender,School Year Group,Current Teacher [Quran and Memorisation],Current Teacher [Islamic Studies]
 ST001,Aisha Khan,Female,Year 3,Yr3-A-QM-Br Ahmed,Yr3-A-AI-Sr Maryam
 ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
   <div class="pf"><label>CSV file<input type="file" id="csvF" accept=".csv,text/csv"></label><label>First class day for new classrooms<input type="date" id="csvD"></label></div>
-  <div id="csvP"></div>
- </div>
+  <div id="csvP" aria-live="polite"></div>
+ </details>
 </section>
-<section id="vD" class="hide">
- <div class="wrow"><div class="card wp" id="wp"></div><div class="card c3 sm"><div class="lab">🎁 Prize Winners This Month</div><div class="pa" id="ll"></div><div class="sub" id="llS"></div></div></div>
- <div class="lbs">
-  <div class="card lb gp"><h2>🏆 Passes this month</h2><div id="lbP"></div></div>
-  <div class="card lb gm"><h2>⭐ Merits leaderboard</h2><div id="lbM"></div></div>
+
+<section id="vD" class="hide" role="tabpanel" aria-labelledby="tD">
+ <div class="stats" id="cStats"></div>
+ <div class="panel attn" id="wp" hidden></div>
+ <div class="cols" style="margin-top:16px">
+  <div class="panel"><div class="panel-h"><h2>Passes this month</h2></div><ol class="rank" id="lbP"></ol></div>
+  <div class="panel"><div class="panel-h"><h2>Merits</h2><p class="sub">All time</p></div><ol class="rank" id="lbM"></ol></div>
+  <div class="panel prize"><h2>Prize this month</h2><div class="chips" id="ll"></div><p class="sub" id="llS"></p></div>
  </div>
- <div class="card ch" style="margin-bottom:20px"><h2 style="margin:0 0 6px;font-size:1.3rem">📊 Everyone at a glance</h2>
-  <div class="leg" id="leg" style="flex-wrap:wrap"></div>
-  <div class="chart" id="chart"></div></div>
- <p class="sub" style="margin:0 0 10px">A name in red means the student hasn't passed yet, or it has been 3 or more weeks since their last pass.</p>
+ <div class="panel" style="margin-top:16px"><div class="panel-h"><h2>Where everyone is in the book</h2><p class="sub" id="chS"></p></div>
+  <div class="leg" id="leg"></div><div class="chartwrap"><div class="chart" id="chart" role="img" aria-label="Each student's current target"></div></div></div>
+ <h2 class="section-title">Students</h2>
  <div class="grid" id="grid"></div>
 </section>
-<section id="vI" class="hide">
- <div class="card" style="margin-bottom:16px"><h2 style="margin:0 0 6px;font-size:1.3rem">⚙️ Class setup</h2>
-  <div class="pf"><label>First class day<input type="date" id="fcd"></label></div>
-  <p class="sub" style="margin:12px 0 6px">Add many students at once: one name per line.</p>
-  <textarea id="bulk" rows="5" style="width:100%;font:inherit;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px" placeholder="Student one&#10;Student two&#10;Student three"></textarea>
-  <p><button class="btn p" id="bulkA">+ Add these students</button></p>
-  <p class="sub" style="margin:16px 0 6px">Delete this classroom, its students and all of their records.</p>
-  <p><button class="btn x" id="delC">Delete classroom</button></p></div>
- <div class="card">
-  <table class="tbl"><thead><tr><th>#</th><th>Name</th><th>Student ID</th><th>Safar year</th><th>School year</th><th>Gender</th><th>House</th><th>Islamic Studies teacher</th><th>Current target</th><th>Passes</th><th>Merits</th><th>Add / remove</th></tr></thead><tbody id="body"></tbody></table>
-  <p class="sub" id="st">Saved on this device only.</p>
-  <p class="sub">Pressing + Pass means the student has passed their current target and moves on to the next one. After the book (L10 T14), targets carry on through the numbered Juz items: 198 An-Naba (Juz 30) onwards.</p>
-  <p><button class="btn" id="add">+ Add student</button> <button class="btn" id="cw">Clear warnings</button> <button class="btn" id="rst">Reset all scores</button></p>
+
+<section id="vI" class="hide" role="tabpanel" aria-labelledby="tI">
+ <div class="panel">
+  <div class="panel-h"><h2>Record progress</h2></div>
+  <p class="rhint">+ Pass means the student passed their current target and moves to the next one. After the book (L10 T14), targets carry on through the numbered Juz items, starting at 198 An-Naba (Juz 30). Each − takes back the latest one.</p>
+  <div class="rhead" aria-hidden="true"><span>Student</span><span>Current target</span><span>Passes</span><span>Merits</span><span>Fails</span><span></span></div>
+  <ul class="roster" id="body"></ul>
  </div>
- <div class="card" style="margin-top:16px"><h2 style="margin:0 0 6px;font-size:1.3rem">⏪ Add a past pass</h2>
-  <p class="sub" style="margin:0 0 10px">Forgot to add a pass? Pick the student, the day and the target they passed. The first class day is set above.</p>
-  <div class="pf"><label>Student<select id="pS"></select></label><label>Date<input type="date" id="pD"></label><label>Target passed<select id="pT"></select></label><button class="btn p" id="pA">+ Add past pass</button></div>
-  <h3 style="margin:18px 0 4px;font-size:1.05rem">Pass history</h3><div class="hist" id="hist"></div>
+ <div class="panel">
+  <h2>Add a past pass</h2>
+  <p class="sub">Forgot to add a pass? Pick the student, the day and the target they passed.</p>
+  <div class="pf"><label>Student<select id="pS"></select></label><label>Date<input type="date" id="pD"></label><label>Target passed<select id="pT"></select></label><button class="btn p" id="pA">Add past pass</button></div>
+  <h3 style="margin:20px 0 0">Pass history</h3><div class="hist" id="hist"></div>
+ </div>
+ <div class="panel">
+  <h2>Class settings</h2>
+  <div class="setgrid" style="margin-top:12px">
+   <div><h3>Name and first class day</h3><p class="sub">The memo and Quran sheets start from the first class day.</p>
+    <div class="pf"><label>First class day<input type="date" id="fcd"></label><button class="btn" id="ren" type="button">Rename class</button></div></div>
+   <div><h3>Add students</h3><label class="field" for="bulk">Names, one per line</label>
+    <textarea id="bulk" rows="4" autocomplete="off" placeholder="Aisha Khan&#10;Yusuf Ali"></textarea>
+    <div class="pf" style="margin-top:10px"><button class="btn" id="bulkA">Add these students</button><button class="btn quiet" id="add">Add one blank student</button></div></div>
+  </div>
+ </div>
+ <div class="panel danger-panel">
+  <h2>Reset and delete</h2>
+  <div class="drow"><p><b>Clear warnings</b><span class="sub">Removes every student's warning in this class.</span></p><button class="btn danger" id="cw">Clear warnings</button></div>
+  <div class="drow"><p><b>Reset all scores</b><span class="sub">Sets every student's passes and merits back to zero. Fails, Quran scores and house tokens are kept.</span></p><button class="btn danger" id="rst">Reset all scores</button></div>
+  <div class="drow" id="delWrap"><p><b>Delete this classroom</b><span class="sub">Deletes the classroom, its students and all of their records.</span></p><button class="btn danger solid" id="delC">Delete classroom</button></div>
  </div>
 </section>
-<section id="vW" class="hide"><div class="card"><h2 style="margin:0 0 6px;font-size:1.4rem">🚨 Give a warning</h2><p class="sub" style="margin:0 0 10px">Tap a button next to a student to give that warning. Tap the same button again to remove it.</p><p><button class="btn" id="cw2">Clear all warnings</button></p><div id="wrows"></div></div></section>
-<section id="vQ" class="hide"><div class="card"><h2 style="margin:0 0 6px;font-size:1.4rem">📖 Quran scores</h2><p class="sub" style="margin:0 0 10px">Pick the class day, then tap each student's score out of 5. Tap the same score again to clear it.</p><div class="pf"><label>Class day<input type="date" id="qD"></label></div><div id="qrows" style="margin-top:12px"></div></div>
-<div class="card ch" style="margin-top:16px"><h2 style="margin:0 0 6px;font-size:1.3rem">Quran record</h2><div class="sheetwrap" id="qSheet"></div></div></section>
-<section id="vH" class="hide"><div class="card"><h2 style="margin:0 0 6px;font-size:1.4rem">🏠 House points</h2>
- <p class="sub" style="margin:0 0 12px">Give a student a token for their house: green is 5 points, blue is 20 points and red (book completion) is 50 points. Tap − to take back the latest one.</p>
- <div class="kp" id="hClass"></div><div id="hrows"></div></div></section>
-<section id="vT" class="hide"><div class="card ch"><h2 style="margin:0 0 4px;font-size:1.4rem">📋 Memo: students and dates</h2><p class="sub" style="margin:0 0 12px">Each row is a student and each column is a class day. A box shows the target they passed that day. It runs from the first class day (set in the Input tab) and always shows the next 6 weeks.</p><div class="sheetwrap" id="sheet"></div></div></section>
-</main>
-<div id="dlg" class="dlg hide" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="card"><p id="dlgT"></p><input id="dlgI" class="hide" maxlength="60" autocomplete="off"><div class="acts"><button class="btn" id="dlgN">Cancel</button><button class="btn p" id="dlgY">OK</button></div></div></div>
-<div id="toast"></div>
+
+<section id="vW" class="hide" role="tabpanel" aria-labelledby="tW"><div class="panel">
+ <div class="panel-h"><div><h2>Warnings</h2><p class="sub">Tap a warning to give it. Tap it again to take it away.</p></div><button class="btn danger" id="cw2">Clear all warnings</button></div>
+ <div id="wrows"></div></div></section>
+
+<section id="vQ" class="hide" role="tabpanel" aria-labelledby="tQ"><div class="panel">
+ <div class="panel-h"><div><h2>Quran scores</h2><p class="sub">Pick the class day, then tap each student's score out of 5. Tap the same score again to clear it.</p></div><div class="pf"><label>Class day<input type="date" id="qD"></label></div></div>
+ <div id="qrows"></div></div>
+ <div class="panel"><div class="panel-h"><h2>Quran record</h2><p class="sub">Blank means not recorded</p></div><div class="sheetwrap" id="qSheet" tabindex="0" aria-label="Quran record, scrollable"></div></div></section>
+
+<section id="vH" class="hide" role="tabpanel" aria-labelledby="tH"><div class="panel">
+ <div class="panel-h"><div><h2>House points</h2><p class="sub">Green is 5 points, blue is 20 and red (book completion) is 50. − takes back the latest token of that colour.</p></div></div>
+ <div class="hcards" id="hClass"></div><div id="hrows"></div></div></section>
+
+<section id="vT" class="hide" role="tabpanel" aria-labelledby="tT"><div class="panel">
+ <div class="panel-h"><div><h2>Memo</h2><p class="sub">Each row is a student and each column a class day, from the first class day to six weeks ahead. A box shows the target passed that day.</p></div></div>
+ <div class="sheetwrap" id="sheet" tabindex="0" aria-label="Memo sheet, scrollable"></div></div></section>
+</div></main>
+</div>
+</div>
+<div id="dlg" class="dlg hide" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="card"><p id="dlgT"></p><input id="dlgI" class="hide" maxlength="60" autocomplete="off" aria-labelledby="dlgT"><div class="acts"><button class="btn" id="dlgN">Cancel</button><button class="btn p" id="dlgY">OK</button></div></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
 <script>
 var LEVELS=[9,9,9,9,10,10,10,12,15,14]; /* TARGETS IN EACH LEVEL, L1 to L10. If a level has more or fewer targets, change its number here; saved records are moved across automatically. */
 var S=[],FCD="";
@@ -161,7 +164,6 @@ function normHouse(v){var k=String(v||"").toLowerCase().replace(/[^a-z]/g,"");
  if(/^(makkah?|mecca|makah)$/.test(k))return "Makkah";if(/^(masjid)?(al)?aqsa$/.test(k))return "Al-Aqsa";if(/^(madinah?|medina)$/.test(k))return "Madinah";return ""}
 function hp(s){return TOK.reduce(function(t,k){return t+(s[k[0]]||[]).length*k[3]},0)}
 function houseTotals(A){var T={};HOUSES.forEach(function(h){T[h]=0});A.forEach(function(s){if(T[s.house]!==undefined)T[s.house]+=hp(s)});return T}
-function houseCards(T){return HOUSES.map(function(h){return '<div class="card"><b>'+(T[h]||0)+'</b><small>'+h+'</small></div>'}).join("")}
 var PRIZE=5;
 function ms0(){var d=new Date();return new Date(d.getFullYear(),d.getMonth(),1).getTime()}
 function mpc(s){var m=ms0();return s.log.filter(function(t){return t>=m}).length}
@@ -201,12 +203,12 @@ function changed(c){navL();
  if(CID&&!ST[CID]){go("M");toast("That classroom was deleted",1);return}
  if(HASH&&ST[HASH]){var h=HASH;HASH="";go(h);return}
  if(CID){if(c===undefined||c===CID)setClass(CID)}else master()}
-function setSt(t){var e=document.getElementById("st");if(e)e.textContent=t}
+function setSt(t,s){var e=document.getElementById("st");if(e){e.textContent=t;e.setAttribute("data-s",s||(/couldn|can't|not saved|signed out|could not/i.test(t)?"bad":/saving|loading/i.test(t)?"busy":"ok"))}}
 function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
 function push(c){if(!DB||!ST[c])return;var j=cj(c);if(j===LJ[c])return;if(PU[c]){PD[c]=1;return}
- PU[c]=1;LJ[c]=j;DB.doc(COL+"/"+c).set({json:j,at:Date.now()}).then(function(){setSt("☁️ Saved online. It will be here next week.")},function(e){LJ[c]="";
-  if(e&&e.code==="invalid_argument"){setSt("⚠️ You can look at this dashboard but not save to it. Ask the owner for edit access.");toast("Not saved online. You need edit access.",1)}
-  else{setSt("⚠️ Couldn't save online. Check your connection and try again.");toast("Couldn't save online.",1)}}).then(function(){PU[c]=0;if(PD[c]){PD[c]=0;push(c)}})}
+ PU[c]=1;LJ[c]=j;DB.doc(COL+"/"+c).set({json:j,at:Date.now()}).then(function(){setSt("Saved online")},function(e){LJ[c]="";
+  if(e&&e.code==="invalid_argument"){setSt("Not saved: you can view but not edit. Ask the owner for edit access.","bad");toast("Not saved online. You need edit access.",1)}
+  else{setSt("Couldn't save online. Check your connection and try again.","bad");toast("Couldn't save online.",1)}}).then(function(){PU[c]=0;if(PD[c]){PD[c]=0;push(c)}})}
 /* persist and unpersist are replaced by railway-storage.js on the hosted page. */
 function persist(c){if(!ST[c])return;if(MODE==="claude")push(c);else{try{localStorage.setItem(LS+c,cj(c))}catch(e){}}}
 function unpersist(c){delete LJ[c];if(MODE==="claude"){if(DB)DB.doc(COL+"/"+c).delete().catch(function(){toast("Couldn't delete online.",1)})}else{try{localStorage.removeItem(LS+c)}catch(e){}}}
@@ -217,34 +219,53 @@ if(MODE==="claude")try{claude.use("db").then(function(db){if(!db){DBST="off";MOD
  db.collection(COL).onSnapshot(function(q){var touched={};q.docChanges().forEach(function(ch){var c=ch.doc.id;
    if(ch.type==="removed"){if(ST[c]&&!PU[c]){dropC(c);touched[c]=1}delete LJ[c];return}
    var d=ch.doc.data();if(d&&d.json&&d.json!==LJ[c]){try{parseC(c,d.json);LJ[c]=d.json;touched[c]=1}catch(e){}}});
-  var first=!LOADED;LOADED=true;setSt("☁️ Saved online. It will be here next week.");
-  if(first||!CID||touched[CID]||!ST[CID])changed();else navL()},function(){LOADED=true;setSt("⚠️ Couldn't load the saved classrooms.");changed()})}).catch(function(){DBST="off";MODE="local";loadLocal();changed()})}catch(e){DBST="off";MODE="local";loadLocal()}
+  var first=!LOADED;LOADED=true;setSt("Saved online");
+  if(first||!CID||touched[CID]||!ST[CID])changed();else navL()},function(){LOADED=true;setSt("Couldn't load the saved classrooms.","bad");changed()})}).catch(function(){DBST="off";MODE="local";loadLocal();changed()})}catch(e){DBST="off";MODE="local";loadLocal()}
 function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
-
-function rank(k){var a=S.slice().sort(function(x,y){return y[k]-x[k]||x.name.localeCompare(y.name)});var r=0,prev=null;
+function $(id){return document.getElementById(id)}
+function plural(n,one,many){return n+" "+(n===1?one:(many||one+"s"))}
+/* White or dark text on a coloured chip, whichever is readable. Keeps the meaningful level and score colours. */
+function onC(hex){var h=hex.replace("#",""),c=[0,2,4].map(function(i){var v=parseInt(h.substr(i,2),16)/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});
+ return .2126*c[0]+.7152*c[1]+.0722*c[2]>.18?"#13243a":"#fff"}
+function chip(bg,txt){return '<span class="nc" style="background:'+bg+';color:'+onC(bg)+'">'+txt+'</span>'}
+/* Competition ranking (1, 1, 3) of the students with a value above zero; zero is "not yet", never ranked. */
+function rank(k){var a=S.filter(function(s){return s[k]>0}).sort(function(x,y){return y[k]-x[k]||x.name.localeCompare(y.name)});var r=0,prev=null;
  return a.map(function(s,i){if(s[k]!==prev){r=i+1;prev=s[k]}return {s:s,r:r}})}
-function lb(id,k){var L=rank(k).slice(0,10),m=Math.max(1,L.length?L[0].s[k]:0);
- document.getElementById(id).innerHTML=L.length?L.map(function(o){return '<div class="lr"><div class="rk '+(o.r<4?'r'+o.r:'')+'">'+o.r+'</div><div><div class="n">'+esc(o.s.name)+'</div><div class="tr"><i style="width:'+(o.s[k]/m*100)+'%"></i></div></div><div class="v">'+o.s[k]+'</div></div>'}).join(""):'<div class="sub">No students yet</div>'}
-function legend(){document.getElementById("leg").innerHTML=LEVELS.map(function(_,l){return '<span><b style="background:'+LC[l%LC.length]+'"></b>'+(LN[l]||"L"+(l+1))+'</span>'}).join("")+'<span><b style="background:'+BC+'"></b>Juz (after the book)</span><span>· highest target on the left</span>'}
-function chart(){var A=S.slice().sort(function(a,b){return b.target-a.target});
- document.getElementById("chart").innerHTML=A.map(function(s){return '<div class="col"><div class="pair"><div class="bt" style="height:'+(s.target/NB*100)+'%;background:'+lc(s.target)+'"><span class="tl">'+ct(s).replace("Quran complete","Done")+'</span></div></div><div class="nm">'+esc(s.name.split(" ")[0])+'</div></div>'}).join("")}
+function tied(L,o){return L.filter(function(x){return x.r===o.r}).length>1}
+function rkHtml(r,tie){return '<span class="rk'+(r<4?' r'+r:'')+'"'+(tie?' title="Joint '+r+'"':'')+'>'+(tie?'='+r:r)+'</span>'}
+function lb(id,k,none){var all=rank(k),L=all.slice(0,10),m=Math.max(1,L.length?L[0].s[k]:0),zero=S.length-all.length;
+ $(id).innerHTML=(L.length?L.map(function(o){return '<li>'+rkHtml(o.r,tied(all,o))+'<div class="n"><b>'+esc(o.s.name)+'</b><div class="tr"><i style="width:'+(o.s[k]/m*100)+'%"></i></div></div><span class="v">'+o.s[k]+'</span></li>'}).join(""):'<li class="zero" style="display:block">'+(S.length?none:'No students in this class yet.')+'</li>')
+  +(L.length&&zero?'<li class="zero" style="display:block;font-size:.875rem">'+plural(zero,"student")+' not yet.</li>':"")}
+function legend(){$("leg").innerHTML=LEVELS.map(function(_,l){return '<span><b style="background:'+LC[l%LC.length]+'"></b>'+(LN[l]||"L"+(l+1))+'</span>'}).join("")+'<span><b style="background:'+BC+'"></b>Juz (after the book)</span>'}
+/* Bars are scaled to the end of the book (or the furthest student, if past it), so early progress stays visible. */
+function chart(){var A=S.slice().sort(function(a,b){return b.target-a.target}),top=Math.max(BL+1,A.length?A[0].target:0);
+ $("chS").textContent="Highest target on the left. Full height is "+(top>BL+1?bl(top):"the end of the book")+".";
+ $("chart").innerHTML=A.length?A.map(function(s){return '<div class="col" title="'+esc(s.name)+': '+esc(ct(s))+'"><div class="pair"><div class="bt" style="height:'+(s.target/top*100)+'%;background:'+lc(s.target)+'"><span class="tl">'+esc(ct(s).replace("Quran complete","Done"))+'</span></div></div><div class="nm">'+esc(s.name.split(" ")[0])+'</div></div>'}).join(""):'<p class="sub">No students yet.</p>'}
 
 var WL=["","Warning 1","Warning 2","Miss break"];
-var WE=["","⚠️ Warning 1","🔥 Warning 2","🚫 Miss break"];
-function wpanel(){var h='<h2>🚨 Warnings</h2>',any=false;
- [3,2,1].forEach(function(l){var L=S.filter(function(s){return s.warn===l});if(!L.length)return;any=true;
-  h+='<div class="wg"><span class="wb w'+l+'">'+WE[l]+'</span>'+L.map(function(s){return '<span class="chip c-w'+l+'">'+esc(s.name)+'</span>'}).join("")+'</div>'});
- if(!any)h+='<div class="sub">No warnings today 🎉</div>';document.getElementById("wp").innerHTML=h}
-var tt;function toast(m,info){var e=document.getElementById("toast");e.textContent=(info?"ℹ️ ":"✅ Successful! ")+m;e.className="on"+(info?" info":"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},2600)}
-var AK=null;
-function ask(msg,ok,cb,inp,danger){document.getElementById("dlgT").textContent=msg;var i=document.getElementById("dlgI"),y=document.getElementById("dlgY");
- i.classList.toggle("hide",!inp);i.value="";i.placeholder=inp||"";y.textContent=ok;y.className="btn "+(danger?"x":"p");AK=cb;
- document.getElementById("dlg").classList.remove("hide");(inp?i:y).focus()}
-function closeAsk(){document.getElementById("dlg").classList.add("hide");AK=null}
-document.getElementById("dlgN").onclick=closeAsk;
-document.getElementById("dlgY").onclick=function(){var cb=AK,i=document.getElementById("dlgI"),v=i.value.trim();if(!i.classList.contains("hide")&&!v){i.focus();return}closeAsk();if(cb)cb(v)};
-document.getElementById("dlgI").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();document.getElementById("dlgY").click()}});
-document.addEventListener("keydown",function(e){if(e.key==="Escape"&&AK)closeAsk()});
+function wl(l){return '<span class="wl wl'+l+'">'+WL[l]+'</span>'}
+/* Shown only when a student in the class has a warning or needs a pass. */
+function wpanel(){var e=$("wp"),W=S.filter(function(s){return s.warn}).sort(function(a,b){return b.warn-a.warn||a.name.localeCompare(b.name)}),
+  N=S.filter(function(s){return late(s)});
+ if(!W.length&&!N.length){e.hidden=true;e.innerHTML="";return}
+ var h='<div class="panel-h"><h2>Needs attention</h2></div><div class="attn-grid">';
+ if(W.length)h+='<div><h3>'+plural(W.length,"warning")+'</h3><ul class="alist">'+W.map(function(s){return '<li><span class="who"><b>'+esc(s.name)+'</b></span>'+wl(s.warn)+'</li>'}).join("")+'</ul></div>';
+ if(N.length)h+='<div><h3>'+plural(N.length,"student")+' waiting for a pass</h3><ul class="alist">'+N.slice(0,8).map(function(s){return '<li><span class="who"><b>'+esc(s.name)+'</b></span><span class="v">'+(s.passes?since(s)+" since a pass":"No passes yet")+'</span></li>'}).join("")+'</ul>'+(N.length>8?'<p class="more">and '+(N.length-8)+' more</p>':'')+'</div>';
+ e.innerHTML=h+'</div>';e.hidden=false}
+var tt;function toast(m,info){var e=$("toast");e.textContent=m;e.className="on"+(info?" info":"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},3200)}
+var AK=null,AF=null;
+/* A confirm or text-entry dialog. val prefills the text box. */
+function ask(msg,ok,cb,inp,danger,val){$("dlgT").textContent=msg;var i=$("dlgI"),y=$("dlgY");
+ i.classList.toggle("hide",!inp);i.value=val||"";i.placeholder=inp||"";y.textContent=ok;y.className="btn "+(danger?"x solid":"p");AK=cb;AF=document.activeElement;
+ $("dlg").classList.remove("hide");(inp?i:y).focus();if(inp&&val)i.select()}
+function closeAsk(){$("dlg").classList.add("hide");AK=null;if(AF&&document.contains(AF))AF.focus();AF=null}
+$("dlgN").onclick=closeAsk;
+$("dlgY").onclick=function(){var cb=AK,i=$("dlgI"),v=i.value.trim();if(!i.classList.contains("hide")&&!v){i.focus();return}closeAsk();if(cb)cb(v)};
+$("dlgI").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();$("dlgY").click()}});
+document.addEventListener("keydown",function(e){if(!AK)return;if(e.key==="Escape")closeAsk();
+ if(e.key==="Tab"){var f=Array.prototype.filter.call($("dlg").querySelectorAll("input,button"),function(x){return !x.classList.contains("hide")}),a=f[0],z=f[f.length-1];
+  if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
+$("dlg").addEventListener("click",function(e){if(e.target===this)closeAsk()});
 function same(c,i,s){if(CID===c&&S[i]===s)return true;toast("The list was updated. Please try again.",1);return false}
 function dk(t){var d=new Date(t);return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
 function sd(){var p=FCD.split("-");return new Date(+p[0],+p[1]-1,+p[2])}
@@ -253,43 +274,64 @@ function sheet(){var ev={},days={};
  var n0=new Date(),t0=new Date(n0.getFullYear(),n0.getMonth(),n0.getDate()),today=dk(t0.getTime());
  var en=new Date(t0.getFullYear(),t0.getMonth(),t0.getDate()+41);
  for(var x=sd();x<=en;x=new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)){var g=x.getDay();if(g===6||g===0){var key=dk(x.getTime());if(!days[key])days[key]=x.getTime()+432e5}}
- var D=Object.keys(days).sort(),el=document.getElementById("sheet");
- var h='<table class="sh"><thead><tr><th class="t1">Student</th>'+D.map(function(d){return '<th class="'+(d>today?'fu':d===today?'td':'')+'">'+new Date(days[d]).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"2-digit"})+(d===today?'<br><small>Today</small>':'')+'</th>'}).join("")+'</tr></thead><tbody>';
- S.forEach(function(s,i){h+='<tr><th class="t1'+(late(s)?' late':'')+'" style="border-left:6px solid hsl('+Math.round(i*360/S.length)+' 70% 50%)">'+esc(s.name)+'</th>'+D.map(function(d){var c=ev[i+"|"+d]||[];return '<td>'+c.map(function(o){return '<span class="nc" style="background:'+lc(o.n)+ink(o.n)+'">'+esc(o.x)+'</span>'}).join("")+'</td>'}).join("")+'</tr>'});
+ var D=Object.keys(days).sort(),el=$("sheet");
+ if(!S.length){el.innerHTML='<div class="empty"><b>No students yet</b>Add students in the Input tab.</div>';return}
+ var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th>'+D.map(function(d){return '<th scope="col" class="'+(d>today?'fu':d===today?'td':'')+'">'+new Date(days[d]).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"2-digit"})+(d===today?'<br><small>Today</small>':'')+'</th>'}).join("")+'</tr></thead><tbody>';
+ S.forEach(function(s,i){h+='<tr><th scope="row" class="t1'+(late(s)?' late':'')+'">'+esc(s.name)+'</th>'+D.map(function(d){var c=ev[i+"|"+d]||[];return '<td>'+c.map(function(o){return chip(lc(o.n),esc(o.x))}).join("")+'</td>'}).join("")+'</tr>'});
  el.innerHTML=h+'</tbody></table>'}
+function initials(n){return n.split(" ").map(function(w){return w[0]}).slice(0,2).join("")}
 function render(){
  sheet();past();quran();warnrows();houses();
  wpanel();
- var d=new Date(),ms=new Date(d.getFullYear(),d.getMonth(),1).getTime();S.forEach(function(s){s.mp=s.log.filter(function(t){return t>=ms}).length});lb("lbP","mp");lb("lbM","merits");chart();
+ var d=new Date(),ms=new Date(d.getFullYear(),d.getMonth(),1).getTime();S.forEach(function(s){s.mp=s.log.filter(function(t){return t>=ms}).length});
+ lb("lbP","mp","No passes yet this month.");lb("lbM","merits","No merits yet.");chart();
  var H=S.filter(rc).sort(function(a,b){return wonAt(a)-wonAt(b)});
- document.getElementById("ll").innerHTML=H.length?H.map(function(s){return '<span>'+esc(s.name)+' · '+mpc(s)+'</span>'}).join(""):'<em>No one yet</em>';
- document.getElementById("llS").textContent=H.length?H.length+(H.length>1?" students have":" student has")+" reached "+PRIZE+" passes this month":PRIZE+" passes in a month wins a prize";
- document.getElementById("grid").innerHTML=S.length?S.map(function(s,i){var p=Math.min(100,(s.target-1)/(NB-1)*100);
-  return '<div class="tile'+(rc(s)?' done':'')+'" style="--h:'+Math.round(i*360/S.length)+'"><span class="av">'+esc(s.name.split(" ").map(function(w){return w[0]}).slice(0,2).join(""))+'</span><b'+(late(s)?' class="late"':'')+'>'+esc(s.name)+(rc(s)?' 🎁':'')+(s.sid||s.year||s.house?'<span class="meta">'+esc([s.sid,s.year,s.house].filter(Boolean).join(" · "))+'</span>':'')+'</b><div class="st4"><div><small>Current target</small><strong>'+ct(s)+'</strong></div><div><small>Total passes</small><strong>'+s.passes+'</strong></div><div><small>Total merits</small><strong>'+s.merits+'</strong></div><div><small>Weeks since last pass</small><strong>'+since(s)+'</strong></div></div><div class="bar"><i style="width:'+p+'%"></i></div></div>'}).join(""):'<div class="card sub">No students in this class yet. Add them in the Input tab.</div>';
- var b=document.getElementById("body");
- if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;b.innerHTML=S.map(function(s,i){return '<tr><td>'+(i+1)+'</td><td><input data-i="'+i+'" data-f="name" value="'+esc(s.name)+'" aria-label="Student name"></td><td class="ro">'+esc(s.sid||"–")+'</td><td class="ro">'+esc(s.year||"–")+'</td><td class="ro">'+esc(s.sy||"–")+'</td><td class="ro">'+esc(s.gender||"–")+'</td><td class="ro">'+esc(s.house||"–")+'</td><td class="ro">'+esc(s.ist||"–")+'</td><td><select data-i="'+i+'" data-f="target" id="t'+i+'" aria-label="Current target"><option value="0">No data</option>'+TO+'</select></td><td id="p'+i+'"></td><td id="m'+i+'"></td><td><span class="bg"><button class="btn p" data-a="p+" data-i="'+i+'">+ Pass</button><button class="btn" data-a="p-" data-i="'+i+'">− Pass</button></span><span class="bg"><button class="btn m" data-a="m+" data-i="'+i+'">+ Merit</button><button class="btn" data-a="m-" data-i="'+i+'">− Merit</button></span><span class="bg"><button class="btn" data-a="f+" data-i="'+i+'">+ Fail</button><button class="btn" data-a="f-" data-i="'+i+'">− Fail</button></span><button class="btn" data-a="rm" data-i="'+i+'">Remove student</button></td></tr>'}).join("")}
- S.forEach(function(s,i){document.getElementById("t"+i).value=nod(s)?0:s.target;document.getElementById("p"+i).textContent=s.passes;document.getElementById("m"+i).textContent=s.merits})}
-document.getElementById("body").addEventListener("click",function(e){var a=e.target.dataset.a;if(!a)return;var i=+e.target.dataset.i,s=S[i],c=CID;if(!s)return;
+ $("ll").innerHTML=H.map(function(s){return '<span>'+esc(s.name)+' · '+mpc(s)+'</span>'}).join("");
+ $("llS").textContent=H.length?plural(H.length,"student")+" reached "+PRIZE+" passes this month.":"Nobody yet. "+PRIZE+" passes in a month wins a prize.";
+ var W=S.filter(function(s){return s.warn}).length;
+ $("cStats").innerHTML=[[S.length,"Students"],[sumOf(S,mpc),"Passes this month"],[sumOf(S,mmc),"Merits this month"],[W,W===1?"Warning":"Warnings",W?" warnish":""],[S.filter(late).length,"Waiting for a pass"]].map(function(k){return '<div class="stat'+(k[2]||"")+'"><b>'+k[0]+'</b><span>'+k[1]+'</span></div>'}).join("");
+ $("grid").innerHTML=S.length?S.map(function(s){var p=Math.min(100,(s.target-1)/(NB-1)*100),lt=late(s);
+  return '<article class="tile'+(rc(s)?' done':'')+(lt&&s.passes?' stale':'')+'"><div class="tn"><b>'+esc(s.name)+(s.sid||s.year||s.house?'<span class="meta">'+esc([s.sid,s.year,s.house].filter(Boolean).join(" · "))+'</span>':'')+'</b>'
+   +(rc(s)?'<span class="pill amber flag">Prize</span>':lt?(s.passes?'<span class="pill red flag">No pass in 3+ weeks</span>':'<span class="pill grey flag">No passes yet</span>'):s.warn?'<span class="flag">'+wl(s.warn)+'</span>':'')+'</div>'
+   +'<div class="st4"><div><small>Current target</small><strong>'+esc(ct(s))+'</strong></div><div><small>Since last pass</small><strong>'+since(s)+'</strong></div><div><small>Total passes</small><strong>'+s.passes+'</strong></div><div><small>Total merits</small><strong>'+s.merits+'</strong></div></div><div class="bar" title="Progress through the book and the Juz items"><i style="width:'+p+'%;background:'+lc(s.target)+'"></i></div></article>'}).join(""):'<div class="empty"><b>No students in this class yet</b>Add them in the Input tab.</div>';
+ roster()}
+var MORE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>';
+function ctr(i,k,lab,plus,cls){return '<div class="ctr"><span class="lbl">'+lab+'</span><span class="cnt" id="'+k+i+'"></span><button class="btn minus" data-a="'+k+'-" data-i="'+i+'" aria-label="Take back a '+lab.toLowerCase().replace(/s$/,"")+'">−</button><button class="btn '+cls+'" data-a="'+k+'+" data-i="'+i+'">'+plus+'</button></div>'}
+/* The Input tab's rows are rebuilt only when students are added or removed, so a focused control keeps its place. */
+function roster(){var b=$("body");
+ if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;b.innerHTML=S.length?S.map(function(s,i){
+  return '<li class="rrow"><div class="rname"><b id="nm'+i+'"></b><small>'+esc([s.sid,s.year,s.house].filter(Boolean).join(" · ")||"No details from the CSV")+'</small></div>'
+  +'<div class="rtarget"><select data-i="'+i+'" data-f="target" id="t'+i+'" aria-label="Current target"><option value="0">No data</option>'+TO+'</select></div>'
+  +'<div class="ctrs">'+ctr(i,"p","Passes","+ Pass","p")+ctr(i,"m","Merits","+ Merit","m")+ctr(i,"f","Fails","+ Fail","")+'</div>'
+  +'<details class="rmore"><summary aria-label="More for this student">'+MORE+'</summary><div class="rmenu"><dl>'
+  +[["Student ID",s.sid],["Safar year",s.year],["School year",s.sy],["Gender",s.gender],["House",s.house],["Islamic Studies",s.ist]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")
+  +'</dl><button class="btn sm" data-a="rn" data-i="'+i+'">Rename student</button><button class="btn sm danger" data-a="rm" data-i="'+i+'">Remove student</button></div></details></li>'}).join(""):'<li class="empty"><b>No students yet</b>Add them under Class settings below.</li>'}
+ S.forEach(function(s,i){$("nm"+i).textContent=s.name;$("t"+i).value=nod(s)?0:s.target;$("t"+i).setAttribute("aria-label","Current target for "+s.name);
+  $("p"+i).textContent=s.passes;$("m"+i).textContent=s.merits;$("f"+i).textContent=s.fl.length})}
+document.addEventListener("keydown",function(e){if(e.key!=="Escape"||AK)return;var d=document.querySelector(".rmore[open]");if(d){d.open=false;d.querySelector("summary").focus()}});
+document.addEventListener("click",function(e){Array.prototype.forEach.call(document.querySelectorAll(".rmore[open]"),function(d){if(!d.contains(e.target))d.open=false})});
+$("body").addEventListener("click",function(e){var bt=e.target.closest("[data-a]");if(!bt)return;var a=bt.dataset.a,i=+bt.dataset.i,s=S[i],c=CID;if(!s)return;
  var nm=s.name.split(" ")[0],msg="";
  if(a==="rm"){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);save();render();toast(nm+" removed")},null,1);return}
+ if(a==="rn"){ask("Rename "+s.name,"Save name",function(v){if(!same(c,i,s))return;s.name=v||"Student";save();render();toast("Name updated")},"Student name",0,s.name);return}
  if(a==="p+"){if(s.target<NB){var old=s.target;s.passes++;s.log.push(Date.now());s.lt.push(old);s.lx.push("");s.target++;msg=nm+" passed "+bl(old)+". Next target: "+bl(s.target)}
   else{toast(nm+" has completed every item, up to Juz 1.");return}}
- if(a==="p-"&&s.passes>0){var lab=s.lx.pop();s.passes--;s.log.pop();s.lt.pop();if(!lab&&s.target>1)s.target--;msg="Pass removed for "+nm}
+ if(a==="p-"){if(s.passes>0){var lab=s.lx.pop();s.passes--;s.log.pop();s.lt.pop();if(!lab&&s.target>1)s.target--;msg="Pass taken back for "+nm}else{toast(nm+" has no passes to take back",1);return}}
  if(a==="f+"){s.fl.push(Date.now());msg=nm+" did not pass this time. Target stays at "+bl(s.target)}
- if(a==="f-"&&s.fl.length){s.fl.pop();msg="Fail removed for "+nm}
+ if(a==="f-"){if(s.fl.length){s.fl.pop();msg="Fail taken back for "+nm}else{toast(nm+" has no fails to take back",1);return}}
  if(a==="m+"){s.merits++;s.ml.push(Date.now());msg="Merit added for "+nm}
- if(a==="m-"&&s.merits>0){s.merits--;s.ml.pop();msg="Merit removed for "+nm}
+ if(a==="m-"){if(s.merits>0){s.merits--;s.ml.pop();msg="Merit taken back for "+nm}else{toast(nm+" has no merits to take back",1);return}}
  s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();if(msg)toast(msg)});
-document.getElementById("body").addEventListener("change",function(e){var t=e.target,s=S[+t.dataset.i];if(!s)return;
- var msg;if(t.dataset.f==="name"){s.name=t.value.trim()||"Student";msg="Name updated"}else{s.target=Math.min(Math.max(1,+t.value||1),NB);msg=s.name.split(" ")[0]+"'s target set to "+bl(s.target)}save();render();toast(msg)});
+$("body").addEventListener("change",function(e){var t=e.target,s=S[+t.dataset.i];if(!s||t.dataset.f!=="target")return;
+ s.target=Math.min(Math.max(1,+t.value||1),NB);save();render();toast(s.name.split(" ")[0]+"'s target set to "+bl(s.target))});
 function ds(t){return new Date(t).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}
-function past(){var sS=document.getElementById("pS"),v=sS.value;
+function past(){var sS=$("pS"),v=sS.value;
  sS.innerHTML=S.map(function(s,i){return '<option value="'+i+'">'+esc(s.name)+'</option>'}).join("");sS.value=v&&S[+v]?v:"0";
- var pT=document.getElementById("pT");if(!pT.options.length)pT.innerHTML=TOP;
- var pD=document.getElementById("pD");pD.min=FCD;pD.max=dk(Date.now());if(!pD.value)pD.value=dk(Date.now());
+ var pT=$("pT");if(!pT.options.length)pT.innerHTML=TOP;
+ var pD=$("pD");pD.min=FCD;pD.max=dk(Date.now());if(!pD.value)pD.value=dk(Date.now());
  var E=[];S.forEach(function(s,i){s.log.forEach(function(t,k){E.push({i:i,k:k,t:t,l:s.lt[k],x:pl(s,k)})});s.fl.forEach(function(t,k){E.push({i:i,k:k,t:t,l:0,x:"Fail",f:1})})});E.sort(function(a,b){return b.t-a.t||b.l-a.l});
- document.getElementById("hist").innerHTML=E.length?E.map(function(e){return '<div class="hr"><span>'+ds(e.t)+'</span><b>'+esc(S[e.i].name)+'</b><span>'+esc(e.x)+'</span><button class="btn" data-hi="'+e.i+'" data-hk="'+e.k+'"'+(e.f?' data-hf="1"':'')+'>Remove</button></div>'}).join(""):'<span class="sub">No passes or fails recorded yet.</span>'}
-document.getElementById("pA").onclick=function(){var s=S[+document.getElementById("pS").value],v=document.getElementById("pD").value,t=+document.getElementById("pT").value;
+ $("hist").innerHTML=E.length?E.map(function(e){return '<div class="hr"><span>'+ds(e.t)+'</span><b>'+esc(S[e.i].name)+'</b><span'+(e.f?' class="fail"':'')+'>'+esc(e.x)+'</span><button class="btn sm" data-hi="'+e.i+'" data-hk="'+e.k+'"'+(e.f?' data-hf="1"':'')+' aria-label="Remove '+(e.f?'fail':'pass '+esc(e.x))+' for '+esc(S[e.i].name)+' on '+ds(e.t)+'">Remove</button></div>'}).join(""):'<div class="empty"><b>No passes or fails recorded yet</b>They appear here as soon as you add one.</div>'}
+$("pA").onclick=function(){var s=S[+$("pS").value],v=$("pD").value,t=+$("pT").value;
  if(!s){toast("Add a student first",1);return}if(!v){toast("Pick a date first",1);return}
  if(v<FCD){toast("The first class day was "+ds(sd().getTime()),1);return}
  if(v>dk(Date.now())){toast("That date is in the future",1);return}
@@ -297,105 +339,146 @@ document.getElementById("pA").onclick=function(){var s=S[+document.getElementByI
  var a=s.log.map(function(x,k){return [x,s.lt[k],s.lx[k]]});a.push([ts,t,""]);a.sort(function(x,y){return x[0]-y[0]||x[1]-y[1]});
  s.log=a.map(function(x){return x[0]});s.lt=a.map(function(x){return x[1]});s.lx=a.map(function(x){return x[2]});s.passes++;if(s.target<=t)s.target=Math.min(t+1,NB);
  s.hit=s.log[s.log.length-1];save();render();toast(s.name.split(" ")[0]+" passed "+bl(t)+" on "+ds(ts))};
-document.getElementById("hist").addEventListener("click",function(e){var i=e.target.dataset.hi;if(i===undefined)return;var s=S[+i],k=+e.target.dataset.hk;
- if(e.target.dataset.hf){s.fl.splice(k,1);save();render();toast("Fail removed for "+s.name.split(" ")[0]);return}
- s.log.splice(k,1);s.lt.splice(k,1);s.lx.splice(k,1);s.passes=Math.max(0,s.passes-1);s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();toast("Pass removed for "+s.name.split(" ")[0])});
-var QC=["#ef4444","#f97316","#f59e0b","#84cc16","#22c55e","#10b981"];
+$("hist").addEventListener("click",function(e){var b=e.target.closest("[data-hi]");if(!b)return;var i=+b.dataset.hi,s=S[i],k=+b.dataset.hk,c=CID,f=b.dataset.hf,t=f?s&&s.fl[k]:s&&s.log[k];if(!s)return;
+ ask("Remove "+(f?"the fail":"the pass for "+pl(s,k))+" from "+s.name+" on "+ds(t)+"?",f?"Remove fail":"Remove pass",function(){if(!same(c,i,s)||(f?s.fl[k]:s.log[k])!==t)return;
+  if(f){s.fl.splice(k,1);save();render();toast("Fail removed for "+s.name.split(" ")[0]);return}
+  s.log.splice(k,1);s.lt.splice(k,1);s.lx.splice(k,1);s.passes=Math.max(0,s.passes-1);s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();toast("Pass removed for "+s.name.split(" ")[0])},null,1)});
+/* Score colours, red (0) to green (5), dark enough to carry text. */
+var QC=["#b42318","#c2410c","#b45309","#4d7c0f","#15803d","#047857"];
 function qlab(k){var p=k.split("-");return ds(new Date(+p[0],+p[1]-1,+p[2],12).getTime())}
 function avg(v){return v.length?(v.reduce(function(a,b){return a+b},0)/v.length).toFixed(1):""}
-function quran(){var qd=document.getElementById("qD");qd.min=FCD;qd.max=dk(Date.now());if(!qd.value)qd.value=dk(Date.now());var d=qd.value;
- document.getElementById("qrows").innerHTML=S.map(function(s,i){var cur=s.q[d];return '<div class="qr"><b>'+esc(s.name)+'</b><div class="qb">'+[0,1,2,3,4,5].map(function(k){return '<button class="qs'+(cur===k?' on':'')+'" style="--c:'+QC[k]+'" data-qi="'+i+'" data-qv="'+k+'">'+k+'</button>'}).join("")+'</div><span class="qv">'+(cur===undefined?'–':cur+'/5')+'</span></div>'}).join("");
+function quran(){var qd=$("qD");qd.min=FCD;qd.max=dk(Date.now());if(!qd.value)qd.value=dk(Date.now());var d=qd.value;
+ $("qrows").innerHTML=S.length?S.map(function(s,i){var cur=s.q[d];return '<div class="trow"><b>'+esc(s.name)+'</b><div class="tset" role="group" aria-label="Score for '+esc(s.name)+'">'+[0,1,2,3,4,5].map(function(k){return '<button class="tbtn" style="--c:'+QC[k]+'" aria-pressed="'+(cur===k)+'" data-qi="'+i+'" data-qv="'+k+'">'+k+'</button>'}).join("")+'</div><span class="qv">'+(cur===undefined?'Not recorded':'<b>'+cur+'</b>/5')+'</span></div>'}).join(""):'<div class="empty"><b>No students yet</b>Add them in the Input tab.</div>';
  var days={};for(var x=sd(),t0=new Date();x<=t0;x=new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)){var g=x.getDay();if(g===6||g===0)days[dk(x.getTime())]=1}
  S.forEach(function(s){Object.keys(s.q).forEach(function(k){days[k]=1})});
  var D=Object.keys(days).sort();
- var h='<table class="sh"><thead><tr><th class="t1">Student</th><th>Average</th>'+D.map(function(k){return '<th>'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
+ if(!S.length){$("qSheet").innerHTML='<div class="empty"><b>Nothing recorded yet</b></div>';return}
+ var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th><th scope="col">Average</th>'+D.map(function(k){return '<th scope="col">'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
  S.forEach(function(s){var v=Object.keys(s.q).map(function(k){return s.q[k]});
-  h+='<tr><th class="t1">'+esc(s.name)+'</th><td><b>'+(avg(v)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':'<span class="nc" style="background:'+QC[q]+'">'+q+'/5</span>')+'</td>'}).join("")+'</tr>'});
- h+='<tr><th class="t1">Class average</th><td></td>'+D.map(function(k){return '<td><b>'+avg(S.filter(function(s){return s.q[k]!==undefined}).map(function(s){return s.q[k]}))+'</b></td>'}).join("")+'</tr>';
- document.getElementById("qSheet").innerHTML=h+'</tbody></table>'}
-document.getElementById("qrows").addEventListener("click",function(e){var i=e.target.dataset.qi;if(i===undefined)return;var s=S[+i],v=+e.target.dataset.qv,d=document.getElementById("qD").value;
+  h+='<tr><th scope="row" class="t1">'+esc(s.name)+'</th><td><b>'+(avg(v)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'/5'))+'</td>'}).join("")+'</tr>'});
+ h+='<tr><th scope="row" class="t1">Class average</th><td></td>'+D.map(function(k){return '<td><b>'+avg(S.filter(function(s){return s.q[k]!==undefined}).map(function(s){return s.q[k]}))+'</b></td>'}).join("")+'</tr>';
+ $("qSheet").innerHTML=h+'</tbody></table>'}
+$("qrows").addEventListener("click",function(e){var b=e.target.closest("[data-qi]");if(!b)return;var s=S[+b.dataset.qi],v=+b.dataset.qv,d=$("qD").value;if(!s)return;
  if(!d){toast("Pick a class day first",1);return}if(d<FCD){toast("The first class day was "+ds(sd().getTime()),1);return}if(d>dk(Date.now())){toast("That date is in the future",1);return}
  var lab=qlab(d),nm=s.name.split(" ")[0];
  if(s.q[d]===v){delete s.q[d];save();render();toast(nm+"'s score cleared for "+lab);return}
  s.q[d]=v;save();render();toast(nm+" scored "+v+"/5 on "+lab)});
-document.getElementById("qD").onchange=function(){render()};
-function warnrows(){document.getElementById("wrows").innerHTML=S.map(function(s,i){var w=s.warn||0;return '<div class="wr s'+w+'"><b>'+esc(s.name)+'</b><div class="wbtn">'+[1,2,3].map(function(l){return '<button class="wbt b'+l+(w===l?' on':'')+'" data-wi="'+i+'" data-wv="'+l+'">'+WE[l]+'</button>'}).join("")+'</div></div>'}).join("")}
-document.getElementById("wrows").addEventListener("click",function(e){var i=e.target.dataset.wi;if(i===undefined)return;var s=S[+i],v=+e.target.dataset.wv,nm=s.name.split(" ")[0];
+$("qD").onchange=function(){render()};
+function warnrows(){$("wrows").innerHTML=S.length?S.map(function(s,i){var w=s.warn||0;return '<div class="trow s'+w+'"><b>'+esc(s.name)+'</b><div class="tset" role="group" aria-label="Warning for '+esc(s.name)+'">'+[1,2,3].map(function(l){return '<button class="tbtn b'+l+'" aria-pressed="'+(w===l)+'" data-wi="'+i+'" data-wv="'+l+'">'+WL[l]+'</button>'}).join("")+'</div></div>'}).join(""):'<div class="empty"><b>No students yet</b>Add them in the Input tab.</div>'}
+$("wrows").addEventListener("click",function(e){var b=e.target.closest("[data-wi]");if(!b)return;var s=S[+b.dataset.wi],v=+b.dataset.wv;if(!s)return;var nm=s.name.split(" ")[0];
  if(s.warn===v){s.warn=0;save();render();toast(nm+": warning removed");return}
  s.warn=v;save();render();toast(nm+": "+WL[v]+" given")});
-function houses(){document.getElementById("hClass").innerHTML=houseCards(houseTotals(S));
- document.getElementById("hrows").innerHTML=S.length?S.map(function(s,i){return '<div class="hrow"><div><b>'+esc(s.name)+'</b> <span class="tg">'+esc(s.house||"No house yet")+'</span></div><div class="tkb">'+TOK.map(function(k){
-  return '<span class="tkp"><button class="tk '+k[1]+'" data-ti="'+i+'" data-tk="'+k[0]+'" data-tv="1"><i></i>+ '+k[2]+'</button><span class="tkn" title="'+k[2]+' tokens">'+s[k[0]].length+'</span><button class="tk" data-ti="'+i+'" data-tk="'+k[0]+'" data-tv="-1" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button></span>'}).join("")+'</div><div class="hpts"><b>'+hp(s)+'</b> points</div></div>'}).join(""):'<div class="sub">No students in this class yet. Add them in the Input tab.</div>'}
-document.getElementById("hrows").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||b.dataset.ti===undefined)return;
+function houseCards(T){return HOUSES.map(function(h){return '<div class="hcard '+h+'"><b>'+(T[h]||0)+'</b><span>'+h+'</span></div>'}).join("")}
+function houses(){$("hClass").innerHTML=houseCards(houseTotals(S));
+ $("hrows").innerHTML=S.length?S.map(function(s,i){return '<div class="hrow"><div class="who"><b>'+esc(s.name)+'</b>'+(s.house?'<span class="pill"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="pill grey" title="Set it with a House column in the student CSV">No house yet</span>')+'</div><div class="tkb">'+TOK.map(function(k){
+  return '<span class="tkp"><button class="tk '+k[1]+'" data-ti="'+i+'" data-tk="'+k[0]+'" data-tv="1" aria-label="Give '+esc(s.name)+' a '+k[2].toLowerCase()+' token, '+k[3]+' points"><i></i>'+k[2]+'</button><span class="tkn" title="'+k[2]+' tokens">'+s[k[0]].length+'</span><button class="tk minus" data-ti="'+i+'" data-tk="'+k[0]+'" data-tv="-1" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button></span>'}).join("")+'</div><div class="hpts"><b>'+hp(s)+'</b> points</div></div>'}).join(""):'<div class="empty"><b>No students yet</b>Add them in the Input tab.</div>'}
+$("hrows").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||b.dataset.ti===undefined)return;
  var s=S[+b.dataset.ti],f=b.dataset.tk,k=TOK.filter(function(t){return t[0]===f})[0];if(!s||!k)return;var nm=s.name.split(" ")[0];
  if(b.dataset.tv==="1"){s[f].push(Date.now());save();render();toast(nm+": "+k[2].toLowerCase()+" token, +"+k[3]+" points"+(s.house?" for "+s.house:""));return}
  if(!s[f].length){toast(nm+" has no "+k[2].toLowerCase()+" tokens",1);return}
  s[f].pop();save();render();toast(nm+": "+k[2].toLowerCase()+" token taken back")});
-function clearW(){S.forEach(function(s){s.warn=0});save();render();toast("All warnings cleared")}
-document.getElementById("cw2").onclick=clearW;document.getElementById("cw").onclick=clearW;
+function clearW(){var c=CID;if(!S.some(function(s){return s.warn})){toast("No warnings to clear",1);return}
+ ask("Clear every warning in "+ST[c].name+"?","Clear warnings",function(){if(CID!==c)return;S.forEach(function(s){s.warn=0});save();render();toast("All warnings cleared")},null,1)}
+$("cw2").onclick=clearW;$("cw").onclick=clearW;
 function blank(n){return {name:n,target:1,passes:0,merits:0,hit:null,log:[],lt:[],lx:[],ml:[],fl:[],q:{},warn:0,tg:[],tb:[],tr:[]}}
-document.getElementById("add").onclick=function(){S.push(blank("New student"));save();render();toast("Student added")};
-document.getElementById("rst").onclick=function(){var c=CID;ask("Reset all passes and merits for "+ST[c].name+"?","Reset scores",function(){if(CID!==c)return;S.forEach(function(s){s.passes=0;s.merits=0;s.ml=[];s.hit=null;s.log=[];s.lt=[];s.lx=[]});save();render();toast("All scores reset")},null,1)};
-function tab(n){["D","I","W","Q","T","H"].forEach(function(k){document.getElementById("v"+k).classList.toggle("hide",k!==n);document.getElementById("t"+k).classList.toggle("on",k===n)})}
-["D","I","W","Q","T","H"].forEach(function(k){document.getElementById("t"+k).onclick=function(){tab(k)}});
+$("add").onclick=function(){S.push(blank("New student"));save();render();toast("Student added. Rename them from the … menu.")};
+$("rst").onclick=function(){var c=CID;ask("Reset all passes and merits for "+ST[c].name+"?","Reset scores",function(){if(CID!==c)return;S.forEach(function(s){s.passes=0;s.merits=0;s.ml=[];s.hit=null;s.log=[];s.lt=[];s.lx=[]});save();render();toast("All scores reset")},null,1)};
+var TABS=["D","I","W","Q","T","H"],CUR="D";
+function tab(n,focus){CUR=n;TABS.forEach(function(k){var on=k===n,b=$("t"+k);$("v"+k).classList.toggle("hide",!on);b.setAttribute("aria-selected",on);b.tabIndex=on?0:-1});
+ if(focus)$("t"+n).focus();$("t"+n).scrollIntoView({block:"nearest",inline:"nearest"})}
+TABS.forEach(function(k,i){var b=$("t"+k);b.onclick=function(){tab(k)};
+ b.onkeydown=function(e){var j=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?TABS.length-1:null;if(j===null)return;e.preventDefault();tab(TABS[(j+TABS.length)%TABS.length],1)}});
 
-function navL(){var sel=document.getElementById("nSel"),v=CID||"";
- sel.innerHTML='<option value="">📚 Open a class…</option>'+CIDS.map(function(c){return '<option value="'+esc(c)+'">'+esc(ST[c].name)+'</option>'}).join("");sel.value=v}
-function setClass(c){CID=c;S=ST[c].S;FCD=ST[c].fcd;var b=document.getElementById("body");b.innerHTML="";document.getElementById("ttl").textContent=ST[c].name;document.getElementById("fcd").value=FCD;render()}
-function go(c){if(c!=="M"&&!ST[c])c="M";var M=c==="M",t=document.getElementById("ttl");
- document.getElementById("vM").classList.toggle("hide",!M);document.getElementById("sub").classList.toggle("hide",M);
- document.getElementById("nM").classList.toggle("on",M);document.getElementById("nSel").classList.toggle("on",!M);
- if(M){CID=null;["D","I","W","Q","T","H"].forEach(function(k){document.getElementById("v"+k).classList.add("hide")});t.textContent="Master Dashboard";t.contentEditable="false";document.getElementById("sm").textContent="Safar Academy Enfield · All classes";master()}
- else{t.contentEditable="true";document.getElementById("sm").textContent="Safar Academy Enfield · Class Dashboard";setClass(c);tab("D")}
- navL();window.scrollTo(0,0)}
-function topList(A,val){var a=A.filter(function(o){return val(o)>0}).sort(function(x,y){return val(y)-val(x)||x.s.name.localeCompare(y.s.name)}).slice(0,10);
- if(!a.length)return '<div class="sub">Nothing yet</div>';var mx=val(a[0]),r=0,p=null;
- return a.map(function(o,i){var v=val(o);if(v!==p){r=i+1;p=v}return '<div class="lr"><div class="rk '+(r<4?'r'+r:'')+'">'+r+'</div><div><div class="n">'+esc(o.s.name)+'<span class="tg">'+esc(ST[o.c].name)+'</span></div><div class="tr"><i style="width:'+(v/mx*100)+'%"></i></div></div><div class="v">'+v+'</div></div>'}).join("")}
-function plain(a,txt,empty){return a.length?a.map(function(o){return '<div class="pr"><span>'+esc(o.s.name)+'<span class="tg">'+esc(ST[o.c].name)+'</span></span><b>'+txt(o)+'</b></div>'}).join(""):'<div class="sub">'+empty+'</div>'}
+function navL(){var sel=$("nSel"),v=CID||"";
+ sel.innerHTML='<option value="">Overview: all classes</option>'+CIDS.map(function(c){return '<option value="'+esc(c)+'">'+esc(ST[c].name)+'</option>'}).join("");sel.value=v;
+ $("nList").innerHTML=CIDS.length?CIDS.map(function(c){return '<a class="nav" href="#'+esc(c)+'" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+' title="'+esc(ST[c].name)+'">'+esc(ST[c].name)+'</a>'}).join(""):'<span class="navh" style="margin-top:0">'+(LOADED?'No classes yet':'Loading…')+'</span>';
+ if(CID){var cur=$("nList").querySelector('[aria-current]');if(cur)cur.scrollIntoView({block:"nearest"})}
+ $("nM").setAttribute("aria-current",CID?"false":"page")}
+function head(){var n=CID?ST[CID]:null;
+ $("crumb").textContent=n?"Class dashboard":"Safar Academy Enfield";
+ $("ttl").textContent=n?n.name:"School overview";
+ $("sm").textContent=n?plural(n.S.length,"student")+". First class day "+ds(sd().getTime())+".":"Every class you can see, with what needs attention first.";
+ document.title=(n?n.name+" · ":"")+"Safar Enfield Dashboard"}
+function setClass(c){CID=c;S=ST[c].S;FCD=ST[c].fcd;$("body").innerHTML="";$("fcd").value=FCD;head();render()}
+function go(c,keepTab){if(c!=="M"&&!ST[c])c="M";var M=c==="M";
+ $("vM").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M);
+ if(M){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master()}
+ else{setClass(c);tab(keepTab||"D")}
+ try{history.replaceState(null,"",M?location.pathname+location.search:"#"+c)}catch(e){}
+ $("navt").checked=false;navL();window.scrollTo(0,0)}
+function topList(A,val,empty){var a=A.filter(function(o){return val(o)>0}).sort(function(x,y){return val(y)-val(x)||x.s.name.localeCompare(y.s.name)});
+ if(!a.length)return '<p class="sub">'+empty+'</p>';var mx=val(a[0]),r=0,p=null,R=a.map(function(o,i){var v=val(o);if(v!==p){r=i+1;p=v}return {o:o,v:v,r:r}});
+ return '<ol class="rank">'+R.slice(0,10).map(function(x){return '<li>'+rkHtml(x.r,tied(R,x))+'<div class="n"><b>'+esc(x.o.s.name)+'</b><small>'+esc(ST[x.o.c].name)+'</small><div class="tr"><i style="width:'+(x.v/mx*100)+'%"></i></div></div><span class="v">'+x.v+'</span></li>'}).join("")+'</ol>'}
 function mmc(s){var m=ms0();return (s.ml||[]).filter(function(t){return t>=m}).length}
 function sumOf(L,f){return L.reduce(function(t,s){return t+f(s)},0)}
+/* Classes ranked by passes + merits this month, per student. Classes with nothing yet are listed unranked. */
 function boardHtml(){var B=CIDS.map(function(c){var L=ST[c].S,n=L.length,p=sumOf(L,mpc),m=sumOf(L,mmc);return {c:c,n:n,p:p,m:m,t:p+m,v:n?(p+m)/n:0}}).sort(function(a,b){return b.v-a.v||b.t-a.t}),mx=Math.max(B[0].v,.0001),r=0,pv=null;
- return '<div class="card" style="margin-bottom:16px"><h2>🏅 Class leaderboard</h2><div class="sub" style="margin:0 0 10px">Ranked by passes + merits this month, per student</div>'+B.map(function(o,i){if(o.v!==pv){r=i+1;pv=o.v}return '<div class="lr"><div class="rk '+(r<4?'r'+r:'')+'">'+r+'</div><div><div class="n">'+esc(ST[o.c].name)+'</div><div class="sub" style="margin:0">'+o.p+' passes · '+o.m+' merits · '+o.n+' students</div><div class="tr"><i style="width:'+(o.v/mx*100)+'%"></i></div></div><div class="v">'+o.v.toFixed(1)+'</div></div>'}).join("")+'</div>'}
-function houseBoard(all){return '<div class="card" style="margin-bottom:16px"><h2>🏠 House points</h2><div class="kp" style="margin:0">'+houseCards(window.HOUSE_TOTALS||houseTotals(all))+'</div></div>'}
+ var R=B.filter(function(o){return o.v>0}).map(function(o,i){if(o.v!==pv){r=i+1;pv=o.v}o.r=r;return o}),Z=B.length-R.length;
+ return '<div class="panel"><div class="panel-h"><h2>Class ranking</h2><p class="sub">Passes and merits this month, per student</p></div>'
+  +(R.length?'<ol class="rank">'+R.slice(0,10).map(function(o){return '<li>'+rkHtml(o.r,tied(R,o))+'<div class="n"><b>'+esc(ST[o.c].name)+'</b><small>'+plural(o.p,"pass","passes")+', '+plural(o.m,"merit")+', '+plural(o.n,"student")+'</small><div class="tr"><i style="width:'+(o.v/mx*100)+'%"></i></div></div><span class="v">'+o.v.toFixed(1)+'</span></li>'}).join("")+'</ol>':'<p class="sub">No passes or merits yet this month.</p>')
+  +(R.length>10?'<p class="rank-note">Top 10 of '+R.length+' classes.</p>':'')+(Z&&R.length?'<p class="rank-note">'+plural(Z,"class","classes")+' with nothing yet this month.</p>':'')+'</div>'}
+function houseBoard(all){var T=window.HOUSE_TOTALS||houseTotals(all),top=Math.max(1,Math.max.apply(null,HOUSES.map(function(h){return T[h]||0})));
+ return '<div class="panel"><div class="panel-h"><h2>House points</h2><p class="sub">Whole school</p></div><div class="houses">'+HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}).map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div><span class="pts">'+v+'</span></div>'}).join("")+'</div></div>'}
+function lastPass(L){var t=0;L.forEach(function(s){var x=s.log[s.log.length-1];if(x>t)t=x});return t}
+function ago(t){if(!t)return '<span class="zero">No passes yet</span>';var w=Math.round((wk0(Date.now())-wk0(t))/(7*864e5));return w<1?"This week":w===1?"Last week":w+" weeks ago"}
+function opener(c,txt,t){return '<button type="button" data-open="'+esc(c)+'"'+(t?' data-tab="'+t+'"':'')+'>'+txt+'</button>'}
 function master(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){A.push({s:s,c:c})})});
  var now=Date.now(),all=A.map(function(o){return o.s}),h="";
- if(!CIDS.length){document.getElementById("mst").innerHTML='<div class="card note">'+(LOADED?(window.ME&&ME.role!=="admin"?'<b>No classrooms have been given to you yet.</b> Ask an administrator to add you to your classrooms.':'<b>No classrooms yet.</b> Upload a CSV of your students below to create them.'):'Loading class records…')+'</div>';return}
- if(!A.length)h+='<div class="card note">No students yet. Upload a CSV below, or open a class and add students in its Input tab.</div>';
- var K=[["Classes",CIDS.length],["Students",A.length],["Passes this month",sumOf(all,mpc)],["Total passes",sumOf(all,function(s){return s.passes})],["Total merits",sumOf(all,function(s){return s.merits})]];
- h+='<div class="kp">'+K.map(function(k){return '<div class="card"><b>'+k[1]+'</b><small>'+k[0]+'</small></div>'}).join("")+'</div>'+houseBoard(all)+'<div class="cc">';
- CIDS.forEach(function(c){var L=ST[c].S,n=L.length;
-  h+='<div class="card"><h3>'+esc(ST[c].name)+'</h3><div class="cs"><span>Students</span><b>'+n+'</b><span>Passes this month</span><b>'+sumOf(L,mpc)+'</b><span>Total merits</span><b>'+sumOf(L,function(s){return s.merits})+'</b><span>Warnings</span><b>'+L.filter(function(s){return s.warn}).length+'</b></div><button class="btn p" data-open="'+esc(c)+'">Open dashboard →</button></div>'});
- h+='</div>'+boardHtml()+'<div class="lbs"><div class="card lb gp"><h2>🏆 Top achievers this month</h2>'+topList(A,function(o){return mpc(o.s)})+'</div><div class="card lb gm"><h2>⭐ Top merit achievers this month</h2>'+topList(A,function(o){return mmc(o.s)})+'</div></div>';
- var far=A.filter(function(o){return o.s.target>1}).sort(function(a,b){return b.s.target-a.s.target}).slice(0,8),
-  wr=A.filter(function(o){return o.s.warn}).sort(function(a,b){return b.s.warn-a.s.warn}),
-  stale=A.map(function(o){var ref=o.s.log.length?o.s.log[o.s.log.length-1]:new Date(ST[o.c].fcd+"T12:00:00").getTime();o.d=Math.floor((now-ref)/864e5);return o}).filter(function(o){return o.d>=21}).sort(function(a,b){return b.d-a.d}).slice(0,10);
- h+='<div class="lbs"><div class="card"><h2>📖 Furthest along in the book</h2>'+plain(far,function(o){return bl(o.s.target)},"No progress yet")+'</div><div class="card"><h2>⏳ No pass in 3+ weeks</h2>'+plain(stale,function(o){return o.d+" days"},"Everyone is on track")+'</div></div>';
- h+='<div class="lbs"><div class="card"><h2>🚨 Warnings across all classes</h2>'+plain(wr,function(o){return WE[o.s.warn]},"No warnings 🎉")+'</div></div>';
- document.getElementById("mst").innerHTML=h}
+ if(!CIDS.length){$("mst").innerHTML=LOADED?'<div class="empty"><b>'+(window.ME&&ME.role!=="admin"?'No classrooms have been given to you yet':'No classrooms yet')+'</b>'+(window.ME&&ME.role!=="admin"?'Ask an administrator to add you to your classrooms on Manage users.':'Upload a CSV of your students below to create them.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div>';
+  if(LOADED&&!(window.ME&&ME.role!=="admin"))$("up").open=true;return}
+ var wr=A.filter(function(o){return o.s.warn}).sort(function(a,b){return b.s.warn-a.s.warn||a.s.name.localeCompare(b.s.name)}),
+  stale=A.map(function(o){var ref=o.s.log.length?o.s.log[o.s.log.length-1]:new Date(ST[o.c].fcd+"T12:00:00").getTime();o.d=Math.floor((now-ref)/864e5);return o}).filter(function(o){return o.d>=21}).sort(function(a,b){return b.d-a.d}),
+  quiet=CIDS.filter(function(c){return ST[c].S.length&&!sumOf(ST[c].S,mpc)&&!sumOf(ST[c].S,mmc)});
+ /* 1. What needs attention */
+ if(!A.length)h+='<div class="empty" style="margin-bottom:16px"><b>No students yet</b>Upload a CSV below, or open a class and add students in its Input tab.</div>';
+ else if(!wr.length&&!stale.length&&!quiet.length)h+='<div class="panel attn calm"><p class="calmline" style="margin:0">Nothing needs attention. No warnings, every student has passed in the last 3 weeks, and every class has activity this month.</p></div>';
+ else{h+='<div class="panel attn"><div class="panel-h"><h2>Needs attention</h2></div><div class="attn-grid">';
+  if(wr.length)h+='<div><h3>'+plural(wr.length,"student")+' with a warning</h3><ul class="alist">'+wr.slice(0,8).map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b>'+opener(o.c,esc(ST[o.c].name),"W")+'</span>'+wl(o.s.warn)+'</li>'}).join("")+'</ul>'+(wr.length>8?'<p class="more">and '+(wr.length-8)+' more</p>':'')+'</div>';
+  if(stale.length)h+='<div><h3>'+plural(stale.length,"student")+' with no pass in 3+ weeks</h3><ul class="alist">'+stale.slice(0,8).map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b>'+opener(o.c,esc(ST[o.c].name),"I")+'</span><span class="v">'+(o.s.log.length?o.d+" days":"None yet")+'</span></li>'}).join("")+'</ul>'+(stale.length>8?'<p class="more">and '+(stale.length-8)+' more</p>':'')+'</div>';
+  if(quiet.length)h+='<div><h3>'+plural(quiet.length,"class","classes")+' with no activity this month</h3><ul class="alist">'+quiet.slice(0,8).map(function(c){return '<li><span class="who">'+opener(c,esc(ST[c].name))+'</span><span class="v">'+plural(ST[c].S.length,"student")+'</span></li>'}).join("")+'</ul>'+(quiet.length>8?'<p class="more">and '+(quiet.length-8)+' more</p>':'')+'</div>';
+  h+='</div></div>'}
+ /* 2. Headline numbers and houses */
+ var K=[[CIDS.length,"Classes"],[A.length,"Students"],[sumOf(all,mpc),"Passes this month"],[sumOf(all,mmc),"Merits this month"],[sumOf(all,function(s){return s.passes}),"Total passes"],[sumOf(all,function(s){return s.merits}),"Total merits"]];
+ h+='<div class="stats" style="margin-top:16px">'+K.map(function(k){return '<div class="stat"><b>'+k[0]+'</b><span>'+k[1]+'</span></div>'}).join("")+'</div>';
+ /* 3. Class directory */
+ h+='<div class="panel" id="dirP"><div class="dirtools"><h2>Classes</h2><input type="search" id="dirQ" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"></div>'
+  +'<div class="tablewrap"><table class="tbl stackable dir"><thead><tr><th scope="col">Class</th><th scope="col" class="n">Students</th><th scope="col" class="n">Passes this month</th><th scope="col" class="n">Merits this month</th><th scope="col" class="n">Warnings</th><th scope="col">Last pass</th></tr></thead><tbody id="dirB">'
+  +CIDS.map(function(c){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,p=sumOf(L,mpc),m=sumOf(L,mmc);
+   return '<tr data-q="'+esc(nkey(ST[c].name))+'"><td class="lead">'+opener(c,esc(ST[c].name))+'</td><td data-label="Students" class="n'+(L.length?'':' zero')+'">'+L.length+'</td><td data-label="Passes this month" class="n'+(p?'':' zero')+'">'+p+'</td><td data-label="Merits this month" class="n'+(m?'':' zero')+'">'+m+'</td><td data-label="Warnings" class="n'+(w?' wcount':' zero')+'">'+w+'</td><td data-label="Last pass">'+(L.length?ago(lastPass(L)):'<span class="zero">No students</span>')+'</td></tr>'}).join("")
+  +'<tr id="dirNone" hidden><td colspan="6" class="sub">No class matches that search.</td></tr></tbody></table></div></div>';
+ /* 4. Houses and rankings */
+ h+='<h2 class="section-title">This month</h2><div class="cols">'+houseBoard(all)+boardHtml()+'</div>'
+  +'<div class="cols" style="margin-top:16px"><div class="panel"><div class="panel-h"><h2>Most passes</h2><p class="sub">This month</p></div>'+topList(A,function(o){return mpc(o.s)},"No passes yet this month.")+'</div>'
+  +'<div class="panel"><div class="panel-h"><h2>Most merits</h2><p class="sub">This month</p></div>'+topList(A,function(o){return mmc(o.s)},"No merits yet this month.")+'</div>'
+  +'<div class="panel"><div class="panel-h"><h2>Furthest along</h2><p class="sub">Current target</p></div>'+(function(){var far=A.filter(function(o){return o.s.target>1}).sort(function(a,b){return b.s.target-a.s.target}).slice(0,8);
+   return far.length?'<ul class="alist">'+far.map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b><small class="sub">'+esc(ST[o.c].name)+'</small></span><span class="v">'+esc(bl(o.s.target))+'</span></li>'}).join("")+'</ul>':'<p class="sub">No progress recorded yet.</p>'})()+'</div></div>';
+ var q=$("dirQ")?$("dirQ").value:"";$("mst").innerHTML=h;if(q){$("dirQ").value=q;filterDir()}}
+function filterDir(){var q=nkey($("dirQ").value),n=0;Array.prototype.forEach.call($("dirB").querySelectorAll("tr[data-q]"),function(r){var on=!q||r.dataset.q.indexOf(q)>=0;r.hidden=!on;if(on)n++});$("dirNone").hidden=n>0}
 (function(){
-var t=document.getElementById("ttl");
-t.addEventListener("input",function(){if(!CID)return;ST[CID].name=t.textContent.trim()||"Class";sortC();navL()});
-t.addEventListener("focus",function(){if(CID)t.dataset.o=ST[CID].name});
-t.addEventListener("blur",function(){if(CID&&ST[CID].name!==t.dataset.o){save();toast("Class name saved")}});
-t.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();t.blur()}});
-var f=document.getElementById("fcd");
-f.onchange=function(){if(!f.value||!CID)return;FCD=f.value;ST[CID].fcd=FCD;save();render();toast("First class day set")};
-document.getElementById("bulkA").onclick=function(){if(!CID)return;var n=document.getElementById("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);return}
- n.forEach(function(x){S.push(blank(x))});document.getElementById("bulk").value="";save();render();toast(n.length+" students added")};
-document.getElementById("nM").onclick=function(){go("M")};
-document.getElementById("nSel").onchange=function(){var v=this.value;go(v&&CIDS.indexOf(v)>=0?v:"M")};
-document.getElementById("mst").addEventListener("click",function(e){var c=e.target.dataset.open;if(c)go(c)});
-document.getElementById("delC").onclick=function(){var c=CID;if(!c)return;
- ask("Delete "+ST[c].name+" with its "+ST[c].S.length+" students and all of their records? This can't be undone. Type DELETE to confirm.","Delete classroom",function(v){
+$("ren").onclick=function(){var c=CID;if(!c)return;ask("Rename this class","Save name",function(v){if(!ST[c])return;ST[c].name=v;sortC();save();navL();head();toast("Class name saved")},"Class name",0,ST[c].name)};
+var f=$("fcd");
+f.onchange=function(){if(!f.value||!CID)return;FCD=f.value;ST[CID].fcd=FCD;save();head();render();toast("First class day set")};
+$("bulkA").onclick=function(){if(!CID)return;var n=$("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);$("bulk").focus();return}
+ n.forEach(function(x){S.push(blank(x))});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added")};
+$("nM").onclick=function(){go("M")};$("home").onclick=function(e){e.preventDefault();go("M")};
+$("nSel").onchange=function(){var v=this.value;go(v&&CIDS.indexOf(v)>=0?v:"M")};
+$("nList").addEventListener("click",function(e){var a=e.target.closest("[data-open]");if(!a)return;e.preventDefault();go(a.dataset.open)});
+$("mst").addEventListener("click",function(e){var b=e.target.closest("[data-open]");if(b)go(b.dataset.open,b.dataset.tab)});
+$("mst").addEventListener("input",function(e){if(e.target.id==="dirQ")filterDir()});
+window.addEventListener("hashchange",function(){var h=(location.hash||"").slice(1);if(h&&ST[h]&&h!==CID)go(h);else if(!h&&CID)go("M")});
+$("delC").onclick=function(){var c=CID;if(!c)return;
+ ask("Delete "+ST[c].name+" with its "+plural(ST[c].S.length,"student")+" and all of their records? This can't be undone. Type DELETE to confirm.","Delete classroom",function(v){
   if(v.toUpperCase()!=="DELETE"){toast("Type DELETE to delete the classroom",1);return}if(!ST[c])return;var n=ST[c].name;dropC(c);unpersist(c);go("M");toast(n+" deleted")},"DELETE",1)};
-document.getElementById("csvD").value=dk(Date.now());
-document.getElementById("csvF").onchange=function(){var f=this.files&&this.files[0];if(!f)return;
+$("csvD").value=dk(Date.now());
+$("csvF").onchange=function(){var f=this.files&&this.files[0];if(!f)return;
  var r=new FileReader();r.onload=function(){readCSV(String(r.result),f.name)};r.onerror=function(){toast("That file couldn't be read",1)};r.readAsText(f)};
-document.getElementById("csvP").addEventListener("click",function(e){if(e.target.id==="csvGo")importCSV();if(e.target.id==="csvX")clearCSV()});
-document.getElementById("csvP").addEventListener("change",function(e){var k=e.target.getAttribute("data-col");if(k)mapCSV(k,e.target.value)});
+$("csvP").addEventListener("click",function(e){if(e.target.id==="csvGo")importCSV();if(e.target.id==="csvX")clearCSV()});
+$("csvP").addEventListener("change",function(e){var k=e.target.getAttribute("data-col");if(k)mapCSV(k,e.target.value)});
+if(MODE==="local")setSt("Saved on this device only");
 legend();go("M");
 if(HASH&&ST[HASH]){var hh=HASH;HASH="";go(hh)}
 })();
+
 
 /* CSV upload. Columns: Student ID, Student Name (or First name and Surname), Gender, School Year Group,
    Safar Year Group (optional), Current Teacher [Quran and Memorisation] (the student's classroom),
@@ -494,7 +577,7 @@ function showCSV(){var P=document.getElementById("csvP");if(!CSV)return;
  var h='<p><b>'+esc(CSV.file)+'</b>: '+nl+' students in '+p.groups.length+' classrooms.'+(p.empty?' '+p.empty+(p.empty>1?' rows':' row')+' without a name or Quran and Memorisation teacher '+(p.empty>1?'are':'is')+' left out.':'')+(p.dup?' '+p.dup+(p.dup>1?' repeated rows are':' repeated row is')+' counted once.':'')+'</p>'+colsHTML();
  if(!p.hasId)h+='<p class="warnline">This file has no Student ID column, so students are matched by name within their classroom.</p>';
  if(p.notes.length)h+='<ul class="csvl warnline">'+few(p.notes,10)+'</ul>';
- h+='<table class="tbl"><thead><tr><th>Classroom (Quran and Memorisation teacher)</th><th>In the file</th><th>New</th><th>Moving in</th><th>Details updated</th><th>No change</th></tr></thead><tbody>'+p.groups.map(function(g){return '<tr><td>'+esc(g.name)+(g.cid?'':' <span class="tg nw">New classroom</span>')+'</td><td>'+g.count+'</td><td>'+g.add.length+'</td><td>'+g.move.length+'</td><td>'+g.update.length+'</td><td>'+g.same+'</td></tr>'}).join("")+'</tbody></table>';
+ h+='<div class="tablewrap"><table class="tbl"><thead><tr><th>Classroom (Quran and Memorisation teacher)</th><th>In the file</th><th>New</th><th>Moving in</th><th>Details updated</th><th>No change</th></tr></thead><tbody>'+p.groups.map(function(g){return '<tr><td>'+esc(g.name)+(g.cid?'':' <span class="tg nw">New classroom</span>')+'</td><td>'+g.count+'</td><td>'+g.add.length+'</td><td>'+g.move.length+'</td><td>'+g.update.length+'</td><td>'+g.same+'</td></tr>'}).join("")+'</tbody></table></div>';
  var mv=[];p.groups.forEach(function(g){g.move.forEach(function(m){mv.push(m.o.name+": "+ST[m.from].name+" → "+g.name)})});
  if(mv.length)h+='<p style="margin:0">Moving to a different classroom, with all of their records:</p><ul class="csvl">'+few(mv,20)+'</ul>';
  if(p.gone.length)h+='<p style="margin:0">'+p.gone.length+' student'+(p.gone.length>1?'s on the dashboard are':' on the dashboard is')+' not in this file and will be left as they are:</p><ul class="csvl">'+few(p.gone,10)+'</ul>';
@@ -514,4 +597,5 @@ function importCSV(){if(!CSV)return;var p=planCSV(),fcd=document.getElementById(
  var said=[];if(n.add)said.push(n.add+" student"+(n.add>1?"s":"")+" added");if(n.move)said.push(n.move+" moved");if(n.update)said.push(n.update+" updated");if(made)said.push(made+" classroom"+(made>1?"s":"")+" created");
  toast(said.join(", "))}
 function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";document.getElementById("csvF").value=""}
+</script>
 </script>

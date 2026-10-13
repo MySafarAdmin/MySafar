@@ -562,6 +562,26 @@ class DashboardTests:
         self.assertEqual(anonymous.get(link + "/data").status_code, 404)
         self.assertIn("No TV links yet", self.client.get("/admin/tv").get_data(as_text=True))
 
+    def test_shared_styles_and_fonts(self):
+        anonymous = self.app.test_client()
+        css = anonymous.get("/auth.css").get_data(as_text=True)
+        self.assertIn("--navy:#003b6b", css)  # the shared tokens, also inlined in the dashboard
+        self.assertIn("details.user", css)
+        font = anonymous.get("/fonts/atkinson-next-latin.woff2")
+        self.assertEqual((font.status_code, font.mimetype), (200, "font/woff2"))
+        self.assertIn("max-age", font.headers["Cache-Control"])
+        self.assertEqual(anonymous.get("/fonts/../server.py").status_code, 404)
+        self.assertEqual(anonymous.get("/fonts/other.woff2").status_code, 404)
+        self.assertIn("font-src 'self'", anonymous.get("/login").headers["Content-Security-Policy"])
+        self.assertEqual(self.client.get("/admin/users").headers["Cache-Control"], "no-store")
+
+    def test_password_help_links_to_the_school(self):
+        anonymous = self.app.test_client()
+        self.assertNotIn("mailto:", anonymous.get("/forgot").get_data(as_text=True))
+        self.app.config["SUPPORT_EMAIL"] = "office@example.com"
+        page = anonymous.get("/forgot").get_data(as_text=True)
+        self.assertIn('href="mailto:office@example.com?subject=', page)
+
 
 class LogTests(unittest.TestCase):
     token = "Zx9-aB_cD3eF4gH5iJ6kL7mN8oP9qR0sT1uV2wX3yZ4"

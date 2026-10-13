@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY server.py auth.py db.py mailer.py tv.py gunicorn.conf.py railway-storage.js Master_Dashboard_standalone.html ./
 COPY templates ./templates
 COPY static ./static
-COPY src/logo.b64 ./src/logo.b64
+COPY src/logo.b64 src/tokens.css ./src/
 # Run without root privileges.
 RUN useradd --system --no-create-home --uid 10001 app
 USER app

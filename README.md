@@ -77,7 +77,7 @@ and the target lists group the items by Juz. The items are listed in `JUZ` near
 the top of the script in `src/page.html`. A surah that spans two juz (for
 example Adh-Dhariyat) has an item in each.
 
-Each classroom's Input tab can rename it (click the title), set its first
+Each classroom's Input tab can rename it (**Rename class**), set its first
 class day, add students by hand, and delete the classroom.
 
 A classroom can be opened directly by adding its code to the end of the
@@ -103,7 +103,9 @@ deleted: the Railway server removes its old `classes` table when it starts.
   artifact host adds the page skeleton).
 - `src/page.html`: the page's markup and script. `LEVELS` at the top of the
   script sets how many targets each level has (L1 to L10).
-- `src/template.css`, `src/logo.b64`: styles and logo taken from the class
+- `src/tokens.css`: the shared design tokens, application shell and controls,
+  used by the dashboard and the admin pages. See [DESIGN.md](DESIGN.md).
+- `src/template.css`, `src/logo.b64`: the dashboard screens' styles and the logo taken from the class
   dashboard template.
 - `railway-storage.js`: shared storage for the page when it is served by
   Railway.

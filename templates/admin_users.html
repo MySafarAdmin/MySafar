@@ -1,22 +1,23 @@
 {% extends "base.html" %}
 {% block title %}Manage users{% endblock %}
+{% block width %} narrow{% endblock %}
 {% block content %}
-<h1>Manage users</h1>
+<div class="pagehead"><div><h1>Manage users</h1><p class="lede">Invite staff, choose which classrooms each teacher sees, and send password reset links.</p></div></div>
 {% if link %}
-<div class="card linkbox">
+<div class="panel linkbox" role="status">
   <p><b>Send this link to {{ link_for }}</b>{% if not mail_enabled %} (email isn't set up yet){% else %} (the email couldn't be sent){% endif %}. It works once.</p>
   <input readonly value="{{ link }}" aria-label="Link to send">
 </div>
 {% endif %}
-<div class="card">
+<div class="panel">
   <h2>Invite someone</h2>
   <p class="sub">They get {{ "an email with " if mail_enabled }}a link to choose their password. It expires in 72 hours. Teachers see only the classrooms you tick; admins see everything.</p>
   <form method="post" action="/admin/users/invite">
     <input type="hidden" name="csrf" value="{{ csrf }}">
-    <div class="row">
-      <label>Name<input name="name" maxlength="80" required></label>
-      <label>Email<input type="email" name="email" maxlength="254" required></label>
-      <label>Role<select name="role"><option value="teacher">Teacher</option><option value="admin">Administrator</option></select></label>
+    <div class="formrow">
+      <label class="field">Name<input name="name" maxlength="80" autocomplete="off" required></label>
+      <label class="field">Email<input type="email" name="email" maxlength="254" autocomplete="off" spellcheck="false" required></label>
+      <label class="field">Role<select name="role"><option value="teacher">Teacher</option><option value="admin">Administrator</option></select></label>
     </div>
     {% if rooms %}
     <fieldset><legend>Classrooms (for teachers)</legend>
@@ -26,23 +27,24 @@
     <button class="btn primary">Send invite</button>
   </form>
 </div>
-<h2>Accounts</h2>
+<h2>Accounts <span class="sub">({{ users|length }})</span></h2>
 {% for u in users %}
-<details class="card user{{ ' off' if u.disabled }}">
+<details class="panel user{{ ' off' if u.disabled }}">
   <summary>
-    <span><b>{{ u.name }}</b> <span class="sub">{{ u.email }}</span></span>
-    <span>
-      <span class="pill">{{ "Administrator" if u.role == "admin" else "Teacher" }}</span>
+    <span class="who"><b>{{ u.name }}</b><span class="sub">{{ u.email }}</span></span>
+    <span class="tags">
+      <span class="pill blue">{{ "Administrator" if u.role == "admin" else "Teacher" }}</span>
       {% if u.disabled %}<span class="pill grey">Turned off</span>{% elif not u.active %}<span class="pill amber">Invite not accepted</span>{% endif %}
-      {% if u.role == "teacher" %}<span class="sub">{{ u.classes|length }} classroom{{ "s" if u.classes|length != 1 }}</span>{% endif %}
+      {% if u.role == "teacher" %}<span class="pill">{{ u.classes|length }} classroom{{ "s" if u.classes|length != 1 }}</span>{% endif %}
     </span>
   </summary>
+  <div class="body">
   <p class="sub">Last signed in: {{ u.last_login_at|when if u.last_login_at else "never" }}</p>
   <form method="post" action="/admin/users/{{ u.id }}/update">
     <input type="hidden" name="csrf" value="{{ csrf }}">
-    <div class="row">
-      <label>Name<input name="name" value="{{ u.name }}" maxlength="80" required></label>
-      <label>Role<select name="role"><option value="teacher"{{ " selected" if u.role == "teacher" }}>Teacher</option><option value="admin"{{ " selected" if u.role == "admin" }}>Administrator</option></select></label>
+    <div class="formrow">
+      <label class="field">Name<input name="name" value="{{ u.name }}" maxlength="80" autocomplete="off" required></label>
+      <label class="field">Role<select name="role"><option value="teacher"{{ " selected" if u.role == "teacher" }}>Teacher</option><option value="admin"{{ " selected" if u.role == "admin" }}>Administrator</option></select></label>
     </div>
     {% if rooms %}
     <fieldset><legend>Classrooms (for teachers)</legend>
@@ -51,7 +53,6 @@
     {% endif %}
     <button class="btn primary">Save changes</button>
   </form>
-  {% if u.active and not u.disabled %}<p class="sub">Nobody can see a password, admins included. A reset link lets {{ u.name }} choose a new one; their old password keeps working until they do.</p>{% endif %}
   <div class="actions">
     {% if not u.disabled %}
     <form method="post" action="/admin/users/{{ u.id }}/link"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn">{{ "Send password reset link" if u.active else "Send a new invite" }}</button></form>
@@ -59,6 +60,8 @@
     {% if u.id != user.id %}
     <form method="post" action="/admin/users/{{ u.id }}/access"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="disable" value="{{ '0' if u.disabled else '1' }}"><button class="btn{{ '' if u.disabled else ' danger' }}">{{ "Turn account back on" if u.disabled else "Turn off account" }}</button></form>
     {% endif %}
+  </div>
+  {% if u.active and not u.disabled %}<p class="hint after">Nobody can see a password, admins included. A reset link lets {{ u.name }} choose a new one; their old password keeps working until they do.</p>{% endif %}
   </div>
 </details>
 {% endfor %}

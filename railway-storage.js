@@ -4,9 +4,11 @@
   "use strict";
   var revisions = {}, pending = {}, sending = false, reading = false, loaded = false, failed = false;
   var editVersion = 0;
+  // Shown only when saving or loading fails; routine save status goes in the page heading.
   var banner = document.createElement("div");
-  banner.style.cssText = "position:sticky;top:0;z-index:90;background:#eef2ff;color:#1e1b4b;padding:10px 16px;font:14px system-ui";
-  banner.setAttribute("role", "status");
+  banner.className = "sync bad";
+  banner.setAttribute("role", "alert");
+  banner.hidden = true;
   var message = document.createElement("span");
   var retry = document.createElement("button");
   retry.textContent = "Retry";
@@ -21,48 +23,69 @@
   signIn.target = "_blank";
   signIn.rel = "noopener";
   banner.appendChild(signIn);
-  [retry, download, reload, signIn].forEach(function (e) { e.style.marginLeft = "12px"; e.hidden = true; });
-  document.body.prepend(banner);
+  [retry, download, reload, signIn].forEach(function (e) { e.hidden = true; });
+  document.querySelector(".work").prepend(banner);
 
-  // The signed-in person, their account links and sign-out.
+  // The signed-in person, their account links and sign-out, in the navigation rail.
   var ME = window.ME || {};
+  var ICONS = {
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.3-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><path d="M16 4.8a3.4 3.4 0 0 1 0 6.4"/><path d="M18 14.8c1.8.7 3 2.4 3.5 5.2"/>',
+    history: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4.5h4.5"/><path d="M12 7.5V12l3 2"/>',
+    activity: '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/>',
+    tv: '<rect x="3" y="4.5" width="18" height="12" rx="1.5"/><path d="M8 20h8"/><path d="M12 16.5V20"/>'
+  };
+  if (ME.role === "admin") {
+    var adminNav = document.getElementById("adminNav");
+    var heading = document.createElement("div");
+    heading.className = "navh";
+    heading.textContent = "Administration";
+    adminNav.appendChild(heading);
+    [["Manage users", "/admin/users", "users"], ["Class history", "/admin/history", "history"],
+     ["Activity", "/admin/activity", "activity"], ["TV screens", "/admin/tv", "tv"]].forEach(function (l) {
+      var a = document.createElement("a");
+      a.className = "nav"; a.href = l[1];
+      a.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[l[2]] + "</svg>";
+      a.appendChild(document.createTextNode(l[0]));
+      adminNav.appendChild(a);
+    });
+  }
+  var me = document.getElementById("me");
   var who = document.createElement("div");
-  who.style.cssText = "display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-size:.95rem";
-  var label = document.createElement("span");
-  label.textContent = (ME.name || "") + (ME.role === "admin" ? " · Administrator" : " · Teacher");
-  who.appendChild(label);
-  var links = [["Account", "/account"]];
-  if (ME.role === "admin") links.unshift(["Manage users", "/admin/users"], ["Class history", "/admin/history"], ["TV screens", "/admin/tv"]);
-  links.forEach(function (l) {
-    var a = document.createElement("a");
-    a.textContent = l[0]; a.href = l[1]; a.style.color = "inherit";
-    who.appendChild(a);
-  });
+  who.className = "who";
+  var nameLine = document.createElement("b");
+  nameLine.textContent = ME.name || "";
+  var roleLine = document.createElement("span");
+  roleLine.textContent = ME.role === "admin" ? "Administrator" : "Teacher";
+  who.appendChild(nameLine); who.appendChild(roleLine);
+  var row = document.createElement("div");
+  row.className = "row";
+  var account = document.createElement("a");
+  account.className = "linkbtn"; account.href = "/account"; account.textContent = "Account";
   var out = document.createElement("form");
-  out.method = "post"; out.action = "/logout"; out.style.margin = "0";
+  out.method = "post"; out.action = "/logout";
   var csrf = document.createElement("input");
   csrf.type = "hidden"; csrf.name = "csrf"; csrf.value = ME.csrf || "";
   var outButton = document.createElement("button");
-  outButton.className = "btn"; outButton.textContent = "Sign out";
+  outButton.className = "linkbtn"; outButton.textContent = "Sign out";
   out.appendChild(csrf); out.appendChild(outButton);
-  who.appendChild(out);
-  document.querySelector(".hdr").prepend(who);
+  row.appendChild(account); row.appendChild(out);
+  me.appendChild(who); me.appendChild(row);
+  me.hidden = false;
   // Only admins upload CSVs and create or delete classrooms; the server enforces this too.
   if (ME.role !== "admin") {
     document.getElementById("up").style.display = "none";
-    var del = document.getElementById("delC").parentNode;
-    del.style.display = "none";
-    del.previousElementSibling.style.display = "none";
+    document.getElementById("delWrap").style.display = "none";
   }
 
   function lock(value) {
     document.querySelector("main").inert = value;
     document.querySelector("header").inert = value;
   }
-  function status(text) { message.textContent = text; setSt(text); }
+  function status(text, state) { message.textContent = text; setSt(state === "bad" ? "Needs attention" : text, state); }
   function problem(error) {
     failed = true;
     lock(true);
+    banner.hidden = false;
     var conflict = error.status === 409 || error.status === 404;
     var signedOut = error.status === 401, denied = error.status === 403;
     status(signedOut
@@ -71,7 +94,7 @@
       ? "Your account can't make this change. Reload to see the classrooms you can edit."
       : conflict
       ? "Another browser changed or deleted this classroom. Download your unsaved changes, then reload the latest records."
-      : "Records could not be loaded or saved. Check your connection and retry. Keep this page open to preserve unsaved changes.");
+      : "Records could not be loaded or saved. Check your connection and retry. Keep this page open to preserve unsaved changes.", "bad");
     retry.hidden = conflict || denied;
     download.hidden = !Object.keys(pending).length;
     reload.hidden = !(conflict || denied);
@@ -120,8 +143,9 @@
       lock(false);
       // Leave a focused class form intact while other classes refresh.
       if (first || (updated && (!editing || !CID))) changed();
-      status("All changes saved online. Records are shared across devices.");
+      status("All changes saved");
       retry.hidden = true;
+      banner.hidden = true;
       refreshHouses();
     } catch (error) { problem(error); }
     finally { reading = false; }
@@ -138,12 +162,12 @@
   async function flush() {
     if (sending || failed) return;
     var c = Object.keys(pending)[0];
-    if (!c) { status("All changes saved online. Records are shared across devices."); return; }
+    if (!c) { status("All changes saved"); banner.hidden = true; return; }
     sending = true;
     var json = pending[c];
     var path = "/api/classes/" + encodeURIComponent(c);
     var headers = {"Content-Type": "application/json", "X-Dashboard-Request": "1"};
-    status("Saving changes online… Keep this page open.");
+    status("Saving…", "busy");
     try {
       if (json === null) {
         // A deleted classroom. Revision 0 means it was never saved.
@@ -198,7 +222,7 @@
     if (sending || Object.keys(pending).length) { event.preventDefault(); event.returnValue = ""; }
   });
   lock(true);
-  status("Loading shared class records…");
+  status("Loading class records…", "busy");
   read();
   setInterval(function () { if (!document.hidden) read(); }, 10000);
 })();

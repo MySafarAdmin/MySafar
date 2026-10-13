@@ -1,15 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Activity{% endblock %}
 {% block content %}
-<h1>Activity</h1>
-<p class="sub">Sign-ins, account changes and classroom saves from the last {{ config.RETENTION_DAYS }} days, newest first (up to 300). Saves by the same person within 15 minutes are shown once.</p>
-<div class="card"><table class="tbl">
-<thead><tr><th>When</th><th>Who</th><th>What</th><th>Classroom</th><th>IP address</th></tr></thead>
+<div class="pagehead"><div><h1>Activity</h1><p class="lede">Sign-ins, account changes and classroom saves from the last {{ config.RETENTION_DAYS }} days, newest first (up to 300). Saves by the same person within 15 minutes are shown once.</p></div></div>
+<div class="tablewrap"><table class="tbl stackable">
+<thead><tr><th scope="col">When</th><th scope="col">Who</th><th scope="col">What</th><th scope="col">Classroom</th><th scope="col">IP address</th></tr></thead>
 <tbody>
 {% for r in rows %}
-<tr><td>{{ r.at|when }}</td><td>{{ r.name or "–" }}</td><td>{{ r.action|action }}{% if r.action.startswith("login.") and r.detail %} <span class="sub">({{ (r.detail|fromjson).email }})</span>{% endif %}</td><td>{{ r.class_id or "" }}</td><td class="sub">{{ r.ip or "" }}</td></tr>
+<tr><td data-label="When" class="num">{{ r.at|when }}</td><td data-label="Who">{{ r.name or "–" }}</td><td data-label="What">{{ r.action|action }}{% if r.action.startswith("login.") and r.detail %} <span class="sub">({{ (r.detail|fromjson).email }})</span>{% endif %}</td><td data-label="Classroom">{{ r.class_id or "" }}</td><td data-label="IP address" class="sub">{{ r.ip or "" }}</td></tr>
 {% else %}
-<tr><td colspan="5" class="sub">Nothing yet.</td></tr>
+<tr><td colspan="5" class="sub">No activity in the last {{ config.RETENTION_DAYS }} days. Nothing yet.</td></tr>
 {% endfor %}
 </tbody></table></div>
 {% endblock %}

@@ -69,6 +69,7 @@ classroom. Signed-in staff can preview it at `/tv`.
 | `MAIL_REDIRECT_TO` | Testing only: every email goes to this address instead of the real recipient. Remove it to go live. |
 | `PUBLIC_URL` | The site's address, used in invite and reset links: `https://mysafar-prod.up.railway.app`. Change it if the address changes (for example a custom domain). |
 | `RETENTION_DAYS` | How long class history and the activity log are kept. Default `14`. |
+| `SUPPORT_EMAIL` | The school office address staff should write to for password help, for example `office@safaracademy.org`. The password pages show an **Email** button for it. Optional; without it they say to ask an administrator. |
 
 `DASHBOARD_USERNAME` is no longer used and can be deleted.
 
