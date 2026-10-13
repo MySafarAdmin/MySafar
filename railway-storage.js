@@ -15,8 +15,45 @@
   var reload = document.createElement("button");
   reload.textContent = "Reload latest records";
   [message, retry, download, reload].forEach(function (e) { banner.appendChild(e); });
-  [retry, download, reload].forEach(function (e) { e.style.marginLeft = "12px"; e.hidden = true; });
+  var signIn = document.createElement("a");
+  signIn.textContent = "Sign in again";
+  signIn.href = "/login";
+  signIn.target = "_blank";
+  signIn.rel = "noopener";
+  banner.appendChild(signIn);
+  [retry, download, reload, signIn].forEach(function (e) { e.style.marginLeft = "12px"; e.hidden = true; });
   document.body.prepend(banner);
+
+  // The signed-in person, their account links and sign-out.
+  var ME = window.ME || {};
+  var who = document.createElement("div");
+  who.style.cssText = "display:flex;gap:12px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-size:.95rem";
+  var label = document.createElement("span");
+  label.textContent = (ME.name || "") + (ME.role === "admin" ? " · Administrator" : " · Teacher");
+  who.appendChild(label);
+  var links = [["Account", "/account"]];
+  if (ME.role === "admin") links.unshift(["Manage users", "/admin/users"], ["Class history", "/admin/history"]);
+  links.forEach(function (l) {
+    var a = document.createElement("a");
+    a.textContent = l[0]; a.href = l[1]; a.style.color = "inherit";
+    who.appendChild(a);
+  });
+  var out = document.createElement("form");
+  out.method = "post"; out.action = "/logout"; out.style.margin = "0";
+  var csrf = document.createElement("input");
+  csrf.type = "hidden"; csrf.name = "csrf"; csrf.value = ME.csrf || "";
+  var outButton = document.createElement("button");
+  outButton.className = "btn"; outButton.textContent = "Sign out";
+  out.appendChild(csrf); out.appendChild(outButton);
+  who.appendChild(out);
+  document.querySelector(".hdr").prepend(who);
+  // Only admins upload CSVs and create or delete classrooms; the server enforces this too.
+  if (ME.role !== "admin") {
+    document.getElementById("up").style.display = "none";
+    var del = document.getElementById("delC").parentNode;
+    del.style.display = "none";
+    del.previousElementSibling.style.display = "none";
+  }
 
   function lock(value) {
     document.querySelector("main").inert = value;
@@ -27,12 +64,18 @@
     failed = true;
     lock(true);
     var conflict = error.status === 409 || error.status === 404;
-    status(conflict
+    var signedOut = error.status === 401, denied = error.status === 403;
+    status(signedOut
+      ? "You've been signed out. Sign in again (it opens in a new tab), then come back here and press Retry. Your unsaved changes are kept in this tab."
+      : denied
+      ? "Your account can't make this change. Reload to see the classrooms you can edit."
+      : conflict
       ? "Another browser changed or deleted this classroom. Download your unsaved changes, then reload the latest records."
       : "Records could not be loaded or saved. Check your connection and retry. Keep this page open to preserve unsaved changes.");
-    retry.hidden = conflict;
+    retry.hidden = conflict || denied;
     download.hidden = !Object.keys(pending).length;
-    reload.hidden = !conflict;
+    reload.hidden = !(conflict || denied);
+    signIn.hidden = !signedOut;
   }
   async function api(path, options) {
     var controller = new AbortController();
@@ -121,7 +164,7 @@
   };
   retry.onclick = function () {
     failed = false;
-    retry.hidden = download.hidden = reload.hidden = true;
+    retry.hidden = download.hidden = reload.hidden = signIn.hidden = true;
     if (Object.keys(pending).length) {
       lock(false);
       flush();

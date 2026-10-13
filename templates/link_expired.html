@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Link expired{% endblock %}
+{% block body_class %}solo{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <img class="logo" src="/logo.png" alt="Safar Academy">
+  <h1>This link has expired</h1>
+  <p>{{ "Invite" if purpose == "invite" else "Password reset" }} links work once, and only for a limited time.</p>
+  <p class="sub">{% if purpose == "invite" %}Ask an administrator to send you a new invite.{% else %}<a href="/forgot">Ask for a new link</a>, or ask an administrator.{% endif %}</p>
+  <p class="sub"><a href="/login">Go to sign in</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Class history{% endblock %}
+{% block content %}
+<p><a href="/admin/history">← All classrooms</a></p>
+<h1>{{ (entries|selectattr("name")|first or {}).name or class_id }}</h1>
+<p class="sub">{% if exists %}Restoring a version saves it as the newest one; nothing is lost, and you can restore again.{% else %}This classroom was deleted. Restore a version to bring it back.{% endif %} Teachers will need to be assigned to a restored classroom again.</p>
+<div class="card"><table class="tbl">
+<thead><tr><th>Saved</th><th>By</th><th>Students</th><th></th></tr></thead>
+<tbody>
+{% for e in entries %}
+<tr><td>{{ e.saved_at|when }}</td><td>{{ e.by or "–" }}</td>
+{% if e.students is none %}<td colspan="2"><span class="pill grey">Deleted</span></td>
+{% else %}<td>{{ e.students }}</td><td><form method="post" action="/admin/history/{{ class_id }}/restore"><input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="entry" value="{{ e.id }}"><button class="btn">Restore this version</button></form></td>{% endif %}</tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

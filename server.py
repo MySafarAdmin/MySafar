@@ -1,32 +1,36 @@
-"""Authenticated Railway host with shared class records.
+"""Safar dashboard server: staff sign-in and shared class records.
 
 Records are kept in PostgreSQL when DATABASE_URL is set (on Railway, a reference
 to the PostgreSQL service's DATABASE_URL). Without it they are kept in a SQLite
-file in DATA_DIR, which is meant for running locally.
+file in DATA_DIR, which is meant for running locally. See db.py.
 
 Each classroom is one row of the `classrooms` table. Classrooms are created from
-the dashboard (CSV upload), so a new database starts empty. A `classes` table
-left by the earlier version, which shipped with fixed classes, is deleted at
-startup.
+the dashboard (CSV upload) by an admin. Teachers see and edit only the
+classrooms an admin has assigned to them. Every save and delete is recorded in
+`classroom_history` and `audit_log`, which are kept for RETENTION_DAYS.
 """
-import hmac
+import base64
 import json
 import os
 import re
-import sqlite3
 import time
-from contextlib import contextmanager
 from datetime import date
 from pathlib import Path
+from urllib.parse import quote
 
-import psycopg
-from flask import Flask, Response, abort, jsonify, request
-from psycopg.rows import dict_row
+from flask import Flask, Response, abort, g, jsonify, redirect, request
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+import auth
+from db import DB_ERRORS, Database
+from mailer import Mailer
 
 ROOT = Path(__file__).resolve().parent
-DB_ERRORS = (sqlite3.Error, psycopg.Error)
 CLASS_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
 MAX_CLASSES = 500
+# Reachable without signing in.
+PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css"}
+PUBLIC_PREFIXES = ("/invite/", "/reset/")
 
 
 def valid_state(state):
@@ -77,101 +81,96 @@ def valid_state(state):
     return True
 
 
+
+
+DASHBOARD_CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                 "font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+PAGE_CSP = ("default-src 'none'; style-src 'self'; img-src 'self'; form-action 'self'; frame-ancestors 'none'; "
+            "base-uri 'none'")
+# A classroom saved again by the same person within this time updates its latest
+# history entry instead of adding one, so that history doesn't grow with every click.
+HISTORY_COALESCE = 15 * 60
+
+
+class RailwayProxy:
+    def __init__(self, wsgi_app):
+        self.wsgi_app = wsgi_app
+
+    def __call__(self, environ, start_response):
+        real_ip = environ.get("HTTP_X_REAL_IP", "").strip()
+        if real_ip:
+            environ["REMOTE_ADDR"] = real_ip[:64]
+        return self.wsgi_app(environ, start_response)
+
+
+def script_json(value):
+    """JSON that is safe inside a <script> element."""
+    return json.dumps(value).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+
+
 def create_app(test_config=None):
-    app = Flask(__name__, static_folder=None)
+    app = Flask(__name__, static_folder=None, template_folder=str(ROOT / "templates"))
+    public_domain = os.environ.get("RAILWAY_PUBLIC_DOMAIN", "")
     app.config.update(
         MAX_CONTENT_LENGTH=2 * 1024 * 1024,
         DATABASE_URL=os.environ.get("DATABASE_URL", ""),
         DATA_DIR=os.environ.get("DATA_DIR", str(ROOT / ".local-data")),
-        DASHBOARD_USERNAME=os.environ.get("DASHBOARD_USERNAME", ""),
+        ADMIN_EMAIL=os.environ.get("ADMIN_EMAIL", ""),
         DASHBOARD_PASSWORD=os.environ.get("DASHBOARD_PASSWORD", ""),
+        COOKIE_SECURE=os.environ.get("COOKIE_SECURE", "1") != "0",
+        PUBLIC_URL=os.environ.get("PUBLIC_URL", "") or (f"https://{public_domain}" if public_domain else ""),
+        TRUST_PROXY=bool(os.environ.get("RAILWAY_ENVIRONMENT_ID")),
+        RESEND_API_KEY=os.environ.get("RESEND_API_KEY", ""),
+        MAIL_FROM=os.environ.get("MAIL_FROM", ""),
+        MAIL_REDIRECT_TO=os.environ.get("MAIL_REDIRECT_TO", ""),
+        RETENTION_DAYS=int(os.environ.get("RETENTION_DAYS", "14")),
     )
     if test_config:
         app.config.update(test_config)
-    username = app.config["DASHBOARD_USERNAME"]
-    password = app.config["DASHBOARD_PASSWORD"]
-    if not username or not password or password == "replace-with-a-long-unique-password":
-        raise RuntimeError("Set DASHBOARD_USERNAME and a unique DASHBOARD_PASSWORD before starting.")
-    if ":" in username:
-        raise RuntimeError("DASHBOARD_USERNAME must not contain a colon.")
-    database_url = app.config["DATABASE_URL"].strip()
+    if app.config["TRUST_PROXY"]:
+        # Railway's edge proxy sets X-Forwarded-Proto and X-Forwarded-Host to the public request,
+        # and X-Real-IP to the client's address (used for sign-in limits and the activity log).
+        app.wsgi_app = RailwayProxy(ProxyFix(app.wsgi_app, x_proto=1, x_host=1))
+    database = Database(app.config["DATABASE_URL"].strip(), app.config["DATA_DIR"], app.config.get("TESTING"))
+    database.migrate()
+    auth.bootstrap_admin(database, app.config["ADMIN_EMAIL"], app.config["DASHBOARD_PASSWORD"])
+    app.config["DB"] = database
+    app.config.setdefault("MAILER", Mailer(app.config["RESEND_API_KEY"], app.config["MAIL_FROM"],
+                                           app.config["MAIL_REDIRECT_TO"]))
+    app.register_blueprint(auth.bp)
+    pruned = {"at": 0}
 
-    if database_url:
-        def connect():
-            return psycopg.connect(database_url, connect_timeout=10, row_factory=dict_row)
-
-        def sql(query):
-            return query.replace("?", "%s")
-    else:
-        data_dir = Path(app.config["DATA_DIR"]).resolve()
-        # Fail rather than silently save student records on Railway's temporary disk.
-        if os.environ.get("RAILWAY_ENVIRONMENT_ID") and not app.config.get("TESTING"):
-            mount = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
-            if not mount or (Path(mount).resolve() != data_dir and Path(mount).resolve() not in data_dir.parents):
-                raise RuntimeError("Set DATABASE_URL to your PostgreSQL service's DATABASE_URL "
-                                   "(or attach a Railway volume at DATA_DIR).")
-        data_dir.mkdir(parents=True, exist_ok=True)
-        database = data_dir / "dashboard.sqlite3"
-
-        def connect():
-            db = sqlite3.connect(database, timeout=10)
-            db.row_factory = sqlite3.Row
-            return db
-
-        def sql(query):
-            return query
-
-    @contextmanager
-    def transaction():
-        db = connect()
-        try:
-            yield db
-            db.commit()
-        except BaseException:
-            db.rollback()
-            raise
-        finally:
-            db.close()
-
-    def initialise():
-        with transaction() as db:
-            if not database_url:
-                db.execute("PRAGMA journal_mode=WAL")
-            db.execute("CREATE TABLE IF NOT EXISTS classrooms (id TEXT PRIMARY KEY, json TEXT NOT NULL, revision INTEGER NOT NULL)")
-            if database_url:
-                old = db.execute("SELECT to_regclass('classes') AS t").fetchone()["t"]
-            else:
-                old = db.execute("SELECT name AS t FROM sqlite_master WHERE type = 'table' AND name = 'classes'").fetchone()
-            if old:
-                db.execute("DROP TABLE classes")
-                print("Deleted the classes table left by the earlier version of the dashboard.", flush=True)
-
-    # The database service can still be starting when the app boots.
-    for attempt in range(10):
-        try:
-            initialise()
-            break
-        except psycopg.OperationalError:
-            if attempt == 9:
-                raise
-            time.sleep(3)
+    def wants_json():
+        return request.path.startswith("/api/")
 
     @app.before_request
     def require_login():
-        if request.path == "/healthz" and request.method in ("GET", "HEAD"):
+        if request.path == "/healthz":
             return None
-        auth = request.authorization
-        if not (auth and auth.type == "basic"
-                and hmac.compare_digest((auth.username or "").encode(), username.encode())
-                and hmac.compare_digest((auth.password or "").encode(), password.encode())):
-            return Response("Sign in to the Safar dashboard.", 401,
-                            {"WWW-Authenticate": 'Basic realm="Safar Dashboard", charset="UTF-8"'})
         if request.method not in ("GET", "HEAD", "OPTIONS"):
+            # Writes only from this site's own pages.
+            origin = request.headers.get("Origin")
+            own = {request.host_url.rstrip("/"), app.config["PUBLIC_URL"].rstrip("/")}
+            if (origin and origin not in own) or request.headers.get("Sec-Fetch-Site") == "cross-site":
+                abort(403)
+        auth.load_session()
+        if time.time() - pruned["at"] > 3600:
+            pruned["at"] = time.time()
+            auth.prune(database, app.config["RETENTION_DAYS"])
+        public = request.path in PUBLIC or request.path.startswith(PUBLIC_PREFIXES)
+        if not g.user and not public:
+            if wants_json() or request.method != "GET":
+                return jsonify(error="Your session has ended. Sign in again."), 401
+            target = request.full_path.rstrip("?")
+            return redirect("/login" + ("" if target == "/" else "?next=" + quote(target, safe="/")))
+        if g.user and g.user["must_change"] and not public and request.path not in ("/account", "/account/password", "/logout"):
+            if wants_json():
+                return jsonify(error="Choose a new password before continuing."), 403
+            return redirect("/account")
+        if wants_json() and request.method not in ("GET", "HEAD", "OPTIONS"):
             # JSON plus this custom header require a CORS preflight cross-origin.
             # No CORS access is granted by this server.
             if not request.is_json or request.headers.get("X-Dashboard-Request") != "1":
-                abort(403)
-            if request.headers.get("Sec-Fetch-Site") == "cross-site":
                 abort(403)
 
     @app.after_request
@@ -179,37 +178,79 @@ def create_app(test_config=None):
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
-        response.headers["Referrer-Policy"] = "no-referrer"
-        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+        response.headers["Referrer-Policy"] = "same-origin"
+        response.headers["Content-Security-Policy"] = DASHBOARD_CSP if request.path == "/" else PAGE_CSP
+        if app.config["COOKIE_SECURE"]:
+            response.headers["Strict-Transport-Security"] = "max-age=31536000"
         return response
 
     @app.get("/healthz")
     def health():
         try:
-            with transaction() as db:
+            with database.transaction() as db:
                 db.execute("SELECT COUNT(*) FROM classrooms").fetchone()
             return jsonify(status="ok")
         except DB_ERRORS:
             return jsonify(status="unavailable"), 503
 
+    logo = {}
+
+    @app.get("/logo.png")
+    def logo_png():
+        if "png" not in logo:
+            logo["png"] = base64.b64decode((ROOT / "src" / "logo.b64").read_text().strip())
+        response = Response(logo["png"], mimetype="image/png")
+        return response
+
+    @app.get("/auth.css")
+    def auth_css():
+        return Response((ROOT / "static" / "auth.css").read_text(encoding="utf-8"), mimetype="text/css")
+
     @app.get("/")
-    @app.get("/Master_Dashboard_standalone.html")
     def dashboard():
+        me = {"name": g.user["name"], "email": g.user["email"], "role": g.user["role"], "csrf": g.session["csrf"]}
         html = (ROOT / "Master_Dashboard_standalone.html").read_text(encoding="utf-8")
-        html = html.replace("<script>", "<script>window.RAILWAY=true;</script>\n<script>", 1)
+        html = html.replace("<script>", f"<script>window.RAILWAY=true;window.ME={script_json(me)};</script>\n<script>", 1)
         html = html.replace("<header>", "<header inert>").replace("<main>", "<main inert>")
         html = html.replace("</body>", '<script src="/railway-storage.js"></script></body>')
         return Response(html, mimetype="text/html")
+
+    @app.get("/Master_Dashboard_standalone.html")
+    def old_dashboard_link():
+        return redirect("/")
 
     @app.get("/railway-storage.js")
     def storage_script():
         return Response((ROOT / "railway-storage.js").read_text(encoding="utf-8"), mimetype="text/javascript")
 
+    def is_admin():
+        return g.user["role"] == "admin"
+
+    def can_edit(db, class_id):
+        return is_admin() or db.execute("SELECT 1 FROM classroom_members WHERE class_id = ? AND user_id = ?",
+                                        (class_id, g.user["id"])).fetchone() is not None
+
+    def record_history(db, class_id, revision, encoded):
+        """Adds a history entry, or updates this person's latest one if it is recent."""
+        t = int(time.time())
+        last = db.execute("SELECT id, saved_by, saved_at, json FROM classroom_history WHERE class_id = ? "
+                          "ORDER BY id DESC LIMIT 1", (class_id,)).fetchone()
+        if last and last["json"] is not None and last["saved_by"] == g.user["id"] and t - last["saved_at"] < HISTORY_COALESCE:
+            db.execute("UPDATE classroom_history SET revision = ?, json = ? WHERE id = ?", (revision, encoded, last["id"]))
+            return
+        db.execute("INSERT INTO classroom_history (class_id, revision, json, saved_by, saved_at) VALUES (?, ?, ?, ?, ?)",
+                   (class_id, revision, encoded, g.user["id"], t))
+        auth.audit(db, "class.saved", class_id, {"revision": revision})
+
     @app.get("/api/classes")
     def read_classes():
-        with transaction() as db:
-            return jsonify({row["id"]: {"json": row["json"], "revision": row["revision"]}
-                            for row in db.execute("SELECT id, json, revision FROM classrooms ORDER BY id").fetchall()})
+        with database.transaction() as db:
+            if is_admin():
+                rows = db.execute("SELECT id, json, revision FROM classrooms ORDER BY id").fetchall()
+            else:
+                rows = db.execute("SELECT c.id, c.json, c.revision FROM classrooms c JOIN classroom_members m "
+                                  "ON m.class_id = c.id WHERE m.user_id = ? ORDER BY c.id", (g.user["id"],)).fetchall()
+            return jsonify({row["id"]: {"json": row["json"], "revision": row["revision"]} for row in rows})
 
     @app.put("/api/classes/<class_id>")
     def write_class(class_id):
@@ -225,19 +266,22 @@ def create_app(test_config=None):
             encoded = json.dumps(state, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
         except (TypeError, ValueError):
             abort(400)
-        with transaction() as db:
+        with database.transaction() as db:
+            if not can_edit(db, class_id) or (document["revision"] == 0 and not is_admin()):
+                return jsonify(error="Your account can't change this classroom."), 403
             if document["revision"] == 0:
-                exists = db.execute(sql("SELECT 1 FROM classrooms WHERE id = ?"), (class_id,)).fetchone()
+                exists = db.execute("SELECT 1 FROM classrooms WHERE id = ?", (class_id,)).fetchone()
                 if not exists and db.execute("SELECT COUNT(*) AS n FROM classrooms").fetchone()["n"] >= MAX_CLASSES:
                     return jsonify(error=f"The dashboard holds at most {MAX_CLASSES} classrooms."), 400
-                cursor = db.execute(sql("INSERT INTO classrooms VALUES (?, ?, 1) ON CONFLICT (id) DO NOTHING"),
+                cursor = db.execute("INSERT INTO classrooms VALUES (?, ?, 1) ON CONFLICT (id) DO NOTHING",
                                     (class_id, encoded))
             else:
-                cursor = db.execute(sql("UPDATE classrooms SET json = ?, revision = revision + 1 WHERE id = ? AND revision = ?"),
+                cursor = db.execute("UPDATE classrooms SET json = ?, revision = revision + 1 WHERE id = ? AND revision = ?",
                                     (encoded, class_id, document["revision"]))
             if cursor.rowcount:
+                record_history(db, class_id, document["revision"] + 1, encoded)
                 return jsonify(revision=document["revision"] + 1)
-            current = db.execute(sql("SELECT json, revision FROM classrooms WHERE id = ?"), (class_id,)).fetchone()
+            current = db.execute("SELECT json, revision FROM classrooms WHERE id = ?", (class_id,)).fetchone()
             if current is None:
                 abort(404)
             # A lost response may cause an identical write to be retried.
@@ -251,11 +295,83 @@ def create_app(test_config=None):
         document = request.get_json()
         if not CLASS_ID.fullmatch(class_id) or not isinstance(document, dict) or type(document.get("revision")) is not int:
             abort(400)
-        with transaction() as db:
-            cursor = db.execute(sql("DELETE FROM classrooms WHERE id = ? AND revision = ?"), (class_id, document["revision"]))
+        if not is_admin():
+            return jsonify(error="Only an admin can delete a classroom."), 403
+        with database.transaction() as db:
+            cursor = db.execute("DELETE FROM classrooms WHERE id = ? AND revision = ?", (class_id, document["revision"]))
+            if cursor.rowcount:
+                db.execute("DELETE FROM classroom_members WHERE class_id = ?", (class_id,))
+                # A history entry without a record marks the deletion; the entries before it can restore it.
+                db.execute("INSERT INTO classroom_history (class_id, revision, json, saved_by, saved_at) VALUES (?, ?, NULL, ?, ?)",
+                           (class_id, document["revision"], g.user["id"], int(time.time())))
+                auth.audit(db, "class.deleted", class_id, {"revision": document["revision"]})
+                return jsonify(deleted=True)
             # Deleting a classroom that is already gone succeeds, so a retried request is harmless.
-            if cursor.rowcount or db.execute(sql("SELECT 1 FROM classrooms WHERE id = ?"), (class_id,)).fetchone() is None:
+            if db.execute("SELECT 1 FROM classrooms WHERE id = ?", (class_id,)).fetchone() is None:
                 return jsonify(deleted=True)
             return jsonify(error="This class changed in another browser. Reload before deleting it."), 409
+
+    @app.get("/admin/history")
+    @auth.admin_required
+    def history():
+        with database.transaction() as db:
+            current = {row["id"] for row in db.execute("SELECT id FROM classrooms").fetchall()}
+            rows = db.execute("SELECT h.class_id, h.json, h.saved_at, u.name FROM classroom_history h "
+                              "LEFT JOIN users u ON u.id = h.saved_by ORDER BY h.id DESC").fetchall()
+        classes = {}
+        for row in rows:
+            entry = classes.setdefault(row["class_id"], {"id": row["class_id"], "name": None, "count": 0,
+                                                         "last": row["saved_at"], "by": row["name"],
+                                                         "deleted": row["class_id"] not in current})
+            entry["count"] += 1
+            if entry["name"] is None and row["json"]:
+                entry["name"] = json.loads(row["json"]).get("name")
+        return auth.page("admin_history.html", classes=sorted(classes.values(), key=lambda c: -c["last"]))
+
+    def class_history(class_id):
+        with database.transaction() as db:
+            rows = db.execute("SELECT h.id, h.revision, h.json, h.saved_at, u.name FROM classroom_history h "
+                              "LEFT JOIN users u ON u.id = h.saved_by WHERE h.class_id = ? ORDER BY h.id DESC",
+                              (class_id,)).fetchall()
+            exists = db.execute("SELECT 1 FROM classrooms WHERE id = ?", (class_id,)).fetchone() is not None
+        entries = []
+        for row in rows:
+            state = json.loads(row["json"]) if row["json"] else None
+            entries.append({"id": row["id"], "saved_at": row["saved_at"], "by": row["name"],
+                            "name": state.get("name") if state else None,
+                            "students": len(state.get("S", [])) if state else None})
+        return entries, exists
+
+    @app.get("/admin/history/<class_id>")
+    @auth.admin_required
+    def history_of(class_id):
+        entries, exists = class_history(class_id)
+        if not entries:
+            abort(404)
+        return auth.page("admin_class_history.html", class_id=class_id, entries=entries, exists=exists)
+
+    @app.post("/admin/history/<class_id>/restore")
+    @auth.admin_required
+    def restore(class_id):
+        """Saves an earlier version as the classroom's newest one, or brings back a deleted classroom."""
+        auth.check_form_token()
+        with database.transaction() as db:
+            row = db.execute("SELECT json FROM classroom_history WHERE id = ? AND class_id = ? AND json IS NOT NULL",
+                             (request.form.get("entry", type=int), class_id)).fetchone()
+            if not row:
+                abort(404)
+            current = db.execute("SELECT revision FROM classrooms WHERE id = ?", (class_id,)).fetchone()
+            if current:
+                revision = current["revision"] + 1
+                db.execute("UPDATE classrooms SET json = ?, revision = ? WHERE id = ?", (row["json"], revision, class_id))
+            else:
+                revision = 1
+                db.execute("INSERT INTO classrooms VALUES (?, ?, 1)", (class_id, row["json"]))
+            db.execute("INSERT INTO classroom_history (class_id, revision, json, saved_by, saved_at) VALUES (?, ?, ?, ?, ?)",
+                       (class_id, revision, row["json"], g.user["id"], int(time.time())))
+            auth.audit(db, "class.restored", class_id, {"entry": request.form.get("entry", type=int)})
+        entries, exists = class_history(class_id)
+        return auth.page("admin_class_history.html", class_id=class_id, entries=entries, exists=exists,
+                         notice="Restored. Open dashboards will show this version within a few seconds.")
 
     return app

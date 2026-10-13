@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block body_class %}solo{% endblock %}
+{% block content %}
+<div class="card narrow">
+  <img class="logo" src="/logo.png" alt="Safar Academy">
+  <h1>Sign in</h1>
+  <p class="sub">Safar Academy Enfield dashboard</p>
+  <form method="post" action="/login">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <input type="hidden" name="next" value="{{ next }}">
+    <label>Email<input type="email" name="email" value="{{ email or '' }}" autocomplete="username" required autofocus></label>
+    <label>Password<input type="password" name="password" autocomplete="current-password" required></label>
+    <label class="check"><input type="checkbox" name="remember" value="1"> Keep me signed in on this device for 30 days</label>
+    <button class="btn primary">Sign in</button>
+  </form>
+  <p class="sub"><a href="/forgot">Forgotten your password?</a></p>
+</div>
+{% endblock %}

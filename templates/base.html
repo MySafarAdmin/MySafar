@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="same-origin">
+<title>{% block title %}{% endblock %} · Safar Academy</title>
+<link rel="stylesheet" href="/auth.css">
+</head>
+<body class="{% block body_class %}app{% endblock %}">
+{% if user and not user.must_change %}
+<header class="bar">
+  <a class="brand" href="/"><img src="/logo.png" alt="Safar Academy"></a>
+  <nav>
+    <a href="/">Dashboard</a>
+    {% if user.role == "admin" %}<a href="/admin/users">Manage users</a><a href="/admin/history">Class history</a><a href="/admin/activity">Activity</a>{% endif %}
+    <a href="/account">Account</a>
+    <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="link">Sign out</button></form>
+  </nav>
+</header>
+{% endif %}
+<main>
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

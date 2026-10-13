@@ -1,0 +1,183 @@
+"""Database access and schema migrations.
+
+PostgreSQL is used when DATABASE_URL is set; otherwise a SQLite file in DATA_DIR,
+which is meant for running locally. Queries are written with `?` placeholders and
+rewritten for PostgreSQL.
+
+Each migration runs once, in order, inside a transaction, and is recorded in
+`schema_migrations`. Add new migrations to the end of MIGRATIONS; never edit one
+that has already been deployed.
+"""
+import os
+import sqlite3
+import time
+from contextlib import contextmanager
+from pathlib import Path
+
+import psycopg
+from psycopg.rows import dict_row
+
+DB_ERRORS = (sqlite3.Error, psycopg.Error)
+
+
+def _types(postgres):
+    return {"id": "BIGSERIAL PRIMARY KEY" if postgres else "INTEGER PRIMARY KEY AUTOINCREMENT",
+            "ref": "BIGINT" if postgres else "INTEGER"}
+
+
+def _m1_classrooms(db, postgres):
+    db.execute("CREATE TABLE IF NOT EXISTS classrooms (id TEXT PRIMARY KEY, json TEXT NOT NULL, revision INTEGER NOT NULL)")
+    # The earliest version shipped with fixed classes in a `classes` table.
+    if postgres:
+        old = db.execute("SELECT to_regclass('classes') AS t").fetchone()["t"]
+    else:
+        old = db.execute("SELECT name AS t FROM sqlite_master WHERE type = 'table' AND name = 'classes'").fetchone()
+    if old:
+        db.execute("DROP TABLE classes")
+        print("Deleted the classes table left by the earlier version of the dashboard.", flush=True)
+
+
+def _m2_accounts(db, postgres):
+    t = _types(postgres)
+    # Times are Unix seconds. Tokens are stored only as SHA-256 hashes.
+    db.execute(f"""CREATE TABLE users (
+        id {t['id']},
+        email TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        role TEXT NOT NULL CHECK (role IN ('admin', 'teacher')),
+        password_hash TEXT,
+        must_change INTEGER NOT NULL DEFAULT 0,
+        disabled INTEGER NOT NULL DEFAULT 0,
+        created_at BIGINT NOT NULL,
+        last_login_at BIGINT)""")
+    db.execute(f"""CREATE TABLE sessions (
+        token_hash TEXT PRIMARY KEY,
+        user_id {t['ref']} NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        csrf TEXT NOT NULL,
+        created_at BIGINT NOT NULL,
+        last_seen_at BIGINT NOT NULL,
+        expires_at BIGINT NOT NULL,
+        ip TEXT,
+        user_agent TEXT)""")
+    db.execute("CREATE INDEX sessions_user ON sessions (user_id)")
+    db.execute(f"""CREATE TABLE user_tokens (
+        token_hash TEXT PRIMARY KEY,
+        user_id {t['ref']} NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        purpose TEXT NOT NULL CHECK (purpose IN ('invite', 'reset')),
+        created_at BIGINT NOT NULL,
+        expires_at BIGINT NOT NULL,
+        used_at BIGINT)""")
+    db.execute(f"""CREATE TABLE attempts (
+        id {t['id']},
+        kind TEXT NOT NULL,
+        email TEXT NOT NULL,
+        ip TEXT NOT NULL,
+        at BIGINT NOT NULL,
+        ok INTEGER NOT NULL)""")
+    db.execute("CREATE INDEX attempts_email ON attempts (kind, email, at)")
+    db.execute("CREATE INDEX attempts_ip ON attempts (kind, ip, at)")
+    db.execute(f"""CREATE TABLE classroom_members (
+        class_id TEXT NOT NULL,
+        user_id {t['ref']} NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        PRIMARY KEY (class_id, user_id))""")
+    db.execute(f"""CREATE TABLE audit_log (
+        id {t['id']},
+        at BIGINT NOT NULL,
+        user_id {t['ref']},
+        action TEXT NOT NULL,
+        class_id TEXT,
+        detail TEXT,
+        ip TEXT)""")
+    db.execute("CREATE INDEX audit_log_at ON audit_log (at)")
+    db.execute(f"""CREATE TABLE classroom_history (
+        id {t['id']},
+        class_id TEXT NOT NULL,
+        revision INTEGER NOT NULL,
+        json TEXT,
+        saved_by {t['ref']},
+        saved_at BIGINT NOT NULL)""")
+    db.execute("CREATE INDEX classroom_history_class ON classroom_history (class_id, saved_at)")
+
+
+MIGRATIONS = [_m1_classrooms, _m2_accounts]
+
+
+class Database:
+    def __init__(self, database_url, data_dir, testing=False):
+        self.postgres = bool(database_url)
+        if self.postgres:
+            self._connect = lambda: psycopg.connect(database_url, connect_timeout=10, row_factory=dict_row)
+        else:
+            data_dir = Path(data_dir).resolve()
+            # Fail rather than silently save student records on Railway's temporary disk.
+            if os.environ.get("RAILWAY_ENVIRONMENT_ID") and not testing:
+                mount = os.environ.get("RAILWAY_VOLUME_MOUNT_PATH")
+                if not mount or (Path(mount).resolve() != data_dir and Path(mount).resolve() not in data_dir.parents):
+                    raise RuntimeError("Set DATABASE_URL to your PostgreSQL service's DATABASE_URL "
+                                       "(or attach a Railway volume at DATA_DIR).")
+            data_dir.mkdir(parents=True, exist_ok=True)
+            path = data_dir / "dashboard.sqlite3"
+
+            def connect():
+                db = sqlite3.connect(path, timeout=10)
+                db.row_factory = sqlite3.Row
+                db.execute("PRAGMA foreign_keys = ON")
+                return db
+            self._connect = connect
+
+    def sql(self, query):
+        return query.replace("?", "%s") if self.postgres else query
+
+    @contextmanager
+    def transaction(self):
+        db = self._connect()
+        try:
+            yield _Connection(db, self)
+            db.commit()
+        except BaseException:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+
+    def migrate(self):
+        # The database service can still be starting when the app boots.
+        for attempt in range(10):
+            try:
+                return self._migrate()
+            except psycopg.OperationalError:
+                if attempt == 9:
+                    raise
+                time.sleep(3)
+
+    def _migrate(self):
+        with self.transaction() as db:
+            if self.postgres:
+                # Only one process applies migrations at a time.
+                db.execute("SELECT pg_advisory_xact_lock(726354)")
+            else:
+                db.execute("PRAGMA journal_mode=WAL")
+            db.execute("CREATE TABLE IF NOT EXISTS schema_migrations (version INTEGER PRIMARY KEY, applied_at BIGINT NOT NULL)")
+            done = {row["version"] for row in db.execute("SELECT version FROM schema_migrations").fetchall()}
+            for version, migration in enumerate(MIGRATIONS, 1):
+                if version not in done:
+                    migration(db.raw, self.postgres)
+                    db.execute("INSERT INTO schema_migrations VALUES (?, ?)", (version, int(time.time())))
+                    print(f"Applied database migration {version}: {migration.__name__.split('_', 2)[-1]}.", flush=True)
+
+
+class _Connection:
+    """Wraps a connection so that queries can use `?` placeholders on both databases."""
+
+    def __init__(self, raw, database):
+        self.raw = raw
+        self._database = database
+
+    def execute(self, query, params=()):
+        return self.raw.execute(self._database.sql(query), params)
+
+    def insert(self, query, params=()):
+        """Runs an INSERT and returns the new row's id."""
+        if self._database.postgres:
+            return self.raw.execute(self._database.sql(query) + " RETURNING id", params).fetchone()["id"]
+        return self.raw.execute(query, params).lastrowid
