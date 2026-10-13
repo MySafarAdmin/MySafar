@@ -51,6 +51,7 @@
     {% endif %}
     <button class="btn primary">Save changes</button>
   </form>
+  {% if u.active and not u.disabled %}<p class="sub">Nobody can see a password, admins included. A reset link lets {{ u.name }} choose a new one; their old password keeps working until they do.</p>{% endif %}
   <div class="actions">
     {% if not u.disabled %}
     <form method="post" action="/admin/users/{{ u.id }}/link"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn">{{ "Send password reset link" if u.active else "Send a new invite" }}</button></form>

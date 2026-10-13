@@ -22,7 +22,12 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
   email is set up, otherwise the admin copies it) to choose a password. Invite
   links expire after 72 hours, reset links after 1 hour; each works once.
 - Forgotten passwords: **Forgotten your password?** on the sign-in page emails
-  a reset link. An admin can also make one from **Manage users**.
+  a reset link. An admin can also make one from **Manage users**
+  (**Send password reset link**). Passwords are stored only as argon2 hashes,
+  so nobody, admins included, can see one. The person's old password keeps
+  working until they use the link, which then signs them out everywhere else.
+- Invite and reset tokens are replaced with `[hidden]` in the request and
+  error logs, so the Railway logs can't be used to take over an account.
 - Turning off an account signs that person out everywhere at once.
 - Sign-in is limited to 5 wrong passwords per email and 20 per IP address in
   15 minutes. Sessions end after 8 hours without use, and after 12 hours (or 30
