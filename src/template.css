@@ -640,7 +640,10 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .mtbar{margin-bottom:10px}
 .mlist{min-width:0;overflow:hidden auto;overscroll-behavior:contain;padding:2px 4px 8px 2px}
 .mgrp+.mgrp{margin-top:18px}
-.mgh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:10px}
+.mgh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;margin-bottom:10px}
+.mgh:empty{display:none}
+#vT[data-v="rec"] .mtbar{display:none}
+.mgrp:not(.due) .mgh{justify-content:flex-end}
 .mgh h3{display:inline-flex;align-items:center;gap:8px;margin:0;font-size:.9375rem;font-weight:750;color:var(--ink)}
 .mgh p{margin:0;font-size:.8125rem;color:var(--mute)}
 .mct{display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:.75rem;font-weight:700;color:var(--ink-2)}

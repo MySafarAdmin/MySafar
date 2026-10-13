@@ -899,7 +899,10 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .mtbar{margin-bottom:10px}
 .mlist{min-width:0;overflow:hidden auto;overscroll-behavior:contain;padding:2px 4px 8px 2px}
 .mgrp+.mgrp{margin-top:18px}
-.mgh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:10px}
+.mgh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;margin-bottom:10px}
+.mgh:empty{display:none}
+#vT[data-v="rec"] .mtbar{display:none}
+.mgrp:not(.due) .mgh{justify-content:flex-end}
 .mgh h3{display:inline-flex;align-items:center;gap:8px;margin:0;font-size:.9375rem;font-weight:750;color:var(--ink)}
 .mgh p{margin:0;font-size:.8125rem;color:var(--mute)}
 .mct{display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:.75rem;font-weight:700;color:var(--ink-2)}
@@ -1472,15 +1475,18 @@ function mCard(s,i){var n=nod(s),g=mGrp(s.target),col=lc(s.target),juz=s.target>
   lvl=n?'<span class="mnd">No data yet</span>':chip(col,juz?g.name:"L"+(lv(s.target)+1)),
   tg=n?'':s.target>=NB?'<span class="mtg"><b>Quran complete</b></span>':'<span class="mtg"><b title="'+esc(bl(s.target))+'">'+esc(juz?bl(s.target):"T"+(g.pos+1))+'</b><small>'+(g.pos+1)+' of '+g.len+'</small>'+mLadder(g,col)+'</span>',
   ago=t?'<span class="mago">'+(/day$/.test(mAgo(t))?'Passed <b>'+mAgo(t).toLowerCase()+'</b>':'Passed <b>'+mAgo(t)+' ago</b>')+'</span>':'<span class="mago">No pass yet</span>';
- var lab=s.name+": "+(n?"no data yet":(juz?"":"Level "+(lv(s.target)+1)+", ")+"working on "+bl(s.target))+". "+(t?"Last pass "+ds(t)+(lt?", should pass soon":""):"No pass yet")+".";
+ var lab=s.name+": "+(n?"no data yet":(juz?"":"Level "+(lv(s.target)+1)+", ")+"working on "+bl(s.target))+". "+(t?"Last pass "+ds(t)+(lt?", a concern":""):"No pass yet")+".";
  return '<li><button type="button" class="mcard'+(lt?' late':'')+'" data-mi="'+i+'" aria-pressed="'+(MS===i)+'" aria-label="'+esc(lab)+'" style="--hc:'+(MHC[s.house]||"var(--sky)")+'"><span class="mtop"><span class="mtl">'+lvl+(lt?'<span class="mwait" title="Three weeks or more since the last pass"></span>':'')+'</span>'+tg+ago+'</span><span class="mname">'+esc(s.name)+'</span></button></li>'}
+/* The Students / Full sheet switch sits beside the first heading on the cards, so no row is spent on it. */
+function mSeg(){var g=(typeof VW==="undefined"||VW.T==="rec")&&$("mL").querySelector(".mgh");(g||$("vT").querySelector(".mtbar .tools")).appendChild($("tV"))}
 /* Students who should pass (three weeks or more since their last pass) come first, under their own heading. */
-function mList(){var L=$("mL");
+function mList(){var L=$("mL");$("vT").querySelector(".mtbar .tools").appendChild($("tV"));
  if(!S.length){L.innerHTML='<div class="empty"><b>No students yet</b><button type="button" class="btn sm" data-ct="S">Add students in Settings</button></div>';return}
  var I=S.map(function(_,i){return i}),due=I.filter(function(i){return mLate(S[i])}),rest=I.filter(function(i){return !mLate(S[i])}),top=L.getBoundingClientRect().top,h="";
- if(due.length)h+='<section class="mgrp due" aria-labelledby="mDueH"><div class="mgh"><h3 id="mDueH"><span class="mwait" aria-hidden="true"></span>Should pass soon <span class="mct">'+due.length+'</span></h3></div><ul class="mcards">'+due.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
- if(rest.length)h+='<section class="mgrp" aria-labelledby="mAllH"><div class="mgh"><h3 id="mAllH">'+(due.length?'Everyone else':'All students')+' <span class="mct">'+rest.length+'</span></h3></div><ul class="mcards">'+rest.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
- L.innerHTML=h;L.style.maxHeight=window.innerWidth>=960?Math.max(240,window.innerHeight-Math.max(top,120)-20)+"px":""}
+ if(due.length)h+='<section class="mgrp due" aria-labelledby="mDueH"><div class="mgh"><h3 id="mDueH"><span class="mwait" aria-hidden="true"></span>Concern <span class="mct">'+due.length+'</span></h3></div><ul class="mcards">'+due.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
+ else h+='<div class="mgh"></div>';
+ if(rest.length)h+='<section class="mgrp" aria-label="'+(due.length?'Other students':'Students')+'"><ul class="mcards">'+rest.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
+ $("vT").querySelector(".mtbar .tools").appendChild($("tV"));L.innerHTML=h;mSeg();L.style.maxHeight=window.innerWidth>=960?Math.max(240,window.innerHeight-Math.max(top,120)-20)+"px":""}
 /* A student's profile opens in the side drawer: where they are, a calendar marking the days they passed,
    and every target they passed with its date. */
 function mPasses(){var P={},s=S[MS];if(s)s.log.forEach(function(t,k){var d=dk(t);(P[d]=P[d]||[]).push(k)});return P}
@@ -1500,7 +1506,7 @@ function mCalHtml(){var s=S[MS],now=mKey(today0());if(!MM||MM>now)MM=now;if(MM<m
 function mProfile(){var s=S[MS];if(!s)return "";var n=nod(s),g=mGrp(s.target),col=lc(s.target),juz=s.target>BL,t=mLast(s),K=s.log.map(function(_,k){return k}).reverse();
  var top='<div class="mpro" style="--hc:'+(MHC[s.house]||"var(--sky)")+'"><div class="mtl">'+(n?'<span class="mnd">No data yet</span>':chip(col,juz?g.name:"L"+(lv(s.target)+1)))+(s.house?'<span class="qhs"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'')+'</div>'
   +(n?'':'<div class="mpt"><small>Working on</small><b>'+esc(bl(s.target))+'</b>'+(s.target<NB?mLadder(g,col):'')+'</div>')
-  +'<p class="mpl1">'+(t?'Last pass <b>'+ds(t)+'</b>, '+(/day$/.test(mAgo(t))?mAgo(t).toLowerCase():mAgo(t)+' ago')+'.':'No pass yet.')+(mLate(s)?' <span class="mwt"><span class="mwait" aria-hidden="true"></span>Should pass soon</span>':'')+'</p></div>';
+  +'<p class="mpl1">'+(t?'Last pass <b>'+ds(t)+'</b>, '+(/day$/.test(mAgo(t))?mAgo(t).toLowerCase():mAgo(t)+' ago')+'.':'No pass yet.')+(mLate(s)?' <span class="mwt"><span class="mwait" aria-hidden="true"></span>Concern</span>':'')+'</p></div>';
  var list='';
  if(MD){var L=mPasses()[MD]||[];list='<div class="mphd"><h3>'+qDate(MD).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</h3><button type="button" class="btn sm quiet" data-mmd="1">All passes</button></div><ul class="mpl">'+L.map(function(k){return '<li><span class="mpd">'+ds(s.log[k])+'</span>'+chip(lc(s.lt[k]),esc(pl(s,k)))+'</li>'}).join("")+'</ul>'}
  else list='<div class="mphd"><h3>Targets passed <span class="mct">'+K.length+'</span></h3></div>'+(K.length?'<ul class="mpl">'+K.map(function(k){return '<li><span class="mpd">'+ds(s.log[k])+'</span>'+chip(lc(s.lt[k]),esc(pl(s,k)))+'</li>'}).join("")+'</ul>':'<p class="none">No targets passed yet.</p>');
@@ -1728,7 +1734,7 @@ function setSeg(id,v){var g=$(id);Array.prototype.forEach.call(g.querySelectorAl
 /* Views inside a class tab (Quran, Progress, Rewards): one pane at a time, kept while moving between classes. */
 var VW={Q:"rec",D:"lv",H:"ld",T:"rec"};
 function view(k,v){VW[k]=v;var sec=$("v"+k);sec.setAttribute("data-v",v);Array.prototype.forEach.call(sec.querySelectorAll(".pane"),function(p){p.hidden=p.dataset.pane!==v});
- Array.prototype.forEach.call($(k.toLowerCase()+"V").querySelectorAll("button"),function(b){b.setAttribute("aria-pressed",b.dataset.v===v)});if(k==="T"&&v==="rec"&&CID)mList()}
+ Array.prototype.forEach.call($(k.toLowerCase()+"V").querySelectorAll("button"),function(b){b.setAttribute("aria-pressed",b.dataset.v===v)});if(k==="T"){if(v==="rec"&&CID)mList();else mSeg()}}
 ["Q","D","H","T"].forEach(function(k){view(k,VW[k]);$(k.toLowerCase()+"V").addEventListener("click",function(e){var b=e.target.closest("button");if(b)view(k,b.dataset.v)})});
 
 /* ---------- Navigation ---------- */
