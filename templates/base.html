@@ -13,7 +13,7 @@
   <a class="brand" href="/"><img src="/logo.png" alt="Safar Academy"></a>
   <nav>
     <a href="/">Dashboard</a>
-    {% if user.role == "admin" %}<a href="/admin/users">Manage users</a><a href="/admin/history">Class history</a><a href="/admin/activity">Activity</a>{% endif %}
+    {% if user.role == "admin" %}<a href="/admin/users">Manage users</a><a href="/admin/history">Class history</a><a href="/admin/activity">Activity</a><a href="/admin/tv">TV screens</a>{% endif %}
     <a href="/account">Account</a>
     <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="link">Sign out</button></form>
   </nav>
