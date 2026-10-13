@@ -117,19 +117,19 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .pill.lead{background:var(--gold);color:#2b1d00;font-size:.75rem;padding:1px 8px}
 .mod.gold .cap{margin-top:12px}
 .hbig{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;background:var(--surface);border-radius:var(--r-lg);overflow:hidden;margin-bottom:8px}
-.hcol{padding:18px 20px;border-top:6px solid var(--line-2);background:var(--surface)}
+.hcol{padding:18px 20px;background:var(--surface)}
+.hbar{display:block;height:8px;border-radius:4px;background:var(--surface-2);margin-top:12px;overflow:hidden}.hbar i{display:block;height:100%;border-radius:4px;background:var(--line-2)}
+.hcol.Makkah .hbar i{background:var(--makkah)}.hcol.Al-Aqsa .hbar i{background:var(--aqsa)}.hcol.Madinah .hbar i{background:var(--madinah)}
 .hcol b{display:block;font-size:2.75rem;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums;margin-top:6px}
 .hcol small{color:var(--mute);font-size:.875rem}
-.hcol.Makkah{border-top-color:var(--makkah)}.hcol.Al-Aqsa{border-top-color:var(--aqsa)}.hcol.Madinah{border-top-color:var(--madinah)}
 .tdot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px}
 .tdot.g{background:var(--tok-g)}.tdot.b{background:var(--tok-b)}.tdot.r{background:var(--tok-r)}
 #vMH>.cap{margin-bottom:20px}
-@media (max-width:640px){.hbig{grid-template-columns:1fr}.hcol{display:flex;align-items:baseline;gap:12px;padding:12px 16px;border-top:0;border-left:6px solid var(--line-2)}.hcol b{font-size:1.75rem;margin:0 0 0 auto}.hcol.Makkah{border-left-color:var(--makkah)}.hcol.Al-Aqsa{border-left-color:var(--aqsa)}.hcol.Madinah{border-left-color:var(--madinah)}}
+@media (max-width:640px){.hbig{grid-template-columns:1fr}.hcol{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:4px 12px;padding:12px 16px}.hcol .hbar,.hcol small{grid-column:1/-1}.hcol .hbar{margin-top:4px}.hcol b{font-size:1.75rem;margin:0 0 0 auto}}
 .hcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:12px}
-.hcard{border-radius:var(--r);padding:12px 14px;background:var(--surface-2);border-top:4px solid var(--line-2)}
+.hcard{border-radius:var(--r);padding:12px 14px;background:var(--surface-2)}
 .hcard b{display:block;font-size:1.75rem;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;margin-top:4px}
 .hcard small{color:var(--mute);font-size:.8125rem}
-.hcard.Makkah{border-top-color:var(--makkah)}.hcard.Al-Aqsa{border-top-color:var(--aqsa)}.hcard.Madinah{border-top-color:var(--madinah)}
 @media (max-width:480px){.hcards{gap:6px}.hcard{padding:10px}.hcard b{font-size:1.375rem}.hcard .hn{font-size:.8125rem}}
 
 /* Ranked lists */
@@ -154,7 +154,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .attn h3{margin:12px 0 4px}
 .attn .mod-h{margin-bottom:0}
 .attn .mod-h h2{color:var(--warn-ink)}
-.attn{box-shadow:inset 0 4px 0 var(--warn)}
+.attn{background:var(--warn-soft);border-color:transparent}
 .alist{list-style:none;margin:0;padding:0}
 .alist li{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);min-width:0}
 .alist li:last-child{border-bottom:0}
@@ -246,7 +246,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .dist .db{height:12px;background:color-mix(in srgb,var(--sky-ink) 10%,transparent);border-radius:3px;overflow:hidden}
 .dist .db i{display:block;height:100%;border-radius:3px}
 .dist b{text-align:right;font-variant-numeric:tabular-nums}
-.dist li.z{opacity:.6}
+.dist li.z span:first-child,.dist li.z b{color:var(--ink-2);font-weight:600}.dist li.z .db{opacity:.6}
 .stu td.lead .lk{font-weight:700}
 .stu .hn{font-weight:400}
 
@@ -411,3 +411,11 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
  .hbig{margin-left:-16px;margin-right:-16px;border-radius:0}
 }
 @media print{.shell>header,.tabs,.sync,#toast,.drawer{display:none!important}.shell{display:block}.band{background:none;color:#000}}
+/* Touch screens: every control is at least 44px tall (UI UX Pro Max touch-target-size). */
+@media (pointer:coarse),(max-width:959.98px){
+ .btn,.btn.sm,.seg button,select,input:not([type=checkbox]):not([type=radio]),.cchips .lk,.dir td.lead .lk,.up summary,.rmore>summary{min-height:44px}
+ .help>summary{width:44px;height:44px}.rmore>summary{min-width:44px}
+ .rtarget select{min-height:44px}
+ .rank .n .lk{min-height:44px;display:inline-flex;align-items:center}
+ .ctr{gap:8px}
+}
