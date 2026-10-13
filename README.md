@@ -4,14 +4,14 @@ One page holds the Master overview and a full class dashboard (Dashboard,
 Input, Warnings, Quran, Memo) for every classroom. The dashboard starts empty:
 classrooms and students are added by uploading a CSV on the Master page.
 
-**Railway deployment:** see [RAILWAY.md](RAILWAY.md) for GitHub connection steps,
-the required variables, shared storage in PostgreSQL, and the HTTPS/port
-settings. The hosted server uses `PORT` (recommended `8080`), Railway PostgreSQL
-through `DATABASE_URL`, and a staff username/password.
+**Railway deployment:** see [RAILWAY.md](RAILWAY.md) for the variables, staff
+accounts and roles, email, history and backups. Staff sign in with their own
+email and password; teachers see only their own classrooms, and administrators
+see everything.
 
 ## Adding students
 
-On the Master page, **Upload students** takes a CSV file with one row per
+On the Master page, an administrator's **Upload students** takes a CSV file with one row per
 student and these six columns, with the column names in the first row:
 
 ```csv
@@ -86,6 +86,9 @@ deleted: the Railway server removes its old `classes` table when it starts.
 - `railway-storage.js`: shared storage for the page when it is served by
   Railway.
 - `server.py`, `test_server.py`: the Railway server and its tests.
+- `auth.py`, `templates/`, `static/auth.css`: sign-in, accounts, roles and the
+  admin pages. `db.py`: database access and migrations. `mailer.py`: invite
+  and reset emails.
 - `tools/build.py`: rebuilds both HTML files from `src/`. Run
   `python3 tools/build.py` after editing `src/page.html`, and commit the
   generated files.

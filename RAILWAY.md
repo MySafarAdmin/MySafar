@@ -1,110 +1,80 @@
 # Deploy the Safar dashboard on Railway
 
-The Railway version adds a Flask/Gunicorn web server, a browser
-username/password prompt, and shared class records stored in Railway
-PostgreSQL. All signed-in staff use the same login and can edit every class.
-The HTML files can still be used in Claude or opened locally with their
-original storage behaviour.
+The Railway version is a Flask/Gunicorn web server with a sign-in page, staff
+accounts and shared class records in Railway PostgreSQL. The HTML files can
+still be used in Claude or opened locally with their original storage
+behaviour.
 
-## Connect the repository
+Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
+`main` branch of `MySafarAdmin/MySafar`) and service **Postgres**.
 
-1. In Railway, create a project/service using **Deploy from GitHub repo**, then
-   select `raedeifan-oss/supreme-octo-succotash`. If the private repository is
-   absent, its owner may need to grant the Railway GitHub app access to it.
-2. Select the branch containing these changes (`claude/brave-mayer-pzforz`).
-   Leave the root directory as `/`.
-3. Add a **PostgreSQL** database to the same project (**+ Create → Database →
-   PostgreSQL**). Leave the database's own volume and mount path as Railway set
-   them up.
-4. Open the **dashboard** service (not the database) and enter the variables
-   below. The dashboard service does not need a volume. Keep **one replica**.
-5. Deploy. Railway uses the `Dockerfile` and `railway.json` automatically. Leave
-   custom Build and Start commands empty. Healthcheck: **`/healthz`**.
-6. Go to **Settings → Networking → Public Networking → Generate Domain**.
-   Set the target port to **`8080`**.
-7. Open the generated HTTPS URL and enter your dashboard username and password.
+## Accounts and access
 
-## Variables for the dashboard service
+- The first page is the sign-in page. Everyone signs in with their own email
+  and password.
+- **Administrators** see and edit every classroom, upload CSVs, create and
+  delete classrooms, and manage accounts (**Manage users**), the **Class
+  history** and the **Activity** log.
+- **Teachers** see and edit only the classrooms an administrator has ticked
+  for them on **Manage users**. They can't upload CSVs, create classrooms or
+  delete them. The server enforces this; the page only hides the buttons.
+- New staff are invited from **Manage users**. They get a link (by email when
+  email is set up, otherwise the admin copies it) to choose a password. Invite
+  links expire after 72 hours, reset links after 1 hour; each works once.
+- Forgotten passwords: **Forgotten your password?** on the sign-in page emails
+  a reset link. An admin can also make one from **Manage users**.
+- Turning off an account signs that person out everywhere at once.
+- Sign-in is limited to 5 wrong passwords per email and 20 per IP address in
+  15 minutes. Sessions end after 8 hours without use, and after 12 hours (or 30
+  days with "Keep me signed in").
 
-Paste these into the dashboard service's **Variables → Raw Editor**:
+## Variables for the MySafar service
 
-```dotenv
-PORT=8080
-DATABASE_URL=${{Postgres.DATABASE_URL}}
-DASHBOARD_USERNAME=safar
-DASHBOARD_PASSWORD=replace-with-a-long-unique-password
-```
-
-- `DATABASE_URL` is a reference to the PostgreSQL service's own connection
-  address, so no database password is copied by hand. `Postgres` is the name of
-  the database service on the project canvas; if yours is named differently,
-  use that name, or pick it with **Add Variable Reference**.
-- Replace `DASHBOARD_PASSWORD` with your own long, unique password. The example
-  placeholder is deliberately rejected at startup. You may also change
-  `DASHBOARD_USERNAME`; it must not contain a colon. Do not commit your real
-  password. These are server variables and are never embedded in the page.
-- `DATA_DIR` is not used when `DATABASE_URL` is set. Remove it, and remove any
-  volume you attached to the dashboard service for it.
-- No Node variables, API key, or Railway token is required.
-
-| Setting | Value |
+| Variable | Value |
 | --- | --- |
-| Internal application address | `0.0.0.0:8080` with the variables above |
-| Networking target port | `8080` |
-| Public browser URL | `https://<your-generated-domain>.up.railway.app` |
-| Public HTTPS port | `443`, handled by Railway automatically |
-| Healthcheck | `/healthz` |
-| Records | table `classrooms` in the PostgreSQL service, one row per classroom |
+| `PORT` | `8080` |
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` |
+| `ADMIN_EMAIL` | The first administrator's email. Used only when there are no accounts yet. |
+| `DASHBOARD_PASSWORD` | The first administrator's setup password. Used only when there are no accounts yet; they must choose a new one at first sign-in. Delete it from Railway once they have. |
+| `RESEND_API_KEY` | API key from [Resend](https://resend.com) for invite and reset emails. Optional. |
+| `MAIL_FROM` | The sender, for example `Safar Dashboard <dashboard@safaracademy.org>`. Its domain must be verified in Resend. |
+| `MAIL_REDIRECT_TO` | Testing only: every email goes to this address instead of the real recipient. Remove it to go live. |
+| `RETENTION_DAYS` | How long class history and the activity log are kept. Default `14`. |
 
-Do not add `:8080` to the public HTTPS URL. Railway terminates HTTPS and
-forwards the request to the application's internal HTTP port. If you choose a
-different `PORT`, change the domain's target port to match. If you omit `PORT`,
-the server uses the value supplied by Railway; locally it defaults to `8080`.
+`DASHBOARD_USERNAME` is no longer used and can be deleted.
 
-If the dashboard service starts without `DATABASE_URL`, it stops with
-"Set DATABASE_URL to your PostgreSQL service's DATABASE_URL" rather than
-saving student records on Railway's temporary disk.
+Railway's Hobby plan blocks outbound SMTP, so email is sent over HTTPS
+through Resend. Without `RESEND_API_KEY` and `MAIL_FROM` everything still
+works; admins copy invite and reset links from **Manage users**.
 
-## Records, migration, and backups
+## Records, history and backups
 
-- The first startup creates an empty `classrooms` table. Classrooms and
-  students are added from the dashboard by uploading a CSV (see README.md).
-  Later startups and redeploys keep everything that has been added.
-- A `classes` table from the earlier version of the dashboard, which shipped
-  with fixed classes, is deleted at startup.
-- Changes are shared across devices. Open dashboards refresh every 10 seconds
-  when visible. A class being typed into is not replaced mid-edit. Conflicting
-  saves are rejected so an older browser cannot overwrite newer records. The
-  page lets you download its unsaved changes before reloading; reconcile that
-  file manually with the latest records.
-- Wait for **All changes saved online** before closing a tab. Failed saves
-  stay in the tab's memory and can be retried/downloaded. The Railway page does
-  not cache student records in browser localStorage.
-- Back up the PostgreSQL service: enable backups on its volume in Railway, or
-  run `pg_dump` against its connection URL. Deleting the database service or
-  its volume deletes the live records. Redeploying or deleting the dashboard
-  service does not touch them.
-- `/healthz` exposes only service health. The page, script, and records require
-  authentication; source files and the database are not served.
-  The shared staff login does not provide individual staff roles or audit logs.
+- Each classroom is a row of `classrooms`. Accounts, sessions and the history
+  live in other tables of the same database (see `db.py`).
+- Database changes are numbered migrations in `db.py`, applied once each at
+  startup and recorded in `schema_migrations`. They only add tables; existing
+  classroom records are left as they are.
+- Every save is kept in **Class history** for `RETENTION_DAYS`. Saves by the
+  same person within 15 minutes share one entry. An admin can restore any
+  version, or bring back a deleted classroom (teachers then need to be ticked
+  for it again).
+- Back up the database too: turn on scheduled backups in the Postgres service's
+  **Backups** tab. Deleting the Postgres service or its volume deletes the live
+  records. Redeploying or deleting the MySafar service does not.
 
 ## Run and verify locally
 
 ```sh
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
-export DASHBOARD_USERNAME=safar
-export DASHBOARD_PASSWORD='your-local-test-password'
+export ADMIN_EMAIL=you@example.com DASHBOARD_PASSWORD='a-local-setup-password'
+export COOKIE_SECURE=0   # plain http://localhost; never set this on Railway
 export PORT=8080
 # Either point at a PostgreSQL database...
 export DATABASE_URL=postgresql://user:password@localhost:5432/safar
-# ...or leave DATABASE_URL unset to keep records in a local SQLite file:
-# export DATA_DIR=.local-data
+# ...or leave DATABASE_URL unset to keep records in a local SQLite file in .local-data
 .venv/bin/gunicorn --config gunicorn.conf.py 'server:create_app()'
 ```
-
-Open `http://localhost:8080` and use the browser login prompt. `.env.example`
-documents the variables; the server does not automatically load `.env` files.
 
 ```sh
 python3 tools/build.py
@@ -114,11 +84,5 @@ python3 tools/build.py
 TEST_DATABASE_URL=postgresql://user:password@localhost:5432/safar .venv/bin/python -m unittest -v test_server
 ```
 
-Rebuild the two generated HTML files after editing `src/page.html`. The Docker
-image uses the checked-in standalone page, so commit the generated files too.
-
-Railway references: [GitHub deployments](https://docs.railway.com/deployments/github-autodeploys),
-[PostgreSQL](https://docs.railway.com/databases/postgresql),
-[variable references](https://docs.railway.com/variables#referencing-another-services-variable),
-[public networking](https://docs.railway.com/networking/public-networking), and
-[healthchecks](https://docs.railway.com/deployments/healthchecks).
+GitHub Actions runs the same tests on every pull request and push to `main`
+(`.github/workflows/ci.yml`).

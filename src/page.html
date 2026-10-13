@@ -198,7 +198,7 @@ if(MODE==="claude")try{claude.use("db").then(function(db){if(!db){DBST="off";MOD
    var d=ch.doc.data();if(d&&d.json&&d.json!==LJ[c]){try{parseC(c,d.json);LJ[c]=d.json;touched[c]=1}catch(e){}}});
   var first=!LOADED;LOADED=true;setSt("☁️ Saved online. It will be here next week.");
   if(first||!CID||touched[CID]||!ST[CID])changed();else navL()},function(){LOADED=true;setSt("⚠️ Couldn't load the saved classrooms.");changed()})}).catch(function(){DBST="off";MODE="local";loadLocal();changed()})}catch(e){DBST="off";MODE="local";loadLocal()}
-function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function esc(t){return String(t).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 
 function rank(k){var a=S.slice().sort(function(x,y){return y[k]-x[k]||x.name.localeCompare(y.name)});var r=0,prev=null;
  return a.map(function(s,i){if(s[k]!==prev){r=i+1;prev=s[k]}return {s:s,r:r}})}
@@ -329,7 +329,7 @@ function boardHtml(){var B=CIDS.map(function(c){var L=ST[c].S,n=L.length,p=sumOf
  return '<div class="card" style="margin-bottom:16px"><h2>🏅 Class leaderboard</h2><div class="sub" style="margin:0 0 10px">Ranked by passes + merits this month, per student</div>'+B.map(function(o,i){if(o.v!==pv){r=i+1;pv=o.v}return '<div class="lr"><div class="rk '+(r<4?'r'+r:'')+'">'+r+'</div><div><div class="n">'+esc(ST[o.c].name)+'</div><div class="sub" style="margin:0">'+o.p+' passes · '+o.m+' merits · '+o.n+' students</div><div class="tr"><i style="width:'+(o.v/mx*100)+'%"></i></div></div><div class="v">'+o.v.toFixed(1)+'</div></div>'}).join("")+'</div>'}
 function master(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){A.push({s:s,c:c})})});
  var now=Date.now(),all=A.map(function(o){return o.s}),h="";
- if(!CIDS.length){document.getElementById("mst").innerHTML='<div class="card note">'+(LOADED?'<b>No classrooms yet.</b> Upload a CSV of your students below to create them.':'Loading class records…')+'</div>';return}
+ if(!CIDS.length){document.getElementById("mst").innerHTML='<div class="card note">'+(LOADED?(window.ME&&ME.role!=="admin"?'<b>No classrooms have been given to you yet.</b> Ask an administrator to add you to your classrooms.':'<b>No classrooms yet.</b> Upload a CSV of your students below to create them.'):'Loading class records…')+'</div>';return}
  if(!A.length)h+='<div class="card note">No students yet. Upload a CSV below, or open a class and add students in its Input tab.</div>';
  var K=[["Classes",CIDS.length],["Students",A.length],["Passes this month",sumOf(all,mpc)],["Total passes",sumOf(all,function(s){return s.passes})],["Total merits",sumOf(all,function(s){return s.merits})]];
  h+='<div class="kp">'+K.map(function(k){return '<div class="card"><b>'+k[1]+'</b><small>'+k[0]+'</small></div>'}).join("")+'</div><div class="cc">';

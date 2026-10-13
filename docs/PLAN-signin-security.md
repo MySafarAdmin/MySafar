@@ -1,8 +1,38 @@
 # Plan: sign-in page, security and backend improvements
 
-Status: proposal, nothing below has been changed yet. Written 2026-10-13 from a
-review of this repository, the Railway project `triumphant-renewal` and the
-GitHub repository `MySafarAdmin/MySafar`.
+Written 2026-10-13 from a review of this repository, the Railway project
+`triumphant-renewal` and the GitHub repository `MySafarAdmin/MySafar`.
+
+## Decisions (2026-10-13)
+
+- Own email-and-password sign-in, not Google sign-in. The sign-in page is the
+  start page.
+- Invite and password-reset links are emailed (Resend, over HTTPS, since
+  Railway's Hobby plan blocks SMTP). Test emails go to
+  faeez.aullyar@safaracademy.org via `MAIL_REDIRECT_TO`.
+- Roles: administrators see everything; teachers see only their own
+  classrooms. There is no viewer role.
+- History and activity are kept for 14 days. Backups go to this account's
+  Google Drive, keeping 14 days.
+- Deploy-failure alerts go to the account's email.
+- The custom domain comes later.
+
+## Progress
+
+- Done on branch `claude/website-signin-security-plan-f13fxj`, not yet merged:
+  - Sign-in page, staff accounts, sessions, roles and per-teacher classrooms
+  - Invites and password resets
+  - Rate limits, CSRF and origin checks
+  - Class history with restore, and the activity log
+  - Numbered migrations
+  - HSTS, a non-root Docker image, and Flask 3.1.3
+  - GitHub Actions CI, Dependabot and SECURITY.md
+- Not yet done:
+  - Railway clean-up (deleting the leftover import service)
+  - Google Drive backups
+  - Branch protection
+  - Removing `'unsafe-inline'` from the dashboard's CSP
+  - Two-factor sign-in for admins
 
 ## 1. Where things stand today
 
