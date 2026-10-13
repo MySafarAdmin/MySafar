@@ -893,7 +893,6 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 /* ---------- Class: Memo (levels, targets and a pass calendar; view only) ---------- */
 #vT[data-v="his"] .mrec,#vT[data-v="rec"] .mhis{display:none!important}
 .mtbar{margin-bottom:10px}
-.mboard{display:grid;grid-template-columns:minmax(0,1fr) minmax(290px,330px);gap:20px;align-items:start}
 .mlist{min-width:0;overflow:hidden auto;overscroll-behavior:contain;padding:2px 4px 8px 2px}
 .mgrp+.mgrp{margin-top:18px}
 .mgh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:10px}
@@ -902,7 +901,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .mct{display:inline-grid;place-items:center;min-width:22px;height:20px;padding:0 6px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:.75rem;font-weight:700;color:var(--ink-2)}
 .mgrp.due{padding:12px;border-radius:var(--r-lg);background:var(--surface);border:1.5px solid color-mix(in srgb,var(--gold) 55%,#fff);box-shadow:inset 0 3px 0 var(--gold)}
 .mgrp.due h3{color:var(--gold-ink)}.mgrp.due .mgh p{color:var(--gold-ink)}
-.mcards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:12px}
+.mcards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(156px,1fr));gap:12px}
 .mcard{display:flex;flex-direction:column;width:100%;height:100%;padding:0;border:1.5px solid var(--line-2);border-radius:14px;background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
 .mcard:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(29,33,39,.08);border-color:color-mix(in srgb,var(--hc) 55%,var(--line-2))}
 .mcard[aria-pressed="true"]{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy)}
@@ -929,7 +928,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .mwt{display:inline-flex;align-items:center;gap:6px;color:var(--gold-ink)}
 .mcal{scroll-margin-top:72px;border:1px solid var(--line);border-radius:var(--r-lg);padding:10px 12px 12px;background:var(--surface)}
 .mch{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.mch h2{margin:0;font-size:1rem;font-weight:750;color:var(--ink)}
+.mch h3{margin:0;font-size:1rem;font-weight:750;color:var(--ink)}
 .mwd,.mgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .mwd{margin:6px 0 4px;font-size:.6875rem;font-weight:650;color:var(--mute);text-align:center}
 .mgw{overflow:hidden}
@@ -950,16 +949,25 @@ button.mc[aria-pressed="true"]{border-color:var(--navy);box-shadow:inset 0 0 0 1
 button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .mcnt{display:grid;place-items:center;min-width:18px;height:16px;padding:0 4px;border-radius:999px;font-style:normal;font-size:.6875rem;font-weight:750;color:#fff;background:color-mix(in srgb,var(--sage) calc(var(--a) * 100%),var(--sage-soft))}
 .mdot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 0 2px #fff}
-.mday{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:.875rem;color:var(--ink-2);max-height:calc(100vh - 520px);max-height:calc(100dvh - 520px);min-height:120px;overflow:auto}
 .mpd{color:var(--ink-2);white-space:nowrap}
-.mday p{margin:0 0 6px}
-.mday h3{margin:0 0 6px;font-size:.875rem;font-weight:750;color:var(--ink)}
 .mpl{list-style:none;margin:0;padding:0}
 .mpl li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 0}
 .mpl .nc{margin:0}
-@media (max-width:959.98px){.mboard{grid-template-columns:1fr}.mcal{max-width:420px}}
-
-@media (max-width:559.98px){.mcards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mtop{min-height:96px;padding:8px 10px}.mday{max-height:none}}
+@media (max-width:559.98px){.mcards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mtop{min-height:96px;padding:8px 10px}}
+.mpro{padding:14px;border-radius:var(--r-lg);background:color-mix(in srgb,var(--hc) 22%,#fff);border:1.5px solid color-mix(in srgb,var(--hc) 50%,#fff);margin-bottom:14px}
+.mpt{display:flex;flex-direction:column;gap:2px;margin-top:10px}
+.mpro .mtl{display:flex;align-items:center;justify-content:space-between}
+.mpt small{font-size:.75rem;color:var(--ink-2)}
+.mpt b{font-size:1.25rem;font-weight:750;color:var(--ink)}
+.mpt .mlad,.mpt .mbar{height:6px;margin-top:6px}
+.mpl1{margin:10px 0 0;font-size:.875rem;color:var(--ink-2)}
+.mpl1 .mwt{margin-left:4px;font-weight:650}
+.mcm{margin:8px 0 0;text-align:center}
+.mlog{margin-top:14px}
+.mphd{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.mphd h3{display:inline-flex;align-items:center;gap:8px;margin:0;font-size:.9375rem;font-weight:750}
+.mlog .mpl li{border-bottom:1px solid var(--line);padding:7px 0}
+.mpd{color:var(--ink-2);white-space:nowrap}
 </style></head><body>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1044,15 +1052,8 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
   <div class="seg mrec" id="mO" role="group" aria-label="Order"><button type="button" data-p="c" aria-pressed="true">Class order</button><button type="button" data-p="w" aria-pressed="false">Longest wait</button><button type="button" data-p="l" aria-pressed="false">Furthest on</button></div>
   <div class="seg mhis" id="tP" role="group" aria-label="Days shown"><button type="button" data-p="r" aria-pressed="true">Recent</button><button type="button" data-p="a" aria-pressed="false">All</button></div><div class="leg mhis" id="leg"></div>
   <div class="tools"><div class="seg" id="tV" role="group" aria-label="Show"><button type="button" data-v="rec" aria-pressed="true">Students</button><button type="button" data-v="his" aria-pressed="false">Full sheet</button></div>
-   <details class="help"><summary aria-label="How the memo page works">?</summary><div class="hb"><p>One card per student, with their level, the target they are working on and how long since their last pass. The card's colour is the student's house once houses are set.</p><p>Students with three weeks or more since their last pass are shown first, under Should pass soon.</p><p>Select a student to see the days they passed on the calendar and every target they passed with its date. Select a marked day to see who passed then.</p><p>Passes are recorded on the Record tab. Full sheet shows every pass as a table, one column per class day.</p></div></details></div></div>
- <div class="pane" data-pane="rec"><div class="mboard">
-  <div class="mlist" id="mL"></div>
-  <aside class="mcal" aria-label="Pass calendar">
-   <div class="mch"><button type="button" class="ibtn" id="mPrev" aria-label="Previous month"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><h2 id="mMon" aria-live="polite"></h2><button type="button" class="ibtn" id="mNext" aria-label="Next month"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div>
-   <div class="mwd" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
-   <div class="mgw"><div class="mgrid" id="mG"></div></div>
-   <div class="mday" id="mDay" aria-live="polite"></div>
-  </aside></div></div>
+   <details class="help"><summary aria-label="How the memo page works">?</summary><div class="hb"><p>One card per student, with their level, the target they are working on and how long since their last pass. The card's colour is the student's house once houses are set.</p><p>Students with three weeks or more since their last pass are shown first, under Should pass soon.</p><p>Select a student to open their profile: a calendar marking the days they passed, and every target they passed with its date.</p><p>Passes are recorded on the Record tab. Full sheet shows every pass as a table, one column per class day.</p></div></details></div></div>
+ <div class="pane" data-pane="rec"><div class="mlist" id="mL"></div></div>
  <div class="pane" data-pane="his" hidden><div class="sheetwrap" id="sheet" tabindex="0" aria-label="Memo sheet, scrollable"></div></div></section>
 
 <section id="vD" class="ws hide" role="tabpanel" aria-labelledby="tD">
@@ -1290,7 +1291,7 @@ function rankList(key,items,o){o=o||{};var a=ranked(items),lim=o.limit||10,mx=a.
 var tt;function toast(m,info){var e=$("toast");e.textContent=m;e.className="on"+(info?" info":"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},3200)}
 var DF=null;
 function drawer(title,html){DMODE="";$("drwT").textContent=title;$("drwB").innerHTML=html;if($("drw").hidden)DF=document.activeElement;$("drw").hidden=false;$("drwB").scrollTop=0;$("drwX").focus()}
-function closeDrawer(){DMODE="";if($("drw").hidden)return;$("drw").hidden=true;$("drwB").innerHTML="";if(DF&&document.contains(DF))DF.focus();DF=null}
+function closeDrawer(){var mm=DMODE==="mm";DMODE="";if(mm){MS=-1;MD="";mMark()}if($("drw").hidden)return;$("drw").hidden=true;$("drwB").innerHTML="";if(DF&&document.contains(DF))DF.focus();DF=null}
 $("drwX").onclick=closeDrawer;
 $("drw").addEventListener("click",function(e){if(e.target===this)closeDrawer()});
 var AK=null,AF=null;
@@ -1482,46 +1483,44 @@ function mList(){var L=$("mL");
  if(due.length)h+='<section class="mgrp due" aria-labelledby="mDueH"><div class="mgh"><h3 id="mDueH"><span class="mwait" aria-hidden="true"></span>Should pass soon <span class="mct">'+due.length+'</span></h3><p>Three weeks or more since their last pass. Give them a chance to pass this class day.</p></div><ul class="mcards">'+due.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
  if(rest.length)h+='<section class="mgrp" aria-labelledby="mAllH"><div class="mgh"><h3 id="mAllH">'+(due.length?'Everyone else':'All students')+' <span class="mct">'+rest.length+'</span></h3></div><ul class="mcards">'+rest.map(function(i){return mCard(S[i],i)}).join("")+'</ul></section>';
  L.innerHTML=h;L.style.maxHeight=window.innerWidth>=960?Math.max(240,window.innerHeight-Math.max(top,120)-20)+"px":""}
-/* Passes by day for the class, or for the selected student. */
-function mPasses(){var P={};S.forEach(function(s,i){if(MS>=0&&i!==MS)return;s.log.forEach(function(t,k){var d=dk(t);(P[d]=P[d]||[]).push({i:i,k:k,t:t})})});return P}
+/* A student's profile opens in the side drawer: where they are, a calendar marking the days they passed,
+   and every target they passed with its date. */
+function mPasses(){var P={},s=S[MS];if(s)s.log.forEach(function(t,k){var d=dk(t);(P[d]=P[d]||[]).push(k)});return P}
 function mKey(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)}
 function mFirst(){return mKey(sd())<mKey(today0())?mKey(sd()):mKey(today0())}
-function mCal(dir){var G=$("mG");if(!G)return;var now=mKey(today0());if(!MM||MM>now)MM=now;if(MM<mFirst())MM=mFirst();
- var p=MM.split("-"),y=+p[0],m=+p[1]-1,d1=new Date(y,m,1),n=new Date(y,m+1,0).getDate(),pad=(d1.getDay()+6)%7,P=mPasses(),today=dk(Date.now()),mx=1;
- Object.keys(P).forEach(function(d){if(d.slice(0,7)===MM)mx=Math.max(mx,P[d].length)});
- if(MD&&MD.slice(0,7)!==MM)MD="";if(MD&&!P[MD])MD="";
- $("mMon").textContent=d1.toLocaleDateString("en-GB",{month:"long",year:"numeric"});$("mPrev").disabled=MM<=mFirst();$("mNext").disabled=MM>=now;
- var h="";for(var k=0;k<pad;k++)h+='<span class="mc out"></span>';
- for(var day=1;day<=n;day++){var dt=new Date(y,m,day),key=dk(dt.getTime()),g=dt.getDay(),L=P[key]||[],cls="mc"+((g===6||g===0)&&key>=FCD&&key<=today?" cd":"")+(key===today?" td":"")+(key>today?" fu":"");
-  var lab=dt.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
-  if(!L.length){h+='<span class="'+cls+'"><b>'+day+'</b></span>';continue}
-  var mark=MS>=0?'<i class="mdot" style="background:'+lc(S[MS].lt[L[0].k])+'"></i>':'<i class="mcnt" style="--a:'+(.35+.65*L.length/mx)+'">'+L.length+'</i>';
-  h+='<button type="button" class="'+cls+' has" data-md="'+key+'" aria-pressed="'+(MD===key)+'" aria-label="'+lab+", "+(MS>=0?esc(S[MS].name)+" passed "+esc(pl(S[MS],L[0].k)):plural(L.length,"pass","passes"))+'"><b>'+day+'</b>'+mark+'</button>'}
- G.innerHTML=h;if(dir&&!QM.matches){G.classList.remove("in-l","in-r");void G.offsetWidth;G.classList.add(dir>0?"in-r":"in-l")}
- mDayDraw(P)}
-function mDayDraw(P){var E=$("mDay"),mon=$("mMon").textContent.split(" ")[0],who=MS>=0?S[MS]:null,h="";
- if(MD&&P[MD]){var L=P[MD];h='<h3>'+qDate(MD).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</h3><ul class="mpl">'+L.map(function(o){var s=S[o.i];return '<li><b>'+esc(s.name)+'</b>'+chip(lc(s.lt[o.k]),esc(pl(s,o.k)))+'</li>'}).join("")+'</ul>';
-  if(who)h+='<button type="button" class="btn sm quiet" data-mmd="1">All of '+esc(fn(who))+'\'s passes</button>'}
- else if(who){var K=who.log.map(function(_,k){return k}).reverse();
-  h='<h3>'+esc(who.name)+'</h3><p class="cap">'+(K.length?plural(K.length,"target")+' passed. The latest is first.':'No targets passed yet.')+'</p>'
-   +(K.length?'<ul class="mpl">'+K.map(function(k){return '<li><span class="mpd">'+ds(who.log[k])+'</span>'+chip(lc(who.lt[k]),esc(pl(who,k)))+'</li>'}).join("")+'</ul>':'')}
- else{var M=[],ss={};Object.keys(P).forEach(function(d){if(d.slice(0,7)===MM)P[d].forEach(function(o){M.push(o);ss[o.i]=1})});
-  h='<p>'+(M.length?'<b>'+plural(M.length,"pass","passes")+'</b> in '+mon+' by '+plural(Object.keys(ss).length,"student")+'.':'No passes in '+mon+' yet.')+'</p><p class="cap">Select a student to see the days they passed and every target they passed.'+(M.length?' Select a marked day to see who passed.':'')+'</p>'}
- if(who)h+='<button type="button" class="btn sm quiet" data-mall="1">Show the whole class</button>';
- E.innerHTML=h}
+var MPV=["#003b6b","#5e8a69"];
+function mCalHtml(){var s=S[MS],now=mKey(today0());if(!MM||MM>now)MM=now;if(MM<mFirst())MM=mFirst();
+ var p=MM.split("-"),y=+p[0],m=+p[1]-1,d1=new Date(y,m,1),n=new Date(y,m+1,0).getDate(),pad=(d1.getDay()+6)%7,P=mPasses(),today=dk(Date.now());
+ if(MD&&(MD.slice(0,7)!==MM||!P[MD]))MD="";
+ var g='';for(var k=0;k<pad;k++)g+='<span class="mc out"></span>';
+ for(var day=1;day<=n;day++){var dt=new Date(y,m,day),key=dk(dt.getTime()),w=dt.getDay(),L=P[key]||[],cls="mc"+((w===6||w===0)&&key>=FCD&&key<=today?" cd":"")+(key===today?" td":"")+(key>today?" fu":"");
+  if(!L.length){g+='<span class="'+cls+'"><b>'+day+'</b></span>';continue}
+  g+='<button type="button" class="'+cls+' has" data-md="'+key+'" aria-pressed="'+(MD===key)+'" aria-label="'+dt.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+', passed '+esc(L.map(function(k){return pl(s,k)}).join(" and "))+'"><b>'+day+'</b><i class="mdot" style="background:'+lc(s.lt[L[0]])+'"></i></button>'}
+ var inM=s.log.filter(function(t){return mKey(new Date(t))===MM}).length;
+ return '<div class="mcal"><div class="mch"><button type="button" class="ibtn" data-mnav="-1" aria-label="Previous month"'+(MM<=mFirst()?' disabled':'')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button><h3 aria-live="polite">'+d1.toLocaleDateString("en-GB",{month:"long",year:"numeric"})+'</h3><button type="button" class="ibtn" data-mnav="1" aria-label="Next month"'+(MM>=now?' disabled':'')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></div>'
+  +'<div class="mwd" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div><div class="mgw"><div class="mgrid">'+g+'</div></div>'
+  +'<p class="cap mcm">'+(inM?plural(inM,"pass","passes")+' this month.':'No passes this month.')+'</p></div>'}
+function mProfile(){var s=S[MS];if(!s)return "";var n=nod(s),g=mGrp(s.target),col=lc(s.target),juz=s.target>BL,t=mLast(s),K=s.log.map(function(_,k){return k}).reverse();
+ var top='<div class="mpro" style="--hc:'+(MHC[s.house]||"var(--sky)")+'"><div class="mtl">'+(n?'<span class="mnd">No data yet</span>':chip(col,juz?g.name:"L"+(lv(s.target)+1)))+(s.house?'<span class="qhs"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'')+'</div>'
+  +(n?'':'<div class="mpt"><small>Working on</small><b>'+esc(bl(s.target))+'</b>'+(s.target<NB?mLadder(g,col):'')+'</div>')
+  +'<p class="mpl1">'+(t?'Last pass <b>'+ds(t)+'</b>, '+(/day$/.test(mAgo(t))?mAgo(t).toLowerCase():mAgo(t)+' ago')+'.':'No pass yet.')+(mLate(s)?' <span class="mwt"><span class="mwait" aria-hidden="true"></span>Should pass soon</span>':'')+'</p></div>';
+ var list='';
+ if(MD){var L=mPasses()[MD]||[];list='<div class="mphd"><h3>'+qDate(MD).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</h3><button type="button" class="btn sm quiet" data-mmd="1">All passes</button></div><ul class="mpl">'+L.map(function(k){return '<li><span class="mpd">'+ds(s.log[k])+'</span>'+chip(lc(s.lt[k]),esc(pl(s,k)))+'</li>'}).join("")+'</ul>'}
+ else list='<div class="mphd"><h3>Targets passed <span class="mct">'+K.length+'</span></h3></div>'+(K.length?'<ul class="mpl">'+K.map(function(k){return '<li><span class="mpd">'+ds(s.log[k])+'</span>'+chip(lc(s.lt[k]),esc(pl(s,k)))+'</li>'}).join("")+'</ul>':'<p class="none">No targets passed yet.</p>');
+ return top+mCalHtml()+'<section class="mlog">'+list+'</section>'}
+function mDraw(dir,focus){var B=$("drwB");if(DMODE!=="mm"||!S[MS])return;B.innerHTML=mProfile();
+ var G=B.querySelector(".mgrid");if(dir&&G&&!QM.matches)G.classList.add(dir>0?"in-r":"in-l");
+ if(focus){var f=B.querySelector(focus);if(f&&!f.disabled)f.focus()}}
+function mOpen(i){var s=S[i];if(!s)return;MS=i;MD="";MM=s.log.length?mKey(new Date(mLast(s))):"";drawer(s.name,"");DMODE="mm";mDraw(0);mMark()}
+function mMark(){Array.prototype.forEach.call($("mL").querySelectorAll("[data-mi]"),function(r){r.setAttribute("aria-pressed",+r.dataset.mi===MS&&DMODE==="mm")})}
 function memo(){if(MS>=S.length)MS=-1;var m=ms0(),P=S.filter(function(s){return s.log.some(function(t){return t>=m})}).length,W=S.filter(mLate).length;
  $("mSum").innerHTML=S.length?'<b>'+P+' of '+S.length+'</b> passed this month'+(W?' · <span class="mwt"><span class="mwait" aria-hidden="true"></span><b>'+W+'</b> should pass soon</span>':''):'';
- mList();mCal(0)}
-function mMove(n){var p=MM.split("-"),d=new Date(+p[0],+p[1]-1+n,1),k=mKey(d);if(k>mKey(today0())||k<mFirst())return;MM=k;MD="";mCal(n)}
-$("mPrev").onclick=function(){mMove(-1)};$("mNext").onclick=function(){mMove(1)};
-$("mL").addEventListener("click",function(e){var b=e.target.closest("[data-mi]");if(!b)return;var i=+b.dataset.mi;MS=MS===i?-1:i;MD="";
- var s=S[MS],dir=0;if(s&&s.log.length&&!s.log.some(function(t){return dk(t).slice(0,7)===MM})){var k=mKey(new Date(mLast(s)));dir=k>MM?1:-1;MM=k}
- Array.prototype.forEach.call($("mL").querySelectorAll("[data-mi]"),function(r){r.setAttribute("aria-pressed",+r.dataset.mi===MS)});mCal(dir);
- if(MS>=0&&window.innerWidth<960)document.querySelector(".mcal").scrollIntoView({block:"start",behavior:QM.matches?"auto":"smooth"})});
-$("vT").addEventListener("click",function(e){var d=e.target.closest("[data-md]");if(d){MD=MD===d.dataset.md?"":d.dataset.md;mCal(0);var f=$("mG").querySelector('[data-md="'+d.dataset.md+'"]');if(f)f.focus();return}
- if(e.target.closest("[data-mmd]")){MD="";mCal(0);return}
- if(e.target.closest("[data-mall]")){var k=MS;MS=-1;MD="";memo();var r=$("mL").querySelector('[data-mi="'+k+'"]');if(r)r.focus()}});
-$("vT").addEventListener("keydown",function(e){if(e.key==="Escape"&&MS>=0){var k=MS;MS=-1;MD="";memo();var r=$("mL").querySelector('[data-mi="'+k+'"]');if(r)r.focus()}});
+ mList();if(DMODE==="mm"){if(S[MS]){$("drwT").textContent=S[MS].name;mDraw(0)}else closeDrawer()}}
+$("mL").addEventListener("click",function(e){var b=e.target.closest("[data-mi]");if(b)mOpen(+b.dataset.mi)});
+$("drwB").addEventListener("click",function(e){if(DMODE!=="mm")return;
+ var nv=e.target.closest("[data-mnav]");if(nv){var p=MM.split("-"),n=+nv.dataset.mnav,k=mKey(new Date(+p[0],+p[1]-1+n,1));if(k>mKey(today0())||k<mFirst())return;MM=k;MD="";mDraw(n,'[data-mnav="'+n+'"]');return}
+ var d=e.target.closest("[data-md]");if(d){MD=MD===d.dataset.md?"":d.dataset.md;mDraw(0,'[data-md="'+d.dataset.md+'"]');return}
+ if(e.target.closest("[data-mmd]")){MD="";mDraw(0)}});
 /* Score colours, red (0) to green (5), dark enough to carry text. */
 var QC=["#b42318","#c2410c","#b45309","#4d7c0f","#15803d","#047857"];
 function qlab(k){var p=k.split("-");return ds(new Date(+p[0],+p[1]-1,+p[2],12).getTime())}
