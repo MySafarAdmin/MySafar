@@ -165,3 +165,4 @@ header h1{background:none;-webkit-background-clip:border-box;background-clip:bor
 .bg{display:inline-flex;gap:4px;margin-right:14px}
 .late{color:#ef4444!important}
 .hide{display:none}
+.cmap{margin:8px 0 12px}.cmap summary{cursor:pointer;color:var(--mute)}.cmap .pf{margin-top:10px}.cmap select{max-width:260px}
