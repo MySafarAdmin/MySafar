@@ -2,8 +2,8 @@
 {% block title %}Class history{% endblock %}
 {% block width %} narrow{% endblock %}
 {% block content %}
-<div class="pagehead"><div><p class="crumb"><a href="/admin/history">Class history</a></p><h1>{{ (entries|selectattr("name")|first or {}).name or class_id }}</h1>
-<p class="lede">{% if exists %}Restoring a version saves it as the newest one; nothing is lost, and you can restore again.{% else %}This classroom was deleted. Restore a version to bring it back.{% endif %} Teachers will need to be assigned to a restored classroom again.</p></div></div>
+<div class="band slim"><p class="crumb"><a href="/admin/history">Class history</a></p><div class="band-top"><h1>{{ (entries|selectattr("name")|first or {}).name or class_id }}</h1></div>
+<p class="lede">{% if exists %}Restoring a version saves it as the newest one; nothing is lost, and you can restore again.{% else %}This classroom was deleted. Restore a version to bring it back.{% endif %} Teachers will need to be assigned to a restored classroom again.</p></div>
 <div class="tablewrap"><table class="tbl stackable">
 <thead><tr><th scope="col">Saved</th><th scope="col">By</th><th scope="col" class="n">Students</th><th scope="col"><span class="sr-only">Restore</span></th></tr></thead>
 <tbody>

@@ -9,7 +9,7 @@
  /* Brand: Safar navy, taken from the logo (#003B6B). */
  --navy:#003b6b;--navy-2:#0a4a80;--navy-ink:#e6eef7;--navy-mute:#a9bfd6;--navy-line:rgba(255,255,255,.14);
  /* Surfaces and text */
- --bg:#f3f6f9;--surface:#fff;--surface-2:#f7f9fb;--sunk:#eaf0f5;--line:#d8e1ea;--line-2:#c3cfdb;
+ --bg:#eef2f6;--surface:#fff;--surface-2:#f6f8fb;--sunk:#e8eef4;--line:#d8e1ea;--line-2:#c3cfdb;
  --ink:#13243a;--ink-2:#33465d;--mute:#56677c;
  /* Actions and status. Every colour that carries white text is at least 4.5:1. */
  --primary:#0b5cad;--primary-hover:#094c8f;--primary-soft:#e5f0fb;--primary-ink:#0a4f94;
@@ -17,6 +17,11 @@
  --warn:#b45309;--warn-soft:#fff3df;--warn-ink:#7c3a00;
  --bad:#b42318;--bad-soft:#fdecea;--bad-ink:#911c13;
  --focus:#2f7fd8;
+ /* Context colours: sky for learning and progress, teal for activity, gold for achievement.
+    Each has a soft module tint and an ink for text on that tint (all above 4.5:1). */
+ --sky:#1f7fc4;--sky-soft:#e6f2fb;--sky-ink:#0b5287;
+ --teal:#0f857a;--teal-soft:#def3ef;--teal-ink:#0a5c54;
+ --gold:#c4910f;--gold-soft:#fcf2d6;--gold-ink:#664700;
  /* Meaningful colours kept from the original dashboard: houses and house tokens */
  --makkah:#c9930c;--aqsa:#2386d1;--madinah:#1c9a68;
  --tok-g:#16a34a;--tok-b:#2563eb;--tok-r:#dc2626;
@@ -27,7 +32,9 @@
  --font:"Atkinson Next",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
  --shadow:0 1px 2px rgba(16,36,58,.06),0 1px 1px rgba(16,36,58,.04);
  --shadow-lift:0 12px 32px rgba(10,30,55,.22);
- --rail:248px;
+ --rail:232px;
+ /* The navy band that opens every page */
+ --band-ink:#fff;--band-mute:#bcd0e4;--band-line:rgba(255,255,255,.16);
  color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
  --navy:#06213b;--navy-2:#0c3157;--navy-line:rgba(255,255,255,.1);
@@ -35,14 +42,14 @@
  --ink:#e8eef5;--ink-2:#c6d3e1;--mute:#9db0c4;
  --primary:#5ea8ec;--primary-hover:#7ab8f0;--primary-soft:#163a5c;--primary-ink:#8cc4f5;
  --ok:#3fb27a;--ok-soft:#123826;--ok-ink:#7ed3a8;--warn:#e59a3a;--warn-soft:#3a2810;--warn-ink:#f3c27e;
- --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;color-scheme:dark}}
+ --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;--sky:#5aaee8;--sky-soft:#12304a;--sky-ink:#a4d2f4;--teal:#3cc2b2;--teal-soft:#0f3431;--teal-ink:#8fe0d6;--gold:#e0b33f;--gold-soft:#36290b;--gold-ink:#f2d58a;color-scheme:dark}}
 :root[data-theme="dark"]{
  --navy:#06213b;--navy-2:#0c3157;--navy-line:rgba(255,255,255,.1);
  --bg:#0c1a2a;--surface:#11243a;--surface-2:#142a43;--sunk:#0a1726;--line:#22384f;--line-2:#2f4a66;
  --ink:#e8eef5;--ink-2:#c6d3e1;--mute:#9db0c4;
  --primary:#5ea8ec;--primary-hover:#7ab8f0;--primary-soft:#163a5c;--primary-ink:#8cc4f5;
  --ok:#3fb27a;--ok-soft:#123826;--ok-ink:#7ed3a8;--warn:#e59a3a;--warn-soft:#3a2810;--warn-ink:#f3c27e;
- --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;color-scheme:dark}
+ --bad:#ef6b5f;--bad-soft:#3d1916;--bad-ink:#f6a49b;--focus:#7ab8f0;--sky:#5aaee8;--sky-soft:#12304a;--sky-ink:#a4d2f4;--teal:#3cc2b2;--teal-soft:#0f3431;--teal-ink:#8fe0d6;--gold:#e0b33f;--gold-soft:#36290b;--gold-ink:#f2d58a;color-scheme:dark}
 
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
@@ -119,22 +126,76 @@ a:hover{color:var(--primary-hover)}
  .content{padding:16px 16px 40px}
 }
 
-/* ---------- Page head ---------- */
-.pagehead{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:flex-end;justify-content:space-between;margin-bottom:20px}
-.pagehead .crumb{font-size:.875rem;color:var(--mute);margin-bottom:4px}
-.pagehead h1{overflow-wrap:anywhere}
-.pagehead .lede{color:var(--mute);margin:6px 0 0;max-width:68ch}
-.pagehead .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* ---------- Page band: the navy opening of every page, with its title and key figures ---------- */
+.band{background:var(--navy);color:var(--band-ink);border-radius:16px;padding:22px 28px 24px;margin-bottom:24px;position:relative}
+.band a{color:#fff}
+.band-top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;min-height:40px}
+.band h1{font-size:2rem;font-weight:800;letter-spacing:-.015em;line-height:1.1;overflow-wrap:anywhere;color:#fff;margin-right:auto}
+.band .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.band .btn{background:#fff;border-color:#fff;color:var(--navy)}
+.band .btn:hover{background:#e6eef7;border-color:#e6eef7}
+.band .btn.ghost{background:none;color:#fff;border-color:var(--band-line)}
+.band .btn.ghost:hover{background:rgba(255,255,255,.1)}
+.band :focus-visible{outline-color:#fff}
+.band .lede{color:var(--band-mute);margin:6px 0 0;max-width:70ch}
+.figs{display:flex;flex-wrap:wrap;gap:12px 40px;margin-top:18px}
+.fig{min-width:0}
+.fig b{display:block;font-size:2.5rem;font-weight:800;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:#fff}
+.fig span{display:block;margin-top:6px;font-size:.875rem;color:var(--band-mute)}
+.fig.alert b{color:#ffd27a}
+.fig.quiet b{font-size:1.5rem;padding-top:.75rem}
+/* Admin and account pages: a shorter band */
+.band.slim{padding:20px 24px}
+.band.slim h1{font-size:1.75rem}
+@media (max-width:959.98px){
+ .band{border-radius:0;margin:-16px -16px 16px;padding:16px 16px 18px}
+ .band h1{font-size:1.5rem}
+ .figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 16px;margin-top:14px}
+ .fig b{font-size:1.625rem}
+ .fig span{font-size:.8125rem;margin-top:4px;line-height:1.3}
+ .fig.quiet b{font-size:1.125rem;padding-top:.4rem}
+ .band.slim h1{font-size:1.375rem}
+}
+@media (max-width:379px){.band h1{font-size:1.25rem}.fig b{font-size:1.375rem}}
 
-/* ---------- Panels ---------- */
-.panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;box-shadow:var(--shadow)}
+/* ---------- Panels and modules ----------
+   White workspaces carry the work; tinted modules (sky, teal, gold) carry insight in their own context. */
+.panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.mod{background:var(--surface);border-radius:var(--r-lg);padding:20px;min-width:0}
+.mod.line{border:1px solid var(--line)}
+.mod.sky{background:var(--sky-soft)}.mod.teal{background:var(--teal-soft)}.mod.gold{background:var(--gold-soft)}
+.mod-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:12px;min-height:36px}
+.mod-h h2{font-size:1.125rem;font-weight:750}
+.mod.sky .mod-h h2{color:var(--sky-ink)}.mod.teal .mod-h h2{color:var(--teal-ink)}.mod.gold .mod-h h2{color:var(--gold-ink)}
+.cap{font-size:.8125rem;color:var(--mute);margin:0}
+.mod.sky .cap{color:var(--sky-ink)}.mod.teal .cap{color:var(--teal-ink)}.mod.gold .cap{color:var(--gold-ink)}
+.g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:start}
+.g12.eq{align-items:stretch}
+.g12>*{grid-column:1/-1}
+@media (min-width:1100px){.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}}
+.g12+.g12,.g12+.mod,.mod+.g12,.mod+.mod{margin-top:20px}
+.g12>.mod{margin-top:0}
+/* A small segmented control, for a shared period or measure */
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:.875rem;font-weight:600;border:0;background:none;color:var(--ink-2);padding:6px 12px;min-height:36px;cursor:pointer}
+.seg button+button{border-left:1px solid var(--line-2)}
+.seg button[aria-pressed="true"]{background:var(--navy);color:#fff}
+.seg button:focus-visible{outline-offset:-3px}
+/* Contextual help: a ? that opens the rules for the screen, by keyboard, touch or pointer */
+.help{position:relative;display:inline-block}
+.help summary{list-style:none;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);color:var(--primary-ink);font-weight:800;cursor:pointer}
+.help summary::-webkit-details-marker{display:none}
+.help[open] summary{background:var(--primary-soft)}
+.help .hb{position:absolute;z-index:35;top:44px;right:0;width:min(360px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);padding:14px 16px;font-size:.9375rem;font-weight:400;text-align:left}
+.help .hb p{margin:0 0 8px}.help .hb p:last-child{margin:0}
+.help.left .hb{right:auto;left:0}
 .panel+.panel,.card+.card{margin-top:16px}
 .panel>h2,.card>h2,.panel-h h2{margin-bottom:4px}
 .panel-h{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:12px}
 .panel-h p{margin:0}
 .panel .sub,.card .sub{font-size:.9375rem}
 .stack>*+*{margin-top:16px}
-.cols{display:grid;gap:16px;align-items:start;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
+.cols{display:grid;gap:20px;align-items:start;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
 .section-title{font-size:1rem;font-weight:700;margin:32px 0 12px;color:var(--ink-2)}
 
 /* ---------- Buttons ---------- */

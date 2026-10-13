@@ -2,7 +2,7 @@
 {% block title %}Class history{% endblock %}
 {% block width %} narrow{% endblock %}
 {% block content %}
-<div class="pagehead"><div><h1>Class history</h1><p class="lede">Earlier versions of each classroom from the last {{ config.RETENTION_DAYS }} days. Open one to restore a version, or to bring back a deleted classroom.</p></div></div>
+<div class="band slim"><div class="band-top"><h1>Class history</h1></div><p class="lede">Earlier versions of each classroom from the last {{ config.RETENTION_DAYS }} days. Open one to restore a version or bring back a deleted classroom.</p></div>
 <div class="tablewrap"><table class="tbl stackable">
 <thead><tr><th scope="col">Classroom</th><th scope="col" class="n">Versions</th><th scope="col">Last change</th><th scope="col"><span class="sr-only">Open</span></th></tr></thead>
 <tbody>

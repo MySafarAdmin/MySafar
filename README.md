@@ -1,8 +1,9 @@
 # Safar Academy Enfield dashboards
 
-One page holds the Master overview and a full class dashboard (Dashboard,
-Input, Warnings, Quran, Memo) for every classroom. The dashboard starts empty:
-classrooms and students are added by uploading a CSV on the Master page.
+One page holds the school overview (Summary, Rankings, Houses) and a full class
+dashboard (Record, Warnings, Quran, Memo, Progress, Rewards, Settings) for every
+classroom. The dashboard starts empty:
+classrooms and students are added by uploading a CSV on the overview.
 
 **Railway deployment:** see [RAILWAY.md](RAILWAY.md) for the variables, staff
 accounts and roles, email, history and backups. Staff sign in with their own
@@ -11,7 +12,7 @@ see everything.
 
 ## Adding students
 
-On the Master page, an administrator's **Upload students** takes a CSV file with one row per
+On the overview (Summary tab), an administrator's **Upload students** takes a CSV file with one row per
 student and these six columns, with the column names in the first row:
 
 ```csv
@@ -29,8 +30,9 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
   gender, year group, Islamic Studies teacher) are updated. Nobody is added
   twice.
 - **Student Name**, **Gender**, **School Year Group** and **Current Teacher
-  [Islamic Studies]** are saved with the student and shown in the classroom's
-  Input tab; the Student ID and Safar year group also appear on each student's card.
+  [Islamic Studies]** are saved with the student and shown in each
+  student's details (the row's "…" menu and the Progress students table); the
+  Student ID, Safar year group and house also appear under each name on Record.
 - The **Safar year group** is taken from the classroom name: `Yr7-B-QM-...` is
   Year 7. A shared `Yr9/10` classroom takes the year from the Islamic Studies
   class (`Yr9-AI-...` or `Yr10-AI-...`). An optional **Safar Year Group** column
@@ -53,7 +55,7 @@ Spellings are matched loosely ("al aqsa", "Medina"), and anything else is
 listed in the upload preview and left unchanged. A later upload with a House
 column updates each student's house; one without it leaves houses as they are.
 
-Each classroom's **Houses** tab gives tokens:
+Each classroom's **Rewards** tab gives house tokens:
 
 | Token | Points |
 | --- | --- |
@@ -62,7 +64,7 @@ Each classroom's **Houses** tab gives tokens:
 | Red (book completion) | 50 |
 
 **−** takes back the latest token of that colour. The tab shows the class's
-points per house. The Master page shows the whole school's totals, and on
+points per house. The overview's Houses tab shows the whole school's totals, and on
 Railway teachers see those totals too, without seeing other classes'
 students. The points are set in `TOK` near the top of the script in
 `src/page.html` and in `TOKEN_POINTS` in `server.py`; change both together.
@@ -77,7 +79,7 @@ and the target lists group the items by Juz. The items are listed in `JUZ` near
 the top of the script in `src/page.html`. A surah that spans two juz (for
 example Adh-Dhariyat) has an item in each.
 
-Each classroom's Input tab can rename it (**Rename class**), set its first
+Each classroom's Settings tab can rename it (**Rename class**), set its first
 class day, add students by hand, and delete the classroom.
 
 A classroom can be opened directly by adding its code to the end of the

@@ -2,19 +2,19 @@
 {% block title %}TV screens{% endblock %}
 {% block width %} narrow{% endblock %}
 {% block content %}
-<div class="pagehead"><div><h1>TV screens</h1><p class="lede">A TV in the school shows the live dashboard from its own link, without anyone signing in on it. It shows house points, book completions this month, the star of the week for each class and the top memorisation passes, with first names and surname initials only. It can't open anything else or change anything.</p></div>
-<div class="acts"><a class="btn" href="/tv" target="_blank" rel="noopener">Preview the dashboard<span class="sr-only"> (opens in a new tab)</span></a></div></div>
+<div class="band slim"><div class="band-top"><h1>TV screens</h1><div class="acts"><a class="btn" href="/tv" target="_blank" rel="noopener">Preview the TV<span class="sr-only"> (opens in a new tab)</span></a></div></div>
+<p class="lede">Each TV shows the live house points, book completions, stars of the week and top passes from its own link, with first names and surname initials only. It can't open or change anything else.</p></div>
 {% if link %}
 <div class="panel linkbox" role="status">
   <p><b>Open this link on {{ link_for }}</b> and leave it open. It shows only once, so make a new one if you lose it. Anyone with the link can see the dashboard, so keep it on the TV only.</p>
   <input readonly value="{{ link }}" aria-label="TV screen link">
 </div>
 {% endif %}
-<div class="panel">
+<div class="mod line">
   <h2>Add a TV</h2>
   <form method="post" action="/admin/tv/new" class="inline-form">
     <input type="hidden" name="csrf" value="{{ csrf }}">
-    <label class="field">Name<input name="name" maxlength="80" placeholder="For example, Admin area TV" autocomplete="off" required></label>
+    <label class="field">Name<input name="name" maxlength="80" placeholder="For example, Admin area TV…" autocomplete="off" required></label>
     <button class="btn primary">Make a link</button>
   </form>
 </div>
