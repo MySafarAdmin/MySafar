@@ -237,6 +237,7 @@ a:hover{color:var(--primary-hover)}
 .help .hb{position:absolute;z-index:35;top:44px;right:0;width:min(360px,calc(100vw - 32px));background:var(--surface);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);padding:14px 16px;font-size:.9375rem;font-weight:400;text-align:left}
 .help .hb p{margin:0 0 8px}.help .hb p:last-child{margin:0}
 .help.left .hb{right:auto;left:0}
+@media (max-width:640px){.help .hb,.help.left .hb{position:fixed;left:12px;right:12px;top:auto;width:auto;bottom:calc(var(--dock-gap,12px) + var(--dock-h,0px) + 12px);max-height:60vh;overflow-y:auto;z-index:85}}
 .panel+.panel,.card+.card{margin-top:16px}
 .panel>h2,.card>h2,.panel-h h2{margin-bottom:4px}
 .panel-h{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline;justify-content:space-between;margin-bottom:12px}

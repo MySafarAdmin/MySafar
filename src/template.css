@@ -980,3 +980,16 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 }
 /* Messages rise above the phone dock. */
 @media (max-width:959.98px){#toast{bottom:calc(var(--dock-gap) + var(--dock-h) + 12px)}}
+/* Phones: nothing runs off the screen. The summary's house points keep their side margin, the tokens table
+   drops its point values from the headings and tightens, the figures open as a card above the dock (as help notes
+   do, tokens.css) and the CSV example wraps. */
+@media (max-width:640px){
+ .tsr .rk4.mine .hb{margin-left:0;margin-right:0}
+ .ws .tbl.htok th,.ws .tbl.htok td{padding-left:6px;padding-right:6px;font-size:.875rem}
+ .ws .tbl.htok th:first-child,.ws .tbl.htok td:first-child{padding-left:12px}
+ .head .figpop .figs{position:fixed;left:12px;right:12px;top:auto;bottom:calc(var(--dock-gap,12px) + var(--dock-h,0px) + 12px);width:auto;min-width:0;max-width:none;z-index:85}
+ .ex{white-space:pre-wrap;overflow-wrap:anywhere}
+ .htok .tv{display:none}
+}
+/* Below 400px the token columns are headed by their coloured dot alone; the name stays for screen readers. */
+@media (max-width:399.98px){.htok .tw{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.htok .tdot{margin:0}}
