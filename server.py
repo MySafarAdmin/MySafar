@@ -143,7 +143,8 @@ class RailwayProxy:
 # Opening the site in a new tab or window always starts at the sign-in page. A tab that has just signed in is
 # marked in sessionStorage (which lasts for that tab only, through refreshes); a dashboard loaded in a tab without
 # the mark signs out and goes to the sign-in page. If sessionStorage is blocked, the 20-minute idle limit still applies.
-TAB_GUARD = ("(function(){try{var k='mysafar.tab';if(ME.fresh){sessionStorage.setItem(k,'1');return}"
+TAB_GUARD = ("(function(){try{var k='mysafar.tab';if(ME.fresh){document.documentElement.classList.add('fresh');"
+             "sessionStorage.setItem(k,'1');return}"
              "if(sessionStorage.getItem(k))return;window.SIGNING_OUT=true;"
              "document.documentElement.style.visibility='hidden';var f=new FormData();f.append('csrf',ME.csrf);"
              "fetch('/logout',{method:'POST',body:f,credentials:'same-origin'}).then(go,go);"
