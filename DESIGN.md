@@ -11,8 +11,7 @@ dashboard's own screens are styled in `src/template.css`, the admin pages in
 A friendly, calm workspace that fits the screen. The fifth pass (October 2026)
 borrows the best parts of Journey2Jannah, which the school's teachers use
 every day: one rounded, friendly sans for all type, a greeting at the top of
-the overviews ("Assalāmu ʿalaykum Sr Maryam!") with a teacher's classes as
-soft pills, white cards with round corners floating on a soft cool-grey canvas
+the overviews ("Assalāmu ʿalaykum Sr Maryam!"), white cards with round corners floating on a soft cool-grey canvas
 with a faint shadow instead of hairline borders, pill-shaped buttons, tabs and
 segmented controls, classes shown as cards with a patterned banner and a year
 tile, and a split sign-in page with a welcome panel and a short saying.
@@ -89,7 +88,7 @@ One shell everywhere: a 232px navy rail on screens 960px and wider, and below
 that a navy top bar with the name and a floating dock at the bottom of the
 screen. The dashboard opens with a
 compact head on the canvas (`.head`: navy title, or on the overviews the
-greeting with the overview's name and a teacher's class pills under it; Switch
+greeting with the overview's name under it; Switch
 class on small screens, save status, the figures button, then pill tabs) above
 the white workspace card (`.ws`, 20px corners). The selected tab is a white pill
 with navy type and a soft shadow. The head is sticky on wide screens. Below
@@ -114,9 +113,9 @@ CSS-only More, since they run without scripts. While a text field has the
 keyboard open on a touch screen the dock slides away. Toasts rise above it.
 
 **Quran on phones** (a sheet under 600px wide): only the focused day shows, as
-three columns: the name on the left, the day's box, and the house. If any name
-in the class would be cut off, the house column goes, the name takes its room
-(wrapping onto a second line if it must) and the box sits on the right. Tapping
+three columns: the name on the left, the day's box in the middle of the screen
+under the date, and the house on the right. A long name wraps onto a second
+line. No message pops up after each score; the box shows it. Tapping
 a box raises the score picker from the bottom: the student's full name, the
 day, six large score buttons and Clear, over a dim backdrop that closes it.
 
@@ -156,11 +155,15 @@ grows with the height (up to 120px), so the title, tabs and work sit nearer the
 middle of the screen. Nothing changes at 1280x720.
 
 **Class overview** (teachers): the Overview title reads Class overview and its
-Summary puts Rankings first and largest (House points, Most passes, Most
-merits), then Passes per week and Students by level, then attention. No latest
-passes or Furthest along list; admins keep Furthest along on their Rankings tab.
-The **school overview** (admins) uses the same layout with school-wide figures,
-and its last row adds Top classes and Latest passes beside attention.
+Summary opens with Needs attention, then Rankings (House points, and the top
+three students for Most passes and for Most merits), then Passes per week and
+Students by level. Each of those section titles (and Top classes) has a small
+arrow and opens its full list in a pop-up (the side drawer; a sheet on phones),
+so the details don't need a trip to another tab. The Attention, Rankings and
+Houses tabs stay as they were (the user kept them). No latest passes or
+Furthest along list on the Summary; admins keep Furthest along on their
+Rankings tab. The **school overview** (admins) uses the same layout with
+school-wide figures, and its last row adds Top classes and Latest passes.
 
 **Record page look**: a subtitle under the title, the four numbered steps down
 the left of the workspace divided by hairlines like the overview's sections (a
@@ -309,10 +312,12 @@ overview sections and class cards rise in turn, ranking rows follow, and the
 bars grow. Once per sign-in (html.fresh, then body.enter for a few seconds),
 off under reduced motion.
 
-**Quran tracker button on phones**: a teacher's overview on a phone has one
-large navy "Open Quran tracker" button per class straight under the greeting,
-since entering the day's scores is why most teachers open the app. It opens that
-class on the Quran tab. Not shown on wider screens or to admins.
+**Tracker button on phones**: a teacher's overview on a phone has one large
+navy "Open tracker" button straight under the greeting (just the words), since
+entering the day's scores is why most teachers open the app. It opens the class
+they used last on the Quran tab (Switch class is there for the others). The
+teacher's class chips that sat beside "Class overview" are gone. Not shown on
+wider screens or to admins.
 
 **New tab, new sign-in**: opening the site in a new tab or window always starts
 at the sign-in page; refreshing a signed-in tab keeps you signed in (a

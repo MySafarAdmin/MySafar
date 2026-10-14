@@ -361,28 +361,18 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head .save[data-s="bad"]{color:#fff;font-weight:700;background:var(--bad);border-radius:999px;padding:2px 10px;white-space:normal}
 .head .save[data-s="bad"]::before{background:#fff}
 .head .save:empty{display:none}
-/* Overview greeting: a friendly line in big navy type, the overview's name under it, then a teacher's classes
-   as soft pills (from Journey2Jannah's teacher home). */
+/* Overview greeting: a friendly line in big navy type, the overview's name under it (from Journey2Jannah's
+   teacher home). */
 .head.greet h1{font-size:2rem}
 .hello{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:2px}
 .hsub{font-size:.9375rem;font-weight:650;color:var(--mute);margin-right:6px}
-.hchip{display:inline-flex;align-items:center;min-height:30px;padding:3px 14px;border-radius:999px;font-size:.8125rem;font-weight:750;text-decoration:none;max-width:24ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 1px 2px rgba(28,34,48,.06)}
-.hchip.c0{background:#fde8e1;color:#9a3412}.hchip.c1{background:#e3eefb;color:#0b4a82}.hchip.c2{background:#e5f3ea;color:#2f5a3b}.hchip.c3{background:#fbf0d6;color:#664a0b}
-.hchip:hover{filter:brightness(.97);text-decoration:underline}
-/* The phone's Quran tracker button under the greeting (teachers only; page.html hello()). */
+/* The phone's "Open tracker" button under the greeting (teachers only; page.html hello()). */
 .track{display:none}
 @media (max-width:959.98px){
- .track{display:flex;align-items:center;gap:14px;width:100%;margin-top:14px;padding:16px 16px 16px 14px;border:0;border-radius:20px;
-  background:var(--navy);color:#fff;text-align:left;font:inherit;cursor:pointer;box-shadow:0 10px 24px -10px rgba(0,59,107,.55)}
- .track+.track{margin-top:10px}
- .track .tki{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--gold,#c9a35b);color:var(--navy)}
- .track .tki .ic{width:26px;height:26px}
- .track .tkt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
- .track b{font-size:1.125rem;font-weight:800;line-height:1.2}
- .track small{font-size:.8125rem;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- .track .tkc{flex:none;width:22px;height:22px;opacity:.9}
+ .track{display:block;width:100%;margin-top:14px;min-height:60px;padding:14px 20px;border:0;border-radius:20px;background:var(--navy);color:#fff;
+  font:inherit;font-size:1.25rem;font-weight:800;text-align:center;cursor:pointer;box-shadow:0 10px 24px -10px rgba(0,59,107,.55)}
  .track:active{transform:scale(.98)}
- .track:focus-visible{outline:3px solid var(--gold,#c9a35b);outline-offset:3px}
+ .track:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 }
 @media (max-width:959.98px){.head.greet h1{font-size:1.375rem;flex:1 1 0}.hello{margin-top:4px}}
 /* Tabs are pills on the canvas; the chosen one is a white pill with navy type, like the cards under it. */
@@ -990,9 +980,8 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .qph .qnames .qn{justify-content:flex-start;padding-left:0}
 .qph .qnames .qnb{padding-left:2px}
 .qph .qhead .qfh:first-child{justify-content:flex-start;padding-left:2px}
-.qnh .qhouses,.qnh .qhead .qfh:nth-child(2){display:none}
-/* Without the house, a name still too long for one line wraps onto a second. */
-.qnh .qnames .qnb b{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;line-height:1.15;text-align:left}
+/* A name too long for one line wraps onto a second. */
+.qph .qnames .qnb b{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;line-height:1.15;text-align:left}
 .qpop.qsheet{position:fixed;inset:0;z-index:90;display:block;padding:0;background:none;border:0;border-radius:0;box-shadow:none;animation:none}
 .qsc{position:absolute;inset:0;background:rgba(10,24,40,.35);animation:qsFade .2s ease both}
 .qscard{position:absolute;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:var(--surface);border-radius:24px 24px 0 0;
@@ -1313,6 +1302,20 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 }
 /* Below 400px the token columns are headed by their coloured dot alone; the name stays for screen readers. */
 @media (max-width:399.98px){.htok .tw{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.htok .tdot{margin:0}}
+/* Overview section titles that open their full list in a pop-up (page.html ov()). */
+.ovt{display:inline-flex;align-items:center;gap:4px;padding:0;margin:0;border:0;background:none;font:inherit;color:inherit;cursor:pointer;text-align:left}
+.ovt .ic{width:18px;height:18px;flex:none;opacity:.5;transition:transform .18s ease,opacity .18s ease}
+.ovt:hover{color:var(--navy)}.ovt:hover .ic{opacity:1;transform:translateX(2px)}
+.ovt:focus-visible{outline:2px solid var(--navy);outline-offset:3px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){.ovt .ic{transition:none}}
+/* Needs attention leads the overview: its counts sit side by side on wider screens. */
+.tsa>.attn{margin:0}
+@media (min-width:700px){.tsa>.attn:not(.calm){display:flex;flex-wrap:wrap;align-items:flex-start;gap:0 28px}
+ .tsa>.attn:not(.calm)>.mod-h{flex:1 0 100%}.tsa>.attn .ab{flex:1 1 220px}}
+/* Pop-up contents fit the drawer's width. */
+.ovp .g12>*{grid-column:1/-1}
+.ovp .hbig{grid-template-columns:1fr;margin-left:0;margin-right:0;border-radius:var(--r-lg)}
+.ovp>.cap:first-child{margin:0 0 10px}
 </style></head><body>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1349,7 +1352,6 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 <section id="vM" aria-labelledby="ttl">
  <div id="vMS" role="tabpanel" aria-labelledby="mS" class="ws"><div id="mst"><div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div></div></div>
  <div id="vMA" role="tabpanel" aria-labelledby="mA" class="ws hide"></div>
-
  <div id="vMR" role="tabpanel" aria-labelledby="mR" class="ws hide"></div>
  <div id="vMH" role="tabpanel" aria-labelledby="mH" class="ws hide"></div>
 </section>
@@ -1884,13 +1886,13 @@ function qDate(k){var p=k.split("-");return new Date(+p[0],+p[1]-1,+p[2],12)}
 /* Where each column sits: k is its place from the focused day (0), negative to the left. */
 /* Phones (a sheet under 600px wide) show only the focused day: name, box, house. When a name would be cut off,
    the house goes and the name takes its room, with the box on the right. */
-function qGeo(W,nh){if(W<600){var bw=Math.round(Math.min(84,Math.max(64,W*.2))),hw=nh?0:Math.round(Math.min(120,W*.27)),nw=W-bw-hw;
-  return {side:0,phone:1,nh:nh,w:bw,nameW:nw,houseW:hw,x:function(k){return k<0?k*bw:k===0?nw:nw+bw+hw+(k-1)*bw}}}
+/* On a phone the day's box sits in the middle of the screen, under the date: names on the left (wrapping onto a
+   second line when long), the house on the right. */
+function qGeo(W){if(W<600){var bw=Math.round(Math.min(84,Math.max(64,W*.2))),nw=Math.floor((W-bw)/2),hw=W-bw-nw;
+  return {side:0,phone:1,w:bw,nameW:nw,houseW:hw,x:function(k){return k<0?k*bw:k===0?nw:nw+bw+hw+(k-1)*bw}}}
  var side=W<540?1:W<860?2:3,nameW=Math.round(Math.min(230,Math.max(side===1?96:130,W*.19))),houseW=Math.round(Math.min(150,Math.max(side===1?72:96,W*.12))),
   w=(W-nameW-houseW)/(2*side+1);
  return {side:side,w:w,nameW:nameW,houseW:houseW,x:function(k){return k<=0?(k+side)*w+(k===0?nameW:0):side*w+nameW+w+houseW+(k-1)*w}}}
-function qTooLong(w){var c=qTooLong.c||(qTooLong.c=document.createElement("canvas").getContext("2d"));c.font="600 16px "+getComputedStyle(document.body).fontFamily;
- return S.some(function(s){return c.measureText(s.name).width+(qStarOf(s)?22:0)+(s.warn?16:0)+48>w})}
 function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.24/side)}
 function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name),lt=v!==undefined&&qTest(s,d);
  if(!on)return '<span class="qc'+(v===undefined?'':' has')+(lt?' test':'')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'></span>';
@@ -1906,7 +1908,7 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  var rec=S.filter(function(s){return s.q[QF]!==undefined});
  $("qSum").innerHTML='<b>'+rec.length+' of '+S.length+'</b> recorded'+(rec.length?' · average <b>'+avg(rec.map(function(s){return s.q[QF]}))+'</b>':'');
  var W=B.clientWidth;if(!W)return; /* hidden: drawn when the tab opens */
- var G=qGeo(W,0);if(G.phone&&qTooLong(G.nameW))G=qGeo(W,1);B.classList.toggle("qph",!!G.phone);B.classList.toggle("qnh",!!G.nh);var fb=40,top=B.getBoundingClientRect().top,
+ var G=qGeo(W);B.classList.toggle("qph",!!G.phone);var fb=40,top=B.getBoundingClientRect().top,
   rh=fb+6;
  /* The boxes are one size in every class, however many students it has; a long class scrolls. */
  B.style.setProperty("--rh",rh+"px");B.style.setProperty("--w",G.w+"px");B.style.setProperty("--box",Math.min(fb,G.w-10)+"px");
@@ -1988,8 +1990,8 @@ function qPop(btn){qPopClose();var s=S[+btn.dataset.qi];if(!s)return;var cur=s.q
  B.appendChild(p);btn.setAttribute("aria-expanded","true");Array.prototype.forEach.call(B.querySelectorAll(".qcol:not(.on)>.qr:nth-child("+(+btn.dataset.qi+1)+"),.qhouses>.qn:nth-child("+(+btn.dataset.qi+1)+")"),function(e){e.classList.add("qhid")});var r=btn.getBoundingClientRect(),b=B.getBoundingClientRect(),x=r.right-b.left+8;if(x+p.offsetWidth>B.clientWidth)x=Math.max(0,r.left-b.left-p.offsetWidth-8);
  p.style.left=x+"px";p.style.top=Math.max(0,r.top-b.top+(r.height-p.offsetHeight)/2)+"px";(p.querySelector('[aria-pressed="true"]')||p.firstChild).focus()}
 function qSet(i,v,next){var s=S[i],d=QF;if(!s)return;if(s.q[d]!==undefined&&qTest(s,d)){toast(TEACHER?"That's a level test score, so only an admin can change it.":"That's a level test score. Change it on the Record page.",1);return}if(d>dk(Date.now())){toast("That class day hasn't happened yet",1);return}
- var lab=qlab(d),nm=fn(s);
- if(v==="x"||s.q[d]===v){delete s.q[d];toast(nm+"'s score cleared for "+lab)}else{s.q[d]=v;toast(nm+" scored "+v+"/5 on "+lab)}
+ // No message for each score (the box shows it); only refusals above get one.
+ if(v==="x"||s.q[d]===v)delete s.q[d];else s.q[d]=v;
  save();render();var n=$("qB").querySelector('.qcol.on [data-qi="'+Math.min(next?i+1:i,S.length-1)+'"]');if(n)n.focus()}
 $("qB").addEventListener("click",function(e){var a=e.target.closest("#qAdd2");if(a){addStudent();return}
  if(e.target.closest(".qpop [data-qx]")){qPopClose(1);return}
@@ -2164,16 +2166,14 @@ function dockSet(){var inC=PAGE==="C",cls=TEACHER||inC;
  Object.keys(DKC).forEach(function(id){$(id).hidden=!cls;cur($(id),inC&&CUR===DKC[id])});
  $("nS").hidden=!inC;cur($("nS"),inC&&CUR==="S");$("dock").querySelector(".dk-more").classList.toggle("on",inC&&CUR==="S")}
 function cur(b,on){if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")}
-/* The overviews open with a greeting, as Journey2Jannah does, then say which overview this is; a teacher also
-   gets their classes as chips to jump straight in. */
+/* The overviews open with a greeting, as Journey2Jannah does, then say which overview this is. */
 function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("band").classList.toggle("greet",on);if(!on)return;
  if(PAGE==="R"){el.innerHTML='<span class="hsub">End-of-level tests for Quran and Memo</span>';return}
- var who=window.ME&&ME.name&&ME.name!=="Administrator"?" "+ME.name:"",cls=TEACHER?CIDS:[];
+ var who=window.ME&&ME.name&&ME.name!=="Administrator"?" "+ME.name:"",c=TEACHER&&CIDS.length?lastC():"";
  $("ttl").textContent="Assalāmu ʿalaykum"+who+"!";
- el.innerHTML='<span class="hsub">'+(TEACHER?"Class overview":"School overview")+'</span>'+cls.map(function(c,i){return '<a class="hchip c'+(i%4)+'" href="#'+esc(c)+'" data-open="'+esc(c)+'">'+esc(ST[c].name)+'</a>'}).join("")+
-  /* On a phone a teacher mostly opens the app to enter today's Quran scores, so the tracker for each of their
-     classes is one large button straight under the greeting (template.css shows it on phones only). */
-  cls.map(function(c){return '<button type="button" class="track" data-open="'+esc(c)+'" data-tab="Q"><span class="tki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10.2 5 7.8 4.5 3.5 4.5v13c4.3 0 6.7.5 8.5 2 1.8-1.5 4.2-2 8.5-2v-13c-4.3 0-6.7.5-8.5 2z"/><path d="M12 6.5v13"/></svg></span><span class="tkt"><b>Open Quran tracker</b><small>'+esc(ST[c].name)+'</small></span><svg class="ic tkc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>'}).join("")}
+ /* On a phone a teacher mostly opens the app to enter the day's Quran scores, so one large button under the
+    greeting opens the tracker for the class they used last (template.css shows it on phones only). */
+ el.innerHTML='<span class="hsub">'+(TEACHER?"Class overview":"School overview")+'</span>'+(c?'<button type="button" class="track" data-open="'+esc(c)+'" data-tab="Q">Open tracker</button>':'')}
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?n.name:PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  document.title=(n?n.name+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+"MySafar"}
@@ -2202,27 +2202,29 @@ function school(){var A=[],now=Date.now();CIDS.forEach(function(c){ST[c].S.forEa
 function byClass(L){var m={},o=[];L.forEach(function(x){if(!m[x.c]){m[x.c]=[];o.push(x.c)}m[x.c].push(x)});return o.map(function(c){return {c:c,L:m[c]}}).sort(function(a,b){return b.L.length-a.L.length||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true})})}
 var AK3=[["wr","Warnings"],["stale","No pass in 3+ weeks"],["quiet","Quiet classes"]];
 /* Summary: each kind of attention as a count with a way into its full list (grouped by class in the Attention tab). */
+/* A section title that opens the full details in a pop-up (the drawer; see ov()). */
+function ovT(k,t){return '<h2><button type="button" class="ovt" data-mt="'+k+'">'+t+'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></h2>'}
 function attnBox(K){
- if(!K.wr.length&&!K.stale.length&&!K.quiet.length)return '<div class="mod line attn calm"><h2>Needs attention</h2><p class="calmline">Nothing needs attention. No warnings, every student has passed in the last 3 weeks, and every class has activity this month.</p></div>';
+ if(!K.wr.length&&!K.stale.length&&!K.quiet.length)return '<div class="mod line attn calm">'+ovT("A","Needs attention")+'<p class="calmline">Nothing needs attention. No warnings, every student has passed in the last 3 weeks, and every class has activity this month.</p></div>';
  var n=[0,0,0,0];K.wr.forEach(function(o){n[o.s.warn]++});
  var R=[["wr",K.wr.length,K.wr.length===1?"student with a warning":"students with a warning",byClass(K.wr),"Q"],
   ["stale",K.stale.length,(K.stale.length===1?"student":"students")+" with no pass in 3+ weeks",byClass(K.stale),"T"],
   ["quiet",K.quiet.length,(K.quiet.length===1?"class":"classes")+" with no activity this month",K.quiet.map(function(c){return {c:c,L:ST[c].S}}),""]];
- return '<div class="mod line attn"><div class="mod-h"><h2>Needs attention</h2></div>'+R.filter(function(r){return r[1]}).map(function(r){
+ return '<div class="mod line attn"><div class="mod-h">'+ovT("A","Needs attention")+'</div>'+R.filter(function(r){return r[1]}).map(function(r){
   return '<div class="ab '+r[0]+'"><button type="button" class="abh" data-list="'+r[0]+'" aria-label="See all '+r[1]+' '+r[2]+'"><b>'+r[1]+'</b><span>'+r[2]+'</span></button>'
    +(r[0]==="wr"?'<p class="lv">'+[3,2,1].filter(function(l){return n[l]}).map(function(l){return '<span class="lvn">'+wl(l)+'<b>'+n[l]+'</b></span>'}).join("")+'</p>':'')
    +'</div>'}).join("")+'</div>'}
 function latest(A,n){var E=[];A.forEach(function(o){o.s.log.forEach(function(t,k){E.push({t:t,s:o.s,c:o.c,x:pl(o.s,k)})})});return E.sort(function(a,b){return b.t-a.t}).slice(0,n)}
-function houseBoard(all,more){var T=window.HOUSE_TOTALS||houseTotals(all),V=HOUSES.map(function(h){return T[h]||0}),top=Math.max(1,Math.max.apply(null,V)),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null;
- return '<div class="mod gold hb"><div class="mod-h"><h2>House points</h2>'+(more?'<button type="button" class="btn sm quiet" data-mt="H">Houses</button>':'')+'</div><div class="houses">'+O.map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+(h===lead?' <span class="pill lead">Leading</span>':'')+'</span><span class="pts">'+v+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div></div>'}).join("")+'</div><p class="cap">Whole school, all time</p></div>'}
+function houseBoard(all){var T=window.HOUSE_TOTALS||houseTotals(all),V=HOUSES.map(function(h){return T[h]||0}),top=Math.max(1,Math.max.apply(null,V)),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null;
+ return '<div class="mod gold hb"><div class="mod-h">'+ovT("H","House points")+'</div><div class="houses">'+O.map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+(h===lead?' <span class="pill lead">Leading</span>':'')+'</span><span class="pts">'+v+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div></div>'}).join("")+'</div><p class="cap">Whole school, all time</p></div>'}
 function classRows(per){return CIDS.map(function(c){var L=ST[c].S,n=L.length,p=per==="m"?sumOf(L,mpc):sumOf(L,function(s){return s.passes}),m=per==="m"?sumOf(L,mmc):sumOf(L,function(s){return s.merits});
  return {name:ST[c].name,open:c,v:n?Math.round((p+m)/n*10)/10:0,sub:plural(p,"pass","passes")+", "+plural(m,"merit")+", "+plural(n,"student")}})}
 function master(){if(PAGE==="L"){dirTab();return}var K=school(),A=K.A,all=K.all,adm=!(window.ME&&ME.role!=="admin");
  $("figs").innerHTML=CIDS.length?fig(A.length,A.length===1?"Student":"Students")+fig(CIDS.length,CIDS.length===1?"Class":"Classes")+fig(sumOf(all,mpc),"Passes this month")+fig(sumOf(all,mmc),"Merits this month")+fig(K.wr.length,"With a warning",K.wr.length?"alert":"")+fig(K.stale.length,"No pass in 3+ weeks",K.stale.length?"alert":""):"";
- var na=K.wr.length+K.stale.length+K.quiet.length;$("mA").innerHTML='Attention'+(na?' <span class="tn">'+na+'</span>':'');
  if(!CIDS.length){$("mst").innerHTML=LOADED?'<div class="empty"><b>'+(adm?'No classrooms yet':'No classrooms have been given to you yet')+'</b>'+(adm?'Upload a CSV of your students to create them.<button type="button" class="btn sm p" data-open="L">Upload students</button>':'Ask an administrator to add you to your classrooms on Manage users.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div>';
   $("vMR").innerHTML=$("vMH").innerHTML=$("vMA").innerHTML="";return}
- if(MCUR==="S")summary(K);if(MCUR==="A")attnTab(K);if(MCUR==="R")rankings(K);if(MCUR==="H")houseTab(K)}
+ var na=K.wr.length+K.stale.length+K.quiet.length;$("mA").innerHTML='Attention'+(na?' <span class="tn">'+na+'</span>':'');
+ if(MCUR==="S")summary(K);if(MCUR==="A")attnTab(K);if(MCUR==="R")rankings(K);if(MCUR==="H")houseTab(K);if(DMODE==="ov")ovDraw(K)}
 /* Summary: one screen. Attention, this term's activity, houses and top classes, then where students are in the book. */
 function summary(K){var A=K.A,all=K.all;
  if(!A.length){$("mst").innerHTML='<div class="empty"><b>No students yet</b>Upload a CSV in Classes, or open a class and add students in its Settings.</div>';return}
@@ -2231,27 +2233,36 @@ function summary(K){var A=K.A,all=K.all;
    and largest, then the graphs, then attention. The school overview adds the top classes and the latest passes
    beside attention. */
 function tSummary(K,school){var all=K.all,E=school?latest(K.A,3):[];
- $("mst").innerHTML='<div class="tsum'+(school?' school':'')+'"><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K,1)+'</section>'
+ $("mst").innerHTML='<div class="tsum'+(school?' school':'')+'"><div class="tsa">'+attnBox(K)+'</div><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K)+'</section>'
   +'<div class="tsg"><div class="grp"><div class="mod-h"><h2>Passes per week</h2><span class="cap">'+(school?'Whole school, last 8 weeks':'Last 8 weeks')+'</span></div>'+weekChart(allLogs(all))+'</div>'
   +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target'+(school?', all '+plural(all.length,"student"):'')+'</span></div>'+levelCols(all)+'</div></div>'
-  +'<div class="tsl">'+attnBox(K)
-  +(school?'<div class="grp topc"><div class="mod-h"><h2>Top classes</h2><button type="button" class="btn sm quiet" data-mt="R">Rankings</button></div>'
+  +(school?'<div class="tsl"><div class="grp topc"><div class="mod-h">'+ovT("rc","Top classes")+'</div>'
     +rankList("topc",classRows("m"),{limit:3,noMore:1,none:"No passes or merits yet this month.",fmt:function(v){return v.toFixed(1)}})+'<p class="cap">This month, passes and merits per student</p></div>'
-    +'<div class="grp"><div class="mod-h"><h2>Latest passes</h2></div>'+(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(e.s.name)+'<small>'+esc(ST[e.c].name)+'</small></b><span class="x">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">No passes yet.</p>')+'</div>':'')
-  +'</div></div>';
+    +'<div class="grp"><div class="mod-h"><h2>Latest passes</h2></div>'+(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(e.s.name)+'<small>'+esc(ST[e.c].name)+'</small></b><span class="x">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">No passes yet.</p>')+'</div></div>':'')
+  +'</div>';
  $("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
+/* The pop-ups behind the overview's section titles: the full lists that used to be tabs of their own. */
+var OVK="";
+var OVN={A:"Needs attention",H:"House points",mp:"Most passes",mm:"Most merits",rc:"Class ranking"};
+function ov(k){OVK=k;drawer(OVN[k],"");DMODE="ov";ovDraw(school())}
+function ovDraw(K){var B=$("drwB"),m=RP==="m",tm=m?"this month":"in total",h;if(DMODE!=="ov")return;
+ if(OVK==="A")h=attnHtml(K);
+ else if(OVK==="H")h=houseHtml(K);
+ else if(OVK==="rc")h='<p class="cap">Passes and merits per student, '+tm+'</p>'+rankList("rcP"+RP,classRows(RP),{limit:10,page:1,what:"classes",none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}});
+ else{var mp=OVK==="mp";h='<p class="cap">Students, '+tm+'</p>'+rankList(OVK+"P"+RP,K.A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:mp?(m?mpc(o.s):o.s.passes):(m?mmc(o.s):o.s.merits)}}),{limit:10,page:1,what:"students",tone:mp?"sky":"gold",none:"No "+(mp?"passes":"merits")+" yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})}
+ B.innerHTML='<div class="ovp">'+h+'</div>'}
 /* Attention: the complete lists, one kind at a time, grouped by class and paged. */
-function attnTab(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],size=10,h;
+function attnHtml(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],size=10,h;
  h='<div class="toolbar"><div class="seg" id="aK" role="group" aria-label="Show">'+AK3.map(function(x){return '<button type="button" data-k="'+x[0]+'" aria-pressed="'+(k===x[0])+'">'+x[1]+' <span class="tn">'+L[x[0]].length+'</span></button>'}).join("")+'</div>'
   +'<p class="cap">'+(k==="wr"?"Warning 1, then Warning 2, then Miss break":k==="stale"?"Days since the last pass, or since the first class day for students with none":"Classes with no passes or merits since the 1st of this month")+'</p></div>';
- if(!a.length){$("vMA").innerHTML=h+'<p class="none calmline">'+(k==="wr"?"No warnings.":k==="stale"?"Every student has passed in the last 3 weeks.":"Every class has activity this month.")+'</p>';return}
+ if(!a.length)return h+'<p class="none calmline">'+(k==="wr"?"No warnings.":k==="stale"?"Every student has passed in the last 3 weeks.":"Every class has activity this month.")+'</p>';
  var p=pager("a"+k,a.length,size);
  if(k==="quiet")h+='<div class="tablewrap"><table class="tbl stackable"><thead><tr><th scope="col">Class</th><th scope="col" class="n">Students</th><th scope="col">Last pass</th></tr></thead><tbody>'
   +a.slice(p*size,(p+1)*size).map(function(c){return '<tr><td class="lead">'+opener(c,esc(ST[c].name))+'</td><td data-label="Students" class="n">'+ST[c].S.length+'</td><td data-label="Last pass">'+ago(lastPass(ST[c].S))+'</td></tr>'}).join("")+'</tbody></table></div>';
  else{var F=[];byClass(a).forEach(function(g){F=F.concat(g.L)});
   h+='<div class="tablewrap"><table class="tbl stackable"><thead><tr><th scope="col">Student</th><th scope="col">Class</th><th scope="col">'+(k==="wr"?"Warning":"Since a pass")+'</th></tr></thead><tbody>'
   +F.slice(p*size,(p+1)*size).map(function(o){return '<tr><td class="lead"><b>'+esc(o.s.name)+'</b></td><td data-label="Class">'+opener(o.c,esc(ST[o.c].name),k==="wr"?"Q":"T")+'</td><td data-label="'+(k==="wr"?"Warning":"Since a pass")+'">'+(k==="wr"?wl(o.s.warn):o.s.log.length?plural(o.d,"day"):'<span class="zero">No passes yet, '+plural(o.d,"day")+'</span>')+'</td></tr>'}).join("")+'</tbody></table></div>'}
- $("vMA").innerHTML=h+pagerHtml("a"+k,a.length,size,k==="quiet"?"classes":"students")}
+ return h+pagerHtml("a"+k,a.length,size,k==="quiet"?"classes":"students")}
 /* Classes: the searchable directory, ten classes a page. */
 function dirTab(){if(!CIDS.length){$("dirW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>'+(TEACHER?'Ask an administrator to add you to your classrooms on Manage users.':'Upload a CSV of your students below to create them.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';if(LOADED&&!TEACHER)$("up").open=true;return}
  if(!$("dirQ"))$("dirW").innerHTML='<div class="toolbar"><input type="search" id="dirQ" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><p class="cap" id="dirC"></p></div><div id="dirT"></div>';dirTable()}
@@ -2265,9 +2276,19 @@ function dirCard(c,i){var L=ST[c].S,w=L.filter(function(s){return s.warn}).lengt
 function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[c].name).indexOf(q)>=0});
  $("dirC").textContent=(q?plural(C.length,"class","classes")+" match":plural(CIDS.length,"class","classes"))+" · passes and merits this month";
  $("dirT").innerHTML=C.length?'<ul class="ccards">'+C.map(dirCard).join("")+'</ul>':'<p class="none">No class matches that search.</p>'}
-function rankings(K){$("vMR").innerHTML=rankHtml(K);$("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
-/* The rankings, on their own tab and, for teachers, as the centre of the class overview. */
-function rankHtml(K,mine){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
+/* The overview's rankings: house points and the top three students for passes and for merits. Each title opens
+   the full list. */
+function rankHtml(K){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
+ var h='<div class="toolbar"><div class="seg" id="rP" role="group" aria-label="Period"><button type="button" data-p="m" aria-pressed="'+m+'">This month</button><button type="button" data-p="a" aria-pressed="'+!m+'">All time</button></div><p class="cap">'+(m?'Since the 1st of this month':'Every pass and merit recorded: '+plural(sumOf(K.all,function(s){return s.passes}),"pass","passes")+' and '+plural(sumOf(K.all,function(s){return s.merits}),"merit")+' in total')+'</p></div>';
+ h+='<div class="rk4 mine">'+houseBoard(K.all)
+  +'<div class="grp"><div class="mod-h">'+ovT("mp","Most passes")+'</div><p class="cap">Students, '+tm+'</p>'+rankList("mp"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mpc(o.s):o.s.passes}}),{limit:3,noMore:1,tone:"sky",none:"No passes yet "+tm+"."})+'</div>'
+  +'<div class="grp"><div class="mod-h">'+ovT("mm","Most merits")+'</div><p class="cap">Students, '+tm+'</p>'+rankList("mm"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mmc(o.s):o.s.merits}}),{limit:3,noMore:1,tone:"gold",none:"No merits yet "+tm+"."})+'</div></div>';
+ return h}
+function attnTab(K){$("vMA").innerHTML=attnHtml(K)}
+function houseTab(K){$("vMH").innerHTML=houseHtml(K)}
+function rankings(K){$("vMR").innerHTML=rankFull(K);$("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
+/* The Rankings tab: every list in full, paged. */
+function rankFull(K){var mine=0;var A=K.A,m=RP==="m",tm=m?"this month":"in total";
  var far=mine?[]:A.filter(function(o){return o.s.target>1}).sort(function(a,b){return b.s.target-a.s.target||a.s.name.localeCompare(b.s.name)}),fp=pager("far"+RP,far.length,5);
  var h='<div class="toolbar"><div class="seg" id="rP" role="group" aria-label="Period"><button type="button" data-p="m" aria-pressed="'+m+'">This month</button><button type="button" data-p="a" aria-pressed="'+!m+'">All time</button></div><p class="cap">'+(m?'Since the 1st of this month':'Every pass and merit recorded: '+plural(sumOf(K.all,function(s){return s.passes}),"pass","passes")+' and '+plural(sumOf(K.all,function(s){return s.merits}),"merit")+' in total')+'</p></div>';
  h+='<div class="rk4'+(mine?' mine':'')+'">'+(mine?'':'<div class="grp"><div class="mod-h"><h2>Class ranking</h2></div><p class="cap">Passes and merits per student</p>'+rankList("rc"+RP,classRows(RP),{limit:5,page:1,what:"classes",none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}})+'</div>')
@@ -2275,7 +2296,7 @@ function rankHtml(K,mine){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
   +'<div class="grp"><div class="mod-h"><h2>Most passes</h2></div><p class="cap">Students, '+tm+'</p>'+rankList("mp"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mpc(o.s):o.s.passes}}),{limit:5,page:1,what:"students",tone:"sky",none:"No passes yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})+'</div>'
   +'<div class="grp"><div class="mod-h"><h2>Most merits</h2></div><p class="cap">Students, '+tm+'</p>'+rankList("mm"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mmc(o.s):o.s.merits}}),{limit:5,page:1,what:"students",tone:"gold",none:"No merits yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})+'</div></div>';
  return h}
-function houseTab(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null,mx=Math.max.apply(null,O.map(function(y){return T[y]||0}))||1;
+function houseHtml(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null,mx=Math.max.apply(null,O.map(function(y){return T[y]||0}))||1;
  var tok={},stu={},none=0;HOUSES.forEach(function(h){tok[h]=TOK.map(function(){return 0});stu[h]=0});
  K.all.forEach(function(s){if(!tok[s.house]){none++;return}stu[s.house]++;TOK.forEach(function(k,i){tok[s.house][i]+=(s[k[0]]||[]).length})});
  var size=6,p=pager("hc",CIDS.length,size);
@@ -2284,7 +2305,7 @@ function houseTab(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.slic
   +HOUSES.map(function(x){return '<tr><th scope="row"><span class="hn"><span class="hdot '+x+'"></span>'+x+'</span></th><td class="n">'+stu[x]+'</td>'+tok[x].map(function(v){return '<td class="n'+(v?'':' zero')+'">'+v+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div><p class="cap">Tokens given in the '+plural(CIDS.length,"class","classes")+' on this dashboard. '+(none?plural(none,"student")+' with no house yet.':'')+'</p></div>'
   +'<div class="grp s6"><h2>Points by class</h2><div class="tablewrap"><table class="tbl stackable"><thead><tr><th scope="col">Class</th>'+HOUSES.map(function(x){return '<th scope="col" class="n">'+x+'</th>'}).join("")+'</tr></thead><tbody>'
   +CIDS.slice(p*size,(p+1)*size).map(function(c){var t=houseTotals(ST[c].S);return '<tr><td class="lead">'+opener(c,esc(ST[c].name),"H")+'</td>'+HOUSES.map(function(x){return '<td data-label="'+x+'" class="n'+(t[x]?'':' zero')+'">'+t[x]+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div>'+pagerHtml("hc",CIDS.length,size,"classes")+'</div></div>';
- $("vMH").innerHTML=h}
+ return h}
 
 (function(){
 $("ren").onclick=function(){var c=CID;if(!c)return;ask("Rename this class","Save name",function(v){if(!ST[c])return;ST[c].name=v;sortC();save();navL();head();toast("Class name saved")},"Class name",0,ST[c].name)};
@@ -2310,11 +2331,12 @@ document.addEventListener("click",function(e){var b=e.target.closest("[data-open
  if(b.dataset.open){e.preventDefault();go(b.dataset.open,b.dataset.tab);return}
  if(b.dataset.pg){var pk=b.dataset.pg,pd=+b.dataset.pd;PG[pk]=(PG[pk]||0)+pd;if(CID)render();else master();var pb=document.querySelector('[data-pg="'+pk+'"][data-pd="'+pd+'"]');if(pb&&pb.disabled)pb=document.querySelector('[data-pg="'+pk+'"][data-pd="'+(-pd)+'"]');if(pb)pb.focus();return}
  if(b.dataset.ct){if(DMODE==="side")closeDrawer();tab(b.dataset.ct,1);if(b.dataset.pv)view(b.dataset.ct,b.dataset.pv);return}
- if(b.dataset.mt){mtab(b.dataset.mt,1);return}
- if(b.dataset.list){AKIND=b.dataset.list;mtab("A",1);return}
+ if(b.dataset.mt){ov(b.dataset.mt);return}
+ if(b.dataset.list){AKIND=b.dataset.list;ov("A");return}
  if(b.dataset.exp){var k=b.dataset.exp;EXP[k]=!EXP[k];if(CID)leaders();else master();var nb=document.querySelector('[data-exp="'+k+'"]');if(nb)nb.focus()}});
 $("vL").addEventListener("input",function(e){if(e.target.id==="dirQ"){DQ=e.target.value;dirTable()}});
 $("vMA").addEventListener("click",function(e){var b=e.target.closest("#aK button");if(b){AKIND=b.dataset.k;attnTab(school());$("aK").querySelector('[data-k="'+AKIND+'"]').focus()}});
+$("drwB").addEventListener("click",function(e){var b=DMODE==="ov"&&e.target.closest("#aK button");if(b){AKIND=b.dataset.k;ovDraw(school());$("drwB").querySelector('#aK [data-k="'+AKIND+'"]').focus()}});
 window.addEventListener("hashchange",function(){var h=(location.hash||"").slice(1),r=fromHash(h);if(r&&(r[1]||r[0]!==(CID||PAGE)))go(r[0],r[1]);else if(!h&&(CID||PAGE==="L"))go("M")});
 $("delC").onclick=function(){var c=CID;if(!c)return;
  ask("Delete "+ST[c].name+" with its "+plural(ST[c].S.length,"student")+" and all of their records? This can't be undone. Type DELETE to confirm.","Delete classroom",function(v){
