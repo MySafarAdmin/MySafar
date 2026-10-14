@@ -140,6 +140,16 @@ class RailwayProxy:
         return self.wsgi_app(environ, start_response)
 
 
+# Opening the site in a new tab or window always starts at the sign-in page. A tab that has just signed in is
+# marked in sessionStorage (which lasts for that tab only, through refreshes); a dashboard loaded in a tab without
+# the mark signs out and goes to the sign-in page. If sessionStorage is blocked, the 20-minute idle limit still applies.
+TAB_GUARD = ("(function(){try{var k='mysafar.tab';if(ME.fresh){sessionStorage.setItem(k,'1');return}"
+             "if(sessionStorage.getItem(k))return;window.SIGNING_OUT=true;"
+             "document.documentElement.style.visibility='hidden';var f=new FormData();f.append('csrf',ME.csrf);"
+             "fetch('/logout',{method:'POST',body:f,credentials:'same-origin'}).then(go,go);"
+             "function go(){location.replace('/login')}}catch(e){}})();")
+
+
 def script_json(value):
     """JSON that is safe inside a <script> element."""
     return json.dumps(value).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
@@ -280,12 +290,17 @@ def create_app(test_config=None):
 
     @app.get("/")
     def dashboard():
-        me = {"name": g.user["name"], "email": g.user["email"], "role": g.user["role"], "csrf": g.session["csrf"]}
+        fresh = bool(request.cookies.get(auth.fresh_cookie_name()))
+        me = {"name": g.user["name"], "email": g.user["email"], "role": g.user["role"], "csrf": g.session["csrf"],
+              "fresh": fresh}
         html = (ROOT / "Master_Dashboard_standalone.html").read_text(encoding="utf-8")
-        html = html.replace("<script>", f"<script>window.RAILWAY=true;window.ME={script_json(me)};</script>\n<script>", 1)
+        html = html.replace("<script>", f"<script>window.RAILWAY=true;window.ME={script_json(me)};{TAB_GUARD}</script>\n<script>", 1)
         html = html.replace("<header>", "<header inert>").replace("<main>", "<main inert>")
         html = html.replace("</body>", '<script src="/railway-storage.js"></script></body>')
-        return Response(html, mimetype="text/html")
+        response = Response(html, mimetype="text/html")
+        if fresh:
+            response.delete_cookie(auth.fresh_cookie_name(), path="/", secure=app.config["COOKIE_SECURE"])
+        return response
 
     @app.get("/Master_Dashboard_standalone.html")
     def old_dashboard_link():

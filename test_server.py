@@ -320,6 +320,15 @@ class DashboardTests:
                                                    "next": target})
             self.assertEqual(response.headers["Location"], expected)
 
+    def test_new_tab_goes_to_sign_in(self):
+        # The first dashboard load after signing in is marked fresh (greeting, tab marked as signed in); later
+        # loads are not, so a tab without the mark signs out in the browser (TAB_GUARD).
+        client = self.sign_in(*ADMIN)
+        first = client.get("/").get_data(as_text=True)
+        self.assertIn('"fresh": true', first)
+        self.assertIn("mysafar.tab", first)
+        self.assertIn('"fresh": false', client.get("/").get_data(as_text=True))
+
     def test_sign_out(self):
         response = self.form(self.client, "/account", "/logout")
         self.assertEqual(response.headers["Location"], "/login?out=1")

@@ -1099,4 +1099,21 @@ function importCSV(){if(!CSV)return;var p=planCSV(),fcd=document.getElementById(
  var said=[];if(n.add)said.push(n.add+" student"+(n.add>1?"s":"")+" added");if(n.move)said.push(n.move+" moved");if(n.update)said.push(n.update+" updated");if(made)said.push(made+" classroom"+(made>1?"s":"")+" created");
  toast(said.join(", "))}
 function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";document.getElementById("csvF").value=""}
+
+/* Just signed in: a greeting on a navy curtain, held until the class records have loaded (at least about two
+   seconds), then the curtain lifts and the page arrives piece by piece (the "enter" styles in template.css).
+   Once per sign-in, not on page changes; skipped under reduced motion. */
+(function(){if(!(window.ME&&ME.fresh)||window.SIGNING_OUT)return;
+ try{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}
+ var who=ME.name&&ME.name!=="Administrator"?ME.name:"",logo=document.querySelector(".rail .badge img"),o=document.createElement("div");
+ o.className="greet-in";o.setAttribute("aria-hidden","true");
+ o.innerHTML='<span class="gi-sky"><i></i><i></i><i></i><i></i><i></i><i></i><b class="gi-shoot"></b></span><div class="gi-core">'
+  +(logo?'<span class="gi-logo"><img src="'+logo.src+'" alt=""></span>':'')
+  +'<p class="gi-salam">Assalāmu ʿalaykum</p>'+(who?'<p class="gi-name">'+esc(who)+'</p>':'')+'</div>';
+ document.body.appendChild(o);
+ var t0=Date.now();
+ (function wait(){var m=document.querySelector("main"),ready=m&&!m.inert,t=Date.now()-t0;
+  if((ready&&t>2300)||t>7000)lift();else setTimeout(wait,100)})();
+ function lift(){document.body.classList.add("enter");o.classList.add("out");
+  setTimeout(function(){o.remove()},1100);setTimeout(function(){document.body.classList.remove("enter")},4000)}})();
 </script>

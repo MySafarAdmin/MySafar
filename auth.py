@@ -122,6 +122,12 @@ def cookie_name():
     return "__Host-safar" if current_app.config["COOKIE_SECURE"] else "safar"
 
 
+def fresh_cookie_name():
+    """Set for a few minutes after signing in, so the dashboard knows this tab has just signed in (greeting, and
+    the tab is marked as signed in; a tab opened later without that mark goes back to the sign-in page)."""
+    return "__Host-safar-in" if current_app.config["COOKIE_SECURE"] else "safar-in"
+
+
 def pre_cookie_name():
     return "__Host-safar-form" if current_app.config["COOKIE_SECURE"] else "safar-form"
 
@@ -185,6 +191,7 @@ def start_session(tx, user_id):
 def signed_in_redirect(token, max_age, target):
     response = redirect(safe_next(target))
     set_cookie(response, cookie_name(), token, max_age)
+    set_cookie(response, fresh_cookie_name(), "1", 5 * MINUTE)
     response.delete_cookie(pre_cookie_name(), path="/", secure=current_app.config["COOKIE_SECURE"])
     return response
 
@@ -334,6 +341,7 @@ def logout():
             audit(tx, "logout")
     response = redirect("/login?out=1")
     response.delete_cookie(cookie_name(), path="/", secure=current_app.config["COOKIE_SECURE"])
+    response.delete_cookie(fresh_cookie_name(), path="/", secure=current_app.config["COOKIE_SECURE"])
     return response
 
 
