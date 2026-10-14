@@ -1040,6 +1040,23 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .qcol.on .qc.test{cursor:not-allowed}
 .qcol.on .qc.has.test,.qcol.on .qc.has.test:hover:not(:disabled),.qcol.on .qc.has.test:focus-visible{background:var(--c);border-color:var(--gold);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent)}
 .qcol.on .qc.has.test:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* Star of the week: a gold star by the student's name; the toolbar star fills once a student is chosen. */
+.qsw{flex:none;display:inline-flex}.qsw svg{width:14px;height:14px;fill:var(--gold);stroke:color-mix(in srgb,var(--gold) 70%,#1d2127);stroke-width:1.2}
+.qstar.on .ic{fill:var(--gold);stroke:color-mix(in srgb,var(--gold) 70%,#1d2127)}
+.starl button[aria-pressed="true"]{background:var(--gold-soft);box-shadow:inset 0 0 0 2px var(--gold)}
+/* Teacher class overview: rankings large across the top, the two graphs below, then attention and houses. */
+.tsum{display:flex;flex-direction:column;gap:22px}
+.tsr .mod-h h2{font-family:var(--font-display);font-weight:600;font-size:1.375rem}
+.tsr .rk4.mine{gap:18px 32px}
+@media (min-width:900px){.tsr .rk4.mine{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tsr .rk4.mine .rank .n b,.tsr .rk4.mine .alist .who b{font-size:1.0625rem}
+.tsr .rk4.mine .rank .v{font-size:1.25rem}
+.tsg{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
+@media (min-width:900px){.tsg{grid-template-columns:1fr 1fr}}
+.tsg .wk{height:120px}.tsg .lvc{height:120px}
+.tsl{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
+@media (min-width:900px){.tsl{grid-template-columns:1fr 1fr}}
+.tsl>*{margin:0!important}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1095,6 +1112,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
   <p class="qsum qrec" id="qSum"></p>
   <div class="seg qhis" id="qP" role="group" aria-label="Days shown"><button type="button" data-p="r" aria-pressed="true">Last 6 weeks</button><button type="button" data-p="a" aria-pressed="false">All</button></div>
   <div class="tools"><div class="seg" id="qV" role="group" aria-label="Show"><button type="button" data-v="rec" aria-pressed="true">Day by day</button><button type="button" data-v="his" aria-pressed="false">Full sheet</button></div>
+   <button type="button" class="ibtn qstar qrec" id="qStar" aria-haspopup="dialog" aria-label="Star of the week" title="Star of the week"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg></button>
    <span class="ipick qrec"><button type="button" class="ibtn" id="qCal" aria-label="Go to a class day" title="Go to a class day"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/></svg></button><input type="date" id="qD" tabindex="-1" aria-hidden="true"></span>
    <button type="button" class="ibtn" id="qAdd" aria-label="Add a student" title="Add a student"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20a6.5 6.5 0 0 1 11.6-4"/><path d="M18.5 14v6M15.5 17h6"/></svg></button>
    <details class="help"><summary aria-label="How Quran scores work">?</summary><div class="hb"><p>The highlighted column is the class day you are recording. Tap a student's box and choose a score out of 5, or select the box and type 0 to 5. Tap the same score again to clear it.</p><p>The arrows move to the previous or next class day; the days before and after stay in view on either side. The calendar goes to any day, including one outside the usual weekend classes.</p><p>A blank day means the score was not recorded, which is different from 0.</p></div></details></div></div>
@@ -1206,7 +1224,7 @@ function fix(a,old){var mv=old&&old.join()!==LEVELS.join();a.forEach(function(s)
  if(!s.q)s.q={};if(!s.log){s.log=[];s.hit=null;s.target=1}
  if(!s.lt||s.lt.length!==s.log.length){s.lt=s.log.map(function(_,k){return Math.max(1,s.target-(s.log.length-k))})}
  if(!s.lx||s.lx.length!==s.log.length){var o=s.lx||[];s.lx=s.log.map(function(_,k){return o[k]||""})}
- if(!s.ml)s.ml=[];if(!s.fl)s.fl=[];TOK.forEach(function(k){if(!s[k[0]])s[k[0]]=[]});s.passes=s.passes||0;s.merits=s.merits||0;s.qa=s.qa||0;if(!s.tests)s.tests=[];s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
+ if(!s.ml)s.ml=[];if(!s.fl)s.fl=[];TOK.forEach(function(k){if(!s[k[0]])s[k[0]]=[]});s.passes=s.passes||0;s.merits=s.merits||0;s.qa=s.qa||0;if(!s.tests)s.tests=[];if(!s.sw)s.sw=[];s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
 /* Houses and their tokens. Each token is [field, css class, name, points]; the field holds the times it was given.
    Keep the points in step with TOKEN_POINTS in server.py. */
 var HOUSES=["Makkah","Al-Aqsa","Madinah"],TOK=[["tg","g","Green",5],["tb","b","Blue",20],["tr","r","Red",50]];
@@ -1626,7 +1644,7 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  var ln=B.querySelector(".qlane");ln.style.transform="translateX("+(G.x(0)+G.w/2)+"px)";ln.style.height=(S.length*rh)+"px";
  names.style.transform="translateX("+(G.x(-1)+G.w)+"px)";names.style.width=G.nameW+"px";
  houses.style.transform="translateX("+(G.x(0)+G.w)+"px)";houses.style.width=G.houseW+"px";
- names.innerHTML=S.map(function(s,i){return '<span class="qn"><button type="button" class="qnb" data-ni="'+i+'" aria-haspopup="true" aria-expanded="'+(QMN===i)+'"><b>'+esc(s.name)+'</b>'+(s.warn?'<span class="qwd wl'+s.warn+'" title="'+WL[s.warn]+'"><span class="sr-only">, '+WL[s.warn]+'</span></span>':'')+'<svg class="qcar" viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span>'}).join("");
+ names.innerHTML=S.map(function(s,i){return '<span class="qn"><button type="button" class="qnb" data-ni="'+i+'" aria-haspopup="true" aria-expanded="'+(QMN===i)+'"><b>'+esc(s.name)+'</b>'+(qStarOf(s)?'<span class="qsw" title="Star of the week"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg><span class="sr-only">, star of the week</span></span>':'')+(s.warn?'<span class="qwd wl'+s.warn+'" title="'+WL[s.warn]+'"><span class="sr-only">, '+WL[s.warn]+'</span></span>':'')+'<svg class="qcar" viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span>'}).join("");
  houses.innerHTML=S.map(function(s){return '<span class="qn">'+(s.house?'<span class="qhs '+esc(s.house)+'"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">No house</span>')+'</span>'}).join("");
  var fh=H.querySelectorAll(".qfh");fh[0].style.cssText=names.style.cssText;fh[1].style.cssText=houses.style.cssText;
  /* Columns from one beyond each edge, so new ones slide in from outside and old ones slide out. */
@@ -1647,7 +1665,7 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  if(dir&&!QM.matches){B.classList.add("moving");clearTimeout(QT);QT=setTimeout(function(){B.classList.remove("moving")},430)}
  if(keep>=0){var c=Y.querySelector('.qcol.on [data-qi="'+keep+'"]');if(c)c.focus()}
  if(QMN>=0)qMenu(QMN,1)}
-function quran(){qGrid(0);qSheetDraw()}
+function quran(){qGrid(0);qSheetDraw();$("qStar").classList.toggle("on",S.some(qStarOf))}
 function qGo(d,dir){if(!d||d===QF)return;var was=QF;QF=d;qGrid(dir||(d>was?1:-1))}
 function qStep(n){var D=qDays(),i=D.indexOf(QF)+n;if(i>=0&&i<D.length)qGo(D[i],n)}
 $("qPrev").onclick=function(){qStep(-1)};$("qNext").onclick=function(){qStep(1)};
@@ -1686,6 +1704,18 @@ $("qB").addEventListener("keydown",function(e){
  if(go!==null&&go>=0&&go<S.length){e.preventDefault();var c=$("qB").querySelector('.qcol.on [data-qi="'+go+'"]');if(c)c.focus()}});
 document.addEventListener("click",function(e){if(QP_&&!e.target.closest(".qpop")&&!e.target.closest(".qcol.on [data-qi]"))qPopClose()});
 var QR=0;window.addEventListener("resize",function(){clearTimeout(QR);QR=setTimeout(function(){if(CID&&CUR==="Q")qGrid(0)},120)});
+/* Star of the week: the teacher picks one student a week from the Quran tab. The week is the one holding the focused
+   class day, kept on the student as the Monday it starts (sw holds those days). Picking another student moves it. */
+function qWeek(){return dk(wk0(qDate(QF||dk(Date.now())).getTime()))}
+function qStarOf(s){return (s.sw||[]).indexOf(qWeek())>=0}
+function qStarPick(){var w=qWeek(),cur=-1;S.forEach(function(s,i){if(qStarOf(s))cur=i});
+ drawer("Star of the week",'<p class="cap">Week of '+qlab(w)+'. Choose one student.</p><ul class="swl starl">'+S.map(function(s,i){return '<li><button type="button" data-star="'+i+'" aria-pressed="'+(i===cur)+'">'+esc(s.name)+(i===cur?'<small>Star of the week</small>':'')+'</button></li>'}).join("")+'</ul>'
+  +(cur>=0?'<button type="button" class="btn sm quiet" data-star="-1">Clear the star for this week</button>':''))}
+function qStarSet(i){var w=qWeek(),s=S[i],old=null;S.forEach(function(x){if(qStarOf(x))old=x;x.sw=(x.sw||[]).filter(function(d){return d!==w})});
+ if(s&&s!==old){s.sw.push(w);toast(fn(s)+" is star of the week")}else toast("Star of the week cleared");
+ save();render();closeDrawer();$("qStar").focus()}
+$("qStar").onclick=qStarPick;
+$("drwB").addEventListener("click",function(e){var b=e.target.closest("[data-star]");if(b)qStarSet(+b.dataset.star)});
 /* The menu on a student's name: warnings and house points, so teachers can give both from the Quran tab. */
 var QMN=-1;
 function qMenuClose(back){var m=$("qB").querySelector(".qmenu");if(m)m.remove();var b=$("qB").querySelector('.qnb[data-ni="'+QMN+'"]');if(b){b.setAttribute("aria-expanded","false");if(back)b.focus()}QMN=-1}
@@ -1819,7 +1849,7 @@ function navL(){
  if(CID){var cur=$("nList").querySelector('[aria-current]');if(cur)cur.scrollIntoView({block:"nearest"})}
  $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false")}
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
- $("ttl").textContent=n?n.name:PAGE==="R"?"Record":"School overview";$("swc").hidden=!n||CIDS.length<2;
+ $("ttl").textContent=n?n.name:PAGE==="R"?"Record":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;
  document.title=(n?n.name+" · ":PAGE==="R"?"Record · ":"")+"Safar Enfield Dashboard"}
 function setClass(c){if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if(c==="R"&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&!ST[c])c="M";var R=c==="R",M=c==="M";PAGE=R?"R":M?"M":"C";closeDrawer();
@@ -1869,6 +1899,7 @@ function master(){var K=school(),A=K.A,all=K.all,adm=!(window.ME&&ME.role!=="adm
 /* Summary: one screen. Attention, this term's activity, houses and top classes, then where students are in the book. */
 function summary(K){var A=K.A,all=K.all;
  if(!A.length){$("mst").innerHTML='<div class="empty"><b>No students yet</b>Upload a CSV in Classes, or open a class and add students in its Settings.</div>';return}
+ if(TEACHER){tSummary(K);return}
  var E=latest(A,3);
  $("mst").innerHTML='<div class="sumgrid">'+attnBox(K)
   +'<div class="mod teal act"><div class="mod-h"><h2>Passes per week</h2><span class="cap">Whole school, last 8 weeks</span></div>'+weekChart(allLogs(all))
@@ -1876,6 +1907,13 @@ function summary(K){var A=K.A,all=K.all;
   +'<div class="sumcol">'+houseBoard(all,1)+'<div class="grp topc"><div class="mod-h"><h2>Top classes</h2><button type="button" class="btn sm quiet" data-mt="R">Rankings</button></div>'
   +rankList("topc",classRows("m"),{limit:3,noMore:1,none:"No passes or merits yet this month.",fmt:function(v){return v.toFixed(1)}})+'<p class="cap">This month, passes and merits per student</p></div></div>'
   +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target, all '+plural(all.length,"student")+'</span></div>'+levelCols(all)+'</div></div>'}
+/* A teacher's class overview: the rankings first and largest, then the graphs, then attention and houses. */
+function tSummary(K){var all=K.all;
+ $("mst").innerHTML='<div class="tsum"><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K,1)+'</section>'
+  +'<div class="tsg"><div class="grp"><div class="mod-h"><h2>Passes per week</h2><span class="cap">Last 8 weeks</span></div>'+weekChart(allLogs(all))+'</div>'
+  +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target</span></div>'+levelCols(all)+'</div></div>'
+  +'<div class="tsl">'+attnBox(K)+houseBoard(all,1)+'</div></div>';
+ $("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
 /* Attention: the complete lists, one kind at a time, grouped by class and paged. */
 function attnTab(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],size=10,h;
  h='<div class="toolbar"><div class="seg" id="aK" role="group" aria-label="Show">'+AK3.map(function(x){return '<button type="button" data-k="'+x[0]+'" aria-pressed="'+(k===x[0])+'">'+x[1]+' <span class="tn">'+L[x[0]].length+'</span></button>'}).join("")+'</div>'
@@ -1896,14 +1934,16 @@ function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[
   +C.slice(p*size,(p+1)*size).map(function(c){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,pp=sumOf(L,mpc),m=sumOf(L,mmc);
    return '<tr><td class="lead">'+opener(c,esc(ST[c].name))+'</td><td data-label="Students" class="n'+(L.length?'':' zero')+'">'+L.length+'</td><td data-label="Passes this month" class="n'+(pp?'':' zero')+'">'+pp+'</td><td data-label="Merits this month" class="n'+(m?'':' zero')+'">'+m+'</td><td data-label="Warnings" class="n'+(w?' wcount':' zero')+'">'+w+'</td><td data-label="Last pass">'+(L.length?ago(lastPass(L)):'<span class="zero">No students</span>')+'</td></tr>'}).join("")
   +'</tbody></table></div>'+pagerHtml("dir",C.length,size,"classes"):'<p class="none">No class matches that search.</p>'}
-function rankings(K){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
+function rankings(K){$("vMR").innerHTML=rankHtml(K);$("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
+/* The rankings, on their own tab and, for teachers, as the centre of the class overview. */
+function rankHtml(K,mine){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
  var far=A.filter(function(o){return o.s.target>1}).sort(function(a,b){return b.s.target-a.s.target||a.s.name.localeCompare(b.s.name)}),fp=pager("far"+RP,far.length,5);
  var h='<div class="toolbar"><div class="seg" id="rP" role="group" aria-label="Period"><button type="button" data-p="m" aria-pressed="'+m+'">This month</button><button type="button" data-p="a" aria-pressed="'+!m+'">All time</button></div><p class="cap">'+(m?'Since the 1st of this month':'Every pass and merit recorded: '+plural(sumOf(K.all,function(s){return s.passes}),"pass","passes")+' and '+plural(sumOf(K.all,function(s){return s.merits}),"merit")+' in total')+'</p></div>';
- h+='<div class="rk4"><div class="grp"><div class="mod-h"><h2>Class ranking</h2></div><p class="cap">Passes and merits per student</p>'+rankList("rc"+RP,classRows(RP),{limit:5,page:1,what:"classes",none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}})+'</div>'
+ h+='<div class="rk4'+(mine?' mine':'')+'">'+(mine?'':'<div class="grp"><div class="mod-h"><h2>Class ranking</h2></div><p class="cap">Passes and merits per student</p>'+rankList("rc"+RP,classRows(RP),{limit:5,page:1,what:"classes",none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}})+'</div>')
   +'<div class="grp"><div class="mod-h"><h2>Furthest along</h2></div><p class="cap">Current target, any time</p>'+(far.length?'<ul class="alist">'+far.slice(fp*5,fp*5+5).map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b>'+opener(o.c,esc(ST[o.c].name))+'</span><span class="v">'+esc(bl(o.s.target))+'</span></li>'}).join("")+'</ul>'+pagerHtml("far"+RP,far.length,5,"students"):'<p class="none">No progress recorded yet.</p>')+'</div>'
   +'<div class="grp"><div class="mod-h"><h2>Most passes</h2></div><p class="cap">Students, '+tm+'</p>'+rankList("mp"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mpc(o.s):o.s.passes}}),{limit:5,page:1,what:"students",tone:"sky",none:"No passes yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})+'</div>'
   +'<div class="grp"><div class="mod-h"><h2>Most merits</h2></div><p class="cap">Students, '+tm+'</p>'+rankList("mm"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mmc(o.s):o.s.merits}}),{limit:5,page:1,what:"students",tone:"gold",none:"No merits yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})+'</div></div>';
- $("vMR").innerHTML=h;$("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
+ return h}
 function houseTab(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null,mx=Math.max.apply(null,O.map(function(y){return T[y]||0}))||1;
  var tok={},stu={},none=0;HOUSES.forEach(function(h){tok[h]=TOK.map(function(){return 0});stu[h]=0});
  K.all.forEach(function(s){if(!tok[s.house]){none++;return}stu[s.house]++;TOK.forEach(function(k,i){tok[s.house][i]+=(s[k[0]]||[]).length})});

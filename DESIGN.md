@@ -101,6 +101,15 @@ Passed or Not passed, with the student's latest tests and Take back the latest
 below. The score goes into that day's box on the Quran sheet with a gold border,
 and the sheet will not change it; only the Record page can.
 
+**Class overview** (teachers): the Overview title reads Class overview and its
+Summary puts Rankings first and largest (Furthest along, Most passes, Most
+merits), then Passes per week and Students by level, then attention and house
+points. No latest passes list.
+
+**Star of the week**: a star button beside Day by day / Full sheet on the Quran
+tab picks one student for the week holding the focused class day; a gold star
+sits by their name. Kept on the student as the Monday of each week (sw).
+
 **Class** tabs (a class opens on Quran). Teachers see Quran, Memo, Progress,
 Rewards and Settings, and so do admins (Record and Warnings were removed). All
 recording starts from the Quran tab.

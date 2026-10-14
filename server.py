@@ -97,6 +97,10 @@ def valid_state(state):
                 and type(x.get("ok")) is bool and type(x.get("pq", 0)) is int and 0 <= x.get("pq", 0) <= QAIDAH_LEVELS
                 for x in tests):
             return False
+        # Star of the week: the Monday of each week the student was chosen.
+        stars = student.get("sw", [])
+        if not isinstance(stars, list) or not all(isinstance(d, str) and DAY.fullmatch(d) for d in stars):
+            return False
         # House points: the student's house (from the CSV) and the times each token was given.
         if student.get("house", "") not in ("",) + HOUSES:
             return False

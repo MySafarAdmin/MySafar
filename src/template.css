@@ -778,3 +778,20 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .qcol.on .qc.test{cursor:not-allowed}
 .qcol.on .qc.has.test,.qcol.on .qc.has.test:hover:not(:disabled),.qcol.on .qc.has.test:focus-visible{background:var(--c);border-color:var(--gold);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent)}
 .qcol.on .qc.has.test:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+/* Star of the week: a gold star by the student's name; the toolbar star fills once a student is chosen. */
+.qsw{flex:none;display:inline-flex}.qsw svg{width:14px;height:14px;fill:var(--gold);stroke:color-mix(in srgb,var(--gold) 70%,#1d2127);stroke-width:1.2}
+.qstar.on .ic{fill:var(--gold);stroke:color-mix(in srgb,var(--gold) 70%,#1d2127)}
+.starl button[aria-pressed="true"]{background:var(--gold-soft);box-shadow:inset 0 0 0 2px var(--gold)}
+/* Teacher class overview: rankings large across the top, the two graphs below, then attention and houses. */
+.tsum{display:flex;flex-direction:column;gap:22px}
+.tsr .mod-h h2{font-family:var(--font-display);font-weight:600;font-size:1.375rem}
+.tsr .rk4.mine{gap:18px 32px}
+@media (min-width:900px){.tsr .rk4.mine{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tsr .rk4.mine .rank .n b,.tsr .rk4.mine .alist .who b{font-size:1.0625rem}
+.tsr .rk4.mine .rank .v{font-size:1.25rem}
+.tsg{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
+@media (min-width:900px){.tsg{grid-template-columns:1fr 1fr}}
+.tsg .wk{height:120px}.tsg .lvc{height:120px}
+.tsl{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
+@media (min-width:900px){.tsl{grid-template-columns:1fr 1fr}}
+.tsl>*{margin:0!important}
