@@ -8,16 +8,23 @@ dashboard's own screens are styled in `src/template.css`, the admin pages in
 
 ## Direction
 
-A calm workspace that fits the screen. The palette is mostly neutral: a light
-grey canvas, white working surfaces for the roster, forms and editors, graphite
-type and a graphite navigation rail. Navy (`#003b6b`, from the logo) is kept for
-three jobs only: the Safar brand, selected indicators (the top edge and text of
-the selected tab, the selected student, the chosen segment) and the one primary
-action on a screen (the selected student's Pass, Sign in, Save). Sage marks
-healthy states and gold marks achievement, both sparingly. Colour appears
-mostly in small indicators and data marks (dots, thin bars, chart columns), not
-as panel fills; there are no tinted panels. Personality comes from type,
-proportions and hierarchy.
+A friendly, calm workspace that fits the screen. The fifth pass (October 2026)
+borrows the best parts of Journey2Jannah, which the school's teachers use
+every day: one rounded, friendly sans for all type, a greeting at the top of
+the overviews ("Assalāmu ʿalaykum Sr Maryam!") with a teacher's classes as
+soft pills, white cards with round corners floating on a soft cool-grey canvas
+with a faint shadow instead of hairline borders, pill-shaped buttons, tabs and
+segmented controls, classes shown as cards with a patterned banner and a year
+tile, and a split sign-in page with a welcome panel and a short saying.
+
+Safar keeps its own colours rather than Journey2Jannah's purple: the
+navigation rail is Safar navy (`#003b6b`, from the logo) with the selected item
+as a white tab with navy type, as Journey2Jannah carries its colour in its
+rail. Inside the workspace navy stays for titles, selected indicators and the
+one primary action on a screen. Sage marks healthy states and gold marks
+achievement, both sparingly; the pastel Quran score colours are unchanged.
+Colour inside cards appears mostly in small indicators and data marks; the
+banners on class cards and the greeting pills are the only pastel fills.
 
 The interface is light in every OS setting. An earlier version followed the
 system dark mode, which drew the selected tab as navy text on a navy fill
@@ -36,15 +43,20 @@ one title; rules live in "?" help rather than paragraphs.
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `--bg` | `#eceef1` | The grey canvas behind everything. |
-| `--surface` / `--surface-2` / `--sunk` | `#fff` / `#f6f7f9` / `#eceef1` | Working surfaces, hover, neutral pills and tracks. |
-| `--line` / `--line-2` | `#e2e5e9` / `#c8cdd4` | Dividers; control borders and inactive chart columns. |
-| `--ink` / `--ink-2` / `--mute` | `#1d2127` / `#3e4651` / `#5b6470` | Graphite text, secondary text, captions (all at least 4.5:1 on canvas and white). |
-| `--rail-bg` | `#23272d` | Graphite navigation rail and toast. Rail text `#e8eaed`, muted `#a7adb5`. |
-| `--navy` / `--navy-soft` | `#003b6b` / `#e9eff6` | Brand, selected indicators, the primary action (white text 11.4:1). |
+| `--bg` | `#f2f4f8` | The soft cool-grey canvas behind everything. |
+| `--surface` / `--surface-2` / `--sunk` | `#fff` / `#f6f7fb` / `#eef0f5` | Cards, hover, neutral pills and the track of segmented controls. |
+| `--line` / `--line-2` | `#e4e7ee` / `#cbd1dc` | Dividers; control borders and inactive chart columns. |
+| `--ink` / `--ink-2` / `--mute` | `#1c2230` / `#3c4557` / `#5a6375` | Slate text, secondary text, captions (all at least 4.5:1 on canvas and white). |
+| `--rail-bg` | `#003b6b` | Navy navigation rail. Rail text `#e6eef6`, muted `#a9c0d6`; the selected item is white with navy text. |
+| `--navy` / `--navy-soft` | `#003b6b` / `#e9eff6` | Brand, page titles, selected indicators, the primary action (white text 11.4:1). |
 | `--sage` / `-soft` / `-ink` | `#5e8a69` / `#eef3ef` / `#2f5a3b` | Healthy states: saved, Journey2Jannah marker. |
 | `--gold` / `-soft` / `-ink` | `#b98a1e` / `#f8f2e2` / `#664a0b` | Achievement: prize dots, Prize won, Leading, merit +. |
 | `--warn`, `--bad` | amber, red | Attention markers and destructive actions. Each has a `-soft` and an `-ink`. |
+| `--r` / `--r-lg` / `--r-pill` | `12px` / `20px` / `999px` | Inputs and small boxes; cards and workspaces; buttons, tabs and chips. |
+| `--shadow` | two soft layers | Cards float on the canvas instead of carrying a border. |
+
+Class cards and greeting pills use four pastel pairs (coral, sky, mint,
+butter) with dark text of the same hue, each above 4.5:1.
 
 `--sky` and `--teal` remain as names for older rules but resolve to the same
 quiet slate and sage, so nothing renders as a sky or teal panel.
@@ -58,25 +70,29 @@ is picked by luminance (`onC()` in `src/page.html`).
 
 ## Type
 
-Instrument Sans for everything you read and tap, with Source Serif 4 for page
-titles, the Quran day and section headings (both self-hosted in
-`static/fonts`, SIL Open Font License, set through `--font` and
-`--font-display`). The pair was chosen in October 2026 as the closest freely
-licensed match to Claude's own type (a geometric grotesk with a book serif for
-titles); Claude's typefaces themselves are not licensed for reuse. Atkinson
-Hyperlegible Next stays on the TV, which is read across a hall. Tabular figures
-for every count. Sentence case throughout; no all-caps labels, no eyebrows
-above titles.
+Figtree for everything, text and titles alike (self-hosted in `static/fonts`,
+SIL Open Font License, set through `--font`; `--font-display` points at the
+same family). The user asked for Journey2Jannah's font; its files could not be
+inspected from here and its look (a rounded geometric sans close to Gilroy, a
+commercial face) has no licence for self-hosting, so Figtree was chosen in
+October 2026 as the closest free match after comparing it with Plus Jakarta
+Sans, Outfit, Urbanist, Nunito, Mulish and Lexend against a crop of the
+Journey2Jannah greeting. Titles are 800 weight in navy; body text is 400.
+Atkinson Hyperlegible Next stays on the TV, which is read across a hall.
+Tabular figures for every count. Sentence case throughout; the one all-caps
+label is the Sign in button and the Welcome tab on the sign-in page, as on
+Journey2Jannah.
 
 ## Layout
 
-One shell everywhere: a 232px graphite rail on screens 960px and wider and a
-graphite top bar with a Menu button below that. The dashboard opens with a
-compact head on the canvas (`.head`: graphite title, Switch class on small
-screens, save status, figures on one line with an amber dot on any figure that
-needs attention, folder tabs) above the white workspace (`.ws`). The selected
-tab is white with a navy top edge. The head is sticky on wide screens. Below
-960px the tabs wrap as pills (a four-column grid below 380px) so every tab is
+One shell everywhere: a 232px navy rail on screens 960px and wider and a
+navy top bar with a Menu button below that. The dashboard opens with a
+compact head on the canvas (`.head`: navy title, or on the overviews the
+greeting with the overview's name and a teacher's class pills under it; Switch
+class on small screens, save status, the figures button, then pill tabs) above
+the white workspace card (`.ws`, 20px corners). The selected tab is a white pill
+with navy type and a soft shadow. The head is sticky on wide screens. Below
+960px the tabs wrap as pills and the selected one turns navy (a four-column grid below 380px) so every tab is
 visible without sideways scrolling. Admin pages use `.band`, the same title and
 figures on the canvas.
 
@@ -218,8 +234,8 @@ is applied to every control.
 ## Motion
 
 Motion explains a change of place and is never decoration. The selected tab is
-one marker that slides to the tab chosen; a tab under the pointer lifts by a
-pixel and shows a short graphite edge; the new page slides in from the side its
+one white pill that slides to the tab chosen; a tab under the pointer lifts by a
+pixel; a class card lifts slightly under the pointer; the new page slides in from the side its
 tab is on. The Quran sheet slides its columns when the class day changes, and the Memo
 calendar slides to the next or previous month. All
 of it is off when the device asks for reduced motion (the rule at the end of
