@@ -34,28 +34,18 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head .save[data-s="bad"]{color:#fff;font-weight:700;background:var(--bad);border-radius:999px;padding:2px 10px;white-space:normal}
 .head .save[data-s="bad"]::before{background:#fff}
 .head .save:empty{display:none}
-/* Overview greeting: a friendly line in big navy type, the overview's name under it, then a teacher's classes
-   as soft pills (from Journey2Jannah's teacher home). */
+/* Overview greeting: a friendly line in big navy type, the overview's name under it (from Journey2Jannah's
+   teacher home). */
 .head.greet h1{font-size:2rem}
 .hello{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:2px}
 .hsub{font-size:.9375rem;font-weight:650;color:var(--mute);margin-right:6px}
-.hchip{display:inline-flex;align-items:center;min-height:30px;padding:3px 14px;border-radius:999px;font-size:.8125rem;font-weight:750;text-decoration:none;max-width:24ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 1px 2px rgba(28,34,48,.06)}
-.hchip.c0{background:#fde8e1;color:#9a3412}.hchip.c1{background:#e3eefb;color:#0b4a82}.hchip.c2{background:#e5f3ea;color:#2f5a3b}.hchip.c3{background:#fbf0d6;color:#664a0b}
-.hchip:hover{filter:brightness(.97);text-decoration:underline}
-/* The phone's Quran tracker button under the greeting (teachers only; page.html hello()). */
+/* The phone's "Open tracker" button under the greeting (teachers only; page.html hello()). */
 .track{display:none}
 @media (max-width:959.98px){
- .track{display:flex;align-items:center;gap:14px;width:100%;margin-top:14px;padding:16px 16px 16px 14px;border:0;border-radius:20px;
-  background:var(--navy);color:#fff;text-align:left;font:inherit;cursor:pointer;box-shadow:0 10px 24px -10px rgba(0,59,107,.55)}
- .track+.track{margin-top:10px}
- .track .tki{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--gold,#c9a35b);color:var(--navy)}
- .track .tki .ic{width:26px;height:26px}
- .track .tkt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
- .track b{font-size:1.125rem;font-weight:800;line-height:1.2}
- .track small{font-size:.8125rem;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
- .track .tkc{flex:none;width:22px;height:22px;opacity:.9}
+ .track{display:block;width:100%;margin-top:14px;min-height:60px;padding:14px 20px;border:0;border-radius:20px;background:var(--navy);color:#fff;
+  font:inherit;font-size:1.25rem;font-weight:800;text-align:center;cursor:pointer;box-shadow:0 10px 24px -10px rgba(0,59,107,.55)}
  .track:active{transform:scale(.98)}
- .track:focus-visible{outline:3px solid var(--gold,#c9a35b);outline-offset:3px}
+ .track:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 }
 @media (max-width:959.98px){.head.greet h1{font-size:1.375rem;flex:1 1 0}.hello{margin-top:4px}}
 /* Tabs are pills on the canvas; the chosen one is a white pill with navy type, like the cards under it. */
@@ -663,9 +653,8 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .qph .qnames .qn{justify-content:flex-start;padding-left:0}
 .qph .qnames .qnb{padding-left:2px}
 .qph .qhead .qfh:first-child{justify-content:flex-start;padding-left:2px}
-.qnh .qhouses,.qnh .qhead .qfh:nth-child(2){display:none}
-/* Without the house, a name still too long for one line wraps onto a second. */
-.qnh .qnames .qnb b{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;line-height:1.15;text-align:left}
+/* A name too long for one line wraps onto a second. */
+.qph .qnames .qnb b{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;line-height:1.15;text-align:left}
 .qpop.qsheet{position:fixed;inset:0;z-index:90;display:block;padding:0;background:none;border:0;border-radius:0;box-shadow:none;animation:none}
 .qsc{position:absolute;inset:0;background:rgba(10,24,40,.35);animation:qsFade .2s ease both}
 .qscard{position:absolute;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:var(--surface);border-radius:24px 24px 0 0;
@@ -986,3 +975,17 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 }
 /* Below 400px the token columns are headed by their coloured dot alone; the name stays for screen readers. */
 @media (max-width:399.98px){.htok .tw{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.htok .tdot{margin:0}}
+/* Overview section titles that open their full list in a pop-up (page.html ov()). */
+.ovt{display:inline-flex;align-items:center;gap:4px;padding:0;margin:0;border:0;background:none;font:inherit;color:inherit;cursor:pointer;text-align:left}
+.ovt .ic{width:18px;height:18px;flex:none;opacity:.5;transition:transform .18s ease,opacity .18s ease}
+.ovt:hover{color:var(--navy)}.ovt:hover .ic{opacity:1;transform:translateX(2px)}
+.ovt:focus-visible{outline:2px solid var(--navy);outline-offset:3px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){.ovt .ic{transition:none}}
+/* Needs attention leads the overview: its counts sit side by side on wider screens. */
+.tsa>.attn{margin:0}
+@media (min-width:700px){.tsa>.attn:not(.calm){display:flex;flex-wrap:wrap;align-items:flex-start;gap:0 28px}
+ .tsa>.attn:not(.calm)>.mod-h{flex:1 0 100%}.tsa>.attn .ab{flex:1 1 220px}}
+/* Pop-up contents fit the drawer's width. */
+.ovp .g12>*{grid-column:1/-1}
+.ovp .hbig{grid-template-columns:1fr;margin-left:0;margin-right:0;border-radius:var(--r-lg)}
+.ovp>.cap:first-child{margin:0 0 10px}
