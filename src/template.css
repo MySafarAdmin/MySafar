@@ -793,5 +793,5 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 @media (min-width:900px){.tsg{grid-template-columns:1fr 1fr}}
 .tsg .wk{height:120px}.tsg .lvc{height:120px}
 .tsl{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
-@media (min-width:900px){.tsl{grid-template-columns:1fr 1fr}}
 .tsl>*{margin:0!important}
+.tsr .rk4.mine .hb{padding:0;border:0;background:none;box-shadow:none}

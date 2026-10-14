@@ -102,9 +102,9 @@ below. The score goes into that day's box on the Quran sheet with a gold border,
 and the sheet will not change it; only the Record page can.
 
 **Class overview** (teachers): the Overview title reads Class overview and its
-Summary puts Rankings first and largest (Furthest along, Most passes, Most
-merits), then Passes per week and Students by level, then attention and house
-points. No latest passes list.
+Summary puts Rankings first and largest (House points, Most passes, Most
+merits), then Passes per week and Students by level, then attention. No latest
+passes or Furthest along list; admins keep Furthest along on their Rankings tab.
 
 **Star of the week**: a star button beside Day by day / Full sheet on the Quran
 tab picks one student for the week holding the focused class day; a gold star
