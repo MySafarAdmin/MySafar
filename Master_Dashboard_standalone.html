@@ -275,6 +275,11 @@ html{scroll-padding-top:calc(var(--topbar,0px) + 64px)}
 body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .content{max-width:1480px}
 @media (min-width:960px){.content{padding:14px 20px 10px}}
+/* On big screens the work sits nearer the middle of the eye line: a narrower column, centred beside the side
+   menu, and on tall screens a top gap that grows with the screen's height (none at 1280x720, so laptops keep
+   the whole roster in view). */
+@media (min-width:1500px){.content{max-width:1360px}}
+@media (min-width:960px) and (min-height:860px){.content{padding-top:clamp(14px,calc((100vh - 820px) / 2),120px)}}
 
 /* ---------- Page head: title, key figures and tabs on the grey canvas ----------
    Graphite type, no fill. The selected tab is a white folder tab with a navy top edge that opens into the
