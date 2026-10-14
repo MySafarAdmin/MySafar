@@ -115,17 +115,71 @@ a:hover{color:var(--primary-hover)}
  .shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);background:linear-gradient(90deg,var(--rail-bg) var(--rail),var(--bg) var(--rail))}
  .rail{position:sticky;top:0;height:100vh;height:100dvh}
 }
+/* On wide screens the menu wrapper adds no box: the nav list and the account block sit in the rail as before. */
+.navw{display:contents}
+.dock,.dscrim,.dkx{display:none}
 @media (max-width:959.98px){
- .rail{position:sticky;top:0;flex-direction:row;flex-wrap:wrap;align-items:center;box-shadow:0 1px 0 rgba(0,0,0,.2)}
+ :root{--dock-h:64px;--dock-gap:calc(10px + env(safe-area-inset-bottom,0px))}
+ .rail{position:relative;flex-direction:row;flex-wrap:wrap;align-items:center;box-shadow:0 1px 0 rgba(0,0,0,.2)}
  .rail .brand{padding:8px 12px;flex:1}
  .badge{width:34px;height:34px}.badge img{width:28px;height:28px}
- .menu-btn{display:inline-flex;align-items:center;gap:8px;margin-right:8px;padding:8px 12px;min-height:44px;border-radius:var(--r);border:1px solid var(--navy-line);cursor:pointer;font-size:.9375rem;font-weight:600}
- .menu-btn::before{content:"";width:16px;height:12px;background:linear-gradient(currentColor 0 0) 0 0/100% 2px no-repeat,linear-gradient(currentColor 0 0) 0 50%/100% 2px no-repeat,linear-gradient(currentColor 0 0) 0 100%/100% 2px no-repeat}
- .navt:focus-visible+.menu-btn{outline:3px solid #fff;outline-offset:2px}
- .navs,.me{display:none;width:100%;flex-basis:100%}
- .navt:checked~.navs,.navt:checked~.me{display:flex}
- .navt:checked~.navs{max-height:calc(100dvh - 160px);overscroll-behavior:contain;border-top:1px solid var(--navy-line);padding-top:8px}
- .content{padding:16px 16px 40px}
+ .content{padding:16px 16px calc(var(--dock-h) + 40px + env(safe-area-inset-bottom,0px))}
+
+ /* The dock: the main items, always within thumb reach, as a floating bar of icons at the bottom of the screen.
+    The selected item sits in a pastel bubble of its own colour; the rest stay graphite. */
+ .dock{position:fixed;z-index:80;left:50%;bottom:var(--dock-gap);transform:translateX(-50%);display:flex;gap:2px;
+  width:min(calc(100% - 20px),500px);height:var(--dock-h);padding:5px;border-radius:26px;
+  background:rgba(255,255,255,.93);-webkit-backdrop-filter:saturate(1.8) blur(18px);backdrop-filter:saturate(1.8) blur(18px);
+  border:1px solid rgba(255,255,255,.9);box-shadow:0 14px 34px rgba(0,30,60,.16),0 2px 8px rgba(0,30,60,.08),0 0 0 1px rgba(28,34,48,.05);
+  animation:dockIn .55s cubic-bezier(.2,.9,.3,1.15) .1s both;transition:transform .3s cubic-bezier(.3,.7,.3,1),opacity .2s}
+ @keyframes dockIn{from{transform:translate(-50%,calc(100% + 24px));opacity:0}}
+ .dk{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:0;border-radius:21px;
+  background:none;padding:0;font:inherit;font-size:.6875rem;line-height:1.2;font-weight:650;letter-spacing:.005em;color:var(--ink-2);text-decoration:none;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+ .rail .dk{color:var(--ink-2)}
+ .rail .dk:hover{color:var(--ink)}
+ .dk .dki{display:grid;place-items:center;width:46px;height:30px;border-radius:999px;transition:background-color .25s,transform .35s cubic-bezier(.3,1.7,.5,1)}
+ .dk .ic{width:23px;height:23px;stroke-width:1.9}
+ .dk span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+ .dk:active .dki{transform:scale(.84)}
+ .rail .dk[aria-current="page"]{color:var(--navy);font-weight:800}
+ .dk[aria-current="page"] .dki{background:var(--dk-bg,var(--navy-soft));color:var(--dk-ink,var(--navy))}
+ .dk[aria-current="page"] .ic{stroke-width:2.2;animation:dkPop .5s cubic-bezier(.3,1.6,.5,1)}
+ @keyframes dkPop{0%{transform:scale(.7) rotate(-8deg)}60%{transform:scale(1.12) rotate(3deg)}100%{transform:none}}
+ .dk:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+ /* Each item's own pastel, from the greeting chips and the Quran score colours */
+ .dk.h{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
+ .dk.l{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
+ .dk.r{--dk-bg:#fbf0d6;--dk-ink:#664a0b}
+ .dk.q{--dk-bg:#dff1e6;--dk-ink:#2f5a3b}
+ .dk.t{--dk-bg:#fbf0d6;--dk-ink:#7a5608}
+ .dk.d{--dk-bg:#ebe7fb;--dk-ink:#4c3d99}
+ .dk.w{--dk-bg:#fde8e1;--dk-ink:#9a3412}
+ .dk.m{--dk-bg:#e9eff6;--dk-ink:#003b6b}
+ .navt:checked~.dock .dk.m,.rail .dk.m.on{color:var(--navy);font-weight:800}
+ .navt:checked~.dock .dk.m .dki{background:var(--navy);color:#fff}
+ .dk.m .ic{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+ .navt:checked~.dock .dk.m .ic{transform:rotate(90deg)}
+ .navt:focus-visible~.dock .dk.m{outline:3px solid var(--focus);outline-offset:-3px}
+ /* While typing on a phone the dock steps aside, so it never sits on top of the keyboard. */
+ .typing .dock{transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none}
+
+ @media (max-width:379px){.dock{width:calc(100% - 12px);padding:4px;gap:0}.dk{font-size:.625rem}.dk .dki{width:40px}}
+ /* More: the full menu opens as a navy card that rises from the dock. */
+ .menu-btn{display:none}
+ .navw{display:flex;flex-direction:column;position:fixed;z-index:82;left:10px;right:10px;bottom:calc(var(--dock-gap) + var(--dock-h) + 10px);
+  max-width:500px;margin:0 auto;max-height:calc(100dvh - var(--dock-h) - 40px);overflow-y:auto;overscroll-behavior:contain;
+  background:var(--rail-bg);border-radius:24px;box-shadow:0 20px 50px rgba(0,20,40,.35);padding:8px 0 0;
+  opacity:0;visibility:hidden;transform:translateY(16px) scale(.97);transform-origin:50% 100%;
+  transition:opacity .2s,transform .3s cubic-bezier(.2,.9,.3,1.1),visibility 0s .3s}
+ .navt:checked~.navw{opacity:1;visibility:visible;transform:none;transition:opacity .2s,transform .35s cubic-bezier(.2,.9,.3,1.1),visibility 0s}
+ .navw .navs{flex:none;overflow:visible;padding:4px 10px 8px}
+ .navw .me{display:flex;border-top:1px solid var(--navy-line)}
+ .navw .me[hidden]{display:none}
+ .navw .dkx{display:flex}
+ .navw .dkx[hidden]{display:none}
+ .dscrim{display:block;position:fixed;inset:0;z-index:79;background:rgba(10,24,40,.32);opacity:0;visibility:hidden;transition:opacity .2s,visibility 0s .2s;cursor:pointer}
+ .navt:checked~.dscrim{opacity:1;visibility:visible;transition:opacity .2s,visibility 0s}
 }
 
 /* ---------- Page band: the opening of the admin and account pages, with its title and key figures.

@@ -10,8 +10,9 @@
 <header><div class="rail">
  <a class="brand" href="#" id="home"><span class="badge"><img alt="" width="34" height="34" src="data:image/png;base64,__LOGO__"></span><span translate="no"><b class="wm">My<span>Safar</span></b><small>Enfield</small></span></a>
  <input type="checkbox" id="navt" class="navt" aria-label="Show the menu">
- <label for="navt" class="menu-btn" aria-hidden="true">Menu</label>
+ <div class="navw">
  <nav class="navs" aria-label="Main" id="nav">
+  <button class="nav dkx" id="nS" type="button" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Class settings</button>
   <button class="nav" id="nM" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>Overview</button>
   <button class="nav" id="nR" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>Record</button>
   <a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer" title="Registers, homework and classroom learning"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></svg><span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
@@ -19,6 +20,9 @@
   <div id="adminNav"></div>
  </nav>
  <div class="me" id="me" hidden></div>
+ </div>
+ <label for="navt" class="dscrim" aria-hidden="true"></label>
+ <nav class="dock" id="dock" aria-label="Shortcuts"><button type="button" class="dk h" id="dH"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg></span><span>Home</span></button><button type="button" class="dk l" id="dL"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg></span><span>Classes</span></button><button type="button" class="dk r" id="dR"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></span><span>Record</span></button><button type="button" class="dk q" id="dQ"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10.2 5 7.8 4.5 3.5 4.5v13c4.3 0 6.7.5 8.5 2 1.8-1.5 4.2-2 8.5-2v-13c-4.3 0-6.7.5-8.5 2z"/><path d="M12 6.5v13"/></svg></span><span>Quran</span></button><button type="button" class="dk t" id="dT"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".9" fill="currentColor"/></svg></span><span>Memo</span></button><button type="button" class="dk d" id="dD"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5h16"/><path d="m5 15 4.5-4.5 3 3L19 7"/><path d="M14.5 7H19v4.5"/></svg></span><span>Progress</span></button><button type="button" class="dk w" id="dW"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg></span><span>Rewards</span></button><label for="navt" class="dk m" aria-hidden="true"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="18.5" cy="12" r="1.5" fill="currentColor"/></svg></span><span>More</span></label></nav>
 </div></header>
 <div class="work">
 <main><div class="content" id="main" tabindex="-1">
@@ -219,8 +223,12 @@ function newId(name){var b=nkey(name).normalize("NFKD").replace(/[^a-z0-9]+/g,"-
 /* Call after classrooms are added, changed or removed. */
 function changed(c){navL();
  if(CID&&!ST[CID]){go("M");toast("That classroom was deleted",1);return}
- if(HASH&&(ST[HASH]||HASH==="classes")){var h=HASH==="classes"?"L":HASH;HASH="";go(h);return}
+ var h=fromHash(HASH);if(h){HASH="";go(h[0],h[1]);return}
  if(CID){if(c===undefined||c===CID)setClass(CID)}else if(PAGE==="R")recPage();else master()}
+/* #classes, #record, a class's id, or #tab-Q (and T, D, H, S) for a page of the class used last: the admin and
+   account pages link to these from their own dock. */
+function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];if(h==="record")return [TEACHER?"M":"R"];
+ var m=/^tab-([QTDHS])$/.exec(h);if(m){var c=lastC();return c?[c,m[1]]:CIDS.length||LOADED?["L"]:null}return ST[h]?[h]:null}
 function setSt(t,s){var e=document.getElementById("st");if(e){e.textContent=t;e.setAttribute("data-s",s||(/couldn|can't|not saved|signed out|could not/i.test(t)?"bad":/saving|loading/i.test(t)?"busy":"ok"))}}
 function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
 function push(c){if(!DB||!ST[c])return;var j=cj(c);if(j===LJ[c])return;if(PU[c]){PD[c]=1;return}
@@ -802,7 +810,7 @@ function tabMark(list){var on=list.querySelector('[aria-selected="true"]'),m=lis
  if(!m.classList.contains("go"))requestAnimationFrame(function(){m.classList.add("go")})}
 function panelIn(el,dir){if(!dir)return;el.style.setProperty("--dx",(dir>0?14:-14)+"px");el.classList.remove("enter");void el.offsetWidth;el.classList.add("enter")}
 function tab(n,focus){if(TABS.indexOf(n)<0)n="Q";var dir=TABS.indexOf(n)-TABS.indexOf(CUR),was=$("v"+CUR)&&!$("v"+CUR).classList.contains("hide");CUR=n;TABS.forEach(function(k){var on=k===n,b=$("t"+k);$("v"+k).classList.toggle("hide",!on);b.setAttribute("aria-selected",on);b.tabIndex=on?0:-1});
- if(focus)$("t"+n).focus();$("t"+n).scrollIntoView({block:"nearest",inline:"nearest"});tabMark($("sub"));if(was)panelIn($("v"+n),dir);if(n==="Q"&&CID)qGrid(0);if(n==="T"&&CID)mList()}
+ if(focus)$("t"+n).focus();$("t"+n).scrollIntoView({block:"nearest",inline:"nearest"});tabMark($("sub"));if(was)panelIn($("v"+n),dir);if(n==="Q"&&CID)qGrid(0);if(n==="T"&&CID)mList();if(PAGE==="C")dockSet()}
 function mtab(n,focus){if(MT.indexOf(n)<0)n="S";var dir=MT.indexOf(n)-MT.indexOf(MCUR);MCUR=n;MT.forEach(function(k){var on=k===n,b=$("m"+k);$("vM"+k).classList.toggle("hide",!on);b.setAttribute("aria-selected",on);b.tabIndex=on?0:-1});
  if(focus)$("m"+n).focus();$("m"+n).scrollIntoView({block:"nearest",inline:"nearest"});tabMark($("mt"));panelIn($("vM"+n),dir);if(!CID)master()}
 var TMR=0;window.addEventListener("resize",function(){clearTimeout(TMR);TMR=setTimeout(function(){tabMark($("sub"));tabMark($("mt"))},80)});
@@ -825,7 +833,18 @@ function view(k,v){VW[k]=v;var sec=$("v"+k);sec.setAttribute("data-v",v);Array.p
 /* ---------- Navigation ---------- */
 /* The rail has no list of classes: Classes opens the class cards, and stays marked while a class is open. */
 function navL(){
- $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");if(PAGE==="M")hello();$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false");$("nL").setAttribute("aria-current",PAGE==="L"||PAGE==="C"?"page":"false")}
+ $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");if(PAGE==="M")hello();$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false");$("nL").setAttribute("aria-current",PAGE==="L"||PAGE==="C"?"page":"false");dockSet()}
+/* The phone dock (tokens.css): a teacher always has Home and their class pages; an admin has Home, Classes and
+   Record, and the class pages while a class is open, with Classes first to get back. Class pages tapped from
+   elsewhere open the class used last. Everything else is under More, the full menu. */
+var LASTC=null,DKC={dQ:"Q",dT:"T",dD:"D",dW:"H"};try{LASTC=localStorage.getItem("mysafar.lastClass")}catch(e){}
+function lastC(){return LASTC&&ST[LASTC]?LASTC:CIDS[0]}
+function dockSet(){var inC=PAGE==="C",cls=TEACHER||inC;
+ $("dH").hidden=!TEACHER&&inC;$("dL").hidden=TEACHER;$("dR").hidden=TEACHER||inC;
+ cur($("dH"),PAGE==="M");cur($("dL"),PAGE==="L");cur($("dR"),PAGE==="R");
+ Object.keys(DKC).forEach(function(id){$(id).hidden=!cls;cur($(id),inC&&CUR===DKC[id])});
+ $("nS").hidden=!inC;cur($("nS"),inC&&CUR==="S");$("dock").querySelector(".m").classList.toggle("on",inC&&CUR==="S")}
+function cur(b,on){if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")}
 /* The overviews open with a greeting, as Journey2Jannah does, then say which overview this is; a teacher also
    gets their classes as chips to jump straight in. */
 function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("band").classList.toggle("greet",on);if(!on)return;
@@ -836,7 +855,7 @@ function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("ba
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?n.name:PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  document.title=(n?n.name+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+"MySafar"}
-function setClass(c){if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
+function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if(c==="R"&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L";PAGE=R?"R":M?"M":L?"L":"C";closeDrawer();
  $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("vL").classList.toggle("hide",!L);$("mt").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M||R||L);
  if(L){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();dirTab()}
@@ -953,6 +972,15 @@ $("bulkA").onclick=function(){if(!CID)return;var n=$("bulk").value.split("\n").m
  n.forEach(function(x){S.push(blank(x))});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added")};
 $("nM").onclick=function(){go("M")};$("nL").onclick=function(){go("L")};$("nR").onclick=function(){go("R")};if(TEACHER)$("nR").hidden=true;$("home").onclick=function(e){e.preventDefault();go("M")};
 $("swc").onclick=switcher;
+$("dH").onclick=function(){go("M")};$("dL").onclick=function(){go("L")};$("dR").onclick=function(){go("R")};
+Object.keys(DKC).forEach(function(id){$(id).onclick=function(){var k=DKC[id];if(PAGE==="C"){tab(k);window.scrollTo(0,0);return}var c=lastC();if(c)go(c,k);else go("L")}});
+$("nS").onclick=function(){if(PAGE!=="C")return;tab("S");$("navt").checked=false;window.scrollTo(0,0)};
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("navt").checked){$("navt").checked=false;$("navt").focus()}});
+/* The dock steps aside while a text field has the keyboard open on a touch screen. */
+(function(){var touch=window.matchMedia&&matchMedia("(pointer:coarse)").matches,root=document.documentElement;if(!touch)return;
+ function typing(el){return el&&(el.tagName==="TEXTAREA"||el.isContentEditable||el.tagName==="INPUT"&&!/^(checkbox|radio|button|submit|file|range|color)$/.test(el.type))}
+ document.addEventListener("focusin",function(e){root.classList.toggle("typing",typing(e.target))});
+ document.addEventListener("focusout",function(){setTimeout(function(){root.classList.toggle("typing",typing(document.activeElement))},60)})})();
 function goPast(){if(DMODE==="side")closeDrawer();tab("D");view("D","hi");$("pastD").open=true;$("pS").focus()}
 document.addEventListener("click",function(e){if(e.target.closest("[data-past]"))goPast()});
 /* Links between screens: open a class (and tab), switch an overview or class tab, expand a list, open a full list. */
@@ -965,7 +993,7 @@ document.addEventListener("click",function(e){var b=e.target.closest("[data-open
  if(b.dataset.exp){var k=b.dataset.exp;EXP[k]=!EXP[k];if(CID)leaders();else master();var nb=document.querySelector('[data-exp="'+k+'"]');if(nb)nb.focus()}});
 $("vL").addEventListener("input",function(e){if(e.target.id==="dirQ"){DQ=e.target.value;dirTable()}});
 $("vMA").addEventListener("click",function(e){var b=e.target.closest("#aK button");if(b){AKIND=b.dataset.k;attnTab(school());$("aK").querySelector('[data-k="'+AKIND+'"]').focus()}});
-window.addEventListener("hashchange",function(){var h=(location.hash||"").slice(1);if(h==="classes"&&PAGE!=="L")go("L");else if(h&&ST[h]&&h!==CID)go(h);else if(!h&&(CID||PAGE==="L"))go("M")});
+window.addEventListener("hashchange",function(){var h=(location.hash||"").slice(1),r=fromHash(h);if(r&&(r[1]||r[0]!==(CID||PAGE)))go(r[0],r[1]);else if(!h&&(CID||PAGE==="L"))go("M")});
 $("delC").onclick=function(){var c=CID;if(!c)return;
  ask("Delete "+ST[c].name+" with its "+plural(ST[c].S.length,"student")+" and all of their records? This can't be undone. Type DELETE to confirm.","Delete classroom",function(v){
   if(v.toUpperCase()!=="DELETE"){toast("Type DELETE to delete the classroom",1);return}if(!ST[c])return;var n=ST[c].name;dropC(c);unpersist(c);go("M");toast(n+" deleted")},"DELETE",1)};
@@ -976,7 +1004,7 @@ $("csvP").addEventListener("click",function(e){if(e.target.id==="csvGo")importCS
 $("csvP").addEventListener("change",function(e){var k=e.target.getAttribute("data-col");if(k)mapCSV(k,e.target.value)});
 
 legend();go("M");
-if(HASH&&(ST[HASH]||HASH==="classes")){var hh=HASH==="classes"?"L":HASH;HASH="";go(hh)}
+var hh=fromHash(HASH);if(hh){HASH="";go(hh[0],hh[1])}
 })();
 
 

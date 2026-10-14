@@ -85,16 +85,33 @@ Journey2Jannah.
 
 ## Layout
 
-One shell everywhere: a 232px navy rail on screens 960px and wider and a
-navy top bar with a Menu button below that. The dashboard opens with a
+One shell everywhere: a 232px navy rail on screens 960px and wider, and below
+that a navy top bar with the name and a floating dock at the bottom of the
+screen. The dashboard opens with a
 compact head on the canvas (`.head`: navy title, or on the overviews the
 greeting with the overview's name and a teacher's class pills under it; Switch
 class on small screens, save status, the figures button, then pill tabs) above
 the white workspace card (`.ws`, 20px corners). The selected tab is a white pill
 with navy type and a soft shadow. The head is sticky on wide screens. Below
-960px the tabs wrap as pills and the selected one turns navy (a four-column grid below 380px) so every tab is
+960px the tabs wrap as pills and the selected one turns navy (a two-column grid below 380px) so every tab is
 visible without sideways scrolling. Admin pages use `.band`, the same title and
 figures on the canvas.
+
+**Phone dock** (below 960px, `.dock` in tokens.css): a white, slightly
+translucent bar with 26px corners floating 10px above the bottom edge (and the
+home indicator), with an icon and a short label per item. A teacher always has
+Home, Quran, Memo, Progress, Rewards and More; tapping a class page from
+elsewhere opens the class used last. An admin has Home, Classes, Record and
+More, and while a class is open Classes, the four class pages and More. The
+class tab row is not shown above the page on phones, since the dock carries it;
+Class settings is the first item under More. The selected item sits in a pastel
+bubble of its own colour (sky, mint, butter, lavender, coral) with a small pop;
+the rest are graphite. More turns navy and opens the full menu (the rail's
+links, Account and Sign out) as a navy card rising from the dock over a dim
+scrim; Escape or a tap outside closes it. The admin and account pages carry the
+same dock as plain links (`/#classes`, `/#record`, `/#tab-Q` and so on) and a
+CSS-only More, since they run without scripts. While a text field has the
+keyboard open on a touch screen the dock slides away. Toasts rise above it.
 
 **Classes** is its own page in the rail, under Journey2Jannah, in place of the
 old list of class names: searchable class cards (patterned banner, year tile,
