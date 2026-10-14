@@ -287,3 +287,21 @@ around the round logo; MySafar and Safar Academy Enfield rise in; then the stage
 folds into the navy welcome panel (into the top band on phones) and the form
 rises in. Clicks and typing pass straight through to the form throughout. Off
 under reduced motion. Styles at the end of static/auth.css.
+The opening's end overlaps the fold: the card floats up out of a soft blur with
+its parts following one by one, and the welcome panel's quote and art drift in.
+Afterwards the welcome panel keeps an idle sky: a shooting star every few
+seconds and a few twinkling points. "Safar Academy Enfield" appears once, under
+MySafar in the card's logo (no footer, nothing under the panel's wordmark).
+
+**Greeting after signing in**: the first dashboard load after signing in shows a
+navy curtain with the logo, "Assalāmu ʿalaykum" written in with a gold underline,
+the person's name, twinkles and one shooting star. It holds until the records
+have loaded (at least about 2.3 seconds), then lifts, and the page arrives piece
+by piece: the side menu items slide in, the heading and tabs rise, the overview
+sections and class cards rise in turn, ranking rows follow, and the bars grow.
+Once per sign-in (body.enter for a few seconds), off under reduced motion.
+
+**New tab, new sign-in**: opening the site in a new tab or window always starts
+at the sign-in page; refreshing a signed-in tab keeps you signed in (a
+sessionStorage mark set by the first load after signing in; see TAB_GUARD in
+server.py).

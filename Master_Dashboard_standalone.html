@@ -1216,6 +1216,64 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 @media (prefers-reduced-motion:reduce){.ccard:hover{transform:none}}
 #vL{margin-top:12px}
 @media (max-width:479.98px){.rsc{flex-wrap:nowrap;gap:6px}.rsc button{flex:1 1 0;width:auto;min-width:0;max-width:48px;height:44px}}
+
+/* After signing in: the greeting curtain, then the page arriving (body.enter, for a few seconds only). */
+.greet-in{position:fixed;inset:0;z-index:300;display:grid;place-items:center;text-align:center;color:#fff;overflow:hidden;background:#003b6b;
+ background-image:radial-gradient(ellipse at center,rgba(255,255,255,.07) 0,transparent 60%),radial-gradient(circle at 85% 12%,rgba(255,255,255,.07) 0 90px,transparent 91px),radial-gradient(circle at 8% 80%,rgba(255,255,255,.05) 0 140px,transparent 141px);
+ animation:g-fade .45s ease both}
+.greet-in.out{animation:g-lift 1s cubic-bezier(.76,0,.24,1) forwards}
+.greet-in.out .gi-core{animation:g-away .6s cubic-bezier(.5,0,.75,0) forwards}
+.gi-sky{position:absolute;inset:0}
+.gi-sky i{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;opacity:0;animation:g-tw 2.4s ease-in-out infinite}
+.gi-sky i:nth-child(1){left:14%;top:20%;animation-delay:.2s}.gi-sky i:nth-child(2){left:30%;top:76%;animation-delay:.9s}
+.gi-sky i:nth-child(3){left:72%;top:18%;animation-delay:.5s}.gi-sky i:nth-child(4){left:86%;top:62%;animation-delay:1.3s}
+.gi-sky i:nth-child(5){left:52%;top:10%;animation-delay:1.7s}.gi-sky i:nth-child(6){left:8%;top:52%;animation-delay:1.1s}
+.gi-shoot{position:absolute;left:10%;top:12%;width:160px;height:2px;border-radius:2px;opacity:0;background:linear-gradient(90deg,rgba(255,255,255,0),#fff);
+ transform:rotate(30deg);animation:g-shoot 1.3s cubic-bezier(.3,0,.6,1) .9s both}
+.gi-shoot::after{content:"";position:absolute;right:-2px;top:-2px;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 12px 3px rgba(233,180,92,.7)}
+.gi-core{position:relative;display:flex;flex-direction:column;align-items:center;padding:0 16px}
+.gi-logo{width:92px;height:92px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 0 0 0 rgba(233,180,92,.5);
+ animation:g-pop .8s cubic-bezier(.2,1.4,.4,1) .1s both,g-glow 1.6s ease-out .7s both}
+.gi-logo img{width:80px;height:80px;border-radius:50%}
+.gi-salam{margin:26px 0 0;font-family:var(--font-display);font-weight:800;font-size:clamp(2.125rem,7vw,3.75rem);line-height:1.1;letter-spacing:-.01em;
+ animation:g-write 1.1s cubic-bezier(.16,1,.3,1) .45s both}
+.gi-salam::after{content:"";display:block;height:3px;width:64%;margin:14px auto 0;border-radius:3px;background:#e9b45c;transform-origin:center;animation:g-line .9s cubic-bezier(.16,1,.3,1) 1.05s both}
+.gi-name{margin:12px 0 0;color:#c9d8e6;font-size:1.25rem;font-weight:650;animation:g-up .9s cubic-bezier(.16,1,.3,1) 1.2s both}
+@keyframes g-fade{from{opacity:0}}
+@keyframes g-pop{from{opacity:0;transform:scale(.4)}}
+@keyframes g-glow{to{box-shadow:0 0 0 40px rgba(233,180,92,0)}}
+@keyframes g-write{from{opacity:0;clip-path:inset(0 100% 0 0);transform:translateY(10px)}to{opacity:1;clip-path:inset(0 -10% 0 0);transform:none}}
+@keyframes g-line{from{transform:scaleX(0)}}
+@keyframes g-up{from{opacity:0;transform:translateY(14px)}}
+@keyframes g-tw{0%,100%{opacity:.1}50%{opacity:.9}}
+@keyframes g-shoot{0%{opacity:0;transform:translate(0,0) rotate(30deg)}15%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translate(420px,250px) rotate(30deg)}}
+@keyframes g-away{to{opacity:0;transform:translateY(-30px) scale(.96)}}
+@keyframes g-lift{to{clip-path:inset(0 0 100% 0)}}
+@keyframes e-rise{from{opacity:0;transform:translateY(22px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+@keyframes e-slide{from{opacity:0;transform:translateX(-18px)}}
+@keyframes e-grow{from{transform:scaleY(0)}}
+@keyframes e-bar{from{transform:scaleX(0)}}
+.enter .rail .brand,.enter .rail .navs>*,.enter .rail .me{animation:e-slide .7s cubic-bezier(.16,1,.3,1) both}
+.enter .rail .brand{animation-delay:.35s}
+.enter .rail .navs>:nth-child(1){animation-delay:.42s}.enter .rail .navs>:nth-child(2){animation-delay:.48s}.enter .rail .navs>:nth-child(3){animation-delay:.54s}
+.enter .rail .navs>:nth-child(4){animation-delay:.6s}.enter .rail .navs>:nth-child(5){animation-delay:.66s}.enter .rail .navs>:nth-child(6){animation-delay:.72s}
+.enter .rail .navs>:nth-child(7){animation-delay:.78s}.enter .rail .navs>:nth-child(8){animation-delay:.84s}.enter .rail .me{animation-delay:.9s}
+.enter .head-top,.enter .hello,.enter .head .tabs{animation:e-rise .9s cubic-bezier(.16,1,.3,1) both}
+.enter .head-top{animation-delay:.4s}.enter .hello{animation-delay:.5s}.enter .head .tabs{animation-delay:.58s}
+.enter .ws{animation:e-rise 1s cubic-bezier(.16,1,.3,1) .66s both}
+.enter .tsum>*,.enter .ccards>*{animation:e-rise .9s cubic-bezier(.16,1,.3,1) both}
+.enter .tsum>:nth-child(1){animation-delay:.8s}.enter .tsum>:nth-child(2){animation-delay:.98s}.enter .tsum>:nth-child(3){animation-delay:1.14s}
+.enter .ccards>:nth-child(n){animation-delay:.85s}.enter .ccards>:nth-child(n+3){animation-delay:.95s}.enter .ccards>:nth-child(n+6){animation-delay:1.05s}.enter .ccards>:nth-child(n+9){animation-delay:1.15s}
+.enter .rank>li,.enter .houses>.house{animation:e-rise .7s cubic-bezier(.16,1,.3,1) both}
+.enter .rank>li:nth-child(1),.enter .houses>.house:nth-child(1){animation-delay:.95s}.enter .rank>li:nth-child(2),.enter .houses>.house:nth-child(2){animation-delay:1.02s}
+.enter .rank>li:nth-child(3),.enter .houses>.house:nth-child(3){animation-delay:1.09s}.enter .rank>li:nth-child(4){animation-delay:1.16s}.enter .rank>li:nth-child(5){animation-delay:1.23s}
+.enter .tr i{transform-origin:left;animation:e-bar 1.2s cubic-bezier(.16,1,.3,1) 1.15s both}
+.enter .wkb i,.enter .lvb i{transform-origin:bottom;animation:e-grow 1.1s cubic-bezier(.16,1,.3,1) 1.2s both}
+.enter .wkc:nth-child(2) i,.enter .lvi:nth-child(2) i{animation-delay:1.25s}.enter .wkc:nth-child(3) i,.enter .lvi:nth-child(3) i{animation-delay:1.3s}
+.enter .wkc:nth-child(4) i,.enter .lvi:nth-child(4) i{animation-delay:1.35s}.enter .wkc:nth-child(5) i,.enter .lvi:nth-child(5) i{animation-delay:1.4s}
+.enter .wkc:nth-child(6) i,.enter .lvi:nth-child(6) i{animation-delay:1.45s}.enter .wkc:nth-child(7) i,.enter .lvi:nth-child(7) i{animation-delay:1.5s}
+.enter .wkc:nth-child(8) i,.enter .lvi:nth-child(n+8) i{animation-delay:1.55s}
+@media (prefers-reduced-motion:reduce){.greet-in{display:none}}
 /* Messages rise above the phone dock. */
 @media (max-width:959.98px){#toast{bottom:calc(var(--dock-gap) + var(--dock-h) + 12px)}}
 </style></head><body>
@@ -2341,5 +2399,22 @@ function importCSV(){if(!CSV)return;var p=planCSV(),fcd=document.getElementById(
  var said=[];if(n.add)said.push(n.add+" student"+(n.add>1?"s":"")+" added");if(n.move)said.push(n.move+" moved");if(n.update)said.push(n.update+" updated");if(made)said.push(made+" classroom"+(made>1?"s":"")+" created");
  toast(said.join(", "))}
 function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";document.getElementById("csvF").value=""}
+
+/* Just signed in: a greeting on a navy curtain, held until the class records have loaded (at least about two
+   seconds), then the curtain lifts and the page arrives piece by piece (the "enter" styles in template.css).
+   Once per sign-in, not on page changes; skipped under reduced motion. */
+(function(){if(!(window.ME&&ME.fresh)||window.SIGNING_OUT)return;
+ try{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}
+ var who=ME.name&&ME.name!=="Administrator"?ME.name:"",logo=document.querySelector(".rail .badge img"),o=document.createElement("div");
+ o.className="greet-in";o.setAttribute("aria-hidden","true");
+ o.innerHTML='<span class="gi-sky"><i></i><i></i><i></i><i></i><i></i><i></i><b class="gi-shoot"></b></span><div class="gi-core">'
+  +(logo?'<span class="gi-logo"><img src="'+logo.src+'" alt=""></span>':'')
+  +'<p class="gi-salam">Assalāmu ʿalaykum</p>'+(who?'<p class="gi-name">'+esc(who)+'</p>':'')+'</div>';
+ document.body.appendChild(o);
+ var t0=Date.now();
+ (function wait(){var m=document.querySelector("main"),ready=m&&!m.inert,t=Date.now()-t0;
+  if((ready&&t>2300)||t>7000)lift();else setTimeout(wait,100)})();
+ function lift(){document.body.classList.add("enter");o.classList.add("out");
+  setTimeout(function(){o.remove()},1100);setTimeout(function(){document.body.classList.remove("enter")},4000)}})();
 </script>
 </body></html>
