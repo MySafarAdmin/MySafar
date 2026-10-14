@@ -1,7 +1,7 @@
 # Safar Academy Enfield dashboards
 
 One page holds the school overview (Summary, Attention, Classes, Rankings, Houses) and a full class
-dashboard (Record, Warnings, Quran, Memo, Progress, Rewards, Settings) for every
+dashboard (Quran, Memo, Progress, Rewards, Settings) for every
 classroom. The dashboard starts empty:
 classrooms and students are added by uploading a CSV on the overview.
 
@@ -32,7 +32,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
 - **Student Name**, **Gender**, **School Year Group** and **Current Teacher
   [Islamic Studies]** are saved with the student and shown in each
   student's details (the row's "…" menu and the Progress students table); the
-  Student ID, Safar year group and house also appear under each name on Record.
+  Student ID, Safar year group and house also appear in the student's record.
 - The **Safar year group** is taken from the classroom name: `Yr7-B-QM-...` is
   Year 7. A shared `Yr9/10` classroom takes the year from the Islamic Studies
   class (`Yr9-AI-...` or `Yr10-AI-...`). An optional **Safar Year Group** column

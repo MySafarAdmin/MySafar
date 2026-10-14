@@ -28,8 +28,8 @@ Daily work happens without scrolling: at 1280×720 the head and tabs take about
 a sixth of the screen and a class of 20 is in view at once. Details are one
 selection or one labelled button away: the selected student's panel shows only
 the target and today's recording, with Details (identifiers, rename, remove)
-and History behind buttons. Attention shows as markers on roster rows and as
-the Warnings and Waiting filters, never as a second student list. Each page has
+and History behind buttons. Attention shows as the warning dot on a name in Quran
+and the Concern group in Memo, never as a second student list. Each page has
 one title; rules live in "?" help rather than paragraphs.
 
 ## Palette
@@ -95,14 +95,15 @@ figures on the canvas.
 - **Houses**: house totals, tokens by house, points by class (six a page).
 
 **Class** tabs (a class opens on Quran). Teachers see Quran, Memo, Progress,
-Rewards and Settings; Record and Warnings are for admins, and teachers give
-warnings and house points from the menu on a student's name in Quran.
+Rewards and Settings, and so do admins (Record and Warnings were removed). All
+recording starts from the Quran tab.
 
 - **Quran** scores show as colour (pastel coral 0, peach, butter,
   pistachio, mint, sea green 5) with a key beside the day's summary; only the focused day also shows the
   number. Boxes are 40px in every class, so long classes scroll
   rather than shrink. A student's name opens a menu with Warning 1, Warning 2
-  and Miss break, and their house tokens with − and +.
+  and Miss break, Merits and their house tokens with − and +, and a "Passes,
+  target and more" button that opens the student's record in the drawer.
 - **Quran**: the day-by-day sheet. The focused class day sits in a soft navy
   lane between the student names and their houses, with up to three earlier
   days fading out to the left and three later ones to the right (one each side
@@ -115,18 +116,10 @@ warnings and house points from the menu on a student's name in Quran.
   The add-student icon opens a short form (name, house, optional Student ID)
   and the student is saved with the class straight away. Full sheet shows the
   whole table by class day.
-- **Record**: All / Warnings / Waiting filters with counts, then the roster in
-  two columns from 1100px (one below), each row a name with its target and a
-  dotted marker (Warning 1, Warning 2, Miss break, Waiting, No passes), then
-  Passes and Merits as a count and a quiet outlined +. Selecting a name opens
-  the editor beside the roster (in the drawer on smaller screens): target and
-  Passes / Merits / Fails with − and +, where the Pass + is the only solid
-  button; Details reveals identifiers, Rename and Remove student; History opens
-  the full record. With nobody selected the panel shows a one-line prompt, the
-  latest records and Add a past pass, Leaders and prize and Add students (on
-  narrow screens this follows the roster). Arrow keys move between the visible
-  names.
-- **Warnings**: two columns of one-line rows.
+- **Student record** (drawer, from the name menu): target and Passes / Merits /
+  Fails with − and +, where the Pass + is the only solid button; Details
+  reveals identifiers, Rename and Remove student; History opens the full
+  record.
 - **Memo**: the sheet, scrolling inside its frame.
 - **Progress**: Levels (position in the book in two columns, students by
   level with empty levels named once in a line instead of zero rows),
