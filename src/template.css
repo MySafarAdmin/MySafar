@@ -795,3 +795,41 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .tsl{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
 .tsl>*{margin:0!important}
 .tsr .rk4.mine .hb{padding:0;border:0;background:none;box-shadow:none}
+
+/* Year calendar pop-up: twelve months at once, in the dashboard's quiet style. */
+.ycal{position:fixed;inset:0;z-index:95;background:rgba(29,33,39,.45);display:grid;place-items:center;padding:16px;overscroll-behavior:contain}
+.ycard{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);width:min(980px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden;animation:ycin .18s ease-out}
+@keyframes ycin{from{opacity:0;transform:translateY(6px) scale(.985)}}
+.ychead{display:flex;align-items:center;gap:12px;padding:8px 14px 8px 22px;border-bottom:1px solid var(--line)}
+.ychead h2{font-family:var(--font-display);font-weight:600;font-size:1.25rem;margin:0;flex:1}
+.ycyr{display:flex;align-items:center;gap:2px}
+.ycyr b{font-size:1.0625rem;min-width:3.2em;text-align:center;font-variant-numeric:tabular-nums}
+.ycyr .ibtn:disabled{opacity:.35;cursor:default;background:none}
+.ycgrid{overflow:auto;padding:12px 22px 8px;display:grid;gap:10px 28px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:700px){.ycgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:940px){.ycgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ycm h3{font-family:var(--font-display);font-weight:600;font-size:1.0625rem;color:var(--primary-ink);margin:0 0 2px;line-height:1.3}
+.ycw,.ycd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center}
+.ycw span{font-size:.6875rem;font-weight:600;color:var(--mute);line-height:18px}
+.ycd>*{position:relative;display:grid;place-items:center;height:23px;font-size:.8125rem;font-variant-numeric:tabular-nums}
+.ycd .out{color:var(--line-2)}
+.ycd button{width:23px;margin:0 auto;padding:0;border:0;border-radius:50%;background:none;color:var(--mute);font:inherit;font-size:.8125rem;cursor:pointer;transition:background-color .12s ease,color .12s ease}
+.ycd button.cls{color:var(--ink);font-weight:650}
+.ycd button.has::after{content:"";position:absolute;left:50%;bottom:0;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--sage)}
+.ycd button:hover:not(:disabled){background:var(--surface-2);color:var(--ink)}
+.ycd button.on{box-shadow:inset 0 0 0 2px var(--primary);color:var(--primary-ink)}
+.ycd button.now{background:var(--primary);color:#fff;font-weight:700}
+.ycd button.now:hover{background:var(--primary-hover);color:#fff}
+.ycd button.now.has::after{background:#fff}
+.ycd button.now.on{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}
+.ycd button:disabled{color:var(--line-2);cursor:default;font-weight:400}
+.ycd button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.yckey{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;padding:9px 22px 10px;border-top:1px solid var(--line);font-size:.8125rem;color:var(--mute)}
+.yckey span{display:inline-flex;align-items:center;gap:7px}
+.yckey .k{display:inline-block;width:14px;height:14px;border-radius:50%;position:relative}
+.yckey .k.cls::before{content:"7";position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:.75rem;color:var(--ink)}
+.yckey .k.dot::before{content:"";position:absolute;left:5px;top:5px;width:4px;height:4px;border-radius:50%;background:var(--sage)}
+.yckey .k.now{background:var(--primary)}
+.yckey .k.on{box-shadow:inset 0 0 0 2px var(--primary)}
+@media (max-width:520px){.ycal{padding:0;place-items:end stretch}.ycard{border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:92vh}.ychead{padding-left:16px}.ycgrid{padding:12px 16px 6px;gap:12px 18px}.yckey{padding:10px 16px 14px}.ychead h2{font-size:1.0625rem}}
+@media (prefers-reduced-motion:reduce){.ycard{animation:none}.ycd button{transition:none}}

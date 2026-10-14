@@ -1057,6 +1057,44 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .tsl{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
 .tsl>*{margin:0!important}
 .tsr .rk4.mine .hb{padding:0;border:0;background:none;box-shadow:none}
+
+/* Year calendar pop-up: twelve months at once, in the dashboard's quiet style. */
+.ycal{position:fixed;inset:0;z-index:95;background:rgba(29,33,39,.45);display:grid;place-items:center;padding:16px;overscroll-behavior:contain}
+.ycard{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);width:min(980px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden;animation:ycin .18s ease-out}
+@keyframes ycin{from{opacity:0;transform:translateY(6px) scale(.985)}}
+.ychead{display:flex;align-items:center;gap:12px;padding:8px 14px 8px 22px;border-bottom:1px solid var(--line)}
+.ychead h2{font-family:var(--font-display);font-weight:600;font-size:1.25rem;margin:0;flex:1}
+.ycyr{display:flex;align-items:center;gap:2px}
+.ycyr b{font-size:1.0625rem;min-width:3.2em;text-align:center;font-variant-numeric:tabular-nums}
+.ycyr .ibtn:disabled{opacity:.35;cursor:default;background:none}
+.ycgrid{overflow:auto;padding:12px 22px 8px;display:grid;gap:10px 28px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:700px){.ycgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:940px){.ycgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ycm h3{font-family:var(--font-display);font-weight:600;font-size:1.0625rem;color:var(--primary-ink);margin:0 0 2px;line-height:1.3}
+.ycw,.ycd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center}
+.ycw span{font-size:.6875rem;font-weight:600;color:var(--mute);line-height:18px}
+.ycd>*{position:relative;display:grid;place-items:center;height:23px;font-size:.8125rem;font-variant-numeric:tabular-nums}
+.ycd .out{color:var(--line-2)}
+.ycd button{width:23px;margin:0 auto;padding:0;border:0;border-radius:50%;background:none;color:var(--mute);font:inherit;font-size:.8125rem;cursor:pointer;transition:background-color .12s ease,color .12s ease}
+.ycd button.cls{color:var(--ink);font-weight:650}
+.ycd button.has::after{content:"";position:absolute;left:50%;bottom:0;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--sage)}
+.ycd button:hover:not(:disabled){background:var(--surface-2);color:var(--ink)}
+.ycd button.on{box-shadow:inset 0 0 0 2px var(--primary);color:var(--primary-ink)}
+.ycd button.now{background:var(--primary);color:#fff;font-weight:700}
+.ycd button.now:hover{background:var(--primary-hover);color:#fff}
+.ycd button.now.has::after{background:#fff}
+.ycd button.now.on{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--primary)}
+.ycd button:disabled{color:var(--line-2);cursor:default;font-weight:400}
+.ycd button:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.yckey{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0;padding:9px 22px 10px;border-top:1px solid var(--line);font-size:.8125rem;color:var(--mute)}
+.yckey span{display:inline-flex;align-items:center;gap:7px}
+.yckey .k{display:inline-block;width:14px;height:14px;border-radius:50%;position:relative}
+.yckey .k.cls::before{content:"7";position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-weight:700;font-size:.75rem;color:var(--ink)}
+.yckey .k.dot::before{content:"";position:absolute;left:5px;top:5px;width:4px;height:4px;border-radius:50%;background:var(--sage)}
+.yckey .k.now{background:var(--primary)}
+.yckey .k.on{box-shadow:inset 0 0 0 2px var(--primary)}
+@media (max-width:520px){.ycal{padding:0;place-items:end stretch}.ycard{border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:92vh}.ychead{padding-left:16px}.ycgrid{padding:12px 16px 6px;gap:12px 18px}.yckey{padding:10px 16px 14px}.ychead h2{font-size:1.0625rem}}
+@media (prefers-reduced-motion:reduce){.ycard{animation:none}.ycd button{transition:none}}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1113,7 +1151,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
   <div class="seg qhis" id="qP" role="group" aria-label="Days shown"><button type="button" data-p="r" aria-pressed="true">Last 6 weeks</button><button type="button" data-p="a" aria-pressed="false">All</button></div>
   <div class="tools"><div class="seg" id="qV" role="group" aria-label="Show"><button type="button" data-v="rec" aria-pressed="true">Day by day</button><button type="button" data-v="his" aria-pressed="false">Full sheet</button></div>
    <button type="button" class="ibtn qstar qrec" id="qStar" aria-haspopup="dialog" aria-label="Star of the week" title="Star of the week"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg></button>
-   <span class="ipick qrec"><button type="button" class="ibtn" id="qCal" aria-label="Go to a class day" title="Go to a class day"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/></svg></button><input type="date" id="qD" tabindex="-1" aria-hidden="true"></span>
+   <span class="ipick qrec"><button type="button" class="ibtn" id="qCal" aria-label="Go to a class day" title="Go to a class day"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/></svg></button></span>
    <button type="button" class="ibtn" id="qAdd" aria-label="Add a student" title="Add a student"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20a6.5 6.5 0 0 1 11.6-4"/><path d="M18.5 14v6M15.5 17h6"/></svg></button>
    <details class="help"><summary aria-label="How Quran scores work">?</summary><div class="hb"><p>The highlighted column is the class day you are recording. Tap a student's box and choose a score out of 5, or select the box and type 0 to 5. Tap the same score again to clear it.</p><p>The arrows move to the previous or next class day; the days before and after stay in view on either side. The calendar goes to any day, including one outside the usual weekend classes.</p><p>A blank day means the score was not recorded, which is different from 0.</p></div></details></div></div>
  <div class="pane" data-pane="rec"><div class="qboard" id="qB"></div></div>
@@ -1172,6 +1210,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 </div>
 </div>
 <div id="drw" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drwT" hidden><div class="dpanel"><div class="dhead"><h2 id="drwT"></h2><button class="btn sm" id="drwX" type="button">Close</button></div><div class="dbody" id="drwB"></div></div></div>
+<div id="yc" class="ycal hide" role="dialog" aria-modal="true" aria-labelledby="ycT"><div class="ycard"><div class="ychead"><h2 id="ycT">Go to a class day</h2><div class="ycyr"><button type="button" class="ibtn" id="ycP" aria-label="Previous year"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><b id="ycY" aria-live="polite"></b><button type="button" class="ibtn" id="ycN" aria-label="Next year"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div><button type="button" class="btn sm" id="ycX">Close</button></div><div class="ycgrid" id="ycG"></div><p class="yckey"><span><i class="k cls"></i>Class day</span><span><i class="k dot"></i>Scores recorded</span><span><i class="k now"></i>Today</span><span><i class="k on"></i>Showing</span></p></div></div>
 <div id="dlg" class="dlg hide" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="card"><p id="dlgT"></p><input id="dlgI" class="hide" maxlength="60" autocomplete="off" aria-labelledby="dlgT"><div class="acts"><button class="btn" id="dlgN" type="button">Cancel</button><button class="btn p" id="dlgY" type="button">OK</button></div></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
@@ -1375,9 +1414,10 @@ $("dlgN").onclick=closeAsk;
 $("dlgY").onclick=function(){var cb=AK,i=$("dlgI"),v=i.value.trim();if(!i.classList.contains("hide")&&!v){i.focus();return}closeAsk();if(cb)cb(v)};
 $("dlgI").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();$("dlgY").click()}});
 $("dlg").addEventListener("click",function(e){if(e.target===this)closeAsk()});
-function trap(e,box){var f=Array.prototype.filter.call(box.querySelectorAll("a[href],button,input,select,textarea,summary,[tabindex]:not([tabindex='-1'])"),function(x){return x.offsetParent!==null&&!x.disabled}),a=f[0],z=f[f.length-1];
+function trap(e,box){var f=Array.prototype.filter.call(box.querySelectorAll("a[href],button,input,select,textarea,summary,[tabindex]:not([tabindex='-1'])"),function(x){return x.offsetParent!==null&&!x.disabled&&x.tabIndex>=0}),a=f[0],z=f[f.length-1];
  if(!a)return;if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}
 document.addEventListener("keydown",function(e){
+ if(!$("yc").classList.contains("hide")){if(e.key==="Escape"){e.preventDefault();ycClose();return}if(e.key==="Tab")trap(e,$("yc"));return}
  if(AK){if(e.key==="Escape")closeAsk();if(e.key==="Tab")trap(e,$("dlg"));return}
  if(!$("drw").hidden){if(e.key==="Escape"){closeDrawer();return}if(e.key==="Tab")trap(e,$("drw"));return}
  if(e.key!=="Escape")return;
@@ -1670,8 +1710,33 @@ function qGo(d,dir){if(!d||d===QF)return;var was=QF;QF=d;qGrid(dir||(d>was?1:-1)
 function qStep(n){var D=qDays(),i=D.indexOf(QF)+n;if(i>=0&&i<D.length)qGo(D[i],n)}
 $("qPrev").onclick=function(){qStep(-1)};$("qNext").onclick=function(){qStep(1)};
 $("qToday").onclick=function(){qGo(qLatest(qDays()))};
-$("qCal").onclick=function(){var i=$("qD");i.min=FCD;i.value=QF;try{i.showPicker();return}catch(e){}i.focus();i.click()};
-$("qD").onchange=function(){var d=this.value;if(!d)return;if(d<FCD){toast("The first class day was "+ds(sd().getTime()),1);return}if(qDays().indexOf(d)<0)QX[d]=1;qGo(d)};
+/* The year calendar: twelve months at once, Monday first. Class days are strong, days with scores carry a dot,
+   today is filled and the day on show is ringed. Arrow keys move a day or a week, Page Up and Down a month. */
+var YC=0,YCF=null,YCD="";
+function ycOpen(){YCF=document.activeElement;YCD=QF||dk(Date.now());YC=+YCD.slice(0,4);ycDraw();$("yc").classList.remove("hide");ycFocus()}
+function ycClose(back){if($("yc").classList.contains("hide"))return;$("yc").classList.add("hide");$("ycG").innerHTML="";if(back!==0&&YCF&&document.contains(YCF))YCF.focus();YCF=null}
+function ycDraw(){var D={},sc={},now=dk(Date.now()),MO=["January","February","March","April","May","June","July","August","September","October","November","December"],h="";
+ qDays().forEach(function(k){D[k]=1});S.forEach(function(s){Object.keys(s.q).forEach(function(k){sc[k]=1})});
+ $("ycY").textContent=YC;$("ycP").disabled=YC<=+FCD.slice(0,4);$("ycN").disabled=YC>=new Date().getFullYear()+1;
+ for(var m=0;m<12;m++){var f=new Date(YC,m,1),x=addDays(f,-((f.getDay()+6)%7));
+  h+='<section class="ycm" aria-label="'+MO[m]+' '+YC+'"><h3>'+MO[m]+'</h3><div class="ycw" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div><div class="ycd">';
+  for(var i=0;i<42;i++,x=addDays(x,1)){var k=dk(x.getTime());
+   if(x.getMonth()!==m){h+='<span class="out" aria-hidden="true">'+x.getDate()+'</span>';continue}
+   var c=(D[k]?' cls':'')+(sc[k]?' has':'')+(k===now?' now':'')+(k===QF?' on':''),off=k<FCD;
+   h+='<button type="button" data-d="'+k+'" class="'+c.slice(1)+'" tabindex="'+(k===YCD?0:-1)+'"'+(off?' disabled':'')+(k===QF?' aria-current="date"':'')
+    +' aria-label="'+x.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+(D[k]?', class day':'')+(sc[k]?', scores recorded':'')+(k===now?', today':'')+'">'+x.getDate()+'</button>'}
+  h+='</div></section>'}
+ $("ycG").innerHTML=h}
+function ycFocus(){var b=$("ycG").querySelector('[data-d="'+YCD+'"]');if(!b||b.disabled)b=$("ycG").querySelector("button:not(:disabled)");if(!b){$("ycX").focus();return}
+ Array.prototype.forEach.call($("ycG").querySelectorAll('button[tabindex="0"]'),function(e){e.tabIndex=-1});b.tabIndex=0;b.focus();b.scrollIntoView({block:"nearest"})}
+function ycMove(d){var y=+d.slice(0,4);if(d<FCD)d=FCD;if(y>new Date().getFullYear()+1)return;YCD=d;if(+d.slice(0,4)!==YC){YC=+d.slice(0,4);ycDraw()}ycFocus()}
+function ycPick(d){if(d<FCD){toast("The first class day was "+ds(sd().getTime()),1);return}ycClose(0);if(qDays().indexOf(d)<0)QX[d]=1;qGo(d);var b=document.querySelector("#qB .qcol.on .qc");if(b)b.focus();else $("qCal").focus()}
+$("qCal").onclick=ycOpen;$("ycX").onclick=function(){ycClose()};
+$("ycP").onclick=function(){YC--;ycDraw();ycFocus()};$("ycN").onclick=function(){YC++;ycDraw();ycFocus()};
+$("yc").addEventListener("click",function(e){if(e.target===this){ycClose();return}var b=e.target.closest("#ycG button");if(b)ycPick(b.dataset.d)});
+$("ycG").addEventListener("keydown",function(e){var b=e.target.closest("button[data-d]");if(!b)return;var n={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key],t=qDate(b.dataset.d);
+ if(n)t=addDays(t,n);else if(e.key==="PageUp"||e.key==="PageDown"){var m=t.getMonth()+(e.key==="PageUp"?-1:1);t=new Date(t.getFullYear(),m,Math.min(t.getDate(),new Date(t.getFullYear(),m+1,0).getDate()))}else return;
+ e.preventDefault();ycMove(dk(t.getTime()))});
 /* The score picker for one box in the focused column. */
 var QP_=null;
 /* While the picker is open, the rest of that student's row (house and the other days) steps aside so the

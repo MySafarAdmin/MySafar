@@ -129,6 +129,11 @@ recording starts from the Quran tab.
   houses fade out, the columns slide one place left like the next column of a
   page, and the names come back. Class days are the weekends from the first
   class day, any day with a score, and any day chosen with the calendar icon.
+  The calendar icon opens a whole-year pop-up (twelve months, Monday first,
+  days outside each month faded): class days are bold, days with scores carry
+  a small sage dot, today is a filled navy circle and the day on show is
+  ringed. Days before the first class day can't be picked; picking a day jumps
+  the sheet there. Arrow keys move a day or a week, Page Up and Down a month.
   The add-student icon opens a short form (name, house, optional Student ID)
   and the student is saved with the class straight away. Full sheet shows the
   whole table by class day.
