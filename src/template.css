@@ -66,8 +66,10 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
  .tabs button[aria-selected="true"]{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:none}
  .tabs button[aria-selected="true"] .tn{background:rgba(255,255,255,.2);color:#fff}
  .ws{margin:0 -16px;border-radius:0;padding:14px 16px 20px;box-shadow:none}
+ /* The class pages are in the phone dock, so their tab row is not repeated above the page. */
+ .head #sub{display:none}
 }
-@media (max-width:379px){.head h1{font-size:1.0625rem}.head .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.tabs button{padding:8px 2px;font-size:.8125rem;justify-content:center}}
+@media (max-width:379px){.head h1{font-size:1.0625rem}.head .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.tabs button{padding:8px 2px;font-size:.8125rem;justify-content:center}}
 
 /* Sync banner (railway-storage.js): only shown when something needs the person's attention. */
 .sync{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 16px;background:var(--warn-soft);color:var(--warn-ink);border-bottom:1px solid color-mix(in srgb,var(--warn) 40%,transparent);font-size:.9375rem}
@@ -642,6 +644,27 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .addf label{display:flex;flex-direction:column;gap:6px;font-size:.875rem;font-weight:650;color:var(--ink-2)}
 .addf .acts{display:flex;justify-content:flex-end}
 .naerr{margin:0;color:var(--bad-ink);font-weight:650}.naerr:empty{display:none}
+/* Phones: name, the focused day's box and the house; the score picker rises from the bottom with the full name. */
+.qph .qnames .qn{justify-content:flex-start;padding-left:0}
+.qph .qnames .qnb{padding-left:2px}
+.qph .qhead .qfh:first-child{justify-content:flex-start;padding-left:2px}
+.qnh .qhouses,.qnh .qhead .qfh:nth-child(2){display:none}
+/* Without the house, a name still too long for one line wraps onto a second. */
+.qnh .qnames .qnb b{white-space:normal;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;line-height:1.15;text-align:left}
+.qpop.qsheet{position:fixed;inset:0;z-index:90;display:block;padding:0;background:none;border:0;border-radius:0;box-shadow:none;animation:none}
+.qsc{position:absolute;inset:0;background:rgba(10,24,40,.35);animation:qsFade .2s ease both}
+.qscard{position:absolute;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;background:var(--surface);border-radius:24px 24px 0 0;
+ padding:10px 16px calc(18px + env(safe-area-inset-bottom,0px));box-shadow:0 -12px 40px rgba(0,20,40,.2);animation:qsUp .34s cubic-bezier(.2,.9,.3,1.05) both}
+.qscard::before{content:"";display:block;width:40px;height:5px;border-radius:3px;background:var(--line-2);margin:0 auto 12px}
+.qsh{text-align:center;margin-bottom:14px}
+.qsh b{display:block;font-size:1.25rem;font-weight:800;line-height:1.25;color:var(--navy);overflow-wrap:anywhere}
+.qsh small{color:var(--mute);font-size:.875rem}
+.qsb{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.qpop.qsheet .qsb button{min-width:0;height:56px;border-radius:16px;font-size:1.25rem;font-weight:800}
+.qpop.qsheet .qsb button:active{transform:scale(.92)}
+.qpop.qsheet .qsb .qclr{grid-column:1/-1;height:46px;font-size:.9375rem;font-weight:650}
+@keyframes qsUp{from{transform:translateY(100%)}}
+@keyframes qsFade{from{opacity:0}}
 @media (pointer:coarse){.qpop button{min-width:44px;height:44px}.ibtn{width:44px;height:44px}}
 @media (max-width:719.98px){.qbar .tools{margin-left:0;flex-wrap:wrap;gap:4px}.qbar .seg button{padding:6px 10px}.qday{min-width:9em}.qnav{flex:1 1 100%;justify-content:space-between}}
 @media (max-width:559.98px){.qhs{background:none;border:0;padding:0;gap:4px;font-size:.75rem}.qn{padding:0 4px}}
@@ -924,3 +947,27 @@ body.enter .wkc:nth-child(2) i,body.enter .lvi:nth-child(2) i{animation-delay:1.
 body.enter .wkc:nth-child(4) i,body.enter .lvi:nth-child(4) i{animation-delay:1.35s}body.enter .wkc:nth-child(5) i,body.enter .lvi:nth-child(5) i{animation-delay:1.4s}
 body.enter .wkc:nth-child(6) i,body.enter .lvi:nth-child(6) i{animation-delay:1.45s}body.enter .wkc:nth-child(7) i,body.enter .lvi:nth-child(7) i{animation-delay:1.5s}
 body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:1.55s}
+/* After the greeting the phone dock fades in with the rail (html.fresh hides both until then), and its icons pop
+   in one by one. */
+@media (max-width:959.98px){
+ body.enter .dk .dki{animation:dk-in .55s cubic-bezier(.3,1.6,.5,1) both}
+ body.enter .dk:nth-child(1) .dki{animation-delay:.75s}body.enter .dk:nth-child(2) .dki{animation-delay:.81s}body.enter .dk:nth-child(3) .dki{animation-delay:.87s}
+ body.enter .dk:nth-child(4) .dki{animation-delay:.93s}body.enter .dk:nth-child(5) .dki{animation-delay:.99s}body.enter .dk:nth-child(6) .dki{animation-delay:1.05s}
+ body.enter .dk:nth-child(7) .dki{animation-delay:1.11s}body.enter .dk:nth-child(8) .dki{animation-delay:1.17s}
+ @keyframes dk-in{from{opacity:0;transform:scale(.4) translateY(8px)}}
+}
+/* Messages rise above the phone dock. */
+@media (max-width:959.98px){#toast{bottom:calc(var(--dock-gap) + var(--dock-h) + 12px)}}
+/* Phones: nothing runs off the screen. The summary's house points keep their side margin, the tokens table
+   drops its point values from the headings and tightens, the figures open as a card above the dock (as help notes
+   do, tokens.css) and the CSV example wraps. */
+@media (max-width:640px){
+ .tsr .rk4.mine .hb{margin-left:0;margin-right:0}
+ .ws .tbl.htok th,.ws .tbl.htok td{padding-left:6px;padding-right:6px;font-size:.875rem}
+ .ws .tbl.htok th:first-child,.ws .tbl.htok td:first-child{padding-left:12px}
+ .head .figpop .figs{position:fixed;left:12px;right:12px;top:auto;bottom:calc(var(--dock-gap,12px) + var(--dock-h,0px) + 12px);width:auto;min-width:0;max-width:none;z-index:85}
+ .ex{white-space:pre-wrap;overflow-wrap:anywhere}
+ .htok .tv{display:none}
+}
+/* Below 400px the token columns are headed by their coloured dot alone; the name stays for screen readers. */
+@media (max-width:399.98px){.htok .tw{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.htok .tdot{margin:0}}

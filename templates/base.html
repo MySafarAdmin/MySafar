@@ -20,7 +20,7 @@
 <header><div class="rail">
   <a class="brand" href="/"><span class="badge"><img src="/logo.png" alt="" width="34" height="34"></span><span translate="no"><b class="wm">My<span>Safar</span></b><small>Enfield</small></span></a>
   <input type="checkbox" id="navt" class="navt" aria-label="Show the menu">
-  <label for="navt" class="menu-btn" aria-hidden="true">Menu</label>
+  <div class="navw">
   <nav class="navs" aria-label="Main">
     <a class="nav" href="/">{{ icon("home") }}Dashboard</a>
     <a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
@@ -40,6 +40,23 @@
       <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="linkbtn">Sign out</button></form>
     </div>
   </div>
+  </div>
+  {# The phone dock (tokens.css), as on the dashboard: these pages have no scripts, so its items are links back to
+     the dashboard's pages, and More opens the full menu through the checkbox. #}
+  <label for="navt" class="dscrim" aria-hidden="true"></label>
+  <nav class="dock" aria-label="Shortcuts">
+    <a class="dk dk-home" href="/"><span class="dki">{{ icon("home") }}</span><span>Home</span></a>
+    {% if user.role == "admin" %}
+    <a class="dk dk-classes" href="/#classes"><span class="dki">{{ icon("grid") }}</span><span>Classes</span></a>
+    <a class="dk dk-record" href="/#record"><span class="dki">{{ icon("pen") }}</span><span>Record</span></a>
+    {% else %}
+    <a class="dk dk-quran" href="/#tab-Q"><span class="dki">{{ icon("quran") }}</span><span>Quran</span></a>
+    <a class="dk dk-memo" href="/#tab-T"><span class="dki">{{ icon("target") }}</span><span>Memo</span></a>
+    <a class="dk dk-progress" href="/#tab-D"><span class="dki">{{ icon("chart") }}</span><span>Progress</span></a>
+    <a class="dk dk-rewards" href="/#tab-H"><span class="dki">{{ icon("star") }}</span><span>Rewards</span></a>
+    {% endif %}
+    <label for="navt" class="dk dk-more" aria-hidden="true"><span class="dki">{{ icon("more") }}</span><span>More</span></label>
+  </nav>
 </div></header>
 <div class="work">
 <main><div class="content{% block width %}{% endblock %}" id="main" tabindex="-1">
