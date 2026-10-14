@@ -1618,7 +1618,8 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  Y.style.height=(S.length*rh)+"px";
  /* On wide screens a long class scrolls inside the sheet, so the page and the day controls stay put. */
  Y.style.maxHeight=window.innerWidth>=960?Math.max(5*rh,window.innerHeight-Math.max(top,120)-52-20)+"px":"";
- B.querySelector(".qlane").style.transform="translateX("+(G.x(0)+G.w/2)+"px)";
+ /* The lane spans every row, not just the visible part of the sheet, so it reaches the last student when the class scrolls. */
+ var ln=B.querySelector(".qlane");ln.style.transform="translateX("+(G.x(0)+G.w/2)+"px)";ln.style.height=(S.length*rh)+"px";
  names.style.transform="translateX("+(G.x(-1)+G.w)+"px)";names.style.width=G.nameW+"px";
  houses.style.transform="translateX("+(G.x(0)+G.w)+"px)";houses.style.width=G.houseW+"px";
  names.innerHTML=S.map(function(s,i){return '<span class="qn"><button type="button" class="qnb" data-ni="'+i+'" aria-haspopup="true" aria-expanded="'+(QMN===i)+'"><b>'+esc(s.name)+'</b>'+(s.warn?'<span class="qwd wl'+s.warn+'" title="'+WL[s.warn]+'"><span class="sr-only">, '+WL[s.warn]+'</span></span>':'')+'<svg class="qcar" viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span>'}).join("");
