@@ -54,15 +54,18 @@ main{flex:1;position:relative;min-height:0}
 .pod.top .c{font-size:2.2vh}
 .stars{display:grid;gap:1.4vh 1vw;height:100%;align-content:start}
 .star{background:rgba(255,255,255,.06);border-radius:1.6vh;padding:1em .9em;border-left:.5vh solid var(--gold);min-width:0}
-.star .c{font-size:.62em;color:var(--mute);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.star .n{font-size:1.1em;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.star .c{font-size:.62em;color:var(--mute);font-weight:700;overflow-wrap:anywhere}
+.star .n{font-size:1.1em;font-weight:800;overflow-wrap:anywhere;line-height:1.15}
 .star .w{font-size:.62em;color:var(--gold);font-weight:700}
 .bookhead{display:flex;align-items:baseline;gap:1.2vw;margin:-.6vh 0 1.6vh}
 .bookhead b{font-size:9vh;font-weight:800;color:var(--gold);line-height:1}
 .bookhead span{font-size:2.8vh;font-weight:700;color:var(--mute)}
 .books.many .book small{display:none}
 .star.none{border-left-color:var(--line)}.star.none .n{color:var(--mute);font-weight:700;white-space:normal;font-size:.9em}
-.books{columns:1;column-gap:2vw}
+.books{display:grid;column-gap:2vw;align-content:start}
+/* A list too long for the screen at a readable size is shown a page at a time. */
+.pgn{float:right;font-size:2.4vh;font-weight:700;color:var(--gold);margin-top:1vh}
+.pgn:empty{display:none}
 .book{break-inside:avoid;padding:.35em 0;border-bottom:.2vh solid var(--line);font-weight:800}
 .book small{display:block;font-size:.6em;color:var(--mute);font-weight:600}
 .empty{color:var(--mute);font-size:3.2vh;font-weight:700}
@@ -84,23 +87,32 @@ footer i.run{width:100%;transition:width linear}
     </div></div>
   </section>
   <section class="slide" id="s2">
-    <div class="panel"><h2>Star of the week<small>Most passes and merits since Monday, in each class</small></h2><div class="fit" id="starsFit"><div class="stars" id="stars"></div></div></div>
-    <div class="panel"><h2>Passed a book<small>Well done, all of <span class="month"></span></small></h2><div class="bookhead" id="bookhead"></div><div class="fit" id="booksFit"><div class="books" id="books"></div></div></div>
+    <div class="panel"><h2>Star of the week<span class="pgn" id="starsPg"></span><small>Most passes and merits since Monday, in each class</small></h2><div class="fit" id="starsFit"><div class="stars" id="stars"></div></div></div>
+    <div class="panel"><h2>Passed a book<span class="pgn" id="booksPg"></span><small>Well done, all of <span class="month"></span></small></h2><div class="bookhead" id="bookhead"></div><div class="fit" id="booksFit"><div class="books" id="books"></div></div></div>
   </section>
 </main>
 <footer><i id="prog"></i></footer>
 <div id="off"></div>
 <script>
 (function(){
-var SLIDE_MS=30000,DATA_MS=60000;
+var SLIDE_MS=30000,DATA_MS=60000,PAGE_MS=10000;
 var path=location.pathname.replace(/\/+$/,""),URL=path==="/tv"?"/api/tv":path+"/data";
 var slide=0,data=null;
 function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return "&#"+c.charCodeAt(0)+";"})}
 function $(id){return document.getElementById(id)}
 function clock(){var d=new Date();$("clock").textContent=d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
-/* Shrinks the text in a box until it fits, so a long list never runs off the screen. */
-function fit(box,inner,start){var size=start;inner.style.fontSize=size+"vh";
- while(size>1.6&&inner.scrollHeight>box.clientHeight+2){size-=.2;inner.style.fontSize=size+"vh"}}
+/* Shrinks the text in a box until it fits, down to a size still readable across a room.
+   A list that still does not fit is split into pages that take turns (see pages()). */
+function fit(box,inner,start,min){var size=start;inner.style.fontSize=size+"vh";
+ while(size>min&&inner.scrollHeight>box.clientHeight+2){size-=.2;inner.style.fontSize=size+"vh"}}
+var PG={},PI={};
+function pages(key,box,inner,items,start,min){inner.innerHTML=items.join("");fit(box,inner,start,min);var P=[],cur=[];
+ if(inner.scrollHeight>box.clientHeight+2){inner.innerHTML="";items.forEach(function(h){inner.insertAdjacentHTML("beforeend",h);
+  if(inner.scrollHeight>box.clientHeight+2&&cur.length){P.push(cur);cur=[];inner.innerHTML=h}cur.push(h)});if(cur.length)P.push(cur)}
+ else P=[items];
+ PG[key]=P;PI[key]=(PI[key]||0)%P.length;page(key)}
+function page(key){var P=PG[key],i=PI[key];$(key).innerHTML=P[i].join("");$(key+"Pg").textContent=P.length>1?"Page "+(i+1)+" of "+P.length:""}
+function turn(){["stars","books"].forEach(function(k){if(PG[k]&&PG[k].length>1){PI[k]=(PI[k]+1)%PG[k].length;page(k)}})}
 function render(){if(!data)return;
  Array.prototype.forEach.call(document.querySelectorAll(".month"),function(e){e.textContent=data.month});
  var top=Math.max(1,data.houses[0].points);
@@ -109,20 +121,21 @@ function render(){if(!data)return;
   $(k).innerHTML=L.length?L.map(function(p,i){var r=1;while(r-1<i&&L[r-1].passes!==p.passes)r++;return '<div class="pod'+(r===1?' top':'')+'"><span class="m r'+r+'"'+(r<=i?' title="Joint '+r+'"':'')+'>'+r+'</span><span>'+esc(p.name)+'<span class="c">'+esc(p.class)+'</span></span><span class="n">'+p.passes+'</span></div>'}).join(""):'<div class="empty">No passes yet this month. Who will be first?</div>'});
  var S=data.stars,cols=S.length>16?4:S.length>6?3:S.length>2?2:1;
  $("stars").style.gridTemplateColumns="repeat("+cols+",minmax(0,1fr))";
- $("stars").innerHTML=S.length?S.map(function(s){return s.name?'<div class="star"><div class="c">'+esc(s.class)+'</div><div class="n">'+esc(s.name)+'</div><div class="w">'+s.passes+(s.passes===1?" pass":" passes")+', '+s.merits+(s.merits===1?" merit":" merits")+'</div></div>':'<div class="star none"><div class="c">'+esc(s.class)+'</div><div class="n">Could it be you?</div></div>'}).join(""):'<div class="empty">No classes yet.</div>';
- var B=data.books;$("books").style.columns=B.length>24?3:B.length>8?2:1;$("books").classList.toggle("many",B.length>16);
+ var SI=S.length?S.map(function(s){return s.name?'<div class="star"><div class="c">'+esc(s.class)+'</div><div class="n">'+esc(s.name)+'</div><div class="w">'+s.passes+(s.passes===1?" pass":" passes")+', '+s.merits+(s.merits===1?" merit":" merits")+'</div></div>':'<div class="star none"><div class="c">'+esc(s.class)+'</div><div class="n">Could it be you?</div></div>'}):['<div class="empty">No classes yet.</div>'];
+ var B=data.books;$("books").style.gridTemplateColumns="repeat("+(B.length>24?3:B.length>8?2:1)+",minmax(0,1fr))";$("books").classList.toggle("many",B.length>16);
  $("bookhead").innerHTML=B.length?'<b>'+B.length+'</b><span>'+(B.length===1?"student":"students")+'</span>':"";
- $("books").innerHTML=B.length?B.map(function(b){return '<div class="book">'+esc(b.name)+'<small>'+esc(b.class)+'</small></div>'}).join(""):'<div class="empty">No books completed yet this month. Keep going!</div>';
- fit($("starsFit"),$("stars"),cols>2?3.4:4.4);fit($("booksFit"),$("books"),4.2)}
-function show(n){slide=n;["s1","s2"].forEach(function(id,i){$(id).classList.toggle("on",i===n)});
+ var BI=B.length?B.map(function(b){return '<div class="book">'+esc(b.name)+'<small>'+esc(b.class)+'</small></div>'}):['<div class="empty">No books completed yet this month. Keep going!</div>'];
+ pages("stars",$("starsFit"),$("stars"),SI,cols>2?3.4:4.4,2.6);pages("books",$("booksFit"),$("books"),BI,4.2,2.8)}
+/* Each slide stays long enough for every page of its lists to be seen once. */
+var ST=null,PT=null;
+function show(n){slide=n;clearTimeout(ST);clearInterval(PT);["s1","s2"].forEach(function(id,i){$(id).classList.toggle("on",i===n)});
  Array.prototype.forEach.call(document.querySelectorAll(".dots i"),function(d,i){d.classList.toggle("on",i===n)});
- var p=$("prog");p.className="";p.style.transitionDuration="0ms";void p.offsetWidth;p.style.transitionDuration=SLIDE_MS+"ms";p.className="run";
- render()}
+ var p=$("prog");p.className="";p.style.transitionDuration="0ms";void p.offsetWidth;render();var ms=n===1?Math.max(SLIDE_MS,PAGE_MS*Math.max((PG.stars||[]).length,(PG.books||[]).length)):SLIDE_MS;
+ p.style.transitionDuration=ms+"ms";p.className="run";if(n===1)PT=setInterval(turn,PAGE_MS);ST=setTimeout(function(){show(1-slide)},ms)}
 function load(){fetch(URL,{credentials:"same-origin",cache:"no-store"}).then(function(r){
   if(r.status===404||r.status===401){$("off").style.display="flex";$("off").textContent=r.status===404?"This screen's link has been turned off. Ask an administrator for a new one.":"Sign in to see the dashboard.";return null}
   return r.ok?r.json():null}).then(function(d){if(d){data=d;$("off").style.display="none";render()}}).catch(function(){/* keep showing the last data */})}
 clock();setInterval(clock,1000);load();setInterval(load,DATA_MS);show(0);
-setInterval(function(){show(1-slide)},SLIDE_MS);
 /* Pick up new versions of this page, unless the network is down. */
 setInterval(function(){fetch(location.href,{cache:"no-store"}).then(function(r){if(r.ok)location.reload()}).catch(function(){})},6*3600*1000);
 window.addEventListener("resize",render);

@@ -38,7 +38,8 @@ details.user .tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin
 details.user .body{padding:4px 20px 20px;background:var(--surface-2)}
 details.user .body>p:first-child{margin-top:4px}
 details.user.off .who{opacity:.7}
-.invite{margin-top:24px;scroll-margin-top:72px}
+.invite,.mail{margin-top:24px;scroll-margin-top:72px}
+.mail form{margin-top:12px}
 .invite:target,.invite:focus{outline:3px solid var(--focus);outline-offset:2px}
 @media (max-width:959.98px){.accounts{margin:0 -16px;border-radius:0;border-left:0;border-right:0}details.user summary{padding:12px 16px}details.user .body{padding:4px 16px 16px}}
 .danger-zone{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}

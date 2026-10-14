@@ -67,4 +67,16 @@
     <button class="btn primary">Send invite</button>
   </form>
 </div>
+<div class="mod line mail" id="email">
+  <h2>Email</h2>
+  {% if mail_enabled %}
+  <p class="sub">Invites, password reset links and password-change notices are emailed from <b>{{ mail_from }}</b>.{% if mail_test_mode %} <b>Test mode is on:</b> every email goes to one test address (MAIL_REDIRECT_TO on Railway), not to the person it's for.{% endif %}</p>
+  {% else %}
+  <p class="sub">Email isn't set up, so invite and reset links appear here for you to copy and send yourself. Add RESEND_API_KEY and MAIL_FROM to the MySafar service on Railway to turn it on.</p>
+  {% endif %}
+  <p class="sub">See what staff receive: {% for key, label in email_previews %}<a href="/admin/email/preview/{{ key }}" target="_blank" rel="noopener">{{ label }}</a>{{ ", " if not loop.last }}{% endfor %}.</p>
+  {% if mail_enabled %}
+  <form method="post" action="/admin/email/test"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn">Send me a test email</button></form>
+  {% endif %}
+</div>
 {% endblock %}
