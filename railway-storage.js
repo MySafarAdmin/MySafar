@@ -2,6 +2,7 @@
    Classrooms are created and deleted from the page, so the class list comes from the server. */
 (function () {
   "use strict";
+  if (window.SIGNING_OUT) return;  // a new tab going back to the sign-in page (see TAB_GUARD in server.py)
   var revisions = {}, pending = {}, sending = false, reading = false, loaded = false, failed = false;
   var editVersion = 0;
   // Shown only when saving or loading fails; routine save status goes in the page heading.
