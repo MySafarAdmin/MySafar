@@ -877,7 +877,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 /* Every hover and focus mark on a focused box stays inside the box, so it never covers the rows above and
    below or the next day's column. */
 .qcol.on .qc{border:1.5px solid color-mix(in srgb,var(--navy) 42%,#fff);box-shadow:0 1px 2px rgba(0,59,107,.08);cursor:pointer;color:var(--navy);font-size:1.0625rem;transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease}
-.qcol.on .qc.has{border-color:color-mix(in srgb,var(--c) 70%,#1d2127)}
+.qcol.on .qc.has{border-color:color-mix(in srgb,var(--c) 70%,#1d2127);color:var(--ink);font-weight:650}
 .qcol.on .qc:hover:not(:disabled){border-color:var(--navy);background:var(--navy-soft);box-shadow:inset 0 0 0 1px var(--navy)}
 .qcol.on .qc.has:hover:not(:disabled){background:var(--c);border-color:color-mix(in srgb,var(--c) 45%,#1d2127);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 45%,#1d2127)}
 .qcol.on .qc[aria-expanded="true"],.qcol.on .qc:focus-visible{outline:none;border-color:var(--focus);box-shadow:inset 0 0 0 2px var(--focus)}
@@ -1569,8 +1569,8 @@ $("drwB").addEventListener("click",function(e){if(DMODE!=="mm")return;
  var d=e.target.closest("[data-md]");if(d){MD=MD===d.dataset.md?"":d.dataset.md;mDraw(0,'[data-md="'+d.dataset.md+'"]');return}
  if(e.target.closest("[data-mmd]")){MD="";mDraw(0)}});
 /* Score colours, red (0) to green (5), dark enough to carry text. */
-/* Score colours, 0 to 5: pastel coral, peach, butter, pistachio, mint and sea green. The day-by-day sheet shows
-   only the colour; the score is in each box's label and the legend. */
+/* Score colours, 0 to 5: pastel coral, peach, butter, pistachio, mint and sea green. The other days on the
+   day-by-day sheet show only the colour; the focused day shows the number on it too. */
 var QC=["#f2a7a0","#f6c39a","#f3dc8f","#d3e39a","#aedcb0","#8fcfb8"];
 function qlab(k){var p=k.split("-");return ds(new Date(+p[0],+p[1]-1,+p[2],12).getTime())}
 function avg(v){return v.length?(v.reduce(function(a,b){return a+b},0)/v.length).toFixed(1):""}
@@ -1594,7 +1594,7 @@ function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.24/side)}
 function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name);
  if(!on)return '<span class="qc'+(v===undefined?'':' has')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'></span>';
  var lab=nm+", "+qlab(d)+": "+(v===undefined?"not recorded":v+" out of 5");
- return '<button type="button" class="qc'+(v===undefined?'':' has')+'" data-qi="'+i+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+(future?' disabled title="This class day hasn\'t happened yet"':'')+' aria-label="'+lab+(future?', not open yet':'. Change score')+'" aria-haspopup="'+!future+'"'+(v===undefined?'':' title="'+v+' out of 5"')+'>'+(v===undefined&&!future?'<span aria-hidden="true">+</span>':'')+'</button>'}
+ return '<button type="button" class="qc'+(v===undefined?'':' has')+'" data-qi="'+i+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+(future?' disabled title="This class day hasn\'t happened yet"':'')+' aria-label="'+lab+(future?', not open yet':'. Change score')+'" aria-haspopup="'+!future+'"'+(v===undefined?'':' title="'+v+' out of 5"')+'>'+(v===undefined?(future?'':'<span aria-hidden="true">+</span>'):v)+'</button>'}
 /* dir is -1 or 1 when the focused day has just moved, so the columns slide; 0 redraws in place. */
 function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  if(!S.length){B.innerHTML='<div class="empty"><b>No students yet</b><button type="button" class="btn sm" id="qAdd2">Add a student</button></div>';B.removeAttribute("style");return}

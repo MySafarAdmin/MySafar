@@ -98,9 +98,9 @@ figures on the canvas.
 Rewards and Settings; Record and Warnings are for admins, and teachers give
 warnings and house points from the menu on a student's name in Quran.
 
-- **Quran** scores show as colour only (pastel coral 0, peach, butter,
-  pistachio, mint, sea green 5) with a key beside the day's summary; the number
-  is in each box's label. Boxes are 40px in every class, so long classes scroll
+- **Quran** scores show as colour (pastel coral 0, peach, butter,
+  pistachio, mint, sea green 5) with a key beside the day's summary; only the focused day also shows the
+  number. Boxes are 40px in every class, so long classes scroll
   rather than shrink. A student's name opens a menu with Warning 1, Warning 2
   and Miss break, and their house tokens with − and +.
 - **Quran**: the day-by-day sheet. The focused class day sits in a soft navy
