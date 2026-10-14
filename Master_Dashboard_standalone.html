@@ -1020,6 +1020,29 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .sl .sub{font-size:.875rem}
 .srow textarea{width:100%;resize:vertical}
 .sact{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+
+/* Record page: three numbered steps in one calm column, then the student's latest records. */
+.recf{max-width:640px;display:flex;flex-direction:column;gap:14px}
+.rstep{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+.rn{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.875rem;background:var(--navy-soft);color:var(--navy)}
+.rl{display:block;margin:2px 0 8px;font-weight:650;color:var(--ink)}
+.rgap{margin-top:12px}
+.rstep select{width:100%;max-width:420px}
+.rnow{margin:8px 0 0;color:var(--ink-2);font-size:.9375rem}
+.rpair{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.rpair label{display:flex;flex-direction:column;gap:6px;font-weight:650;flex:1 1 160px}
+.racts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.rlast{padding:4px 2px}
+.rlast .feed li{grid-template-columns:minmax(0,1fr) auto;padding:5px 0}
+.rhint{padding:8px 2px}
+.rsc{display:flex;flex-wrap:wrap;gap:8px}
+.rsc button{width:48px;height:48px;border-radius:10px;border:1px solid color-mix(in srgb,var(--c) 70%,#1d2127);background:var(--c);font:inherit;font-weight:700;font-size:1.0625rem;color:var(--ink);cursor:pointer}
+.rsc button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--navy)}
+/* A level test's score on the Quran sheet: gold border, set on the Record page only. */
+.qc.test,.qcol.on .qc.test{border:2px solid var(--gold);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent)}
+.qcol.on .qc.test{cursor:not-allowed}
+.qcol.on .qc.has.test,.qcol.on .qc.has.test:hover:not(:disabled),.qcol.on .qc.has.test:focus-visible{background:var(--c);border-color:var(--gold);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent)}
+.qcol.on .qc.has.test:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 </style></head><body>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1029,6 +1052,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
  <label for="navt" class="menu-btn" aria-hidden="true">Menu</label>
  <nav class="navs" aria-label="Main" id="nav">
   <button class="nav" id="nM" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>Overview</button>
+  <button class="nav" id="nR" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>Record</button>
   <a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer" title="Registers, homework and classroom learning"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></svg><span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
   <div class="navh" id="clsH">Classes</div>
   <div class="classes" id="nList"></div>
@@ -1063,6 +1087,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
  <div id="vMR" role="tabpanel" aria-labelledby="mR" class="ws hide"></div>
  <div id="vMH" role="tabpanel" aria-labelledby="mH" class="ws hide"></div>
 </section>
+<section id="vR" class="ws hide" aria-labelledby="ttl"><div class="recf" id="recF"></div></section>
 
 <section id="vQ" class="ws hide" role="tabpanel" aria-labelledby="tQ">
  <div class="toolbar qbar">
@@ -1184,7 +1209,7 @@ function fix(a,old){var mv=old&&old.join()!==LEVELS.join();a.forEach(function(s)
  if(!s.q)s.q={};if(!s.log){s.log=[];s.hit=null;s.target=1}
  if(!s.lt||s.lt.length!==s.log.length){s.lt=s.log.map(function(_,k){return Math.max(1,s.target-(s.log.length-k))})}
  if(!s.lx||s.lx.length!==s.log.length){var o=s.lx||[];s.lx=s.log.map(function(_,k){return o[k]||""})}
- if(!s.ml)s.ml=[];if(!s.fl)s.fl=[];TOK.forEach(function(k){if(!s[k[0]])s[k[0]]=[]});s.passes=s.passes||0;s.merits=s.merits||0;s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
+ if(!s.ml)s.ml=[];if(!s.fl)s.fl=[];TOK.forEach(function(k){if(!s[k[0]])s[k[0]]=[]});s.passes=s.passes||0;s.merits=s.merits||0;s.qa=s.qa||0;if(!s.tests)s.tests=[];s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
 /* Houses and their tokens. Each token is [field, css class, name, points]; the field holds the times it was given.
    Keep the points in step with TOKEN_POINTS in server.py. */
 var HOUSES=["Makkah","Al-Aqsa","Madinah"],TOK=[["tg","g","Green",5],["tb","b","Blue",20],["tr","r","Red",50]];
@@ -1218,7 +1243,7 @@ function ink(n){return lc(n)==="#facc15"?";color:#422006":""}
    (railway-storage.js), the Claude artifact database (collection "classroom"),
    or this browser only when the page is opened as a file. */
 var MODE=window.RAILWAY?"railway":(window.claude&&claude.use)?"claude":"local";
-var CIDS=[],ST={},CID=null,DB=null,LJ={},PU={},PD={},LOADED=false,DBST=MODE==="local"?"off":"wait",HASH=(location.hash||"").slice(1);
+var PAGE="M",CIDS=[],ST={},CID=null,DB=null,LJ={},PU={},PD={},LOADED=false,DBST=MODE==="local"?"off":"wait",HASH=(location.hash||"").slice(1);
 var LS="sfd_",COL="classroom";
 function nkey(n){return String(n||"").replace(/\s+/g," ").trim().toLowerCase()}
 function sortC(){CIDS.sort(function(a,b){return ST[a].name.localeCompare(ST[b].name,undefined,{numeric:true,sensitivity:"base"})})}
@@ -1231,7 +1256,7 @@ function newId(name){var b=nkey(name).normalize("NFKD").replace(/[^a-z0-9]+/g,"-
 function changed(c){navL();
  if(CID&&!ST[CID]){go("M");toast("That classroom was deleted",1);return}
  if(HASH&&ST[HASH]){var h=HASH;HASH="";go(h);return}
- if(CID){if(c===undefined||c===CID)setClass(CID)}else master()}
+ if(CID){if(c===undefined||c===CID)setClass(CID)}else if(PAGE==="R")recPage();else master()}
 function setSt(t,s){var e=document.getElementById("st");if(e){e.textContent=t;e.setAttribute("data-s",s||(/couldn|can't|not saved|signed out|could not/i.test(t)?"bad":/saving|loading/i.test(t)?"busy":"ok"))}}
 function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
 function push(c){if(!DB||!ST[c])return;var j=cj(c);if(j===LJ[c])return;if(PU[c]){PD[c]=1;return}
@@ -1348,40 +1373,87 @@ function same(c,i,s){if(CID===c&&S[i]===s)return true;toast("The list was update
 /* ---------- Class: student record ---------- */
 function events(){var E=[];S.forEach(function(s,i){s.log.forEach(function(t,k){E.push({i:i,k:k,t:t,l:s.lt[k],x:pl(s,k)})});s.fl.forEach(function(t,k){E.push({i:i,k:k,t:t,l:0,x:"Fail",f:1})})});
  return E.sort(function(a,b){return b.t-a.t||b.l-a.l})}
-function ctr(i,k,lab,one,cls,n){var nm=esc(S[i].name);return '<div class="ctr"><span class="lbl">'+lab+'</span><button class="btn minus" type="button" data-a="'+k+'-" data-i="'+i+'" aria-label="Take back a '+one+' from '+nm+'">−</button><b class="cnt">'+n+'</b><button class="btn plus '+cls+'" type="button" data-a="'+k+'+" data-i="'+i+'" aria-label="Add a '+one+' for '+nm+'">+</button></div>'}
-/* A student's record, in their Memo profile: the current target and the Passes / Merits / Fails counters. Details (with rename and
-   remove) open in place; History opens the full record in the drawer. EDD remembers whether Details is open. */
+/* The actions in a student's Memo profile: Details (with rename and remove) open in place; History opens the full
+   record in the drawer. Passes, fails and targets are recorded on the Record page. EDD remembers whether Details is open. */
 var EDD=false;
 function editor(i){var s=S[i];
  return '<div class="ed">'
-  +'<label class="ed-t">Current target<select data-i="'+i+'" data-f="target" aria-label="Current target for '+esc(s.name)+'"><option value="0">No data</option>'+TO+'</select></label>'
-  +'<div class="ctrs">'+ctr(i,"p","Passes","pass","p",s.passes)+ctr(i,"m","Merits","merit","m",s.merits)+ctr(i,"f","Fails","fail","",s.fl.length)+'</div>'
   +'<div class="ed-a"><button class="btn sm" type="button" data-a="dd" data-i="'+i+'" aria-expanded="'+EDD+'" aria-controls="edd'+i+'">Details</button><button class="btn sm" type="button" data-a="dt" data-i="'+i+'">History</button></div>'
   +'<div class="edd" id="edd'+i+'"'+(EDD?'':' hidden')+'><dl class="ddl">'+details(s)+'</dl><div class="ed-a"><button class="btn sm" type="button" data-a="rn" data-i="'+i+'">Rename</button><button class="btn sm danger" type="button" data-a="rm" data-i="'+i+'">Remove student</button></div></div></div>'}
 /* Replace a panel's content, keeping keyboard focus on the same control. */
 function refill(el,html){var a=document.activeElement,key=null;
- if(a&&el.contains(a))key=a.dataset.a?'[data-a="'+a.dataset.a+'"]':a.dataset.f?'[data-f="'+a.dataset.f+'"]':null;
- el.innerHTML=html;var x=el.querySelector('[data-f="target"]');if(x){var s=S[+x.dataset.i];x.value=nod(s)?0:s.target}
+ if(a&&el.contains(a))key=a.dataset.a?'[data-a="'+a.dataset.a+'"]':null;
+ el.innerHTML=html;
  if(key){var n=el.querySelector(key);if(n)n.focus()}}
 var DMODE="";
-function details(s){return [["Student ID",s.sid],["Safar year",s.year],["School year",s.sy],["Gender",s.gender],["House",s.house],["Islamic Studies",s.ist]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
-/* Recording from the student's record in the drawer. */
+function details(s){return [["Student ID",s.sid],["Safar year",s.year],["School year",s.sy],["Gender",s.gender],["House",s.house],["Islamic Studies",s.ist],["Qaidah",s.qa?"Level "+s.qa:""]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
+/* Details, history, rename and remove from a student's Memo profile. */
 document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]");if(!bt||!bt.closest("#drwB"))return;var a=bt.dataset.a,i=+bt.dataset.i,s=S[i],c=CID;if(!s)return;
- var nm=fn(s),msg="";
+ var nm=fn(s);
  if(a==="dt"){student(i);return}
  if(a==="dd"){EDD=!EDD;var box=bt.closest(".ed");box.querySelector(".edd").hidden=!EDD;bt.setAttribute("aria-expanded",EDD);return}
  if(a==="rm"){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);if(DMODE==="mm")closeDrawer();save();render();toast(nm+" removed")},null,1);return}
- if(a==="rn"){ask("Rename "+s.name,"Save name",function(v){if(!same(c,i,s))return;s.name=v||"Student";save();render();toast("Name updated")},"Student name",0,s.name);return}
- if(a==="p+"){if(s.target<NB){var old=s.target;s.passes++;s.log.push(Date.now());s.lt.push(old);s.lx.push("");s.target++;msg=nm+" passed "+bl(old)+". Next target: "+bl(s.target)}
-  else{toast(nm+" has completed every item, up to Juz 1.");return}}
- if(a==="p-"){if(s.passes>0){var lab=s.lx.pop();s.passes--;s.log.pop();s.lt.pop();if(!lab&&s.target>1)s.target--;msg="Pass taken back for "+nm}else{toast(nm+" has no passes to take back",1);return}}
- if(a==="f+"){s.fl.push(Date.now());msg=nm+" did not pass this time. Target stays at "+bl(s.target)}
- if(a==="f-"){if(s.fl.length){s.fl.pop();msg="Fail taken back for "+nm}else{toast(nm+" has no fails to take back",1);return}}
- if(a==="m+"){s.merits++;s.ml.push(Date.now());msg="Merit added for "+nm}
- if(a==="m-"){if(s.merits>0){s.merits--;s.ml.pop();msg="Merit taken back for "+nm}else{toast(nm+" has no merits to take back",1);return}}
- s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();if(msg)toast(msg)});
-document.addEventListener("change",function(e){var t=e.target;if(t.dataset.f!=="target"||!t.closest("#drwB"))return;var s=S[+t.dataset.i];if(!s)return;
- s.target=Math.min(Math.max(1,+t.value||1),NB);save();render();toast(fn(s)+"'s target set to "+bl(s.target))});
+ if(a==="rn"){ask("Rename "+s.name,"Save name",function(v){if(!same(c,i,s))return;s.name=v||"Student";save();render();toast("Name updated")},"Student name",0,s.name)}});
+
+/* ---------- Record page (admins) ----------
+   Level tests. A student is sent to the office at the end of a level; the admin picks Quran (a Qaidah level) or
+   Memo (a target, as level and target or as item number and Surah), the student, the level and the 0 to 5 score,
+   then Passed or Not passed. The score also goes into that day's box on the Quran sheet, with a gold border, and
+   only the Record page can change it. A Memo pass moves the student past that target; a Quran pass sets their
+   Qaidah level. Each test is kept on the student as {d: day, k: "q" or "m", n: level or target, sc: score,
+   ok: passed, pq: the Qaidah level before a Quran pass}. */
+var QAIDAH=10,RK="m",RS="",RM="",RX=0,RSC=-1;
+function qTest(s,d){var T=s.tests||[];for(var k=T.length-1;k>=0;k--)if(T[k].d===d)return T[k];return null}
+function tLab(t){return (t.k==="q"?"Qaidah Level "+t.n:bl(t.n))}
+function rStu(){var p=RS.split("|"),c=p[0],i=+p[1];return ST[c]&&ST[c].S[i]?{c:c,i:i,s:ST[c].S[i]}:null}
+function rSeg(id,cur,o,lab){return '<div class="seg" id="'+id+'" role="group" aria-label="'+lab+'">'+o.map(function(x){return '<button type="button" data-v="'+x[0]+'" aria-pressed="'+(cur===x[0])+'">'+x[1]+'</button>'}).join("")+'</div>'}
+function rStep(n,body){return '<div class="rstep"><span class="rn" aria-hidden="true">'+n+'</span><div>'+body+'</div></div>'}
+function recPage(){var o=rStu(),s=o&&o.s,h='';
+ h+=rStep(1,'<p class="rl">Level test for</p>'+rSeg("rK",RK,[["q","Quran"],["m","Memo"]],"Level test for"));
+ h+=rStep(2,'<label class="rl" for="rS">Student</label><select id="rS"><option value="">Choose a student</option>'
+  +CIDS.map(function(c){return '<optgroup label="'+esc(ST[c].name)+'">'+ST[c].S.map(function(x,i){return '<option value="'+esc(c)+'|'+i+'"'+(RS===c+"|"+i?' selected':'')+'>'+esc(x.name)+'</option>'}).join("")+'</optgroup>'}).join("")+'</select>'
+  +(s?'<p class="rnow">'+(RK==="m"?'Memo target now <b>'+esc(ct(s))+'</b>':'Qaidah <b>'+(s.qa?'Level '+s.qa:'no level yet')+'</b>')+'</p>':''));
+ if(!s){refill($("recF"),h+'<p class="none rhint">'+(CIDS.length?'Choose a student to record their level test.':'No classes yet.')+'</p>');return}
+ var b;
+ if(RK==="q"){if(!RX)RX=Math.min((s.qa||0)+1,QAIDAH);
+  b='<label class="rl" for="rQ">Qaidah level tested</label><select id="rQ">'+Array.apply(null,{length:QAIDAH}).map(function(_,l){return '<option value="'+(l+1)+'"'+(RX===l+1?' selected':'')+'>Level '+(l+1)+'</option>'}).join("")+'</select>'}
+ else{if(!RX)RX=Math.min(Math.max(s.target,1),NB-1);var m=RM||(RX>BL?"is":"lt");
+  b='<p class="rl">Target tested</p>'+rSeg("rM",m,[["lt","Level and target"],["is","Item number and Surah"]],"Choose the target by");
+  if(m==="lt"){var l=RX>BL?0:lv(RX);
+   b+='<div class="rpair"><label>Level<select id="rL">'+LEVELS.map(function(_,k){return '<option value="'+k+'"'+(k===l?' selected':'')+'>Level '+(k+1)+'</option>'}).join("")+'</select></label>'
+    +'<label>Target<select id="rT">'+Array.apply(null,{length:LEVELS[l]}).map(function(_,t){var n=LVS[l]+t+1;return '<option value="'+n+'"'+(n===RX?' selected':'')+'>T'+(t+1)+'</option>'}).join("")+'</select></label></div>'}
+  else b+='<label class="rgap"><span class="sr-only">Item number and Surah</span><select id="rI" aria-label="Item number and Surah">'+opts(BOOK.slice(0,NB-1)).split('<optgroup label="Juz').slice(1).map(function(g){return '<optgroup label="Juz'+g}).join("").replace('value="'+RX+'"','value="'+RX+'" selected')+'</select></label>'}
+ h+=rStep(3,b);
+ h+=rStep(4,'<p class="rl">Score</p><div class="rsc" role="group" aria-label="Score out of 5">'+QC.map(function(c,k){return '<button type="button" data-sc="'+k+'" style="--c:'+c+'" aria-pressed="'+(RSC===k)+'">'+k+'</button>'}).join("")+'</div>'
+  +'<div class="racts"><button type="button" class="btn primary" data-r="ok"'+(RSC<0?' disabled':'')+'>Passed</button><button type="button" class="btn" data-r="no"'+(RSC<0?' disabled':'')+'>Not passed</button>'
+  +(RK==="m"?'<button type="button" class="btn quiet" data-r="t">Set as current target, no test</button>':'')+'</div>');
+ var T=(s.tests||[]).slice().reverse().slice(0,5);
+ h+='<section class="rlast"><div class="mod-h"><h2>Level tests for '+esc(fn(s))+'</h2>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
+  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+t.sc+'/5, '+(t.ok?'passed':'not passed')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section>';
+ refill($("recF"),h)}
+function rDone(o,msg){persist(o.c);if(o.c===CID)render();recPage();toast(msg)}
+function recAct(k){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d=dk(now);if(!s.tests)s.tests=[];
+ if(k==="u"){var t=s.tests.pop();if(!t)return;var prev=qTest(s,t.d);if(prev)s.q[t.d]=prev.sc;else delete s.q[t.d];
+  if(t.k==="q"&&t.ok)s.qa=t.pq||0;
+  if(t.k==="m"&&t.ok&&s.log.length){var lab=s.lx.pop(),was=s.lt.pop();s.log.pop();s.passes=Math.max(0,s.passes-1);if(!lab)s.target=was;s.hit=s.log.length?s.log[s.log.length-1]:null}
+  if(t.k==="m"&&!t.ok)s.fl.pop();
+  RX=0;rDone(o,"Level test taken back for "+nm);return}
+ var x=RX;if(!x)return;
+ if(k==="t"){s.target=x;RX=0;rDone(o,nm+"'s target set to "+bl(x));return}
+ if(RSC<0)return;var ok=k==="ok",t={d:d,k:RK,n:x,sc:RSC,ok:ok};
+ if(RK==="q"){t.pq=s.qa||0;if(ok)s.qa=x}
+ else if(ok){s.passes++;s.log.push(now);s.lt.push(x);s.lx.push("");s.target=Math.min(x+1,NB);s.hit=now}
+ else{s.fl.push(now);s.target=x}
+ s.tests.push(t);s.q[d]=RSC;RSC=-1;RX=0;
+ rDone(o,nm+(ok?" passed ":" did not pass ")+tLab(t)+" with "+t.sc+"/5")}
+$("recF").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+ var g=b.closest(".seg");if(g&&g.id==="rK"){RK=b.dataset.v;RM="";RX=0;recPage();return}
+ if(g&&g.id==="rM"){RM=b.dataset.v;if(RM==="is"&&RX<=BL)RX=BL+1;if(RM==="lt"&&RX>BL)RX=1;recPage();return}
+ if(b.dataset.sc){RSC=+b.dataset.sc;recPage();return}
+ if(b.dataset.r)recAct(b.dataset.r)});
+$("recF").addEventListener("change",function(e){var t=e.target;
+ if(t.id==="rS"){RS=t.value;RM="";RX=0;RSC=-1}else if(t.id==="rL")RX=LVS[+t.value]+1;else if(t.id==="rT"||t.id==="rI"||t.id==="rQ")RX=+t.value;else return;
+ recPage();var n=$(t.id);if(n)n.focus()});
 
 /* ---------- Class: Progress ---------- */
 function qavg(s){var v=Object.keys(s.q).map(function(k){return s.q[k]});return avg(v)}
@@ -1489,7 +1561,7 @@ function mProfile(){var s=S[MS];if(!s)return "";var n=nod(s),g=mGrp(s.target),co
  var list='';
  if(MD){var L=mPasses()[MD]||[];list='<div class="mphd"><h3>'+qDate(MD).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</h3><button type="button" class="btn sm quiet" data-mmd="1">All passes</button></div><ul class="mpl">'+L.map(function(k){return '<li><span class="mpd">'+ds(s.log[k])+'</span>'+chip(lc(s.lt[k]),esc(pl(s,k)))+'</li>'}).join("")+'</ul>'}
  else list='<div class="mphd"><h3>Targets passed <span class="mct">'+K.length+'</span></h3></div>'+(K.length?'<ul class="mpl">'+K.map(function(k){return '<li><span class="mpd">'+ds(s.log[k])+'</span>'+chip(lc(s.lt[k]),esc(pl(s,k)))+'</li>'}).join("")+'</ul>':'<p class="none">No targets passed yet.</p>');
- return top+'<section class="mrec"><h3>Record</h3>'+editor(MS)+'</section>'+mCalHtml()+'<section class="mlog">'+list+'</section>'}
+ return top+editor(MS)+mCalHtml()+'<section class="mlog">'+list+'</section>'}
 function mDraw(dir,focus){var B=$("drwB");if(DMODE!=="mm"||!S[MS])return;refill(B,mProfile());
  var G=B.querySelector(".mgrid");if(dir&&G&&!QM.matches)G.classList.add(dir>0?"in-r":"in-l");
  if(focus){var f=B.querySelector(focus);if(f&&!f.disabled)f.focus()}}
@@ -1528,9 +1600,10 @@ function qGeo(W){var side=W<540?1:W<860?2:3,nameW=Math.round(Math.min(230,Math.m
   w=(W-nameW-houseW)/(2*side+1);
  return {side:side,w:w,nameW:nameW,houseW:houseW,x:function(k){return k<=0?(k+side)*w+(k===0?nameW:0):side*w+nameW+w+houseW+(k-1)*w}}}
 function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.24/side)}
-function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name);
- if(!on)return '<span class="qc'+(v===undefined?'':' has')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'></span>';
- var lab=nm+", "+qlab(d)+": "+(v===undefined?"not recorded":v+" out of 5");
+function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name),lt=v!==undefined&&qTest(s,d);
+ if(!on)return '<span class="qc'+(v===undefined?'':' has')+(lt?' test':'')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'></span>';
+ var lab=nm+", "+qlab(d)+": "+(v===undefined?"not recorded":v+" out of 5")+(lt?", "+tLab(lt)+" level test":"");
+ if(lt)return '<button type="button" class="qc has test" data-qi="'+i+'" data-lock="1" style="--c:'+QC[v]+'" aria-disabled="true" aria-label="'+lab+'. Only an admin can change it" title="Level test: '+esc(tLab(lt))+', '+v+' out of 5">'+v+'</button>';
  return '<button type="button" class="qc'+(v===undefined?'':' has')+'" data-qi="'+i+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+(future?' disabled title="This class day hasn\'t happened yet"':'')+' aria-label="'+lab+(future?', not open yet':'. Change score')+'" aria-haspopup="'+!future+'"'+(v===undefined?'':' title="'+v+' out of 5"')+'>'+(v===undefined?(future?'':'<span aria-hidden="true">+</span>'):v)+'</button>'}
 /* dir is -1 or 1 when the focused day has just moved, so the columns slide; 0 redraws in place. */
 function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
@@ -1594,13 +1667,13 @@ function qPop(btn){qPopClose();var s=S[+btn.dataset.qi];if(!s)return;var cur=s.q
  p.innerHTML=[0,1,2,3,4,5].map(function(k){return '<button type="button" style="--c:'+QC[k]+'" data-qv="'+k+'" aria-pressed="'+(cur===k)+'">'+k+'</button>'}).join("")+(cur===undefined?'':'<button type="button" class="qclr" data-qv="x">Clear</button>');
  B.appendChild(p);btn.setAttribute("aria-expanded","true");Array.prototype.forEach.call(B.querySelectorAll(".qcol:not(.on)>.qr:nth-child("+(+btn.dataset.qi+1)+"),.qhouses>.qn:nth-child("+(+btn.dataset.qi+1)+")"),function(e){e.classList.add("qhid")});var r=btn.getBoundingClientRect(),b=B.getBoundingClientRect(),x=r.right-b.left+8;if(x+p.offsetWidth>B.clientWidth)x=Math.max(0,r.left-b.left-p.offsetWidth-8);
  p.style.left=x+"px";p.style.top=Math.max(0,r.top-b.top+(r.height-p.offsetHeight)/2)+"px";(p.querySelector('[aria-pressed="true"]')||p.firstChild).focus()}
-function qSet(i,v,next){var s=S[i],d=QF;if(!s)return;if(d>dk(Date.now())){toast("That class day hasn't happened yet",1);return}
+function qSet(i,v,next){var s=S[i],d=QF;if(!s)return;if(s.q[d]!==undefined&&qTest(s,d)){toast(TEACHER?"That's a level test score, so only an admin can change it.":"That's a level test score. Change it on the Record page.",1);return}if(d>dk(Date.now())){toast("That class day hasn't happened yet",1);return}
  var lab=qlab(d),nm=fn(s);
  if(v==="x"||s.q[d]===v){delete s.q[d];toast(nm+"'s score cleared for "+lab)}else{s.q[d]=v;toast(nm+" scored "+v+"/5 on "+lab)}
  save();render();var n=$("qB").querySelector('.qcol.on [data-qi="'+Math.min(next?i+1:i,S.length-1)+'"]');if(n)n.focus()}
 $("qB").addEventListener("click",function(e){var a=e.target.closest("#qAdd2");if(a){addStudent();return}
  var v=e.target.closest(".qpop [data-qv]");if(v){var i=+QP_.dataset.qi;qPopClose();qSet(i,v.dataset.qv==="x"?"x":+v.dataset.qv,1);return}
- var b=e.target.closest(".qcol.on [data-qi]");if(b&&!b.disabled){if(QP_===b){qPopClose(1);return}qPop(b)}});
+ var b=e.target.closest(".qcol.on [data-qi]");if(b&&b.dataset.lock){toast(TEACHER?"That's a level test score, so only an admin can change it.":"That's a level test score. Change it on the Record page.",1);return}if(b&&!b.disabled){if(QP_===b){qPopClose(1);return}qPop(b)}});
 $("qB").addEventListener("keydown",function(e){
  if(e.target.closest(".qpop")){var bs=Array.prototype.slice.call(document.querySelectorAll(".qpop button")),j=bs.indexOf(e.target);
   if(e.key==="Escape"){e.preventDefault();e.stopPropagation();qPopClose(1)}
@@ -1747,16 +1820,17 @@ function view(k,v){VW[k]=v;var sec=$("v"+k);sec.setAttribute("data-v",v);Array.p
 function navL(){
  $("nList").innerHTML=CIDS.length?CIDS.map(function(c){return '<a class="nav" href="#'+esc(c)+'" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+' title="'+esc(ST[c].name)+'">'+esc(ST[c].name)+'</a>'}).join(""):'<span class="navh" style="margin-top:0">'+(LOADED?'No classes yet':'Loading…')+'</span>';
  if(CID){var cur=$("nList").querySelector('[aria-current]');if(cur)cur.scrollIntoView({block:"nearest"})}
- $("nM").setAttribute("aria-current",CID?"false":"page")}
+ $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false")}
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
- $("ttl").textContent=n?n.name:"School overview";$("swc").hidden=!n||CIDS.length<2;
- document.title=(n?n.name+" · ":"")+"Safar Enfield Dashboard"}
+ $("ttl").textContent=n?n.name:PAGE==="R"?"Record":"School overview";$("swc").hidden=!n||CIDS.length<2;
+ document.title=(n?n.name+" · ":PAGE==="R"?"Record · ":"")+"Safar Enfield Dashboard"}
 function setClass(c){if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
-function go(c,keepTab){if(c!=="M"&&!ST[c])c="M";var M=c==="M";closeDrawer();
- $("vM").classList.toggle("hide",!M);$("mt").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M);
- if(M){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master();tabMark($("mt"))}
+function go(c,keepTab){if(c==="R"&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&!ST[c])c="M";var R=c==="R",M=c==="M";PAGE=R?"R":M?"M":"C";closeDrawer();
+ $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("mt").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M||R);
+ if(R){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();recPage()}
+ else if(M){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master();tabMark($("mt"))}
  else{setClass(c);tab(keepTab||"Q")}
- try{history.replaceState(null,"",M?location.pathname+location.search:"#"+c)}catch(e){}
+ try{history.replaceState(null,"",M||R?location.pathname+location.search:"#"+c)}catch(e){}
  $("navt").checked=false;navL();window.scrollTo(0,0)}
 function switcher(){drawer("Switch class",'<input type="search" id="swQ" class="dsearch" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><ul class="swl" id="swL">'+CIDS.map(function(c){return '<li data-q="'+esc(nkey(ST[c].name))+'"><button type="button" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+'>'+esc(ST[c].name)+'<small>'+plural(ST[c].S.length,"student")+'</small></button></li>'}).join("")+'</ul>');
  $("swQ").addEventListener("input",function(){var q=nkey(this.value);Array.prototype.forEach.call($("swL").children,function(li){li.hidden=!!q&&li.dataset.q.indexOf(q)<0})})}
@@ -1850,7 +1924,7 @@ var f=$("fcd");
 f.onchange=function(){if(!f.value||!CID)return;FCD=f.value;ST[CID].fcd=FCD;save();head();render();toast("First class day set")};
 $("bulkA").onclick=function(){if(!CID)return;var n=$("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);$("bulk").focus();return}
  n.forEach(function(x){S.push(blank(x))});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added")};
-$("nM").onclick=function(){go("M")};$("home").onclick=function(e){e.preventDefault();go("M")};
+$("nM").onclick=function(){go("M")};$("nR").onclick=function(){go("R")};if(TEACHER)$("nR").hidden=true;$("home").onclick=function(e){e.preventDefault();go("M")};
 $("swc").onclick=switcher;
 function goPast(){if(DMODE==="side")closeDrawer();tab("D");view("D","hi");$("pastD").open=true;$("pS").focus()}
 document.addEventListener("click",function(e){if(e.target.closest("[data-past]"))goPast()});

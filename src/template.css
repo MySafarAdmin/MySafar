@@ -755,3 +755,26 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .sl .sub{font-size:.875rem}
 .srow textarea{width:100%;resize:vertical}
 .sact{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+
+/* Record page: three numbered steps in one calm column, then the student's latest records. */
+.recf{max-width:640px;display:flex;flex-direction:column;gap:14px}
+.rstep{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+.rn{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.875rem;background:var(--navy-soft);color:var(--navy)}
+.rl{display:block;margin:2px 0 8px;font-weight:650;color:var(--ink)}
+.rgap{margin-top:12px}
+.rstep select{width:100%;max-width:420px}
+.rnow{margin:8px 0 0;color:var(--ink-2);font-size:.9375rem}
+.rpair{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.rpair label{display:flex;flex-direction:column;gap:6px;font-weight:650;flex:1 1 160px}
+.racts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.rlast{padding:4px 2px}
+.rlast .feed li{grid-template-columns:minmax(0,1fr) auto;padding:5px 0}
+.rhint{padding:8px 2px}
+.rsc{display:flex;flex-wrap:wrap;gap:8px}
+.rsc button{width:48px;height:48px;border-radius:10px;border:1px solid color-mix(in srgb,var(--c) 70%,#1d2127);background:var(--c);font:inherit;font-weight:700;font-size:1.0625rem;color:var(--ink);cursor:pointer}
+.rsc button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--navy)}
+/* A level test's score on the Quran sheet: gold border, set on the Record page only. */
+.qc.test,.qcol.on .qc.test{border:2px solid var(--gold);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent)}
+.qcol.on .qc.test{cursor:not-allowed}
+.qcol.on .qc.has.test,.qcol.on .qc.has.test:hover:not(:disabled),.qcol.on .qc.has.test:focus-visible{background:var(--c);border-color:var(--gold);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent)}
+.qcol.on .qc.has.test:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
