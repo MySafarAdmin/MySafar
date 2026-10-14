@@ -64,18 +64,44 @@ classroom. Signed-in staff can preview it at `/tv`.
 | `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` |
 | `ADMIN_EMAIL` | The first administrator's email. Used only when there are no accounts yet. |
 | `DASHBOARD_PASSWORD` | The first administrator's setup password. Used only when there are no accounts yet; they must choose a new one at first sign-in. Delete it from Railway once they have. |
-| `RESEND_API_KEY` | API key from [Resend](https://resend.com) for invite and reset emails. Optional. |
-| `MAIL_FROM` | The sender, for example `Safar Dashboard <dashboard@safaracademy.org>`. Its domain must be verified in Resend. |
+| `RESEND_API_KEY` | A sending-only API key from [Resend](https://resend.com), limited to `mysafar.org`. Optional. |
+| `MAIL_FROM` | The sender: `Safar Academy <dashboard@mysafar.org>`. Its domain must be verified in Resend. |
+| `MAIL_REPLY_TO` | Where replies to the emails go. Optional; defaults to `SUPPORT_EMAIL`. Without either, replies go to the sending address, which doesn't receive mail. |
 | `MAIL_REDIRECT_TO` | Testing only: every email goes to this address instead of the real recipient. Remove it to go live. |
-| `PUBLIC_URL` | The site's address, used in invite and reset links: `https://mysafar-prod.up.railway.app`. Change it if the address changes (for example a custom domain). |
+| `PUBLIC_URL` | The site's address, used in email links and for the logo in emails: `https://mysafar.org`. Change it if the address changes. |
 | `RETENTION_DAYS` | How long class history and the activity log are kept. Default `14`. |
 | `SUPPORT_EMAIL` | The school office address staff should write to for password help, for example `office@safaracademy.org`. The password pages show an **Email** button for it. Optional; without it they say to ask an administrator. |
 
 `DASHBOARD_USERNAME` is no longer used and can be deleted.
 
+## Email
+
 Railway's Hobby plan blocks outbound SMTP, so email is sent over HTTPS
-through Resend. Without `RESEND_API_KEY` and `MAIL_FROM` everything still
-works; admins copy invite and reset links from **Manage users**.
+through Resend, from the verified domain `mysafar.org`. Without
+`RESEND_API_KEY` and `MAIL_FROM` everything still works; admins copy invite
+and reset links from **Manage users**.
+
+| Email | Sent when |
+| --- | --- |
+| Invite | An admin invites someone or sends a new invite. It names the admin, the role and a teacher's classrooms. |
+| Password reset | Someone uses **Forgotten your password?**, or an admin sends a reset link. |
+| Password changed | A password is changed on **Account** or with a reset link: a security notice, so someone finds out if it wasn't them. |
+| Test email | An admin presses **Send me a test email** on **Manage users**. |
+
+Each email has a designed HTML part and a plain-text part with the same
+words. The wording is in `templates/email/` and the subjects in `emails.py`.
+The **Email** section at the bottom of **Manage users** shows whether email is
+on and the sending address, and links to a preview of every email.
+
+- Keep click tracking **off** for `mysafar.org` in Resend. It would rewrite
+  the one-time links, and Resend would see them.
+- Each send is tagged (`category: invite`, `password_reset`, `security`,
+  `test`), so Resend's **Emails** page can be filtered by kind.
+- A send that Resend refuses for being busy or briefly down is retried once,
+  without risk of a duplicate. Failures are written to the MySafar service's
+  logs as `Email to ... was not sent`.
+- Reset requests are emailed from a background thread, so the page takes as
+  long whether or not the email has an account.
 
 ## Records, history and backups
 

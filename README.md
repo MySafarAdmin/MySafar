@@ -1,7 +1,7 @@
 # Safar Academy Enfield dashboards
 
-One page holds the school overview (Summary, Rankings, Houses) and a full class
-dashboard (Record, Warnings, Quran, Memo, Progress, Rewards, Settings) for every
+One page holds the school overview (Summary, Attention, Classes, Rankings, Houses) and a full class
+dashboard (Quran, Memo, Progress, Rewards, Settings) for every
 classroom. The dashboard starts empty:
 classrooms and students are added by uploading a CSV on the overview.
 
@@ -12,7 +12,7 @@ see everything.
 
 ## Adding students
 
-On the overview (Summary tab), an administrator's **Upload students** takes a CSV file with one row per
+On the overview (Classes tab), an administrator's **Upload students from a CSV file** takes a CSV file with one row per
 student and these six columns, with the column names in the first row:
 
 ```csv
@@ -32,7 +32,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris
 - **Student Name**, **Gender**, **School Year Group** and **Current Teacher
   [Islamic Studies]** are saved with the student and shown in each
   student's details (the row's "…" menu and the Progress students table); the
-  Student ID, Safar year group and house also appear under each name on Record.
+  Student ID, Safar year group and house also appear in the student's record.
 - The **Safar year group** is taken from the classroom name: `Yr7-B-QM-...` is
   Year 7. A shared `Yr9/10` classroom takes the year from the Islamic Studies
   class (`Yr9-AI-...` or `Yr10-AI-...`). An optional **Safar Year Group** column
@@ -113,8 +113,9 @@ deleted: the Railway server removes its old `classes` table when it starts.
   Railway.
 - `server.py`, `test_server.py`: the Railway server and its tests.
 - `auth.py`, `templates/`, `static/auth.css`: sign-in, accounts, roles and the
-  admin pages. `db.py`: database access and migrations. `mailer.py`: invite
-  and reset emails.
+  admin pages. `db.py`: database access and migrations. `mailer.py`: sends
+  email through Resend. `emails.py`, `templates/email/`: what each email
+  says (see [RAILWAY.md](RAILWAY.md#email)).
 - `tv.py`, `static/tv.html`: the TV dashboard and its screen links (see
   [RAILWAY.md](RAILWAY.md#tv-dashboard)).
 - `tools/build.py`: rebuilds both HTML files from `src/`. Run
