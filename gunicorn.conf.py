@@ -23,3 +23,7 @@ class HideLinkTokens(Logger):
 
 
 logger_class = HideLinkTokens
+
+# Gunicorn 25.1+ opens a control socket under $HOME by default. The image's app user has no home
+# directory, so it would log an error on every start; the app never uses gunicornc, so turn it off.
+control_socket_disable = True
