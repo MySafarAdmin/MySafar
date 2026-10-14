@@ -21,7 +21,7 @@ label.check input{margin:0}
 .linkbox input{width:100%;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.875rem}
 
 /* Accounts: one white list, a row per person; open a row to change it */
-.accounts{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.accounts{background:var(--surface);border:0;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow)}
 .accounts>h2{padding:16px 20px 12px;margin:0;border-bottom:1px solid var(--line)}
 details.user{border-bottom:1px solid var(--line)}
 details.user:last-child{border-bottom:0}

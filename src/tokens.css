@@ -128,7 +128,7 @@ a:hover{color:var(--primary-hover)}
    It sits on the grey canvas in graphite type; the dashboard's compact head (.head in template.css) matches it. ---------- */
 .band{color:var(--ink);padding:4px 0 0;margin-bottom:16px;position:relative}
 .band-top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;min-height:40px}
-.band h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;line-height:1.15;overflow-wrap:anywhere;color:var(--ink);margin-right:auto}
+.band h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;line-height:1.15;overflow-wrap:anywhere;color:var(--navy);margin-right:auto}
 .band .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .band .lede{color:var(--mute);margin:6px 0 0;max-width:60ch}
 .figs{display:flex;flex-wrap:wrap;gap:6px 28px;margin-top:8px}
