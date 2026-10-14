@@ -12,9 +12,9 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head h1{margin-right:auto}
 .head .save{order:2}.head .swc{order:1}.head .figpop{order:3}
 .head .save[data-s="ok"]{display:none}
-.head h1{font-size:1.625rem;font-weight:600;letter-spacing:-.005em;line-height:1.15;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.head h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;line-height:1.15;color:var(--navy);overflow-wrap:anywhere;min-width:0}
 .figpop{position:relative}
-.figpop>summary{list-style:none;border:1px solid var(--line-2);background:var(--surface)}
+.figpop>summary{list-style:none;border:0;background:var(--surface);box-shadow:var(--shadow)}
 .figpop>summary::-webkit-details-marker{display:none}
 .figpop[open]>summary{background:var(--navy-soft);color:var(--navy);border-color:color-mix(in srgb,var(--navy) 35%,#fff)}
 .head .figpop .figs{position:absolute;z-index:40;top:46px;right:0;display:grid;grid-template-columns:1fr;gap:10px;width:max-content;min-width:220px;max-width:calc(100vw - 32px);margin:0;padding:14px 16px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift)}
@@ -30,16 +30,17 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head .save[data-s="bad"]::before{background:#fff}
 .head .save:empty{display:none}
 @media (min-width:960px){.swc{display:none!important}}
-.head .tabs{display:flex;gap:2px;margin:8px 0 0}
-.tabs button{font:inherit;font-size:.9375rem;font-weight:600;color:var(--ink-2);background:none;border:0;padding:9px 16px;min-height:42px;cursor:pointer;white-space:nowrap;border-radius:10px 10px 0 0;display:inline-flex;align-items:center;gap:6px}
-.tabs button:hover{color:var(--ink);background:rgba(29,33,39,.06)}
-.tabs button[aria-selected="true"]{color:var(--navy);background:var(--surface);font-weight:750;box-shadow:inset 0 3px 0 var(--navy)}
+/* Tabs are pills on the canvas; the chosen one is a white pill with navy type, like the cards under it. */
+.head .tabs{display:flex;gap:4px;margin:10px 0 12px}
+.tabs button{font:inherit;font-size:.9375rem;font-weight:700;color:var(--ink-2);background:none;border:0;padding:8px 18px;min-height:42px;cursor:pointer;white-space:nowrap;border-radius:var(--r-pill);display:inline-flex;align-items:center;gap:6px}
+.tabs button:hover{color:var(--ink);background:rgba(28,34,48,.06)}
+.tabs button[aria-selected="true"]{color:var(--navy);background:var(--surface);font-weight:800;box-shadow:var(--shadow)}
 .tabs button:focus-visible{outline-offset:-3px}
 /* Counts on tabs: small and neutral; the tab name says what they count. */
 .tn{display:inline-block;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--sunk);color:var(--ink-2);font-size:.75rem;font-weight:750;line-height:1.5;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
 .tabs button[aria-selected="true"] .tn{background:var(--navy-soft);color:var(--navy)}
-/* The workspace: white, directly under the selected tab */
-.ws{background:var(--surface);border-radius:0 14px 14px 14px;padding:16px 20px;box-shadow:var(--shadow);min-width:0}
+/* The workspace: a white card with round corners floating on the canvas */
+.ws{background:var(--surface);border-radius:var(--r-lg);padding:18px 22px;box-shadow:var(--shadow);min-width:0}
 @media (min-width:960px){.head{position:sticky;top:0;z-index:15;background:var(--bg);box-shadow:0 -16px 0 var(--bg)}}
 @media (max-width:959.98px){
  .head{padding:2px 0 0}
@@ -48,8 +49,9 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
  .head .fig span{font-size:.8125rem}
  /* Every tab stays visible: they wrap onto a second row instead of scrolling sideways. */
  .head .tabs{flex-wrap:wrap;gap:4px;margin:8px 0 10px}
- .tabs button{border-radius:999px;padding:8px 13px;min-height:40px;background:var(--surface);border:1px solid var(--line)}
- .tabs button[aria-selected="true"]{box-shadow:inset 0 0 0 2px var(--navy);border-color:var(--navy)}
+ .tabs button{border-radius:999px;padding:8px 14px;min-height:40px;background:var(--surface);border:1px solid var(--line)}
+ .tabs button[aria-selected="true"]{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:none}
+ .tabs button[aria-selected="true"] .tn{background:rgba(255,255,255,.2);color:#fff}
  .ws{margin:0 -16px;border-radius:0;padding:14px 16px 20px;box-shadow:none}
 }
 @media (max-width:379px){.head h1{font-size:1.0625rem}.head .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.tabs button{padding:8px 2px;font-size:.8125rem;justify-content:center}}
@@ -498,7 +500,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .dlg p{margin:0 0 14px;font-size:1.0625rem;font-weight:650}
 .dlg input{width:100%}
 .dlg .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--rail-bg);color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-weight:650;font-size:.9375rem;box-shadow:var(--shadow-lift);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;max-width:min(92vw,520px);text-align:left;display:flex;gap:10px;align-items:center}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-weight:650;font-size:.9375rem;box-shadow:var(--shadow-lift);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;max-width:min(92vw,520px);text-align:left;display:flex;gap:10px;align-items:center}
 #toast::before{content:"";width:8px;height:8px;border-radius:50%;background:#4ade80;flex:none}
 #toast.info::before{background:#93c5fd}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -555,18 +557,14 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
    little and shows a short graphite edge. The new page slides in from the side its tab is on. */
 .tabs{position:relative}
 .tabs button{position:relative;z-index:1;transition:color .18s ease,background-color .18s ease,transform .18s cubic-bezier(.2,.8,.2,1)}
-.tabs button::after{content:"";position:absolute;left:16px;right:16px;top:0;height:2px;border-radius:2px;background:var(--line-2);transform:scaleX(0);transition:transform .22s cubic-bezier(.2,.8,.2,1)}
-.tabs button:hover::after{transform:scaleX(1)}
-.tabs button[aria-selected="true"]::after{display:none}
 .tabs button:not([aria-selected="true"]):hover{transform:translateY(-1px)}
 .tabs button:not([aria-selected="true"]):active{transform:translateY(0)}
-.tabi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;background:var(--surface);border-radius:10px 10px 0 0;box-shadow:inset 0 3px 0 var(--navy)}
+.tabi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;background:var(--surface);border-radius:999px;box-shadow:var(--shadow)}
 .tabi.go{transition:transform .34s cubic-bezier(.2,.8,.2,1),width .34s cubic-bezier(.2,.8,.2,1),height .34s cubic-bezier(.2,.8,.2,1)}
 .tabs.has-i button[aria-selected="true"]{background:none;box-shadow:none}
 @media (max-width:959.98px){
- .tabi{border-radius:999px;box-shadow:inset 0 0 0 2px var(--navy)}
- .tabs.has-i button[aria-selected="true"]{border-color:transparent}
- .tabs button::after{display:none}
+ .tabi{border-radius:999px;background:var(--navy);box-shadow:none}
+ .tabs.has-i button[aria-selected="true"]{border-color:transparent;color:#fff}
 }
 .ws.enter{animation:wsIn .26s cubic-bezier(.2,.8,.2,1)}
 @keyframes wsIn{from{opacity:0;transform:translateX(var(--dx,0))}to{opacity:1;transform:none}}
