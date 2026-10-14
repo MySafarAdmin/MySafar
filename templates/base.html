@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/auth.css">
 </head>
 {% set shell = user and not user.must_change and self.body_class() != "solo" %}
-<body class="{% block body_class %}app{% endblock %}">
+<body class="{% block body_class %}app{% endblock %}{{ " cine" if intro }}">
 {% if shell %}
 {% set here = request.path %}
 <a class="skip" href="#main">Skip to main content</a>
@@ -50,6 +50,19 @@
 </div>
 </div>
 {% else %}
+{% if intro %}
+{# Opening titles on a fresh visit to the sign-in page: a dark stage, the eight-point star drawing itself,
+   the logo and name, then the stage folds into the navy welcome panel and the form rises in. CSS only. #}
+<div class="intro" aria-hidden="true">
+  <div class="istars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="icore">
+    <svg class="istar" viewBox="0 0 200 200" focusable="false"><g fill="none" stroke-width="2.2" stroke-linejoin="round"><rect class="isq a" x="45" y="45" width="110" height="110" rx="4"/><rect class="isq b" x="45" y="45" width="110" height="110" rx="4" transform="rotate(45 100 100)"/><circle class="iring" cx="100" cy="100" r="62"/></g></svg>
+    <span class="ilogo"><img src="/logo.png" alt="" width="84" height="84"></span>
+  </div>
+  <p class="iname" translate="no"><b class="wm">My<span>Safar</span></b></p>
+  <p class="isub">Safar Academy Enfield</p>
+</div>
+{% endif %}
 <div class="solo-band"></div>
 <aside class="welcome" aria-label="Welcome">
   <div class="wmark" translate="no"><span class="badge"><img src="/logo.png" alt="" width="40" height="40"></span><span><b class="wm">My<span>Safar</span></b><small>Safar Academy Enfield</small></span></div>

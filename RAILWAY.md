@@ -30,8 +30,10 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
   error logs, so the Railway logs can't be used to take over an account.
 - Turning off an account signs that person out everywhere at once.
 - Sign-in is limited to 5 wrong passwords per email and 20 per IP address in
-  15 minutes. Sessions end after 8 hours without use, and after 12 hours (or 30
-  days with "Keep me signed in").
+  15 minutes. Closing the app signs you out: the sign-in cookie ends with the
+  browser, and the server ends a sign-in 20 minutes after the dashboard was last
+  open (an open dashboard checks in, even in a background tab), and after 12
+  hours at most. There is no "Keep me signed in".
 
 ## TV dashboard
 

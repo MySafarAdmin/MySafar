@@ -224,5 +224,13 @@
   lock(true);
   status("Loading class records…", "busy");
   read();
-  setInterval(function () { if (!document.hidden) read(); }, 10000);
+  // While the dashboard is open in a background tab, check in every few minutes so the sign-in stays alive;
+  // once the app is closed the check-ins stop and the server ends the sign-in after 20 minutes.
+  var checkedIn = Date.now();
+  setInterval(function () {
+    if (!document.hidden) { read(); checkedIn = Date.now(); return; }
+    if (Date.now() - checkedIn < 240000) return;
+    checkedIn = Date.now();
+    fetch("/api/houses", { credentials: "same-origin", cache: "no-store" }).catch(function () {});
+  }, 10000);
 })();

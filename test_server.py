@@ -69,12 +69,10 @@ class DashboardTests:
         self.client = self.sign_in(*ADMIN)
         self.headers = {"X-Dashboard-Request": "1"}
 
-    def sign_in(self, email, password, app=None, remember=False):
+    def sign_in(self, email, password, app=None):
         client = (app or self.app).test_client()
         page = client.get("/login")
         data = {"csrf": csrf_of(page), "email": email, "password": password}
-        if remember:
-            data["remember"] = "1"
         client.last = client.post("/login", data=data)
         return client
 
@@ -332,10 +330,18 @@ class DashboardTests:
         with self.app.config["DB"].transaction() as tx:
             tx.execute("UPDATE sessions SET last_seen_at = last_seen_at - ?", (auth.SESSION_IDLE + 1,))
         self.assertEqual(client.get("/api/classes").status_code, 401)
-        client = self.sign_in(*ADMIN, remember=True)
-        self.assertIn("Max-Age=2592000", client.last.headers["Set-Cookie"])
+        # No "keep me signed in": the cookie ends with the browser, and the sign-in after 20 idle minutes.
+        self.assertEqual(auth.SESSION_IDLE, 20 * 60)
+        self.assertNotIn('name="remember"', self.app.test_client().get("/login").get_data(as_text=True))
+        client = self.sign_in(*ADMIN)
+        self.assertNotIn("Max-Age", client.last.headers["Set-Cookie"])
         with self.app.config["DB"].transaction() as tx:
             tx.execute("UPDATE sessions SET expires_at = ?", (int(time.time()) - 1,))
+        self.assertEqual(client.get("/api/classes").status_code, 401)
+        # A 30-day sign-in left from the old option ends at once.
+        client = self.sign_in(*ADMIN)
+        with self.app.config["DB"].transaction() as tx:
+            tx.execute("UPDATE sessions SET expires_at = ?", (int(time.time()) + 30 * 86400,))
         self.assertEqual(client.get("/api/classes").status_code, 401)
 
     def test_behind_railways_proxy(self):
