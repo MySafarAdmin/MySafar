@@ -117,11 +117,12 @@ a:hover{color:var(--primary-hover)}
 .content.narrow{max-width:880px}
 
 @media (min-width:960px){
- .shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);background:linear-gradient(90deg,var(--rail-bg) var(--rail),var(--bg) var(--rail))}
- .rail{position:sticky;top:0;height:100vh;height:100dvh}
+ /* The rail is a navy box with round corners, inset from the window edge (after Telegram Desktop's side panel). */
+ .shell{display:grid;grid-template-columns:calc(var(--rail) + 12px) minmax(0,1fr);background:var(--bg)}
+ .rail{position:sticky;top:12px;height:calc(100vh - 24px);height:calc(100dvh - 24px);margin:12px 0 12px 12px;border-radius:22px;overflow:hidden;box-shadow:0 8px 28px rgba(0,30,60,.18)}
 }
 @media (max-width:959.98px){
- .rail{position:sticky;top:0;flex-direction:row;flex-wrap:wrap;align-items:center;box-shadow:0 1px 0 rgba(0,0,0,.2)}
+ .rail{position:sticky;top:8px;flex-direction:row;flex-wrap:wrap;align-items:center;margin:8px 8px 0;border-radius:18px;box-shadow:0 6px 20px rgba(0,30,60,.18)}
  .rail .brand{padding:8px 12px;flex:1}
  .badge{width:34px;height:34px}.badge img{width:28px;height:28px}
  .menu-btn{display:inline-flex;align-items:center;gap:8px;margin-right:8px;padding:8px 12px;min-height:44px;border-radius:var(--r);border:1px solid var(--navy-line);cursor:pointer;font-size:.9375rem;font-weight:600}

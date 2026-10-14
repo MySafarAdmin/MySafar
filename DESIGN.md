@@ -86,7 +86,9 @@ Journey2Jannah.
 ## Layout
 
 One shell everywhere: a 232px navy rail on screens 960px and wider and a
-navy top bar with a Menu button below that. The dashboard opens with a
+navy top bar with a Menu button below that. Both are boxes with round corners
+inset from the window edge (22px corners, 12px in from the edge on wide
+screens; 18px corners, 8px in on phones), after Telegram Desktop's side panel. The dashboard opens with a
 compact head on the canvas (`.head`: navy title, or on the overviews the
 greeting with the overview's name and a teacher's class pills under it; Switch
 class on small screens, save status, the figures button, then pill tabs) above
