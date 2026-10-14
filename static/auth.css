@@ -97,11 +97,11 @@ details.confirm form{margin-top:8px;padding:10px 12px;border:1px solid var(--lin
 details.confirm p{font-size:.875rem;margin:0 0 8px}
 
 /* Opening titles (sign-in page, fresh visits only). A deep navy stage; the eight-point star draws itself in gold
-   around the logo, the name rises in, then the stage folds into the welcome panel (the top band on phones) while
+   around the logo, the name rises in, then the stage fades away into the sign-in screen while
    the form rises. Pointer events pass through, so the form can be used at once. Off under reduced motion. */
 .intro{position:fixed;inset:0;z-index:50;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;
  background:var(--navy);background-image:radial-gradient(circle at 85% 12%,rgba(255,255,255,.08) 0 90px,transparent 91px),radial-gradient(circle at 8% 80%,rgba(255,255,255,.06) 0 140px,transparent 141px);
- animation:i-fold 1.15s cubic-bezier(.65,0,.25,1) 2.6s both,i-gone 0s linear 3.75s forwards}
+ animation:i-dissolve 1.4s cubic-bezier(.4,0,.2,1) 2.6s both,i-gone 0s linear 4s forwards}
 .intro::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,24,46,.2) 0,#00172d 75%);animation:i-fade .8s ease 2.5s both}
 .intro>*{position:relative}
 .istars{position:absolute;inset:0}
@@ -123,7 +123,7 @@ details.confirm p{font-size:.875rem;margin:0 0 8px}
 .iname .wm{font-weight:500}.iname .wm span{font-weight:800}
 /* The page settles in under the folding stage: the card floats up out of a soft blur, its parts following one by
    one, and the welcome panel's quote and art drift in, so nothing simply appears. */
-.cine main>.card,.cine main>.notice,.cine main>.error{animation:i-settle 1.3s cubic-bezier(.16,1,.3,1) 2.85s both}
+.cine main>.card,.cine main>.notice,.cine main>.error{animation:i-settle 1.5s cubic-bezier(.16,1,.3,1) 2.7s both}
 .cine .card>*{animation:i-rise .9s cubic-bezier(.16,1,.3,1) both}
 .cine .card>:nth-child(1){animation-delay:3.05s}.cine .card>:nth-child(2){animation-delay:3.15s}.cine .card>:nth-child(3){animation-delay:3.25s}
 .cine .card>:nth-child(4){animation-delay:3.35s}.cine .card>:nth-child(5){animation-delay:3.45s}
@@ -142,10 +142,9 @@ details.confirm p{font-size:.875rem;margin:0 0 8px}
 @keyframes i-out{to{opacity:0;transform:scale(.94)}}
 @keyframes i-fade{to{opacity:0}}
 @keyframes i-fade-in{from{opacity:0}}
-@keyframes i-fold{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 0 calc(100% - 6px) 0)}}
 @keyframes i-gone{to{visibility:hidden}}
-@media (min-width:880px){@keyframes i-fold{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(0 50% 0 0)}}}
-@media (prefers-reduced-motion:reduce){.intro{display:none}}
+@keyframes i-dissolve{to{opacity:0}}
+@media (min-width:880px){@media (prefers-reduced-motion:reduce){.intro{display:none}}
 
 /* Idle sky in the welcome panel: now and then a shooting star crosses it, and a few points twinkle. */
 .wsky{position:absolute;inset:0;overflow:hidden;pointer-events:none}
