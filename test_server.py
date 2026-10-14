@@ -30,16 +30,24 @@ ADMIN = ("admin@example.com", "bootstrap-password-1")
 
 class FakeMailer:
     enabled = True
+    sender_address = "dashboard@example.org"
+    redirect_to = ""
 
     def __init__(self):
         self.sent = []
+        self.html = []
+        self.tags = []
 
-    def send(self, to, subject, text):
+    def send(self, to, subject, text, html=None, tag=None, background=False):
         self.sent.append((to, subject, text))
+        self.html.append(html)
+        self.tags.append(tag)
         return True
 
     def link(self):
-        return re.search(r"https?://\S+(/(?:invite|reset)/\S+)", self.sent[-1][2]).group(1)
+        # The latest email with a link: a password-change notice may have followed it.
+        text = next(t for _, _, t in reversed(self.sent) if re.search(r"/(?:invite|reset)/", t))
+        return re.search(r"https?://\S+(/(?:invite|reset)/\S+)", text).group(1)
 
 
 def csrf_of(response):
@@ -416,9 +424,83 @@ class DashboardTests:
         # Resetting signs out every other session.
         self.assertEqual(new.get("/api/classes").status_code, 401)
         self.assertEqual(self.sign_in("ahmed@example.com", "river stone evening").last.status_code, 302)
+        # The reset is followed by a notice that the password changed.
+        self.assertEqual((len(mailer.sent), mailer.tags[-1]), (3, "security"))
+        self.assertIn("reset with a reset link", mailer.sent[-1][2])
         for _ in range(3):
             self.form(anonymous, "/forgot", "/forgot", email="ahmed@example.com")
-        self.assertEqual(len(mailer.sent), 4)  # limited to 3 a quarter of an hour
+        self.assertEqual(len(mailer.sent), 5)  # limited to 3 a quarter of an hour
+
+    def test_emails_have_html_and_text_parts(self):
+        self.write()
+        mailer = FakeMailer()
+        self.app.config.update(MAILER=mailer, PUBLIC_URL="https://mysafar.example", SUPPORT_EMAIL="office@example.com")
+        self.form(self.client, "/admin/users", "/admin/users/invite", name="Sr <b>Maryam</b>",
+                  email="maryam@example.com", role="teacher", classes=["yr3-a"])
+        to, subject, text = mailer.sent[-1]
+        html = mailer.html[-1]
+        self.assertEqual((to, mailer.tags[-1]), ("maryam@example.com", "invite"))
+        self.assertIn("invited", subject)
+        link = "https://mysafar.example" + mailer.link()
+        for part in (text, html):
+            self.assertIn(link, part)
+            self.assertIn("Yr3-A", part)  # the classrooms they were given
+            self.assertIn("Teacher", part)  # their role
+            self.assertIn("office@example.com", part)
+        self.assertIn("Sr <b>Maryam</b>", text)
+        # Names are escaped in the HTML part.
+        self.assertIn("Sr &lt;b&gt;Maryam&lt;/b&gt;", html)
+        self.assertNotIn("<b>Maryam", html)
+        self.assertIn('src="https://mysafar.example/logo.png"', html)
+        self.assertIn("72 hours", html)
+        # The admin who sent it is named.
+        self.assertIn("Administrator has given you an account", text)
+
+    def test_changing_a_password_sends_a_notice(self):
+        mailer = FakeMailer()
+        self.app.config["MAILER"] = mailer
+        self.add_user("t@example.com")
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        self.form(teacher, "/account", "/account/password", current="wrong-password-1", password="olive tree morning",
+                  confirm="olive tree morning")
+        self.assertEqual(mailer.sent, [])
+        self.form(teacher, "/account", "/account/password", current="teacher-password-1",
+                  password="olive tree morning", confirm="olive tree morning")
+        to, subject, text = mailer.sent[-1]
+        self.assertEqual((to, mailer.tags[-1]), ("t@example.com", "security"))
+        self.assertIn("password was changed", subject)
+        self.assertIn("changed on the Account page", text)
+        self.assertIn("/forgot", text)
+
+    def test_admin_sends_a_test_email_and_previews_the_emails(self):
+        mailer = FakeMailer()
+        self.app.config["MAILER"] = mailer
+        page = self.client.get("/admin/users").get_data(as_text=True)
+        self.assertIn("dashboard@example.org", page)
+        response = self.form(self.client, "/admin/users", "/admin/email/test")
+        self.assertIn(b"Test email sent to admin@example.com", response.data)
+        self.assertEqual((mailer.sent[-1][0], mailer.tags[-1]), (ADMIN[0], "test"))
+        self.assertIn("email.test", [r["action"] for r in self.query("SELECT action FROM audit_log")])
+        for name in ("invite", "reset", "password_changed", "test"):
+            preview = self.client.get(f"/admin/email/preview/{name}")
+            self.assertEqual(preview.status_code, 200)
+            self.assertIn("style-src 'unsafe-inline'", preview.headers["Content-Security-Policy"])
+            self.assertNotIn("script", preview.headers["Content-Security-Policy"])
+            self.assertIn(b"Safar Academy", preview.data)
+            text = self.client.get(f"/admin/email/preview/{name}?text=1")
+            self.assertEqual(text.mimetype, "text/plain")
+            self.assertTrue(text.get_data(as_text=True).startswith("Subject: "))
+        self.assertEqual(self.client.get("/admin/email/preview/other").status_code, 404)
+        self.add_user("t@example.com")
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        self.assertEqual(teacher.get("/admin/email/preview/invite").status_code, 403)
+        self.assertEqual(self.form(teacher, "/account", "/admin/email/test").status_code, 403)
+        self.assertNotIn("unsafe-inline", self.client.get("/admin/users").headers["Content-Security-Policy"])
+
+    def test_test_email_needs_email_set_up(self):
+        response = self.form(self.client, "/admin/users", "/admin/email/test")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(b"isn&#39;t set up", self.client.get("/admin/users").data.replace(b"'", b"&#39;"))
 
     def test_admin_resets_a_teachers_password_without_seeing_it(self):
         user_id = self.add_user("t@example.com")
@@ -595,6 +677,81 @@ class DashboardTests:
         self.app.config["SUPPORT_EMAIL"] = "office@example.com"
         page = anonymous.get("/forgot").get_data(as_text=True)
         self.assertIn('href="mailto:office@example.com?subject=', page)
+
+
+class MailerTests(unittest.TestCase):
+    def response(self, status=200):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+        Response.status = status
+        return Response()
+
+    def http_error(self, code):
+        import io
+        import urllib.error
+        return urllib.error.HTTPError("https://api.resend.com/emails", code, "error", {}, io.BytesIO(b'{"message":"x"}'))
+
+    def test_off_without_a_key_or_sender(self):
+        from mailer import Mailer
+        self.assertFalse(Mailer("", "Safar <a@example.org>").enabled)
+        self.assertFalse(Mailer("re_key", "").send("t@example.com", "Hi", "Hello"))
+        self.assertEqual(Mailer("re_key", "Safar Academy <dashboard@mysafar.org>").sender_address, "dashboard@mysafar.org")
+
+    def test_sends_html_text_reply_to_and_tag(self):
+        from mailer import Mailer
+        with patch("urllib.request.urlopen", return_value=self.response()) as urlopen:
+            ok = Mailer("re_key", "Safar <a@example.org>", reply_to="office@example.org").send(
+                "t@example.com", "Hi", "Hello", html="<p>Hello</p>", tag="invite")
+        self.assertTrue(ok)
+        request = urlopen.call_args[0][0]
+        body = json.loads(request.data)
+        self.assertEqual(body, {"from": "Safar <a@example.org>", "to": ["t@example.com"], "subject": "Hi", "text": "Hello",
+                                "html": "<p>Hello</p>", "reply_to": "office@example.org",
+                                "tags": [{"name": "category", "value": "invite"}]})
+        self.assertEqual(request.get_header("Authorization"), "Bearer re_key")
+        self.assertTrue(request.get_header("Idempotency-key"))
+
+    def test_test_mode_sends_everything_to_one_address(self):
+        from mailer import Mailer
+        with patch("urllib.request.urlopen", return_value=self.response()) as urlopen:
+            Mailer("re_key", "a@example.org", redirect_to="me@example.org").send(
+                "t@example.com", "Hi", "Hello", html="<td><!--TEST--><h1>Hi</h1></td>")
+        body = json.loads(urlopen.call_args[0][0].data)
+        self.assertEqual(body["to"], ["me@example.org"])
+        self.assertIn("meant for t@example.com", body["text"])
+        self.assertIn("meant for t@example.com]</p><h1>", body["html"])
+
+    def test_retries_once_with_the_same_idempotency_key(self):
+        from mailer import Mailer
+        mailer = Mailer("re_key", "a@example.org")
+        with patch("time.sleep"), patch("urllib.request.urlopen", side_effect=[self.http_error(503), self.response()]) as urlopen:
+            self.assertTrue(mailer.send("t@example.com", "Hi", "Hello"))
+        keys = {call[0][0].get_header("Idempotency-key") for call in urlopen.call_args_list}
+        self.assertEqual((urlopen.call_count, len(keys)), (2, 1))
+        with patch("time.sleep"), patch("urllib.request.urlopen", side_effect=self.http_error(422)) as urlopen, \
+                patch("builtins.print"):
+            self.assertFalse(mailer.send("t@example.com", "Hi", "Hello"))
+        self.assertEqual(urlopen.call_count, 1)  # a rejected email isn't retried
+        with patch("time.sleep"), patch("urllib.request.urlopen", side_effect=[self.http_error(429), self.http_error(429)]), \
+                patch("builtins.print"):
+            self.assertFalse(mailer.send("t@example.com", "Hi", "Hello"))
+
+    def test_background_send_returns_straight_away(self):
+        from mailer import Mailer
+        import threading
+        done = threading.Event()
+
+        def deliver(payload):
+            done.set()
+            return True
+        mailer = Mailer("re_key", "a@example.org")
+        with patch.object(mailer, "_deliver", side_effect=deliver):
+            self.assertTrue(mailer.send("t@example.com", "Hi", "Hello", background=True))
+            self.assertTrue(done.wait(5))
 
 
 class LogTests(unittest.TestCase):

@@ -104,6 +104,9 @@ DASHBOARD_CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; style-s
                  "font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
 PAGE_CSP = ("default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; "
             "base-uri 'none'")
+# Email previews are styled inline, as emails must be; they have no scripts or forms.
+EMAIL_PREVIEW_CSP = ("default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'none'; "
+                     "frame-ancestors 'none'; base-uri 'none'")
 # A classroom saved again by the same person within this time updates its latest
 # history entry instead of adding one, so that history doesn't grow with every click.
 HISTORY_COALESCE = 15 * 60
@@ -148,6 +151,8 @@ def create_app(test_config=None):
         RESEND_API_KEY=os.environ.get("RESEND_API_KEY", ""),
         MAIL_FROM=os.environ.get("MAIL_FROM", ""),
         MAIL_REDIRECT_TO=os.environ.get("MAIL_REDIRECT_TO", ""),
+        # Where replies to the dashboard's emails go. Defaults to SUPPORT_EMAIL.
+        MAIL_REPLY_TO=os.environ.get("MAIL_REPLY_TO", "").strip(),
         RETENTION_DAYS=int(os.environ.get("RETENTION_DAYS", "14")),
         # Shown on the password pages so staff can contact the school office directly.
         SUPPORT_EMAIL=os.environ.get("SUPPORT_EMAIL", "").strip(),
@@ -162,8 +167,9 @@ def create_app(test_config=None):
     database.migrate()
     auth.bootstrap_admin(database, app.config["ADMIN_EMAIL"], app.config["DASHBOARD_PASSWORD"])
     app.config["DB"] = database
-    app.config.setdefault("MAILER", Mailer(app.config["RESEND_API_KEY"], app.config["MAIL_FROM"],
-                                           app.config["MAIL_REDIRECT_TO"]))
+    app.config.setdefault("MAILER", Mailer(app.config["RESEND_API_KEY"].strip(), app.config["MAIL_FROM"].strip(),
+                                           app.config["MAIL_REDIRECT_TO"].strip(),
+                                           app.config["MAIL_REPLY_TO"] or app.config["SUPPORT_EMAIL"]))
     app.register_blueprint(auth.bp)
     app.register_blueprint(tv.bp)
     pruned = {"at": 0}
@@ -204,14 +210,16 @@ def create_app(test_config=None):
     @app.after_request
     def private_responses(response):
         # The font files are public and never change; everything else is private.
-        response.headers["Cache-Control"] = "public, max-age=604800" if request.path.startswith("/fonts/") \
-            and response.status_code == 200 else "no-store"
+        # The logo is public too, and email apps fetch it for every email they show.
+        response.headers["Cache-Control"] = "public, max-age=604800" if (request.path.startswith("/fonts/")
+            or request.path == "/logo.png") and response.status_code == 200 else "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
         dashboard = request.path in ("/", "/tv") or (request.path.startswith("/tv/") and response.mimetype == "text/html"
                                                         and response.status_code == 200)
-        response.headers["Content-Security-Policy"] = DASHBOARD_CSP if dashboard else PAGE_CSP
+        response.headers["Content-Security-Policy"] = DASHBOARD_CSP if dashboard else \
+            EMAIL_PREVIEW_CSP if request.path.startswith("/admin/email/preview/") else PAGE_CSP
         if app.config["COOKIE_SECURE"]:
             response.headers["Strict-Transport-Security"] = "max-age=31536000"
         return response

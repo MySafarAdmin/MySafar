@@ -113,8 +113,9 @@ deleted: the Railway server removes its old `classes` table when it starts.
   Railway.
 - `server.py`, `test_server.py`: the Railway server and its tests.
 - `auth.py`, `templates/`, `static/auth.css`: sign-in, accounts, roles and the
-  admin pages. `db.py`: database access and migrations. `mailer.py`: invite
-  and reset emails.
+  admin pages. `db.py`: database access and migrations. `mailer.py`: sends
+  email through Resend. `emails.py`, `templates/email/`: what each email
+  says (see [RAILWAY.md](RAILWAY.md#email)).
 - `tv.py`, `static/tv.html`: the TV dashboard and its screen links (see
   [RAILWAY.md](RAILWAY.md#tv-dashboard)).
 - `tools/build.py`: rebuilds both HTML files from `src/`. Run

@@ -20,6 +20,8 @@ from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
 from flask import Blueprint, abort, current_app, g, redirect, render_template, request
 
+import emails
+
 MINUTE, HOUR, DAY = 60, 3600, 86400
 SESSION_IDLE = 8 * HOUR
 SESSION_SHORT = 12 * HOUR
@@ -55,7 +57,7 @@ ACTIONS = {
     "user.reset_link": "Made a reset link", "user.invite_link": "Made a new invite", "user.disabled": "Turned off a user",
     "user.enabled": "Turned on a user", "class.saved": "Saved classroom", "class.deleted": "Deleted classroom",
     "class.restored": "Restored classroom", "tv.created": "Made a TV screen link",
-    "tv.revoked": "Turned off a TV screen link",
+    "tv.revoked": "Turned off a TV screen link", "email.test": "Sent a test email",
 }
 
 
@@ -259,18 +261,19 @@ def issue_link(tx, user_id, purpose):
     return public_url(f"/{purpose}/{token}")
 
 
-def send_link(user, purpose, link):
+def send_link(user, purpose, link, by=None, rooms=(), background=False):
+    """Emails an invite or reset link. `by` is the admin who sent it, if one did."""
     if purpose == "invite":
-        subject = "You've been invited to the Safar dashboard"
-        text = (f"Assalamu alaikum {user['name']},\n\nYou've been given an account on the Safar Academy dashboard.\n"
-                f"Choose your password here (the link works once and expires in 72 hours):\n\n{link}\n\n"
-                f"Your sign-in email is {user['email']}.\n")
-    else:
-        subject = "Reset your Safar dashboard password"
-        text = (f"Assalamu alaikum {user['name']},\n\nSomeone asked to reset the password for your Safar dashboard account.\n"
-                f"Choose a new password here (the link works once and expires in 1 hour):\n\n{link}\n\n"
-                "If this wasn't you, ignore this email: your password stays the same.\n")
-    return current_app.config["MAILER"].send(user["email"], subject, text)
+        return emails.send("invite", user["email"], background=background, name=user["name"], email=user["email"],
+                           role=user.get("role", "teacher"), rooms=list(rooms), by=by, link=link)
+    return emails.send("reset", user["email"], background=background, name=user["name"], email=user["email"],
+                       by=by, link=link)
+
+
+def password_changed_notice(user, how):
+    """Tells someone their password changed, so they find out if it wasn't them. Sent in the background."""
+    emails.send("password_changed", user["email"], background=True, name=user["name"], email=user["email"],
+                how=how, at=now())
 
 
 def find_link(tx, token, purpose):
@@ -341,7 +344,7 @@ def forgot():
     with db().transaction() as tx:
         blocked = limited(tx, "reset", email, EMAIL_RESETS, IP_RESETS, failures_only=False)
         record_attempt(tx, "reset", email, False)
-        user = tx.execute("SELECT id, email, name, password_hash, disabled FROM users WHERE email = ?",
+        user = tx.execute("SELECT id, email, name, role, password_hash, disabled FROM users WHERE email = ?",
                           (email,)).fetchone()
         link = None
         if not blocked and user and not user["disabled"] and current_app.config["MAILER"].enabled:
@@ -350,7 +353,8 @@ def forgot():
             link = issue_link(tx, user["id"], purpose)
             audit(tx, "password.reset_requested", user_id=user["id"])
     if link:
-        send_link(user, purpose, link)
+        # Sent from another thread, so the page takes as long whether or not the email has an account.
+        send_link(dict(user), purpose, link, background=True)
     # The same answer whether or not the email has an account.
     return page("forgot.html", sent=True)
 
@@ -379,6 +383,8 @@ def set_password_page(token, purpose):
         tx.execute("DELETE FROM sessions WHERE user_id = ?", (row["id"],))
         audit(tx, "invite.accepted" if purpose == "invite" else "password.reset", user_id=row["id"])
         session_token, max_age = start_session(tx, row["id"], False)
+    if purpose == "reset":
+        password_changed_notice(row, "reset")
     return signed_in_redirect(session_token, max_age, "/")
 
 
@@ -430,6 +436,7 @@ def change_password():
         # Any other device signed in with the old password is signed out.
         tx.execute("DELETE FROM sessions WHERE user_id = ? AND token_hash <> ?", (g.user["id"], g.session["token_hash"]))
         audit(tx, "password.changed")
+    password_changed_notice(g.user, "changed")
     g.user["must_change"] = 0
     return page("account.html", others=0, notice="Password changed. You've been signed out on your other devices.")
 
@@ -467,7 +474,13 @@ def users_page(status=200, **context):
         rooms = classrooms(tx)
     for user in users:
         user["classes"] = members.get(user["id"], set())
-    return page("admin_users.html", status, users=users, rooms=rooms, **context)
+    mailer = current_app.config["MAILER"]
+    return page("admin_users.html", status, users=users, rooms=rooms, mail_from=getattr(mailer, "sender_address", ""),
+                mail_test_mode=bool(getattr(mailer, "redirect_to", "")), email_previews=EMAIL_PREVIEWS, **context)
+
+
+EMAIL_PREVIEWS = (("invite", "Invite"), ("reset", "Password reset"), ("password_changed", "Password changed"),
+                  ("test", "Test email"))
 
 
 def chosen_classes(tx):
@@ -481,6 +494,13 @@ def set_classes(tx, user_id, role, classes):
     if role == "teacher":
         for class_id in classes:
             tx.execute("INSERT INTO classroom_members VALUES (?, ?)", (class_id, user_id))
+
+
+def room_names(tx, user_id):
+    """The names of the classrooms a teacher is assigned to, for their invite email."""
+    mine = {row["class_id"] for row in tx.execute("SELECT class_id FROM classroom_members WHERE user_id = ?",
+                                                  (user_id,)).fetchall()}
+    return [name for class_id, name in classrooms(tx) if class_id in mine]
 
 
 def user_by_id(tx, user_id):
@@ -516,9 +536,10 @@ def admin_invite():
         user_id = tx.insert("INSERT INTO users (email, name, role, created_at) VALUES (?, ?, ?, ?)",
                             (email, name, role, now()))
         set_classes(tx, user_id, role, chosen_classes(tx))
+        rooms = room_names(tx, user_id) if role == "teacher" else []
         link = issue_link(tx, user_id, "invite")
         audit(tx, "user.invited", detail={"email": email, "role": role, "user": user_id})
-    sent = send_link({"name": name, "email": email}, "invite", link)
+    sent = send_link({"name": name, "email": email, "role": role}, "invite", link, by=g.user["name"], rooms=rooms)
     return users_page(notice=f"Invite {'emailed to' if sent else 'created for'} {email}.",
                       link=None if sent else link, link_for=name)
 
@@ -552,9 +573,10 @@ def admin_link(user_id):
         if user["disabled"]:
             return users_page(400, error="Turn this account back on first.")
         purpose = "reset" if user["active"] else "invite"
+        rooms = room_names(tx, user_id) if user["role"] == "teacher" else []
         link = issue_link(tx, user_id, purpose)
         audit(tx, f"user.{purpose}_link", detail={"user": user_id})
-    sent = send_link(user, purpose, link)
+    sent = send_link(user, purpose, link, by=g.user["name"], rooms=rooms)
     what = "Password reset link" if purpose == "reset" else "New invite"
     return users_page(notice=f"{what} {'emailed to' if sent else 'created for'} {user['email']}.",
                       link=None if sent else link, link_for=user["name"])
@@ -577,6 +599,33 @@ def admin_access(user_id):
             tx.execute("UPDATE user_tokens SET used_at = ? WHERE user_id = ? AND used_at IS NULL", (now(), user_id))
         audit(tx, "user.disabled" if disable else "user.enabled", detail={"user": user_id})
     return users_page(notice=f"{user['name']} can {'no longer' if disable else 'now'} sign in.")
+
+
+@bp.post("/admin/email/test")
+@admin_required
+def admin_email_test():
+    """Sends the signed-in admin a test email, to check that email is set up."""
+    check_form_token()
+    if not current_app.config["MAILER"].enabled:
+        return users_page(400, error="Email isn't set up yet. Add RESEND_API_KEY and MAIL_FROM on Railway.")
+    sent = emails.send("test", g.user["email"], name=g.user["name"], email=g.user["email"], at=now())
+    with db().transaction() as tx:
+        audit(tx, "email.test", detail={"sent": sent})
+    if not sent:
+        return users_page(502, error="The test email couldn't be sent. The MySafar service's logs on Railway say why.")
+    return users_page(notice=f"Test email sent to {g.user['email']}. It should arrive within a minute.")
+
+
+@bp.get("/admin/email/preview/<template>")
+@admin_required
+def admin_email_preview(template):
+    """Shows an email with made-up details, as staff would see it. ?text=1 shows the plain-text part."""
+    if template not in emails.PREVIEWS:
+        abort(404)
+    subject, text, html = emails.render(template, **emails.PREVIEWS[template]())
+    if request.args.get("text"):
+        return current_app.response_class(f"Subject: {subject}\n\n{text}", mimetype="text/plain")
+    return html
 
 
 @bp.get("/admin/activity")
