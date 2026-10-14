@@ -1,25 +1,22 @@
 <title>Safar Enfield Master Dashboard</title>
-<meta name="theme-color" content="#23272d">
+<meta name="theme-color" content="#003b6b">
 <style>
 /* Safar workspace: shared tokens, application shell and controls.
    Used by the dashboard (inlined by tools/build.py) and by the sign-in and admin pages (served in /auth.css).
    See DESIGN.md for the reasoning behind each value. */
-@font-face{font-family:"Instrument Sans";src:url(/fonts/instrument-sans-latin.woff2) format("woff2");font-weight:400 700;font-display:swap;
+@font-face{font-family:"Figtree";src:url(/fonts/figtree-latin.woff2) format("woff2");font-weight:300 900;font-display:swap;
  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Instrument Sans";src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");font-weight:400 700;font-display:swap;
- unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
-@font-face{font-family:"Source Serif 4";src:url(/fonts/source-serif-4-latin.woff2) format("woff2");font-weight:200 900;font-display:swap;
- unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Source Serif 4";src:url(/fonts/source-serif-4-latin-ext.woff2) format("woff2");font-weight:200 900;font-display:swap;
+@font-face{font-family:"Figtree";src:url(/fonts/figtree-latin-ext.woff2) format("woff2");font-weight:300 900;font-display:swap;
  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
  /* Brand: Safar navy from the logo (#003B6B). Reserved for the brand, selected indicators and the one primary action. */
  --navy:#003b6b;--navy-2:#002c52;--navy-soft:#e9eff6;
- /* Graphite navigation */
- --rail-bg:#23272d;--rail-ink:#e8eaed;--rail-mute:#a7adb5;--rail-line:rgba(255,255,255,.1);--rail-hover:rgba(255,255,255,.07);--rail-on:rgba(255,255,255,.13);
- /* Surfaces and text: a light grey canvas, white working surfaces, graphite type */
- --bg:#eceef1;--surface:#fff;--surface-2:#f6f7f9;--sunk:#eceef1;--line:#e2e5e9;--line-2:#c8cdd4;
- --ink:#1d2127;--ink-2:#3e4651;--mute:#5b6470;
+ /* Navigation: a Safar navy rail, as Journey2Jannah carries its own colour in its rail. The selected item is a
+    white tab with navy type. */
+ --rail-bg:#003b6b;--rail-ink:#e6eef6;--rail-mute:#a9c0d6;--rail-line:rgba(255,255,255,.14);--rail-hover:rgba(255,255,255,.1);--rail-on:#fff;
+ /* Surfaces and text: a soft, cool canvas (a touch of blue in the grey), floating white cards, deep slate type */
+ --bg:#f2f4f8;--surface:#fff;--surface-2:#f6f7fb;--sunk:#eef0f5;--line:#e4e7ee;--line-2:#cbd1dc;
+ --ink:#1c2230;--ink-2:#3c4557;--mute:#5a6375;
  /* Actions and status. Every colour that carries white text is at least 4.5:1. */
  --primary:#003b6b;--primary-hover:#002c52;--primary-soft:#e9eff6;--primary-ink:#0b4a82;
  --ok:#4e7d5b;--ok-soft:#edf3ee;--ok-ink:#2f5a3b;
@@ -38,11 +35,13 @@
  /* Warning levels: 1 notice, 2 serious, 3 miss break */
  --w1:#e2b53a;--w1-ink:#4a3200;--w2:#c2410c;--w3:#b42318;
  /* Shape, space, type */
- --r-sm:6px;--r:8px;--r-lg:12px;
- --font:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
- --font-display:"Source Serif 4",Georgia,"Times New Roman",serif;
- --shadow:0 1px 2px rgba(29,33,39,.05),0 1px 1px rgba(29,33,39,.03);
- --shadow-lift:0 12px 32px rgba(29,33,39,.18);
+ /* Rounder, friendlier shapes: pill buttons and inputs with 12px corners, cards with 20px corners. */
+ --r-sm:8px;--r:12px;--r-lg:20px;--r-pill:999px;
+ --font:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ --font-display:var(--font);
+ /* Cards float on the canvas with a wide, faint shadow instead of a hairline border. */
+ --shadow:0 1px 2px rgba(28,34,48,.04),0 6px 24px rgba(28,34,48,.06);
+ --shadow-lift:0 16px 40px rgba(28,34,48,.18);
  --rail:232px;
  /* Older names used by the admin pages */
  --navy-ink:var(--rail-ink);--navy-mute:var(--rail-mute);--navy-line:var(--rail-line);
@@ -55,10 +54,10 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 var(--font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
 h1,h2,h3{margin:0;line-height:1.2;text-wrap:balance}
-h1{font-size:1.625rem;font-weight:600;letter-spacing:-.005em;font-family:var(--font-display)}
-.brand b{font-family:var(--font-display);font-weight:600}
-h2{font-size:1.125rem;font-weight:700}
-h3{font-size:1rem;font-weight:700}
+h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;font-family:var(--font-display)}
+.brand b{font-family:var(--font-display);font-weight:800}
+h2{font-size:1.125rem;font-weight:800;letter-spacing:-.005em}
+h3{font-size:1rem;font-weight:750}
 p{margin:0 0 .75rem}
 a{color:var(--primary-ink);text-underline-offset:.18em}
 button,a,summary,label,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,59,107,.12)}
@@ -87,11 +86,13 @@ a:hover{color:var(--primary-hover)}
 .navt{position:absolute;opacity:0;pointer-events:none}
 .menu-btn{display:none}
 .navs{display:flex;flex-direction:column;gap:2px;padding:4px 10px 12px;flex:1;min-height:0;overflow-y:auto}
-.navh{margin:14px 8px 4px;font-size:.8125rem;font-weight:650;color:var(--rail-mute)}
-.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:8px 10px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--rail-ink)}
+.navh{margin:14px 10px 4px;font-size:.8125rem;font-weight:700;color:var(--rail-mute)}
+.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 12px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--rail-ink)}
 .nav:hover{background:var(--rail-hover);color:#fff}
-.nav[aria-current="page"],.nav[aria-current="true"]{background:var(--rail-on);color:#fff;font-weight:700}
+.nav[aria-current="page"],.nav[aria-current="true"]{background:var(--rail-on);color:var(--navy);font-weight:800;box-shadow:0 4px 14px rgba(0,20,40,.22)}
+.nav[aria-current="page"]:hover,.nav[aria-current="true"]:hover{color:var(--navy)}
 .nav:focus-visible{outline-color:#fff}
+.nav[aria-current]:focus-visible{outline-color:#9cc3e8}
 .nav .ic{flex:none;width:18px;height:18px}
 .nav .ext{margin-left:auto;opacity:.75}
 .nav.j2j .dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex:none;margin:0 5px}
@@ -102,9 +103,9 @@ a:hover{color:var(--primary-hover)}
 .me .who span{color:var(--rail-mute)}
 .me .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .me form{margin:0}
-.me .linkbtn{font:inherit;font-size:.875rem;background:none;border:1px solid var(--navy-line);border-radius:var(--r-sm);padding:6px 10px;min-height:36px;cursor:pointer;color:var(--rail-ink);text-decoration:none;display:inline-flex;align-items:center}
+.me .linkbtn{font:inherit;font-size:.875rem;font-weight:650;background:none;border:1px solid var(--navy-line);border-radius:var(--r-pill);padding:6px 10px;min-height:36px;cursor:pointer;color:var(--rail-ink);text-decoration:none;display:inline-flex;align-items:center}
 .me .linkbtn:hover{background:var(--rail-hover)}
-.me .linkbtn[aria-current="page"]{background:var(--rail-on);color:#fff;font-weight:700}
+.me .linkbtn[aria-current="page"]{background:var(--rail-on);color:var(--navy);border-color:#fff;font-weight:800}
 .work{min-width:0;display:flex;flex-direction:column}
 .content{width:100%;max-width:1240px;margin:0 auto;padding:24px 32px 48px}
 .content.narrow{max-width:880px}
@@ -130,7 +131,7 @@ a:hover{color:var(--primary-hover)}
    It sits on the grey canvas in graphite type; the dashboard's compact head (.head in template.css) matches it. ---------- */
 .band{color:var(--ink);padding:4px 0 0;margin-bottom:16px;position:relative}
 .band-top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;min-height:40px}
-.band h1{font-size:1.5rem;font-weight:750;letter-spacing:-.01em;line-height:1.15;overflow-wrap:anywhere;color:var(--ink);margin-right:auto}
+.band h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;line-height:1.15;overflow-wrap:anywhere;color:var(--ink);margin-right:auto}
 .band .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .band .lede{color:var(--mute);margin:6px 0 0;max-width:60ch}
 .figs{display:flex;flex-wrap:wrap;gap:6px 28px;margin-top:8px}
@@ -140,7 +141,7 @@ a:hover{color:var(--primary-hover)}
 /* A figure that needs attention keeps graphite digits and gains a small amber marker. */
 .fig.alert span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-right:6px;vertical-align:1px}
 .fig.quiet b{font-size:1.125rem}
-.band.slim h1{font-size:1.5rem}
+.band.slim h1{font-size:1.625rem}
 @media (max-width:959.98px){
  .band h1{font-size:1.375rem}
  .figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 12px}
@@ -152,12 +153,12 @@ a:hover{color:var(--primary-hover)}
 
 /* ---------- Panels and modules ----------
    White workspaces carry the work. Modules are separated by space and headings, not by tinted fills. */
-.panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.panel,.card{background:var(--surface);border:0;border-radius:var(--r-lg);padding:24px;box-shadow:var(--shadow)}
 .mod{background:var(--surface);border-radius:var(--r-lg);padding:20px;min-width:0}
 .mod.line{border:1px solid var(--line)}
 
 .mod-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:12px;min-height:36px}
-.mod-h h2{font-size:1.125rem;font-weight:750}
+.mod-h h2{font-size:1.125rem;font-weight:800}
 .cap{font-size:.8125rem;color:var(--mute);margin:0}
 .g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:start}
 .g12.eq{align-items:stretch}
@@ -166,11 +167,11 @@ a:hover{color:var(--primary-hover)}
 .g12+.g12,.g12+.mod,.mod+.g12,.mod+.mod{margin-top:20px}
 .g12>.mod{margin-top:0}
 /* A small segmented control, for a shared period or measure */
-.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;background:var(--surface)}
-.seg button{font:inherit;font-size:.875rem;font-weight:600;border:0;background:none;color:var(--ink-2);padding:6px 12px;min-height:36px;cursor:pointer}
-.seg button+button{border-left:1px solid var(--line-2)}
-.seg button:hover{background:var(--surface-2)}
-.seg button[aria-pressed="true"]{background:var(--navy-soft);color:var(--navy);font-weight:700;box-shadow:inset 0 -2px 0 var(--navy)}
+/* A pill track with the chosen option as a white pill inside it */
+.seg{display:inline-flex;gap:2px;padding:3px;border:0;border-radius:var(--r-pill);background:var(--sunk)}
+.seg button{font:inherit;font-size:.875rem;font-weight:650;border:0;border-radius:var(--r-pill);background:none;color:var(--ink-2);padding:6px 14px;min-height:34px;cursor:pointer}
+.seg button:hover{color:var(--ink);background:rgba(255,255,255,.6)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--navy);font-weight:800;box-shadow:0 1px 3px rgba(28,34,48,.12),0 0 0 1px rgba(0,59,107,.12)}
 .seg button:focus-visible{outline-offset:-3px}
 /* Contextual help: a ? that opens the rules for the screen, by keyboard, touch or pointer */
 .help{position:relative;display:inline-block}
@@ -191,7 +192,7 @@ a:hover{color:var(--primary-hover)}
 .section-title{font-size:1rem;font-weight:700;margin:32px 0 12px;color:var(--ink-2)}
 
 /* ---------- Buttons ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:.9375rem;font-weight:600;line-height:1.2;min-height:40px;padding:8px 14px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none;white-space:nowrap;touch-action:manipulation}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:.9375rem;font-weight:700;line-height:1.2;min-height:40px;padding:8px 16px;border-radius:var(--r-pill);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none;white-space:nowrap;touch-action:manipulation}
 .btn:hover{background:var(--surface-2);border-color:var(--mute)}
 .btn:disabled,.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed}
 .btn.primary,.btn.p{background:var(--primary);border-color:var(--primary);color:#fff}
@@ -201,8 +202,8 @@ a:hover{color:var(--primary-hover)}
 .btn.danger,.btn.x{background:var(--surface);color:var(--bad-ink);border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
 .btn.danger:hover,.btn.x:hover{background:var(--bad-soft)}
 .btn.danger.solid,.btn.x.solid{background:var(--bad);border-color:var(--bad);color:#fff}
-.btn.sm{min-height:36px;padding:6px 10px;font-size:.875rem}
-.btn.lg{min-height:48px;padding:12px 18px;font-size:1rem}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:.875rem}
+.btn.lg{min-height:52px;padding:12px 24px;font-size:1rem}
 .btn.wide{width:100%}
 button.link{font:inherit;background:none;border:0;padding:0;color:var(--primary-ink);cursor:pointer;text-decoration:underline;text-underline-offset:.18em}
 
@@ -218,12 +219,12 @@ fieldset{border:1px solid var(--line);border-radius:var(--r-lg);margin:0 0 16px;
 legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 
 /* ---------- Tables ---------- */
-.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+.tablewrap{overflow-x:auto;border:0;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow)}
 .mod .tablewrap,.mod .sheetwrap{border:0;border-radius:0}
 .mod fieldset{border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 0 0}
 .tbl{width:100%;border-collapse:collapse;font-size:.9375rem}
 .tbl th,.tbl td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
-.tbl thead th{font-size:.8125rem;font-weight:700;color:var(--mute);background:var(--surface-2);white-space:nowrap}
+.tbl thead th{font-size:.8125rem;font-weight:750;color:var(--mute);background:var(--surface-2);white-space:nowrap}
 .tbl tbody tr:last-child>*{border-bottom:0}
 .tbl td.n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums}
 .tbl td form{margin:0}
@@ -238,7 +239,7 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 .notice,.error{display:flex;gap:10px;align-items:flex-start;border-radius:var(--r-lg);padding:12px 16px;margin:0 0 16px;border:1px solid}
 .notice{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 40%,transparent);color:var(--ok-ink)}
 .error{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 40%,transparent);color:var(--bad-ink)}
-.empty{padding:20px;border:1px dashed var(--line-2);border-radius:var(--r-lg);color:var(--mute);text-align:center}
+.empty{padding:24px;border:2px dashed var(--line);border-radius:var(--r-lg);color:var(--mute);text-align:center}
 .empty b{display:block;color:var(--ink);margin-bottom:2px}
 .hdot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none;background:var(--line-2)}
 .hdot.Makkah{background:var(--makkah)}.hdot.Al-Aqsa{background:var(--aqsa)}.hdot.Madinah{background:var(--madinah)}
@@ -274,9 +275,9 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head h1{margin-right:auto}
 .head .save{order:2}.head .swc{order:1}.head .figpop{order:3}
 .head .save[data-s="ok"]{display:none}
-.head h1{font-size:1.625rem;font-weight:600;letter-spacing:-.005em;line-height:1.15;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.head h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;line-height:1.15;color:var(--navy);overflow-wrap:anywhere;min-width:0}
 .figpop{position:relative}
-.figpop>summary{list-style:none;border:1px solid var(--line-2);background:var(--surface)}
+.figpop>summary{list-style:none;border:0;background:var(--surface);box-shadow:var(--shadow)}
 .figpop>summary::-webkit-details-marker{display:none}
 .figpop[open]>summary{background:var(--navy-soft);color:var(--navy);border-color:color-mix(in srgb,var(--navy) 35%,#fff)}
 .head .figpop .figs{position:absolute;z-index:40;top:46px;right:0;display:grid;grid-template-columns:1fr;gap:10px;width:max-content;min-width:220px;max-width:calc(100vw - 32px);margin:0;padding:14px 16px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift)}
@@ -292,16 +293,26 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head .save[data-s="bad"]::before{background:#fff}
 .head .save:empty{display:none}
 @media (min-width:960px){.swc{display:none!important}}
-.head .tabs{display:flex;gap:2px;margin:8px 0 0}
-.tabs button{font:inherit;font-size:.9375rem;font-weight:600;color:var(--ink-2);background:none;border:0;padding:9px 16px;min-height:42px;cursor:pointer;white-space:nowrap;border-radius:10px 10px 0 0;display:inline-flex;align-items:center;gap:6px}
-.tabs button:hover{color:var(--ink);background:rgba(29,33,39,.06)}
-.tabs button[aria-selected="true"]{color:var(--navy);background:var(--surface);font-weight:750;box-shadow:inset 0 3px 0 var(--navy)}
+/* Overview greeting: a friendly line in big navy type, the overview's name under it, then a teacher's classes
+   as soft pills (from Journey2Jannah's teacher home). */
+.head.greet h1{font-size:2rem}
+.hello{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:2px}
+.hsub{font-size:.9375rem;font-weight:650;color:var(--mute);margin-right:6px}
+.hchip{display:inline-flex;align-items:center;min-height:30px;padding:3px 14px;border-radius:999px;font-size:.8125rem;font-weight:750;text-decoration:none;max-width:24ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 1px 2px rgba(28,34,48,.06)}
+.hchip.c0{background:#fde8e1;color:#9a3412}.hchip.c1{background:#e3eefb;color:#0b4a82}.hchip.c2{background:#e5f3ea;color:#2f5a3b}.hchip.c3{background:#fbf0d6;color:#664a0b}
+.hchip:hover{filter:brightness(.97);text-decoration:underline}
+@media (max-width:959.98px){.head.greet h1{font-size:1.375rem}.hello{margin-top:4px}}
+/* Tabs are pills on the canvas; the chosen one is a white pill with navy type, like the cards under it. */
+.head .tabs{display:flex;gap:4px;margin:10px 0 12px}
+.tabs button{font:inherit;font-size:.9375rem;font-weight:700;color:var(--ink-2);background:none;border:0;padding:8px 18px;min-height:42px;cursor:pointer;white-space:nowrap;border-radius:var(--r-pill);display:inline-flex;align-items:center;gap:6px}
+.tabs button:hover{color:var(--ink);background:rgba(28,34,48,.06)}
+.tabs button[aria-selected="true"]{color:var(--navy);background:var(--surface);font-weight:800;box-shadow:var(--shadow)}
 .tabs button:focus-visible{outline-offset:-3px}
 /* Counts on tabs: small and neutral; the tab name says what they count. */
 .tn{display:inline-block;min-width:1.6em;padding:0 6px;border-radius:999px;background:var(--sunk);color:var(--ink-2);font-size:.75rem;font-weight:750;line-height:1.5;text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
 .tabs button[aria-selected="true"] .tn{background:var(--navy-soft);color:var(--navy)}
-/* The workspace: white, directly under the selected tab */
-.ws{background:var(--surface);border-radius:0 14px 14px 14px;padding:16px 20px;box-shadow:var(--shadow);min-width:0}
+/* The workspace: a white card with round corners floating on the canvas */
+.ws{background:var(--surface);border-radius:var(--r-lg);padding:18px 22px;box-shadow:var(--shadow);min-width:0}
 @media (min-width:960px){.head{position:sticky;top:0;z-index:15;background:var(--bg);box-shadow:0 -16px 0 var(--bg)}}
 @media (max-width:959.98px){
  .head{padding:2px 0 0}
@@ -310,8 +321,9 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
  .head .fig span{font-size:.8125rem}
  /* Every tab stays visible: they wrap onto a second row instead of scrolling sideways. */
  .head .tabs{flex-wrap:wrap;gap:4px;margin:8px 0 10px}
- .tabs button{border-radius:999px;padding:8px 13px;min-height:40px;background:var(--surface);border:1px solid var(--line)}
- .tabs button[aria-selected="true"]{box-shadow:inset 0 0 0 2px var(--navy);border-color:var(--navy)}
+ .tabs button{border-radius:999px;padding:8px 14px;min-height:40px;background:var(--surface);border:1px solid var(--line)}
+ .tabs button[aria-selected="true"]{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:none}
+ .tabs button[aria-selected="true"] .tn{background:rgba(255,255,255,.2);color:#fff}
  .ws{margin:0 -16px;border-radius:0;padding:14px 16px 20px;box-shadow:none}
 }
 @media (max-width:379px){.head h1{font-size:1.0625rem}.head .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}.tabs button{padding:8px 2px;font-size:.8125rem;justify-content:center}}
@@ -760,7 +772,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .dlg p{margin:0 0 14px;font-size:1.0625rem;font-weight:650}
 .dlg input{width:100%}
 .dlg .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--rail-bg);color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-weight:650;font-size:.9375rem;box-shadow:var(--shadow-lift);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;max-width:min(92vw,520px);text-align:left;display:flex;gap:10px;align-items:center}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,16px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:var(--r-lg);font-weight:650;font-size:.9375rem;box-shadow:var(--shadow-lift);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;max-width:min(92vw,520px);text-align:left;display:flex;gap:10px;align-items:center}
 #toast::before{content:"";width:8px;height:8px;border-radius:50%;background:#4ade80;flex:none}
 #toast.info::before{background:#93c5fd}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -817,18 +829,14 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
    little and shows a short graphite edge. The new page slides in from the side its tab is on. */
 .tabs{position:relative}
 .tabs button{position:relative;z-index:1;transition:color .18s ease,background-color .18s ease,transform .18s cubic-bezier(.2,.8,.2,1)}
-.tabs button::after{content:"";position:absolute;left:16px;right:16px;top:0;height:2px;border-radius:2px;background:var(--line-2);transform:scaleX(0);transition:transform .22s cubic-bezier(.2,.8,.2,1)}
-.tabs button:hover::after{transform:scaleX(1)}
-.tabs button[aria-selected="true"]::after{display:none}
 .tabs button:not([aria-selected="true"]):hover{transform:translateY(-1px)}
 .tabs button:not([aria-selected="true"]):active{transform:translateY(0)}
-.tabi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;background:var(--surface);border-radius:10px 10px 0 0;box-shadow:inset 0 3px 0 var(--navy)}
+.tabi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;background:var(--surface);border-radius:999px;box-shadow:var(--shadow)}
 .tabi.go{transition:transform .34s cubic-bezier(.2,.8,.2,1),width .34s cubic-bezier(.2,.8,.2,1),height .34s cubic-bezier(.2,.8,.2,1)}
 .tabs.has-i button[aria-selected="true"]{background:none;box-shadow:none}
 @media (max-width:959.98px){
- .tabi{border-radius:999px;box-shadow:inset 0 0 0 2px var(--navy)}
- .tabs.has-i button[aria-selected="true"]{border-color:transparent}
- .tabs button::after{display:none}
+ .tabi{border-radius:999px;background:var(--navy);box-shadow:none}
+ .tabs.has-i button[aria-selected="true"]{border-color:transparent;color:#fff}
 }
 .ws.enter{animation:wsIn .26s cubic-bezier(.2,.8,.2,1)}
 @keyframes wsIn{from{opacity:0;transform:translateX(var(--dx,0))}to{opacity:1;transform:none}}
@@ -839,7 +847,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .qbar{margin-bottom:6px}
 .qnav{display:flex;align-items:center;gap:6px}
 .qday{margin:0;min-width:11.5em;text-align:center;line-height:1.2}
-.qday b{display:block;font-family:var(--font-display);font-size:1.1875rem;font-weight:600;color:var(--ink)}
+.qday b{display:block;font-family:var(--font-display);font-size:1.1875rem;font-weight:800;color:var(--ink)}
 .qday small{display:block;font-size:.8125rem;color:var(--mute)}
 .ibtn{display:inline-grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:var(--r);background:none;color:var(--ink-2);cursor:pointer;transition:background-color .15s ease,color .15s ease,transform .15s ease}
 .ibtn .ic{width:21px;height:21px}
@@ -849,7 +857,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .ipick{position:relative;display:inline-flex}
 .ipick input{position:absolute;inset:auto 0 0 auto;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0;min-height:0!important}
 .qboard{position:relative;--rh:44px;--box:38px;user-select:none}
-.qhead{position:relative;height:52px;border-bottom:1px solid var(--line)}
+.qhead{position:relative;height:52px;border-bottom:1px solid var(--line);overflow:clip}
 .qbody{position:relative;overflow:hidden auto;overscroll-behavior:contain}
 .qhead>*,.qbody>.qcol,.qbody>.qfix{position:absolute;left:0;top:0}
 .qdh,.qcol{transition:transform .42s cubic-bezier(.65,0,.25,1),opacity .42s ease;will-change:transform}
@@ -990,7 +998,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .qwd.wl1{background:var(--w1)}.qwd.wl2{background:var(--w2)}.qwd.wl3{background:var(--w3)}
 .qmenu{position:absolute;z-index:6;width:280px;max-width:calc(100% - 8px);padding:12px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);animation:qpIn .16s cubic-bezier(.2,.8,.2,1)}
 .qmh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
-.qmh b{font-family:var(--font-display);font-weight:600;font-size:1.0625rem}
+.qmh b{font-family:var(--font-display);font-weight:800;font-size:1.0625rem}
 .qml{display:flex;justify-content:space-between;margin:10px 0 6px;font-size:.75rem;font-weight:650;color:var(--mute)}
 .qml span{font-weight:600;color:var(--ink-2)}
 .qmw{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
@@ -1008,7 +1016,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .mrec{margin:14px 0}.mrec h3{font-size:1rem;font-weight:700;margin:0 0 8px}
 /* Settings: one column of rows in the same quiet card style as the Quran and Memo tabs. */
 .sets{max-width:780px;display:flex;flex-direction:column;gap:8px}
-.seth{font-family:var(--font-display);font-weight:600;font-size:1.125rem;margin:6px 0 2px}
+.seth{font-family:var(--font-display);font-weight:800;font-size:1.125rem;margin:6px 0 2px}
 .seth.bad{color:var(--bad-ink);margin-top:18px}
 .srow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface)}
 .srow.col{flex-direction:column;align-items:stretch}
@@ -1046,7 +1054,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .starl button[aria-pressed="true"]{background:var(--gold-soft);box-shadow:inset 0 0 0 2px var(--gold)}
 /* Teacher class overview: rankings large across the top, the two graphs below, then attention and houses. */
 .tsum{display:flex;flex-direction:column;gap:22px}
-.tsr .mod-h h2{font-family:var(--font-display);font-weight:600;font-size:1.375rem}
+.tsr .mod-h h2{font-family:var(--font-display);font-weight:800;font-size:1.375rem}
 .tsr .rk4.mine{gap:18px 32px}
 @media (min-width:900px){.tsr .rk4.mine{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .tsr .rk4.mine .rank .n b,.tsr .rk4.mine .alist .who b{font-size:1.0625rem}
@@ -1063,14 +1071,14 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .ycard{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);width:min(980px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden;animation:ycin .18s ease-out}
 @keyframes ycin{from{opacity:0;transform:translateY(6px) scale(.985)}}
 .ychead{display:flex;align-items:center;gap:12px;padding:8px 14px 8px 22px;border-bottom:1px solid var(--line)}
-.ychead h2{font-family:var(--font-display);font-weight:600;font-size:1.25rem;margin:0;flex:1}
+.ychead h2{font-family:var(--font-display);font-weight:800;font-size:1.25rem;margin:0;flex:1}
 .ycyr{display:flex;align-items:center;gap:2px}
 .ycyr b{font-size:1.0625rem;min-width:3.2em;text-align:center;font-variant-numeric:tabular-nums}
 .ycyr .ibtn:disabled{opacity:.35;cursor:default;background:none}
 .ycgrid{overflow:auto;padding:12px 22px 8px;display:grid;gap:10px 28px;grid-template-columns:repeat(2,minmax(0,1fr))}
 @media (min-width:700px){.ycgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (min-width:940px){.ycgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.ycm h3{font-family:var(--font-display);font-weight:600;font-size:1.0625rem;color:var(--primary-ink);margin:0 0 2px;line-height:1.3}
+.ycm h3{font-family:var(--font-display);font-weight:800;font-size:1.0625rem;color:var(--primary-ink);margin:0 0 2px;line-height:1.3}
 .ycw,.ycd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center}
 .ycw span{font-size:.6875rem;font-weight:600;color:var(--mute);line-height:18px}
 .ycd>*{position:relative;display:grid;place-items:center;height:23px;font-size:.8125rem;font-variant-numeric:tabular-nums}
@@ -1095,6 +1103,32 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .yckey .k.on{box-shadow:inset 0 0 0 2px var(--primary)}
 @media (max-width:520px){.ycal{padding:0;place-items:end stretch}.ycard{border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:92vh}.ychead{padding-left:16px}.ycgrid{padding:12px 16px 6px;gap:12px 18px}.yckey{padding:10px 16px 14px}.ychead h2{font-size:1.0625rem}}
 @media (prefers-reduced-motion:reduce){.ycard{animation:none}.ycd button{transition:none}}
+
+/* ---------- Classes: cards with a patterned banner and a year tile (after Journey2Jannah's My Classes) ---------- */
+.ccards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.ccard{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;padding:0 14px 12px;transition:box-shadow .18s ease,transform .18s ease}
+.ccard:hover{box-shadow:var(--shadow-lift);transform:translateY(-2px)}
+.ccard:focus-within{box-shadow:0 0 0 3px var(--focus)}
+.cban{align-self:stretch;margin:0 -14px;height:44px;--a:#f6c9bb;--b:#fbe2d9}
+.ccard.k1 .cban{--a:#c4dbf1;--b:#e3eefa}.ccard.k2 .cban{--a:#cbe4d2;--b:#e6f2e9}.ccard.k3 .cban{--a:#f3dfa6;--b:#faefcf}
+.ccard.p0 .cban{background:radial-gradient(circle at 50% 50%,var(--b) 0 9px,transparent 10px) 0 0/34px 34px,radial-gradient(circle at 50% 50%,var(--b) 0 5px,transparent 6px) 17px 17px/34px 34px,var(--a)}
+.ccard.p1 .cban{background:repeating-linear-gradient(135deg,var(--a) 0 18px,var(--b) 18px 36px)}
+.ccard.p2 .cban{background:radial-gradient(circle at 0 100%,transparent 0 22px,var(--b) 23px 34px,transparent 35px) 0 0/56px 52px,var(--a)}
+.ctile{display:grid;place-items:center;align-content:center;width:56px;height:56px;margin-top:-28px;border-radius:14px;background:var(--surface);border:3px solid var(--surface);box-shadow:0 2px 8px rgba(28,34,48,.12);font-size:1.25rem;font-weight:800;color:var(--navy);line-height:1;background-clip:padding-box}
+.ctile small{font-size:.625rem;font-weight:750;color:var(--mute);margin-bottom:2px;letter-spacing:.02em}
+.cname{margin:8px 0 0;font-size:1rem;font-weight:800;line-height:1.25;overflow-wrap:anywhere}
+.cname .lk{font-weight:800;color:var(--navy);text-decoration:none;text-align:center}
+.cname .lk::after{content:"";position:absolute;inset:0}
+.cname .lk:focus-visible{outline:0}
+.clast{margin:2px 0 8px;font-size:.8125rem;color:var(--mute)}
+.cfig{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:auto 0 0;align-self:stretch;border-top:1px solid var(--line);padding-top:8px}
+.cfig div{min-width:0}
+.cfig dt{font-size:.6875rem;font-weight:650;color:var(--mute)}
+.cfig dd{margin:0;font-weight:800;font-size:1rem;font-variant-numeric:tabular-nums}
+.cfig dd.zero{color:var(--mute);font-weight:600}
+.cfig dd.wcount{color:var(--warn-ink)}
+@media (max-width:559.98px){.ccards{grid-template-columns:1fr 1fr;gap:10px}.ccard{padding:0 8px 10px}.cban{margin:0 -8px;height:40px}.ctile{width:48px;height:48px;margin-top:-24px}.cfig{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){.ccard:hover{transform:none}}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1116,6 +1150,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 <main><div class="content" id="main" tabindex="-1">
 <div class="head" id="band">
  <div class="head-top"><h1 id="ttl">School overview</h1><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button><span class="save" id="st" role="status" aria-live="polite"></span><details class="figpop" id="figP"><summary class="ibtn" aria-label="Figures" title="Figures"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg></summary><div class="figs" id="figs"></div></details></div>
+ <div class="hello" id="hello" hidden></div>
  <div class="tabs" id="mt" role="tablist" aria-label="Overview pages">
   <button id="mS" role="tab" aria-controls="vMS" aria-selected="true">Summary</button><button id="mA" role="tab" aria-controls="vMA" aria-selected="false" tabindex="-1">Attention</button><button id="mC" role="tab" aria-controls="vMC" aria-selected="false" tabindex="-1">Classes</button><button id="mR" role="tab" aria-controls="vMR" aria-selected="false" tabindex="-1">Rankings</button><button id="mH" role="tab" aria-controls="vMH" aria-selected="false" tabindex="-1">Houses</button>
  </div>
@@ -1912,9 +1947,15 @@ function view(k,v){VW[k]=v;var sec=$("v"+k);sec.setAttribute("data-v",v);Array.p
 function navL(){
  $("nList").innerHTML=CIDS.length?CIDS.map(function(c){return '<a class="nav" href="#'+esc(c)+'" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+' title="'+esc(ST[c].name)+'">'+esc(ST[c].name)+'</a>'}).join(""):'<span class="navh" style="margin-top:0">'+(LOADED?'No classes yet':'Loading…')+'</span>';
  if(CID){var cur=$("nList").querySelector('[aria-current]');if(cur)cur.scrollIntoView({block:"nearest"})}
- $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false")}
+ $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");if(PAGE==="M")hello();$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false")}
+/* The overviews open with a greeting, as Journey2Jannah does, then say which overview this is; a teacher also
+   gets their classes as chips to jump straight in. */
+function hello(){var on=PAGE==="M",el=$("hello");el.hidden=!on;$("band").classList.toggle("greet",on);if(!on)return;
+ var who=window.ME&&ME.name&&ME.name!=="Administrator"?" "+ME.name:"",cls=TEACHER?CIDS:[];
+ $("ttl").textContent="Assalāmu ʿalaykum"+who+"!";
+ el.innerHTML='<span class="hsub">'+(TEACHER?"Class overview":"School overview")+'</span>'+cls.map(function(c,i){return '<a class="hchip c'+(i%4)+'" href="#'+esc(c)+'" data-open="'+esc(c)+'">'+esc(ST[c].name)+'</a>'}).join("")}
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
- $("ttl").textContent=n?n.name:PAGE==="R"?"Record":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;
+ $("ttl").textContent=n?n.name:PAGE==="R"?"Record":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  document.title=(n?n.name+" · ":PAGE==="R"?"Record · ":"")+"Safar Enfield Dashboard"}
 function setClass(c){if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if(c==="R"&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&!ST[c])c="M";var R=c==="R",M=c==="M";PAGE=R?"R":M?"M":"C";closeDrawer();
@@ -1993,12 +2034,16 @@ function attnTab(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],s
  $("vMA").innerHTML=h+pagerHtml("a"+k,a.length,size,k==="quiet"?"classes":"students")}
 /* Classes: the searchable directory, ten classes a page. */
 function dirTab(){if(!$("dirQ"))$("dirW").innerHTML='<div class="toolbar"><input type="search" id="dirQ" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><p class="cap" id="dirC"></p></div><div id="dirT"></div>';dirTable()}
-function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[c].name).indexOf(q)>=0}),size=7,p=pager("dir",C.length,size);
- $("dirC").textContent=q?plural(C.length,"class","classes")+" match":plural(CIDS.length,"class","classes");
- $("dirT").innerHTML=C.length?'<div class="tablewrap"><table class="tbl stackable dir"><thead><tr><th scope="col">Class</th><th scope="col" class="n">Students</th><th scope="col" class="n">Passes this month</th><th scope="col" class="n">Merits this month</th><th scope="col" class="n">Warnings</th><th scope="col">Last pass</th></tr></thead><tbody>'
-  +C.slice(p*size,(p+1)*size).map(function(c){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,pp=sumOf(L,mpc),m=sumOf(L,mmc);
-   return '<tr><td class="lead">'+opener(c,esc(ST[c].name))+'</td><td data-label="Students" class="n'+(L.length?'':' zero')+'">'+L.length+'</td><td data-label="Passes this month" class="n'+(pp?'':' zero')+'">'+pp+'</td><td data-label="Merits this month" class="n'+(m?'':' zero')+'">'+m+'</td><td data-label="Warnings" class="n'+(w?' wcount':' zero')+'">'+w+'</td><td data-label="Last pass">'+(L.length?ago(lastPass(L)):'<span class="zero">No students</span>')+'</td></tr>'}).join("")
-  +'</tbody></table></div>'+pagerHtml("dir",C.length,size,"classes"):'<p class="none">No class matches that search.</p>'}
+/* Classes as cards, after Journey2Jannah's "My Classes": a patterned banner, a tile with the year group, the class
+   name, then the figures the table used to hold. Eight to a page so a page fits one screen. */
+function dirCard(c,i){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,pp=sumOf(L,mpc),m=sumOf(L,mmc),yr=(/(?:^|[^a-z])yr?\s*(\d+(?:-\d+)?)/i.exec(ST[c].name)||[])[1];
+ var h=0;for(var k=0;k<c.length;k++)h=(h*31+c.charCodeAt(k))>>>0;
+ return '<li class="ccard k'+(h%4)+' p'+((h>>>3)%3)+'"><div class="cban" aria-hidden="true"></div><span class="ctile" aria-hidden="true">'+(yr?'<small>Year</small>'+esc(yr):'<small>Class</small>'+esc(ST[c].name.charAt(0)))+'</span>'
+  +'<h3 class="cname">'+opener(c,esc(ST[c].name))+'</h3><p class="clast">'+(!L.length?'No students yet':lastPass(L)?'Last pass '+ago(lastPass(L)).toLowerCase():'No passes yet')+'</p>'
+  +'<dl class="cfig"><div><dt>Students</dt><dd'+(L.length?'':' class="zero"')+'>'+L.length+'</dd></div><div><dt>Passes</dt><dd'+(pp?'':' class="zero"')+'>'+pp+'</dd></div><div><dt>Merits</dt><dd'+(m?'':' class="zero"')+'>'+m+'</dd></div><div><dt>Warnings</dt><dd class="'+(w?'wcount':'zero')+'">'+w+'</dd></div></dl></li>'}
+function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[c].name).indexOf(q)>=0}),size=8,p=pager("dir",C.length,size);
+ $("dirC").textContent=(q?plural(C.length,"class","classes")+" match":plural(CIDS.length,"class","classes"))+" · passes and merits this month";
+ $("dirT").innerHTML=C.length?'<ul class="ccards">'+C.slice(p*size,(p+1)*size).map(dirCard).join("")+'</ul>'+pagerHtml("dir",C.length,size,"classes"):'<p class="none">No class matches that search.</p>'}
 function rankings(K){$("vMR").innerHTML=rankHtml(K);$("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
 /* The rankings, on their own tab and, for teachers, as the centre of the class overview. */
 function rankHtml(K,mine){var A=K.A,m=RP==="m",tm=m?"this month":"in total";

@@ -30,6 +30,15 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head .save[data-s="bad"]::before{background:#fff}
 .head .save:empty{display:none}
 @media (min-width:960px){.swc{display:none!important}}
+/* Overview greeting: a friendly line in big navy type, the overview's name under it, then a teacher's classes
+   as soft pills (from Journey2Jannah's teacher home). */
+.head.greet h1{font-size:2rem}
+.hello{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:2px}
+.hsub{font-size:.9375rem;font-weight:650;color:var(--mute);margin-right:6px}
+.hchip{display:inline-flex;align-items:center;min-height:30px;padding:3px 14px;border-radius:999px;font-size:.8125rem;font-weight:750;text-decoration:none;max-width:24ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 1px 2px rgba(28,34,48,.06)}
+.hchip.c0{background:#fde8e1;color:#9a3412}.hchip.c1{background:#e3eefb;color:#0b4a82}.hchip.c2{background:#e5f3ea;color:#2f5a3b}.hchip.c3{background:#fbf0d6;color:#664a0b}
+.hchip:hover{filter:brightness(.97);text-decoration:underline}
+@media (max-width:959.98px){.head.greet h1{font-size:1.375rem}.hello{margin-top:4px}}
 /* Tabs are pills on the canvas; the chosen one is a white pill with navy type, like the cards under it. */
 .head .tabs{display:flex;gap:4px;margin:10px 0 12px}
 .tabs button{font:inherit;font-size:.9375rem;font-weight:700;color:var(--ink-2);background:none;border:0;padding:8px 18px;min-height:42px;cursor:pointer;white-space:nowrap;border-radius:var(--r-pill);display:inline-flex;align-items:center;gap:6px}
@@ -575,7 +584,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .qbar{margin-bottom:6px}
 .qnav{display:flex;align-items:center;gap:6px}
 .qday{margin:0;min-width:11.5em;text-align:center;line-height:1.2}
-.qday b{display:block;font-family:var(--font-display);font-size:1.1875rem;font-weight:600;color:var(--ink)}
+.qday b{display:block;font-family:var(--font-display);font-size:1.1875rem;font-weight:800;color:var(--ink)}
 .qday small{display:block;font-size:.8125rem;color:var(--mute)}
 .ibtn{display:inline-grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:var(--r);background:none;color:var(--ink-2);cursor:pointer;transition:background-color .15s ease,color .15s ease,transform .15s ease}
 .ibtn .ic{width:21px;height:21px}
@@ -585,7 +594,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .ipick{position:relative;display:inline-flex}
 .ipick input{position:absolute;inset:auto 0 0 auto;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0;min-height:0!important}
 .qboard{position:relative;--rh:44px;--box:38px;user-select:none}
-.qhead{position:relative;height:52px;border-bottom:1px solid var(--line)}
+.qhead{position:relative;height:52px;border-bottom:1px solid var(--line);overflow:clip}
 .qbody{position:relative;overflow:hidden auto;overscroll-behavior:contain}
 .qhead>*,.qbody>.qcol,.qbody>.qfix{position:absolute;left:0;top:0}
 .qdh,.qcol{transition:transform .42s cubic-bezier(.65,0,.25,1),opacity .42s ease;will-change:transform}
@@ -726,7 +735,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .qwd.wl1{background:var(--w1)}.qwd.wl2{background:var(--w2)}.qwd.wl3{background:var(--w3)}
 .qmenu{position:absolute;z-index:6;width:280px;max-width:calc(100% - 8px);padding:12px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);animation:qpIn .16s cubic-bezier(.2,.8,.2,1)}
 .qmh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
-.qmh b{font-family:var(--font-display);font-weight:600;font-size:1.0625rem}
+.qmh b{font-family:var(--font-display);font-weight:800;font-size:1.0625rem}
 .qml{display:flex;justify-content:space-between;margin:10px 0 6px;font-size:.75rem;font-weight:650;color:var(--mute)}
 .qml span{font-weight:600;color:var(--ink-2)}
 .qmw{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
@@ -744,7 +753,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .mrec{margin:14px 0}.mrec h3{font-size:1rem;font-weight:700;margin:0 0 8px}
 /* Settings: one column of rows in the same quiet card style as the Quran and Memo tabs. */
 .sets{max-width:780px;display:flex;flex-direction:column;gap:8px}
-.seth{font-family:var(--font-display);font-weight:600;font-size:1.125rem;margin:6px 0 2px}
+.seth{font-family:var(--font-display);font-weight:800;font-size:1.125rem;margin:6px 0 2px}
 .seth.bad{color:var(--bad-ink);margin-top:18px}
 .srow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface)}
 .srow.col{flex-direction:column;align-items:stretch}
@@ -782,7 +791,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .starl button[aria-pressed="true"]{background:var(--gold-soft);box-shadow:inset 0 0 0 2px var(--gold)}
 /* Teacher class overview: rankings large across the top, the two graphs below, then attention and houses. */
 .tsum{display:flex;flex-direction:column;gap:22px}
-.tsr .mod-h h2{font-family:var(--font-display);font-weight:600;font-size:1.375rem}
+.tsr .mod-h h2{font-family:var(--font-display);font-weight:800;font-size:1.375rem}
 .tsr .rk4.mine{gap:18px 32px}
 @media (min-width:900px){.tsr .rk4.mine{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .tsr .rk4.mine .rank .n b,.tsr .rk4.mine .alist .who b{font-size:1.0625rem}
@@ -799,14 +808,14 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .ycard{background:var(--surface);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);width:min(980px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden;animation:ycin .18s ease-out}
 @keyframes ycin{from{opacity:0;transform:translateY(6px) scale(.985)}}
 .ychead{display:flex;align-items:center;gap:12px;padding:8px 14px 8px 22px;border-bottom:1px solid var(--line)}
-.ychead h2{font-family:var(--font-display);font-weight:600;font-size:1.25rem;margin:0;flex:1}
+.ychead h2{font-family:var(--font-display);font-weight:800;font-size:1.25rem;margin:0;flex:1}
 .ycyr{display:flex;align-items:center;gap:2px}
 .ycyr b{font-size:1.0625rem;min-width:3.2em;text-align:center;font-variant-numeric:tabular-nums}
 .ycyr .ibtn:disabled{opacity:.35;cursor:default;background:none}
 .ycgrid{overflow:auto;padding:12px 22px 8px;display:grid;gap:10px 28px;grid-template-columns:repeat(2,minmax(0,1fr))}
 @media (min-width:700px){.ycgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (min-width:940px){.ycgrid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-.ycm h3{font-family:var(--font-display);font-weight:600;font-size:1.0625rem;color:var(--primary-ink);margin:0 0 2px;line-height:1.3}
+.ycm h3{font-family:var(--font-display);font-weight:800;font-size:1.0625rem;color:var(--primary-ink);margin:0 0 2px;line-height:1.3}
 .ycw,.ycd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center}
 .ycw span{font-size:.6875rem;font-weight:600;color:var(--mute);line-height:18px}
 .ycd>*{position:relative;display:grid;place-items:center;height:23px;font-size:.8125rem;font-variant-numeric:tabular-nums}
@@ -831,3 +840,29 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .yckey .k.on{box-shadow:inset 0 0 0 2px var(--primary)}
 @media (max-width:520px){.ycal{padding:0;place-items:end stretch}.ycard{border-radius:var(--r-lg) var(--r-lg) 0 0;max-height:92vh}.ychead{padding-left:16px}.ycgrid{padding:12px 16px 6px;gap:12px 18px}.yckey{padding:10px 16px 14px}.ychead h2{font-size:1.0625rem}}
 @media (prefers-reduced-motion:reduce){.ycard{animation:none}.ycd button{transition:none}}
+
+/* ---------- Classes: cards with a patterned banner and a year tile (after Journey2Jannah's My Classes) ---------- */
+.ccards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.ccard{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;padding:0 14px 12px;transition:box-shadow .18s ease,transform .18s ease}
+.ccard:hover{box-shadow:var(--shadow-lift);transform:translateY(-2px)}
+.ccard:focus-within{box-shadow:0 0 0 3px var(--focus)}
+.cban{align-self:stretch;margin:0 -14px;height:44px;--a:#f6c9bb;--b:#fbe2d9}
+.ccard.k1 .cban{--a:#c4dbf1;--b:#e3eefa}.ccard.k2 .cban{--a:#cbe4d2;--b:#e6f2e9}.ccard.k3 .cban{--a:#f3dfa6;--b:#faefcf}
+.ccard.p0 .cban{background:radial-gradient(circle at 50% 50%,var(--b) 0 9px,transparent 10px) 0 0/34px 34px,radial-gradient(circle at 50% 50%,var(--b) 0 5px,transparent 6px) 17px 17px/34px 34px,var(--a)}
+.ccard.p1 .cban{background:repeating-linear-gradient(135deg,var(--a) 0 18px,var(--b) 18px 36px)}
+.ccard.p2 .cban{background:radial-gradient(circle at 0 100%,transparent 0 22px,var(--b) 23px 34px,transparent 35px) 0 0/56px 52px,var(--a)}
+.ctile{display:grid;place-items:center;align-content:center;width:56px;height:56px;margin-top:-28px;border-radius:14px;background:var(--surface);border:3px solid var(--surface);box-shadow:0 2px 8px rgba(28,34,48,.12);font-size:1.25rem;font-weight:800;color:var(--navy);line-height:1;background-clip:padding-box}
+.ctile small{font-size:.625rem;font-weight:750;color:var(--mute);margin-bottom:2px;letter-spacing:.02em}
+.cname{margin:8px 0 0;font-size:1rem;font-weight:800;line-height:1.25;overflow-wrap:anywhere}
+.cname .lk{font-weight:800;color:var(--navy);text-decoration:none;text-align:center}
+.cname .lk::after{content:"";position:absolute;inset:0}
+.cname .lk:focus-visible{outline:0}
+.clast{margin:2px 0 8px;font-size:.8125rem;color:var(--mute)}
+.cfig{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin:auto 0 0;align-self:stretch;border-top:1px solid var(--line);padding-top:8px}
+.cfig div{min-width:0}
+.cfig dt{font-size:.6875rem;font-weight:650;color:var(--mute)}
+.cfig dd{margin:0;font-weight:800;font-size:1rem;font-variant-numeric:tabular-nums}
+.cfig dd.zero{color:var(--mute);font-weight:600}
+.cfig dd.wcount{color:var(--warn-ink)}
+@media (max-width:559.98px){.ccards{grid-template-columns:1fr 1fr;gap:10px}.ccard{padding:0 8px 10px}.cban{margin:0 -8px;height:40px}.ctile{width:48px;height:48px;margin-top:-24px}.cfig{grid-template-columns:1fr 1fr}}
+@media (prefers-reduced-motion:reduce){.ccard:hover{transform:none}}

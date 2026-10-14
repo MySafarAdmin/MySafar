@@ -1,5 +1,5 @@
 <title>Safar Enfield Master Dashboard</title>
-<meta name="theme-color" content="#23272d">
+<meta name="theme-color" content="#003b6b">
 <style>
 /*TEMPLATE_CSS*/
 </style>
@@ -23,6 +23,7 @@
 <main><div class="content" id="main" tabindex="-1">
 <div class="head" id="band">
  <div class="head-top"><h1 id="ttl">School overview</h1><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button><span class="save" id="st" role="status" aria-live="polite"></span><details class="figpop" id="figP"><summary class="ibtn" aria-label="Figures" title="Figures"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg></summary><div class="figs" id="figs"></div></details></div>
+ <div class="hello" id="hello" hidden></div>
  <div class="tabs" id="mt" role="tablist" aria-label="Overview pages">
   <button id="mS" role="tab" aria-controls="vMS" aria-selected="true">Summary</button><button id="mA" role="tab" aria-controls="vMA" aria-selected="false" tabindex="-1">Attention</button><button id="mC" role="tab" aria-controls="vMC" aria-selected="false" tabindex="-1">Classes</button><button id="mR" role="tab" aria-controls="vMR" aria-selected="false" tabindex="-1">Rankings</button><button id="mH" role="tab" aria-controls="vMH" aria-selected="false" tabindex="-1">Houses</button>
  </div>
@@ -819,9 +820,15 @@ function view(k,v){VW[k]=v;var sec=$("v"+k);sec.setAttribute("data-v",v);Array.p
 function navL(){
  $("nList").innerHTML=CIDS.length?CIDS.map(function(c){return '<a class="nav" href="#'+esc(c)+'" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+' title="'+esc(ST[c].name)+'">'+esc(ST[c].name)+'</a>'}).join(""):'<span class="navh" style="margin-top:0">'+(LOADED?'No classes yet':'Loading…')+'</span>';
  if(CID){var cur=$("nList").querySelector('[aria-current]');if(cur)cur.scrollIntoView({block:"nearest"})}
- $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false")}
+ $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");if(PAGE==="M")hello();$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false")}
+/* The overviews open with a greeting, as Journey2Jannah does, then say which overview this is; a teacher also
+   gets their classes as chips to jump straight in. */
+function hello(){var on=PAGE==="M",el=$("hello");el.hidden=!on;$("band").classList.toggle("greet",on);if(!on)return;
+ var who=window.ME&&ME.name&&ME.name!=="Administrator"?" "+ME.name:"",cls=TEACHER?CIDS:[];
+ $("ttl").textContent="Assalāmu ʿalaykum"+who+"!";
+ el.innerHTML='<span class="hsub">'+(TEACHER?"Class overview":"School overview")+'</span>'+cls.map(function(c,i){return '<a class="hchip c'+(i%4)+'" href="#'+esc(c)+'" data-open="'+esc(c)+'">'+esc(ST[c].name)+'</a>'}).join("")}
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
- $("ttl").textContent=n?n.name:PAGE==="R"?"Record":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;
+ $("ttl").textContent=n?n.name:PAGE==="R"?"Record":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  document.title=(n?n.name+" · ":PAGE==="R"?"Record · ":"")+"Safar Enfield Dashboard"}
 function setClass(c){if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if(c==="R"&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&!ST[c])c="M";var R=c==="R",M=c==="M";PAGE=R?"R":M?"M":"C";closeDrawer();
@@ -900,12 +907,16 @@ function attnTab(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],s
  $("vMA").innerHTML=h+pagerHtml("a"+k,a.length,size,k==="quiet"?"classes":"students")}
 /* Classes: the searchable directory, ten classes a page. */
 function dirTab(){if(!$("dirQ"))$("dirW").innerHTML='<div class="toolbar"><input type="search" id="dirQ" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><p class="cap" id="dirC"></p></div><div id="dirT"></div>';dirTable()}
-function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[c].name).indexOf(q)>=0}),size=7,p=pager("dir",C.length,size);
- $("dirC").textContent=q?plural(C.length,"class","classes")+" match":plural(CIDS.length,"class","classes");
- $("dirT").innerHTML=C.length?'<div class="tablewrap"><table class="tbl stackable dir"><thead><tr><th scope="col">Class</th><th scope="col" class="n">Students</th><th scope="col" class="n">Passes this month</th><th scope="col" class="n">Merits this month</th><th scope="col" class="n">Warnings</th><th scope="col">Last pass</th></tr></thead><tbody>'
-  +C.slice(p*size,(p+1)*size).map(function(c){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,pp=sumOf(L,mpc),m=sumOf(L,mmc);
-   return '<tr><td class="lead">'+opener(c,esc(ST[c].name))+'</td><td data-label="Students" class="n'+(L.length?'':' zero')+'">'+L.length+'</td><td data-label="Passes this month" class="n'+(pp?'':' zero')+'">'+pp+'</td><td data-label="Merits this month" class="n'+(m?'':' zero')+'">'+m+'</td><td data-label="Warnings" class="n'+(w?' wcount':' zero')+'">'+w+'</td><td data-label="Last pass">'+(L.length?ago(lastPass(L)):'<span class="zero">No students</span>')+'</td></tr>'}).join("")
-  +'</tbody></table></div>'+pagerHtml("dir",C.length,size,"classes"):'<p class="none">No class matches that search.</p>'}
+/* Classes as cards, after Journey2Jannah's "My Classes": a patterned banner, a tile with the year group, the class
+   name, then the figures the table used to hold. Eight to a page so a page fits one screen. */
+function dirCard(c,i){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,pp=sumOf(L,mpc),m=sumOf(L,mmc),yr=(/(?:^|[^a-z])yr?\s*(\d+(?:-\d+)?)/i.exec(ST[c].name)||[])[1];
+ var h=0;for(var k=0;k<c.length;k++)h=(h*31+c.charCodeAt(k))>>>0;
+ return '<li class="ccard k'+(h%4)+' p'+((h>>>3)%3)+'"><div class="cban" aria-hidden="true"></div><span class="ctile" aria-hidden="true">'+(yr?'<small>Year</small>'+esc(yr):'<small>Class</small>'+esc(ST[c].name.charAt(0)))+'</span>'
+  +'<h3 class="cname">'+opener(c,esc(ST[c].name))+'</h3><p class="clast">'+(!L.length?'No students yet':lastPass(L)?'Last pass '+ago(lastPass(L)).toLowerCase():'No passes yet')+'</p>'
+  +'<dl class="cfig"><div><dt>Students</dt><dd'+(L.length?'':' class="zero"')+'>'+L.length+'</dd></div><div><dt>Passes</dt><dd'+(pp?'':' class="zero"')+'>'+pp+'</dd></div><div><dt>Merits</dt><dd'+(m?'':' class="zero"')+'>'+m+'</dd></div><div><dt>Warnings</dt><dd class="'+(w?'wcount':'zero')+'">'+w+'</dd></div></dl></li>'}
+function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[c].name).indexOf(q)>=0}),size=8,p=pager("dir",C.length,size);
+ $("dirC").textContent=(q?plural(C.length,"class","classes")+" match":plural(CIDS.length,"class","classes"))+" · passes and merits this month";
+ $("dirT").innerHTML=C.length?'<ul class="ccards">'+C.slice(p*size,(p+1)*size).map(dirCard).join("")+'</ul>'+pagerHtml("dir",C.length,size,"classes"):'<p class="none">No class matches that search.</p>'}
 function rankings(K){$("vMR").innerHTML=rankHtml(K);$("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
 /* The rankings, on their own tab and, for teachers, as the centre of the class overview. */
 function rankHtml(K,mine){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
