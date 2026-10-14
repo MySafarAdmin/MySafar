@@ -35,7 +35,10 @@ HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # Reachable without signing in.
 PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css"}
-FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2"}
+# Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Instrument Sans with
+# Source Serif 4 for titles (see DESIGN.md).
+FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "instrument-sans-latin.woff2",
+         "instrument-sans-latin-ext.woff2", "source-serif-4-latin.woff2", "source-serif-4-latin-ext.woff2"}
 # /tv/<token> is a TV screen link; tv.py checks the token.
 PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/")
 

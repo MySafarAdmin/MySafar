@@ -4,9 +4,13 @@
 /* Safar workspace: shared tokens, application shell and controls.
    Used by the dashboard (inlined by tools/build.py) and by the sign-in and admin pages (served in /auth.css).
    See DESIGN.md for the reasoning behind each value. */
-@font-face{font-family:"Atkinson Next";src:url(/fonts/atkinson-next-latin.woff2) format("woff2");font-weight:200 800;font-display:swap;
+@font-face{font-family:"Instrument Sans";src:url(/fonts/instrument-sans-latin.woff2) format("woff2");font-weight:400 700;font-display:swap;
  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Atkinson Next";src:url(/fonts/atkinson-next-latin-ext.woff2) format("woff2");font-weight:200 800;font-display:swap;
+@font-face{font-family:"Instrument Sans";src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");font-weight:400 700;font-display:swap;
+ unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Source Serif 4";src:url(/fonts/source-serif-4-latin.woff2) format("woff2");font-weight:200 900;font-display:swap;
+ unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Source Serif 4";src:url(/fonts/source-serif-4-latin-ext.woff2) format("woff2");font-weight:200 900;font-display:swap;
  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
  /* Brand: Safar navy from the logo (#003B6B). Reserved for the brand, selected indicators and the one primary action. */
@@ -35,7 +39,8 @@
  --w1:#e2b53a;--w1-ink:#4a3200;--w2:#c2410c;--w3:#b42318;
  /* Shape, space, type */
  --r-sm:6px;--r:8px;--r-lg:12px;
- --font:"Atkinson Next",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ --font:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ --font-display:"Source Serif 4",Georgia,"Times New Roman",serif;
  --shadow:0 1px 2px rgba(29,33,39,.05),0 1px 1px rgba(29,33,39,.03);
  --shadow-lift:0 12px 32px rgba(29,33,39,.18);
  --rail:232px;
@@ -50,7 +55,8 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 var(--font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
 h1,h2,h3{margin:0;line-height:1.2;text-wrap:balance}
-h1{font-size:1.625rem;font-weight:750;letter-spacing:-.01em}
+h1{font-size:1.625rem;font-weight:600;letter-spacing:-.005em;font-family:var(--font-display)}
+.brand b{font-family:var(--font-display);font-weight:600}
 h2{font-size:1.125rem;font-weight:700}
 h3{font-size:1rem;font-weight:700}
 p{margin:0 0 .75rem}
@@ -268,7 +274,7 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head h1{margin-right:auto}
 .head .save{order:2}.head .swc{order:1}.head .figpop{order:3}
 .head .save[data-s="ok"]{display:none}
-.head h1{font-size:1.5rem;font-weight:750;letter-spacing:-.01em;line-height:1.15;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.head h1{font-size:1.625rem;font-weight:600;letter-spacing:-.005em;line-height:1.15;color:var(--ink);overflow-wrap:anywhere;min-width:0}
 .figpop{position:relative}
 .figpop>summary{list-style:none;border:1px solid var(--line-2);background:var(--surface)}
 .figpop>summary::-webkit-details-marker{display:none}
@@ -833,7 +839,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .qbar{margin-bottom:6px}
 .qnav{display:flex;align-items:center;gap:6px}
 .qday{margin:0;min-width:11.5em;text-align:center;line-height:1.2}
-.qday b{display:block;font-size:1.125rem;font-weight:750;color:var(--ink)}
+.qday b{display:block;font-family:var(--font-display);font-size:1.1875rem;font-weight:600;color:var(--ink)}
 .qday small{display:block;font-size:.8125rem;color:var(--mute)}
 .ibtn{display:inline-grid;place-items:center;width:40px;height:40px;padding:0;border:0;border-radius:var(--r);background:none;color:var(--ink-2);cursor:pointer;transition:background-color .15s ease,color .15s ease,transform .15s ease}
 .ibtn .ic{width:21px;height:21px}
@@ -866,22 +872,22 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 /* Boxes: quiet outlines in the side columns; in the focused column, white with a navy edge. A score is the number
    on a light tint of its colour (red 0 to green 5). */
 .qc{display:grid;place-items:center;width:var(--box);height:var(--box);border-radius:9px;border:1px solid var(--line-2);background:var(--surface);font:inherit;font-size:1rem;font-weight:750;color:var(--mute);padding:0}
-.qc.has{background:color-mix(in srgb,var(--c) 16%,#fff);border-color:color-mix(in srgb,var(--c) 45%,#fff);color:var(--c)}
+.qc.has{background:var(--c);border-color:color-mix(in srgb,var(--c) 78%,#1d2127)}
 .qcol:not(.on) .qc{pointer-events:none}
 /* Every hover and focus mark on a focused box stays inside the box, so it never covers the rows above and
    below or the next day's column. */
 .qcol.on .qc{border:1.5px solid color-mix(in srgb,var(--navy) 42%,#fff);box-shadow:0 1px 2px rgba(0,59,107,.08);cursor:pointer;color:var(--navy);font-size:1.0625rem;transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease}
-.qcol.on .qc.has{border-color:color-mix(in srgb,var(--c) 55%,#fff);color:var(--c)}
+.qcol.on .qc.has{border-color:color-mix(in srgb,var(--c) 70%,#1d2127)}
 .qcol.on .qc:hover:not(:disabled){border-color:var(--navy);background:var(--navy-soft);box-shadow:inset 0 0 0 1px var(--navy)}
-.qcol.on .qc.has:hover:not(:disabled){border-color:var(--c);background:color-mix(in srgb,var(--c) 22%,#fff);box-shadow:inset 0 0 0 1px var(--c)}
+.qcol.on .qc.has:hover:not(:disabled){background:var(--c);border-color:color-mix(in srgb,var(--c) 45%,#1d2127);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 45%,#1d2127)}
 .qcol.on .qc[aria-expanded="true"],.qcol.on .qc:focus-visible{outline:none;border-color:var(--focus);box-shadow:inset 0 0 0 2px var(--focus)}
 .qcol.on .qc:disabled{cursor:default;border-style:dashed;border-color:var(--line-2);box-shadow:none;background:var(--surface)}
 .qr>*,.qhouses .qn>*{transition:opacity .15s ease}.qhid>*{opacity:0!important}
 .qpop{position:absolute;z-index:5;display:flex;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:0 2px 6px rgba(29,33,39,.08);animation:qpIn .16s cubic-bezier(.2,.8,.2,1)}
-.qpop button{min-width:34px;height:min(34px,calc(var(--rh) - 14px));border-radius:8px;border:1px solid color-mix(in srgb,var(--c) 30%,#fff);background:color-mix(in srgb,var(--c) 10%,#fff);color:var(--c);font:inherit;font-weight:750;cursor:pointer;transition:transform .12s ease,background-color .12s ease}
-.qpop button:hover{transform:translateY(-1px);background:color-mix(in srgb,var(--c) 18%,#fff)}
-.qpop button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff}
-.qpop .qclr{--c:var(--ink-2);padding:0 10px;font-weight:600}
+.qpop button{min-width:34px;height:min(34px,calc(var(--rh) - 14px));border-radius:8px;border:1px solid color-mix(in srgb,var(--c) 75%,#1d2127);background:var(--c);color:var(--ink);font:inherit;font-weight:650;cursor:pointer;transition:transform .12s ease,background-color .12s ease}
+.qpop button:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(29,33,39,.12)}
+.qpop button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
+.qpop .qclr{--c:var(--surface-2);padding:0 10px;font-weight:600;border-color:var(--line-2)}
 @keyframes qpIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
 .addf{display:flex;flex-direction:column;gap:14px}
 .addf label{display:flex;flex-direction:column;gap:6px;font-size:.875rem;font-weight:650;color:var(--ink-2)}
@@ -972,6 +978,46 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .mphd h3{display:inline-flex;align-items:center;gap:8px;margin:0;font-size:.9375rem;font-weight:750}
 .mlog .mpl li{border-bottom:1px solid var(--line);padding:7px 0}
 .mpd{color:var(--ink-2);white-space:nowrap}
+
+/* Score legend: the sheet shows colour only, so the key sits beside the day's summary. */
+.qleg{display:inline-flex;align-items:center;gap:3px;font-size:.75rem;color:var(--mute)}
+.qleg i{width:14px;height:14px;border-radius:4px;background:var(--c);border:1px solid color-mix(in srgb,var(--c) 78%,#1d2127)}
+.qleg span{margin-right:5px}
+/* Student names open a menu with warnings and house points. */
+.qnb{display:inline-flex;align-items:center;gap:6px;max-width:100%;min-height:32px;padding:3px 8px;border:0;border-radius:8px;background:none;font:inherit;color:var(--ink);cursor:pointer;transition:background-color .15s ease}
+.qnb b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.qnb:hover,.qnb[aria-expanded="true"]{background:var(--surface-2)}
+.qcar{flex:none;width:12px;height:12px;color:var(--mute);transition:transform .15s ease}
+.qnb[aria-expanded="true"] .qcar{transform:rotate(180deg)}
+.qwd{flex:none;width:8px;height:8px;border-radius:50%}
+.qwd.wl1{background:var(--w1)}.qwd.wl2{background:var(--w2)}.qwd.wl3{background:var(--w3)}
+.qmenu{position:absolute;z-index:6;width:280px;max-width:calc(100% - 8px);padding:12px;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-lg);box-shadow:var(--shadow-lift);animation:qpIn .16s cubic-bezier(.2,.8,.2,1)}
+.qmh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.qmh b{font-family:var(--font-display);font-weight:600;font-size:1.0625rem}
+.qml{display:flex;justify-content:space-between;margin:10px 0 6px;font-size:.75rem;font-weight:650;color:var(--mute)}
+.qml span{font-weight:600;color:var(--ink-2)}
+.qmw{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.qmw button{min-height:34px;padding:4px 6px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface);font:inherit;font-size:.8125rem;font-weight:600;color:var(--ink-2);cursor:pointer}
+.qmw button:hover{background:var(--surface-2)}
+.qmw .wb1[aria-pressed="true"]{background:#fbefc9;border-color:#e2c56d;color:var(--w1-ink)}
+.qmw .wb2[aria-pressed="true"]{background:#f9dcc8;border-color:#e3a57c;color:#7a3410}
+.qmw .wb3[aria-pressed="true"]{background:#f6d0cc;border-color:#df938b;color:var(--bad-ink)}
+.qmt{display:flex;flex-direction:column;gap:4px}
+.qmtr{display:grid;grid-template-columns:10px 1fr auto 34px 34px;align-items:center;gap:8px}
+.qmtn{font-size:.875rem}.qmtn small{color:var(--mute)}
+.qmtr>b{min-width:2ch;text-align:right}
+.qmtr .tk{width:34px;min-height:32px}
+/* Settings: one column of rows in the same quiet card style as the Quran and Memo tabs. */
+.sets{max-width:780px;display:flex;flex-direction:column;gap:8px}
+.seth{font-family:var(--font-display);font-weight:600;font-size:1.125rem;margin:6px 0 2px}
+.seth.bad{color:var(--bad-ink);margin-top:18px}
+.srow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface)}
+.srow.col{flex-direction:column;align-items:stretch}
+.sl{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1 1 260px;max-width:50ch}
+.sl b{font-weight:600}
+.sl .sub{font-size:.875rem}
+.srow textarea{width:100%;resize:vertical}
+.sact{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1040,7 +1086,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
    <p class="qday" id="qDay" aria-live="polite"></p>
    <button type="button" class="ibtn" id="qNext" aria-label="Next class day"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
    <button type="button" class="btn sm quiet" id="qToday" hidden>Latest class day</button></div>
-  <p class="qsum qrec" id="qSum"></p>
+  <p class="qsum qrec" id="qSum"></p><span class="qleg qrec" aria-hidden="true" id="qLeg"></span>
   <div class="seg qhis" id="qP" role="group" aria-label="Days shown"><button type="button" data-p="r" aria-pressed="true">Last 6 weeks</button><button type="button" data-p="a" aria-pressed="false">All</button></div>
   <div class="tools"><div class="seg" id="qV" role="group" aria-label="Show"><button type="button" data-v="rec" aria-pressed="true">Day by day</button><button type="button" data-v="his" aria-pressed="false">Full sheet</button></div>
    <span class="ipick qrec"><button type="button" class="ibtn" id="qCal" aria-label="Go to a class day" title="Go to a class day"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/></svg></button><input type="date" id="qD" tabindex="-1" aria-hidden="true"></span>
@@ -1085,18 +1131,17 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 </section>
 
 <section id="vS" class="ws hide" role="tabpanel" aria-labelledby="tS">
- <div class="g12">
-  <div class="grp s6"><h2>Name and first class day</h2><p class="cap">The memo and Quran sheets start from the first class day.</p>
-   <div class="pf"><label>First class day<input type="date" id="fcd"></label><button class="btn" id="ren" type="button">Rename class</button></div></div>
-  <div class="grp s6"><h2><label for="bulk">Add students</label></h2><p class="cap">Names, one per line</p>
-   <textarea id="bulk" rows="4" autocomplete="off" placeholder="Aisha Khan&#10;Yusuf Ali"></textarea>
-   <div class="pf"><button class="btn" id="bulkA" type="button">Add these students</button><button class="btn quiet" id="add" type="button">Add one blank student</button></div></div>
- </div>
- <div class="danger-panel">
-  <h2>Reset and delete</h2>
-  <div class="drow"><p><b>Clear warnings</b><span class="sub">Removes every student's warning in this class.</span></p><button class="btn danger" id="cw" type="button">Clear warnings</button></div>
-  <div class="drow"><p><b>Reset all scores</b><span class="sub">Sets every student's passes and merits back to zero. Fails, Quran scores and house tokens are kept.</span></p><button class="btn danger" id="rst" type="button">Reset all scores</button></div>
-  <div class="drow" id="delWrap"><p><b>Delete this classroom</b><span class="sub">Deletes the classroom, its students and all of their records.</span></p><button class="btn danger solid" id="delC" type="button">Delete classroom</button></div>
+ <div class="sets">
+  <h2 class="seth">This class</h2>
+  <div class="srow"><div class="sl"><b>Class name</b><span class="sub" id="sName"></span></div><button class="btn" id="ren" type="button">Rename</button></div>
+  <div class="srow"><div class="sl"><b><label for="fcd">First class day</label></b><span class="sub">The Quran and Memo sheets start from this day.</span></div><input type="date" id="fcd"></div>
+  <div class="srow col"><div class="sl"><b><label for="bulk">Add students</label></b><span class="sub">Names, one per line. One student at a time is quicker from the add-student icon on the Quran tab.</span></div>
+   <textarea id="bulk" rows="3" autocomplete="off" placeholder="Aisha Khan&#10;Yusuf Ali"></textarea>
+   <div class="sact"><button class="btn quiet" id="add" type="button">Add one student…</button><button class="btn" id="bulkA" type="button">Add these students</button></div></div>
+  <h2 class="seth bad">Reset and delete</h2>
+  <div class="srow"><div class="sl"><b>Clear warnings</b><span class="sub">Removes every student's warning in this class.</span></div><button class="btn danger" id="cw" type="button">Clear warnings</button></div>
+  <div class="srow"><div class="sl"><b>Reset all scores</b><span class="sub">Sets every student's passes and merits back to zero. Fails, Quran scores and house tokens are kept.</span></div><button class="btn danger" id="rst" type="button">Reset all scores</button></div>
+  <div class="srow" id="delWrap"><div class="sl"><b>Delete this classroom</b><span class="sub">Deletes the classroom, its students and all of their records.</span></div><button class="btn danger solid" id="delC" type="button">Delete classroom</button></div>
  </div>
 </section>
 </div></main>
@@ -1524,7 +1569,9 @@ $("drwB").addEventListener("click",function(e){if(DMODE!=="mm")return;
  var d=e.target.closest("[data-md]");if(d){MD=MD===d.dataset.md?"":d.dataset.md;mDraw(0,'[data-md="'+d.dataset.md+'"]');return}
  if(e.target.closest("[data-mmd]")){MD="";mDraw(0)}});
 /* Score colours, red (0) to green (5), dark enough to carry text. */
-var QC=["#b42318","#c2410c","#b45309","#4d7c0f","#15803d","#047857"];
+/* Score colours, 0 to 5: pastel coral, peach, butter, pistachio, mint and sea green. The day-by-day sheet shows
+   only the colour; the score is in each box's label and the legend. */
+var QC=["#f2a7a0","#f6c39a","#f3dc8f","#d3e39a","#aedcb0","#8fcfb8"];
 function qlab(k){var p=k.split("-");return ds(new Date(+p[0],+p[1]-1,+p[2],12).getTime())}
 function avg(v){return v.length?(v.reduce(function(a,b){return a+b},0)/v.length).toFixed(1):""}
 /* The Quran tab: a day-by-day sheet. The focused class day sits in the middle between the student names and their
@@ -1545,9 +1592,9 @@ function qGeo(W){var side=W<540?1:W<860?2:3,nameW=Math.round(Math.min(230,Math.m
  return {side:side,w:w,nameW:nameW,houseW:houseW,x:function(k){return k<=0?(k+side)*w+(k===0?nameW:0):side*w+nameW+w+houseW+(k-1)*w}}}
 function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.24/side)}
 function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name);
- if(!on)return '<span class="qc'+(v===undefined?'':' has')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'>'+(v===undefined?'':v)+'</span>';
+ if(!on)return '<span class="qc'+(v===undefined?'':' has')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'></span>';
  var lab=nm+", "+qlab(d)+": "+(v===undefined?"not recorded":v+" out of 5");
- return '<button type="button" class="qc'+(v===undefined?'':' has')+'" data-qi="'+i+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+(future?' disabled title="This class day hasn\'t happened yet"':'')+' aria-label="'+lab+(future?', not open yet':'. Change score')+'" aria-haspopup="'+!future+'">'+(v===undefined?(future?'':'<span aria-hidden="true">+</span>'):v)+'</button>'}
+ return '<button type="button" class="qc'+(v===undefined?'':' has')+'" data-qi="'+i+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+(future?' disabled title="This class day hasn\'t happened yet"':'')+' aria-label="'+lab+(future?', not open yet':'. Change score')+'" aria-haspopup="'+!future+'"'+(v===undefined?'':' title="'+v+' out of 5"')+'>'+(v===undefined&&!future?'<span aria-hidden="true">+</span>':'')+'</button>'}
 /* dir is -1 or 1 when the focused day has just moved, so the columns slide; 0 redraws in place. */
 function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  if(!S.length){B.innerHTML='<div class="empty"><b>No students yet</b><button type="button" class="btn sm" id="qAdd2">Add a student</button></div>';B.removeAttribute("style");return}
@@ -1557,9 +1604,10 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  var rec=S.filter(function(s){return s.q[QF]!==undefined});
  $("qSum").innerHTML='<b>'+rec.length+' of '+S.length+'</b> recorded'+(rec.length?' · average <b>'+avg(rec.map(function(s){return s.q[QF]}))+'</b>':'');
  var W=B.clientWidth;if(!W)return; /* hidden: drawn when the tab opens */
- var G=qGeo(W),fb=window.matchMedia("(pointer: coarse)").matches?44:32,top=B.getBoundingClientRect().top,
-  rh=Math.max(fb,Math.min(52,Math.floor((window.innerHeight-Math.max(top,120)-24-50)/S.length)));
- B.style.setProperty("--rh",rh+"px");B.style.setProperty("--w",G.w+"px");B.style.setProperty("--box",Math.max(26,Math.min(rh-8,G.w-10,46))+"px");
+ var G=qGeo(W),fb=40,top=B.getBoundingClientRect().top,
+  rh=fb+6;
+ /* The boxes are one size in every class, however many students it has; a long class scrolls. */
+ B.style.setProperty("--rh",rh+"px");B.style.setProperty("--w",G.w+"px");B.style.setProperty("--box",Math.min(fb,G.w-10)+"px");
  var act=document.activeElement,keep=act&&B.contains(act)&&act.dataset.qi!==undefined?+act.dataset.qi:-1;
  if(!B.querySelector(".qbody"))B.innerHTML='<div class="qhead" aria-hidden="true"><span class="qfh">Student</span><span class="qfh">House</span></div><div class="qbody"><div class="qlane" aria-hidden="true"></div><div class="qfix qnames"></div><div class="qfix qhouses"></div></div>';
  var H=B.querySelector(".qhead"),Y=B.querySelector(".qbody");if(!Y.dataset.w){Y.dataset.w=1;Y.addEventListener("scroll",function(){qPopClose()})}
@@ -1570,7 +1618,7 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  B.querySelector(".qlane").style.transform="translateX("+(G.x(0)+G.w/2)+"px)";
  names.style.transform="translateX("+(G.x(-1)+G.w)+"px)";names.style.width=G.nameW+"px";
  houses.style.transform="translateX("+(G.x(0)+G.w)+"px)";houses.style.width=G.houseW+"px";
- names.innerHTML=S.map(function(s){return '<span class="qn"><b>'+esc(s.name)+'</b></span>'}).join("");
+ names.innerHTML=S.map(function(s,i){return '<span class="qn"><button type="button" class="qnb" data-ni="'+i+'" aria-haspopup="true" aria-expanded="'+(QMN===i)+'"><b>'+esc(s.name)+'</b>'+(s.warn?'<span class="qwd wl'+s.warn+'" title="'+WL[s.warn]+'"><span class="sr-only">, '+WL[s.warn]+'</span></span>':'')+'<svg class="qcar" viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span>'}).join("");
  houses.innerHTML=S.map(function(s){return '<span class="qn">'+(s.house?'<span class="qhs '+esc(s.house)+'"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">No house</span>')+'</span>'}).join("");
  var fh=H.querySelectorAll(".qfh");fh[0].style.cssText=names.style.cssText;fh[1].style.cssText=houses.style.cssText;
  /* Columns from one beyond each edge, so new ones slide in from outside and old ones slide out. */
@@ -1589,8 +1637,9 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
    el.style.transform="translateX("+G.x(k)+"px)";el.style.opacity=k===-G.side-1||k===G.side+1?0:qOp(k,G.side)})});
  /* The names and houses step aside while the page moves on, then come back. */
  if(dir&&!QM.matches){B.classList.add("moving");clearTimeout(QT);QT=setTimeout(function(){B.classList.remove("moving")},430)}
- if(keep>=0){var c=Y.querySelector('.qcol.on [data-qi="'+keep+'"]');if(c)c.focus()}}
-function quran(){qGrid(0);qSheetDraw()}
+ if(keep>=0){var c=Y.querySelector('.qcol.on [data-qi="'+keep+'"]');if(c)c.focus()}
+ if(QMN>=0)qMenu(QMN,1)}
+function quran(){$("qLeg").innerHTML=QC.map(function(c,k){return '<i style="--c:'+c+'"></i><span>'+k+'</span>'}).join("");qGrid(0);qSheetDraw()}
 function qGo(d,dir){if(!d||d===QF)return;var was=QF;QF=d;qGrid(dir||(d>was?1:-1))}
 function qStep(n){var D=qDays(),i=D.indexOf(QF)+n;if(i>=0&&i<D.length)qGo(D[i],n)}
 $("qPrev").onclick=function(){qStep(-1)};$("qNext").onclick=function(){qStep(1)};
@@ -1629,6 +1678,30 @@ $("qB").addEventListener("keydown",function(e){
  if(go!==null&&go>=0&&go<S.length){e.preventDefault();var c=$("qB").querySelector('.qcol.on [data-qi="'+go+'"]');if(c)c.focus()}});
 document.addEventListener("click",function(e){if(QP_&&!e.target.closest(".qpop")&&!e.target.closest(".qcol.on [data-qi]"))qPopClose()});
 var QR=0;window.addEventListener("resize",function(){clearTimeout(QR);QR=setTimeout(function(){if(CID&&CUR==="Q")qGrid(0)},120)});
+/* The menu on a student's name: warnings and house points, so teachers can give both from the Quran tab. */
+var QMN=-1;
+function qMenuClose(back){var m=$("qB").querySelector(".qmenu");if(m)m.remove();var b=$("qB").querySelector('.qnb[data-ni="'+QMN+'"]');if(b){b.setAttribute("aria-expanded","false");if(back)b.focus()}QMN=-1}
+function qMenu(i,keep){var B=$("qB"),s=S[i],b=B.querySelector('.qnb[data-ni="'+i+'"]');if(!s||!b){qMenuClose();return}
+ var act=document.activeElement,af=keep&&act&&act.closest&&act.closest(".qmenu")?act.dataset.mk:null,old=B.querySelector(".qmenu");if(old)old.remove();
+ if(!keep&&QMN>=0&&QMN!==i)qMenuClose();QMN=i;b.setAttribute("aria-expanded","true");var w=s.warn||0;
+ var m=document.createElement("div");m.className="qmenu";m.setAttribute("role","dialog");m.setAttribute("aria-label",s.name);
+ m.innerHTML='<div class="qmh"><b>'+esc(s.name)+'</b>'+(s.house?'<span class="qhs"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">No house yet</span>')+'</div>'
+  +'<p class="qml">Warning</p><div class="qmw" role="group" aria-label="Warning for '+esc(s.name)+'">'+[1,2,3].map(function(l){return '<button type="button" class="wb'+l+'" data-mk="w'+l+'" aria-pressed="'+(w===l)+'">'+WL[l]+'</button>'}).join("")+'</div>'
+  +'<p class="qml">House points<span>'+hp(s)+' points</span></p><div class="qmt">'+TOK.map(function(k){return '<div class="qmtr"><span class="tdot '+k[1]+'"></span><span class="qmtn">'+k[2]+' <small>'+k[3]+'</small></span><b>'+s[k[0]].length+'</b><button type="button" class="tk minus" data-mk="t'+k[0]+'-" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button><button type="button" class="tk add '+k[1]+'" data-mk="t'+k[0]+'+" aria-label="Give '+esc(s.name)+' a '+k[2].toLowerCase()+' token, '+k[3]+' points">+</button></div>'}).join("")+'</div>';
+ B.appendChild(m);var r=b.getBoundingClientRect(),br=B.getBoundingClientRect(),top=r.bottom-br.top+6;
+ if(r.bottom+m.offsetHeight+12>window.innerHeight&&r.top-m.offsetHeight-6>0)top=r.top-br.top-m.offsetHeight-6;
+ m.style.top=top+"px";m.style.left=Math.max(0,Math.min(r.left-br.left,B.clientWidth-m.offsetWidth))+"px";
+ var f=af&&m.querySelector('[data-mk="'+af+'"]')||(!keep&&m.querySelector("button"));if(f)f.focus()}
+function qMenuAct(k){var i=QMN,s=S[i];if(!s)return;var nm=fn(s);
+ if(k[0]==="w"){var v=+k[1];if(s.warn===v){s.warn=0;toast(nm+": warning removed")}else{s.warn=v;toast(nm+": "+WL[v]+" given")}save();render();return}
+ var f=k.slice(1,3),tk=TOK.filter(function(x){return x[0]===f})[0];if(!tk)return;
+ if(k[3]==="+"){s[f].push(Date.now());toast(nm+": "+tk[2].toLowerCase()+" token, +"+tk[3]+" points"+(s.house?" for "+s.house:""))}
+ else{if(!s[f].length){toast(nm+" has no "+tk[2].toLowerCase()+" tokens",1);return}s[f].pop();toast(nm+": "+tk[2].toLowerCase()+" token taken back")}
+ save();render()}
+$("qB").addEventListener("click",function(e){var mk=e.target.closest(".qmenu [data-mk]");if(mk){qMenuAct(mk.dataset.mk);return}
+ var n=e.target.closest(".qnb");if(n){var i=+n.dataset.ni;if(QMN===i)qMenuClose(1);else{qPopClose();qMenu(i)}}});
+document.addEventListener("click",function(e){if(QMN>=0&&!e.target.closest(".qmenu")&&!e.target.closest(".qnb"))qMenuClose()});
+document.addEventListener("keydown",function(e){if(QMN>=0&&e.key==="Escape"&&$("drw").hidden&&!AK){e.preventDefault();qMenuClose(1)}});
 /* Add a student from the Quran tab. They are saved with the class straight away, like every other change. */
 function addStudent(){if(!CID)return;
  drawer("Add a student",'<form class="addf" id="naF" novalidate><p class="cap">Adds a student to '+esc(ST[CID].name)+'. They are saved with the class record straight away.</p>'
@@ -1691,7 +1764,7 @@ function clearW(){var c=CID;if(!S.some(function(s){return s.warn})){toast("No wa
  ask("Clear every warning in "+ST[c].name+"?","Clear warnings",function(){if(CID!==c)return;S.forEach(function(s){s.warn=0});save();render();toast("All warnings cleared")},null,1)}
 $("cw2").onclick=clearW;$("cw").onclick=clearW;
 function blank(n){return {name:n,target:1,passes:0,merits:0,hit:null,log:[],lt:[],lx:[],ml:[],fl:[],q:{},warn:0,tg:[],tb:[],tr:[]}}
-$("add").onclick=function(){S.push(blank("New student"));save();render();toast("Student added. Select them in Record to rename them.")};
+$("add").onclick=function(){addStudent()};
 $("rst").onclick=function(){var c=CID;ask("Reset all passes and merits for "+ST[c].name+"?","Reset scores",function(){if(CID!==c)return;S.forEach(function(s){s.passes=0;s.merits=0;s.ml=[];s.hit=null;s.log=[];s.lt=[];s.lx=[]});save();render();toast("All scores reset")},null,1)};
 
 /* ---------- Class: header figures and render ---------- */
@@ -1706,7 +1779,10 @@ function render(){
  leaders();prize();houses()}
 
 /* ---------- Tabs ---------- */
-var TABS=["Q","I","W","T","D","H","S"],CUR="Q",MT=["S","A","C","R","H"],MCUR="S";
+/* Teachers record on the Quran tab; Record and Warnings are for admins. A teacher gives warnings and house
+   points from the menu on a student's name instead. */
+var TEACHER=!!(window.ME&&ME.role!=="admin");
+var TABS=TEACHER?["Q","T","D","H","S"]:["Q","I","W","T","D","H","S"],CUR="Q",MT=["S","A","C","R","H"],MCUR="S";
 /* The selected tab is drawn by one marker (.tabi) that slides to the tab chosen, and the new page slides in from
    the side the tab is on. Reduced motion turns both off (tokens.css). */
 function tabMark(list){var on=list.querySelector('[aria-selected="true"]'),m=list.querySelector(".tabi");if(!on||!on.offsetWidth)return;
@@ -1722,6 +1798,7 @@ var TMR=0;window.addEventListener("resize",function(){clearTimeout(TMR);TMR=setT
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){tabMark($("sub"));tabMark($("mt"))});
 function keyTabs(ids,fn,prefix){ids.forEach(function(k,i){var b=$(prefix+k);b.onclick=function(){fn(k)};
  b.onkeydown=function(e){var j=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?ids.length-1:null;if(j===null)return;e.preventDefault();fn(ids[(j+ids.length)%ids.length],1)}})}
+if(TEACHER){["I","W"].forEach(function(k){$("t"+k).hidden=true});$("hV").querySelector('[data-v="hs"]').hidden=true}
 keyTabs(TABS,tab,"t");keyTabs(MT,mtab,"m");
 /* Segmented controls: one choice pressed at a time. */
 function setSeg(id,v){var g=$(id);Array.prototype.forEach.call(g.querySelectorAll("button"),function(b){var k=b.dataset.p||b.dataset.k||b.dataset.t;b.setAttribute("aria-pressed",k===v)});
@@ -1739,10 +1816,10 @@ function navL(){
  $("nList").innerHTML=CIDS.length?CIDS.map(function(c){return '<a class="nav" href="#'+esc(c)+'" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+' title="'+esc(ST[c].name)+'">'+esc(ST[c].name)+'</a>'}).join(""):'<span class="navh" style="margin-top:0">'+(LOADED?'No classes yet':'Loading…')+'</span>';
  if(CID){var cur=$("nList").querySelector('[aria-current]');if(cur)cur.scrollIntoView({block:"nearest"})}
  $("nM").setAttribute("aria-current",CID?"false":"page")}
-function head(){var n=CID?ST[CID]:null;
+function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?n.name:"School overview";$("swc").hidden=!n||CIDS.length<2;
  document.title=(n?n.name+" · ":"")+"Safar Enfield Dashboard"}
-function setClass(c){if(c!==CID){SEL=-1;RF="";QF="";QX={};MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("body").innerHTML="";$("fcd").value=FCD;EXP={};head();render()}
+function setClass(c){if(c!==CID){SEL=-1;RF="";QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("body").innerHTML="";$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if(c!=="M"&&!ST[c])c="M";var M=c==="M";closeDrawer();
  $("vM").classList.toggle("hide",!M);$("mt").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M);
  if(M){CID=null;SEL=-1;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master();tabMark($("mt"))}

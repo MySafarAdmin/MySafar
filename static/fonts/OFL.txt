@@ -1,3 +1,5 @@
+Instrument Sans: Copyright 2022 The Instrument Sans Project Authors (https://github.com/Instrument/instrument-sans)
+Source Serif 4: Copyright 2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'.
 Copyright 2020-2024 The Atkinson Hyperlegible Next Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next) AtkinsonHyperlegibleNext-Italic[wght].ttf: Copyright 2020-2024 The Atkinson Hyperlegible Next Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.

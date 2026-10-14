@@ -58,13 +58,15 @@ is picked by luminance (`onC()` in `src/page.html`).
 
 ## Type
 
-Atkinson Hyperlegible Next, self-hosted (`static/fonts`, SIL Open Font
-License), chosen for legibility at small sizes and at a distance, with tabular
-figures for every count. Weights 400/600/650/750. Scale: 12 and 13 (meta,
-labels), 15 and 16 (body, roster names), 18 (section titles, head figures,
-roster counts), 24 (page title), 32 (attention counts), 36 (house totals).
-Numbers that matter are the heaviest thing in their row. Sentence case
-throughout; no all-caps labels, no eyebrows above titles.
+Instrument Sans for everything you read and tap, with Source Serif 4 for page
+titles, the Quran day and section headings (both self-hosted in
+`static/fonts`, SIL Open Font License, set through `--font` and
+`--font-display`). The pair was chosen in October 2026 as the closest freely
+licensed match to Claude's own type (a geometric grotesk with a book serif for
+titles); Claude's typefaces themselves are not licensed for reuse. Atkinson
+Hyperlegible Next stays on the TV, which is read across a hall. Tabular figures
+for every count. Sentence case throughout; no all-caps labels, no eyebrows
+above titles.
 
 ## Layout
 
@@ -92,8 +94,15 @@ figures on the canvas.
   side, five a page each, This month or All time.
 - **Houses**: house totals, tokens by house, points by class (six a page).
 
-**Class** tabs (a class opens on Quran):
+**Class** tabs (a class opens on Quran). Teachers see Quran, Memo, Progress,
+Rewards and Settings; Record and Warnings are for admins, and teachers give
+warnings and house points from the menu on a student's name in Quran.
 
+- **Quran** scores show as colour only (pastel coral 0, peach, butter,
+  pistachio, mint, sea green 5) with a key beside the day's summary; the number
+  is in each box's label. Boxes are 40px in every class, so long classes scroll
+  rather than shrink. A student's name opens a menu with Warning 1, Warning 2
+  and Miss break, and their house tokens with − and +.
 - **Quran**: the day-by-day sheet. The focused class day sits in a soft navy
   lane between the student names and their houses, with up to three earlier
   days fading out to the left and three later ones to the right (one each side
@@ -128,7 +137,8 @@ figures on the canvas.
   and a line above names this month's winners in the order they won. House
   points: token counts with + and − for each colour (outlined buttons with the
   token colour in the +).
-- **Settings**: name and first class day, adding students, reset and delete.
+- **Settings**: one column of rounded rows in the Memo card style: class
+  name, first class day, adding students, then reset and delete.
 
 Long school-wide lists are paged with Previous and Next and a "1–10 of 61"
 count; class lists stay whole. Below 640px modules go full-bleed and tables
