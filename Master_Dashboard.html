@@ -366,6 +366,21 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .hchip{display:inline-flex;align-items:center;min-height:30px;padding:3px 14px;border-radius:999px;font-size:.8125rem;font-weight:750;text-decoration:none;max-width:24ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-shadow:0 1px 2px rgba(28,34,48,.06)}
 .hchip.c0{background:#fde8e1;color:#9a3412}.hchip.c1{background:#e3eefb;color:#0b4a82}.hchip.c2{background:#e5f3ea;color:#2f5a3b}.hchip.c3{background:#fbf0d6;color:#664a0b}
 .hchip:hover{filter:brightness(.97);text-decoration:underline}
+/* The phone's Quran tracker button under the greeting (teachers only; page.html hello()). */
+.track{display:none}
+@media (max-width:959.98px){
+ .track{display:flex;align-items:center;gap:14px;width:100%;margin-top:14px;padding:16px 16px 16px 14px;border:0;border-radius:20px;
+  background:var(--navy);color:#fff;text-align:left;font:inherit;cursor:pointer;box-shadow:0 10px 24px -10px rgba(0,59,107,.55)}
+ .track+.track{margin-top:10px}
+ .track .tki{flex:none;display:grid;place-items:center;width:48px;height:48px;border-radius:14px;background:var(--gold,#c9a35b);color:var(--navy)}
+ .track .tki .ic{width:26px;height:26px}
+ .track .tkt{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:2px}
+ .track b{font-size:1.125rem;font-weight:800;line-height:1.2}
+ .track small{font-size:.8125rem;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .track .tkc{flex:none;width:22px;height:22px;opacity:.9}
+ .track:active{transform:scale(.98)}
+ .track:focus-visible{outline:3px solid var(--gold,#c9a35b);outline-offset:3px}
+}
 @media (max-width:959.98px){.head.greet h1{font-size:1.375rem;flex:1 1 0}.hello{margin-top:4px}}
 /* Tabs are pills on the canvas; the chosen one is a white pill with navy type, like the cards under it. */
 .head .tabs{display:flex;gap:4px;margin:10px 0 12px}
@@ -1237,14 +1252,14 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 @media (max-width:479.98px){.rsc{flex-wrap:nowrap;gap:6px}.rsc button{flex:1 1 0;width:auto;min-width:0;max-width:48px;height:44px}}
 
 /* After signing in: the overview's own greeting (#ttl) appears large in the middle of the page, then shrinks and
-   moves into its place in one motion (page.html sets the transform), and the rest of the page arrives
+   moves into its place in one motion (page.html draws a sharp large copy, .greet-big, and shrinks it onto the heading), and the rest of the page arrives
    (body.enter, a few seconds only). html.fresh keeps everything else hidden until then. */
 @media (prefers-reduced-motion:no-preference){
  html.fresh .shell>header,html.fresh .rail,html.fresh .head-top>:not(h1),html.fresh .hello,html.fresh .head .tabs,html.fresh main section,html.fresh #ttl{opacity:0;animation:g-safety 0s 9s forwards}
  html.fresh .head{box-shadow:none;background:transparent}
 }
 @keyframes g-safety{to{opacity:1}}
-#ttl.grow{position:relative;z-index:30;transform-origin:0 0;will-change:transform}
+.greet-big{position:fixed;z-index:60;margin:0;pointer-events:none;transform-origin:0 0;opacity:0;transition:opacity .6s ease}
 @keyframes e-rise{from{opacity:0;transform:translateY(22px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes e-slide{from{opacity:0;transform:translateX(-18px)}}
 @keyframes e-grow{from{transform:scaleY(0)}}
@@ -2152,7 +2167,10 @@ function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("ba
  if(PAGE==="R"){el.innerHTML='<span class="hsub">End-of-level tests for Quran and Memo</span>';return}
  var who=window.ME&&ME.name&&ME.name!=="Administrator"?" "+ME.name:"",cls=TEACHER?CIDS:[];
  $("ttl").textContent="Assalāmu ʿalaykum"+who+"!";
- el.innerHTML='<span class="hsub">'+(TEACHER?"Class overview":"School overview")+'</span>'+cls.map(function(c,i){return '<a class="hchip c'+(i%4)+'" href="#'+esc(c)+'" data-open="'+esc(c)+'">'+esc(ST[c].name)+'</a>'}).join("")}
+ el.innerHTML='<span class="hsub">'+(TEACHER?"Class overview":"School overview")+'</span>'+cls.map(function(c,i){return '<a class="hchip c'+(i%4)+'" href="#'+esc(c)+'" data-open="'+esc(c)+'">'+esc(ST[c].name)+'</a>'}).join("")+
+  /* On a phone a teacher mostly opens the app to enter today's Quran scores, so the tracker for each of their
+     classes is one large button straight under the greeting (template.css shows it on phones only). */
+  cls.map(function(c){return '<button type="button" class="track" data-open="'+esc(c)+'" data-tab="Q"><span class="tki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10.2 5 7.8 4.5 3.5 4.5v13c4.3 0 6.7.5 8.5 2 1.8-1.5 4.2-2 8.5-2v-13c-4.3 0-6.7.5-8.5 2z"/><path d="M12 6.5v13"/></svg></span><span class="tkt"><b>Open Quran tracker</b><small>'+esc(ST[c].name)+'</small></span><svg class="ic tkc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>'}).join("")}
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?n.name:PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  document.title=(n?n.name+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+"MySafar"}
@@ -2439,16 +2457,22 @@ function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";docume
  var h=$("ttl"),t0=Date.now(),EASE="cubic-bezier(.65,0,.25,1)";
  function loaded(){var m=document.querySelector("main");return m&&!m.inert}
  (function waitText(){if((/Assal/.test(h.textContent)&&loaded())||Date.now()-t0>6000)show();else setTimeout(waitText,60)})();
- function show(){h.classList.add("grow");h.style.transition="none";h.style.transform="none";
-  var R=document.createRange();R.selectNodeContents(h);
-  var b=h.getBoundingClientRect(),q=R.getBoundingClientRect(),r={left:b.left,top:b.top,width:q.width||b.width,height:b.height},m=$("main").getBoundingClientRect(),vw=Math.min(m.width,innerWidth),
-   s=Math.max(1,Math.min(2.6,vw*.86/r.width)),cx=m.left+m.width/2,cy=innerHeight/2-20;
-  h.style.transform="translate("+(cx-r.width*s/2-r.left)+"px,"+(cy-r.height*s/2-r.top)+"px) scale("+s+")";
-  h.style.opacity="0";h.getBoundingClientRect();
-  h.style.transition="opacity .9s ease";h.style.opacity="1";
-  setTimeout(move,2000)}
- function move(){h.style.transition="transform 1.15s "+EASE;h.style.transform="none";
-  setTimeout(function(){document.body.classList.add("enter");H.classList.remove("fresh");h.style.opacity=""},900);
-  setTimeout(function(){h.classList.remove("grow");h.style.transition=h.style.transform=""},1300);
-  setTimeout(function(){document.body.classList.remove("enter")},4600)}})();
+ // The large greeting is a copy set at the large font size, so it stays sharp; it then shrinks onto the real heading.
+ function show(){var R=document.createRange();R.selectNodeContents(h);
+  // Measured line by line, since on a phone a long name wraps the greeting onto two lines; the copy keeps that wrap.
+  var b=h.getBoundingClientRect(),rs=[].slice.call(R.getClientRects()),tops={},w=0,x=b.right;
+  rs.forEach(function(r){if(r.width<1)return;w=Math.max(w,r.width);x=Math.min(x,r.left);tops[Math.round(r.top)]=1});
+  var lines=Math.max(1,Object.keys(tops).length);if(!w){w=b.width;x=b.left}
+  var m=$("main").getBoundingClientRect(),vw=Math.min(m.width,innerWidth),s=Math.max(1,Math.min(2.6,vw*.88/w)),cs=getComputedStyle(h),c=document.createElement("div");
+  c.className="greet-big";c.setAttribute("aria-hidden","true");c.textContent=h.textContent;
+  ["fontFamily","fontWeight","color","fontStyle"].forEach(function(k){c.style[k]=cs[k]});
+  c.style.fontSize=parseFloat(cs.fontSize)*s+"px";c.style.lineHeight=b.height/lines*s+"px";c.style.width=(w+1)*s+"px";
+  if(cs.letterSpacing!=="normal")c.style.letterSpacing=parseFloat(cs.letterSpacing)*s+"px";
+  var L=m.left+m.width/2-w*s/2,T=innerHeight/2-20-b.height*s/2;c.style.left=L+"px";c.style.top=T+"px";
+  h.style.opacity="0";document.body.appendChild(c);c.getBoundingClientRect();c.style.opacity="1";
+  setTimeout(function(){move(c,s,x,b.top,L,T)},1100)}
+ function move(c,s,x,y,L,T){c.style.transition="transform .9s "+EASE;c.style.transform="translate("+(x-L)+"px,"+(y-T)+"px) scale("+(1/s)+")";
+  setTimeout(function(){document.body.classList.add("enter");H.classList.remove("fresh")},500);
+  setTimeout(function(){h.style.opacity="";c.remove()},920);
+  setTimeout(function(){document.body.classList.remove("enter")},4200)}})();
 </script>
