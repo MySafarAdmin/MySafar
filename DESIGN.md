@@ -275,13 +275,14 @@ Afterwards the welcome panel keeps an idle sky: a shooting star every few
 seconds and a few twinkling points. "Safar Academy Enfield" appears once, under
 MySafar in the card's logo (no footer, nothing under the panel's wordmark).
 
-**Greeting after signing in**: the first dashboard load after signing in shows a
-navy curtain with the logo, "Assalāmu ʿalaykum" written in with a gold underline,
-the person's name, twinkles and one shooting star. It holds until the records
-have loaded (at least about 2.3 seconds), then lifts, and the page arrives piece
-by piece: the side menu items slide in, the heading and tabs rise, the overview
-sections and class cards rise in turn, ranking rows follow, and the bars grow.
-Once per sign-in (body.enter for a few seconds), off under reduced motion.
+**Greeting after signing in**: the first dashboard load after signing in shows
+only the overview's own greeting ("Assalāmu ʿalaykum ...!"), faded in large in
+the middle of the page. Once the records have loaded (about 2 seconds at least)
+it shrinks and moves into its usual place in one motion, and the rest of the
+page fades in behind it: the side menu items slide in, the tabs rise, the
+overview sections and class cards rise in turn, ranking rows follow, and the
+bars grow. Once per sign-in (html.fresh, then body.enter for a few seconds),
+off under reduced motion.
 
 **New tab, new sign-in**: opening the site in a new tab or window always starts
 at the sign-in page; refreshing a signed-in tab keeps you signed in (a
