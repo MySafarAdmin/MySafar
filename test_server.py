@@ -23,7 +23,7 @@ from psycopg.conninfo import make_conninfo
 
 import auth
 import tv
-from server import create_app
+from server import create_app, valid_state
 
 ADMIN = ("admin@example.com", "bootstrap-password-1")
 
@@ -232,6 +232,22 @@ class DashboardTests:
             self.assertEqual(response.status_code, 400)
         self.assertEqual(self.client.delete("/api/classes/yr3-a", headers=self.headers).status_code, 403)
         self.assertEqual(self.records(), {})
+
+    def test_qaidah_tests_and_stars_are_checked(self):
+        student = {"name": "Aisha", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                   "ml": [], "fl": [], "q": {}}
+        state = dict(self.state, L=[9, 9, 9, 9, 10, 10, 10, 12, 15, 14])
+        self.assertTrue(valid_state(dict(state, S=[student])))
+        self.assertTrue(valid_state(dict(state, S=[dict(student, qa=10)])))
+        for bad in (-1, 11, "3", 2.5):
+            self.assertFalse(valid_state(dict(state, S=[dict(student, qa=bad)])))
+        test = {"d": "2026-10-14", "k": "m", "n": 12, "sc": 4, "ok": True}
+        self.assertTrue(valid_state(dict(state, S=[dict(student, tests=[test, dict(test, k="q", n=3, ok=False, pq=2)])])))
+        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 11}):
+            self.assertFalse(valid_state(dict(state, S=[dict(student, tests=[dict(test, **bad)])])))
+        self.assertFalse(valid_state(dict(state, S=[dict(student, tests={})])))
+        self.assertTrue(valid_state(dict(state, S=[dict(student, sw=["2026-10-12"])])))
+        self.assertFalse(valid_state(dict(state, S=[dict(student, sw=["12 Oct"])])))
 
     def test_classroom_limit(self):
         with patch("server.MAX_CLASSES", 2):

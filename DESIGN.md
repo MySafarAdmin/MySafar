@@ -94,6 +94,22 @@ figures on the canvas.
   side, five a page each, This month or All time.
 - **Houses**: house totals, tokens by house, points by class (six a page).
 
+**Record** (main navigation, admins only): level tests in four numbered steps,
+Quran (Qaidah level) or Memo (target as level and target, or item number and
+Surah), the student, the level, then a 0 to 5 score on the pastel scale and
+Passed or Not passed, with the student's latest tests and Take back the latest
+below. The score goes into that day's box on the Quran sheet with a gold border,
+and the sheet will not change it; only the Record page can.
+
+**Class overview** (teachers): the Overview title reads Class overview and its
+Summary puts Rankings first and largest (Furthest along, Most passes, Most
+merits), then Passes per week and Students by level, then attention and house
+points. No latest passes list.
+
+**Star of the week**: a star button beside Day by day / Full sheet on the Quran
+tab picks one student for the week holding the focused class day; a gold star
+sits by their name. Kept on the student as the Monday of each week (sw).
+
 **Class** tabs (a class opens on Quran). Teachers see Quran, Memo, Progress,
 Rewards and Settings, and so do admins (Record and Warnings were removed). All
 recording starts from the Quran tab.
@@ -116,10 +132,8 @@ recording starts from the Quran tab.
   The add-student icon opens a short form (name, house, optional Student ID)
   and the student is saved with the class straight away. Full sheet shows the
   whole table by class day.
-- **Student record**: a Record section in the student's Memo profile, with
-  target and Passes / Merits / Fails with − and +, where the Pass + is the only
-  solid button; Details reveals identifiers, Rename and Remove student; History
-  opens the full record.
+- **Memo profile** actions: Details (identifiers, Rename, Remove student) and
+  History. Passes, fails and targets are set on the Record page.
 - **Memo**: the sheet, scrolling inside its frame.
 - **Progress**: Levels (position in the book in two columns, students by
   level with empty levels named once in a line instead of zero rows),

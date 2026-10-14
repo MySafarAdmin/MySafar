@@ -29,8 +29,10 @@ from mailer import Mailer
 
 ROOT = Path(__file__).resolve().parent
 CLASS_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
+DAY = re.compile(r"\d{4}-\d{2}-\d{2}")
 MAX_CLASSES = 500
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
+QAIDAH_LEVELS = 10  # keep in step with QAIDAH in src/page.html
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # Reachable without signing in.
@@ -82,6 +84,22 @@ def valid_state(state):
         # Details from the CSV upload: Student ID, gender, Safar year group, school year group,
         # Islamic Studies teacher.
         if not all(isinstance(student.get(k, ""), str) for k in ("sid", "gender", "year", "sy", "ist")):
+            return False
+        # Qaidah level, set on the Record page: 0 until set, then 1 to QAIDAH_LEVELS.
+        qaidah = student.get("qa", 0)
+        if type(qaidah) is not int or not 0 <= qaidah <= QAIDAH_LEVELS:
+            return False
+        # Level tests from the Record page: day, Quran ("q") or Memo ("m"), level or target, 0 to 5 score, passed.
+        tests = student.get("tests", [])
+        if not isinstance(tests, list) or not all(
+                isinstance(x, dict) and isinstance(x.get("d"), str) and DAY.fullmatch(x["d"]) and x.get("k") in ("q", "m")
+                and type(x.get("n")) is int and x["n"] >= 1 and type(x.get("sc")) is int and 0 <= x["sc"] <= 5
+                and type(x.get("ok")) is bool and type(x.get("pq", 0)) is int and 0 <= x.get("pq", 0) <= QAIDAH_LEVELS
+                for x in tests):
+            return False
+        # Star of the week: the Monday of each week the student was chosen.
+        stars = student.get("sw", [])
+        if not isinstance(stars, list) or not all(isinstance(d, str) and DAY.fullmatch(d) for d in stars):
             return False
         # House points: the student's house (from the CSV) and the times each token was given.
         if student.get("house", "") not in ("",) + HOUSES:
