@@ -1,22 +1,19 @@
 /* Safar workspace: shared tokens, application shell and controls.
    Used by the dashboard (inlined by tools/build.py) and by the sign-in and admin pages (served in /auth.css).
    See DESIGN.md for the reasoning behind each value. */
-@font-face{font-family:"Instrument Sans";src:url(/fonts/instrument-sans-latin.woff2) format("woff2");font-weight:400 700;font-display:swap;
+@font-face{font-family:"Figtree";src:url(/fonts/figtree-latin.woff2) format("woff2");font-weight:300 900;font-display:swap;
  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Instrument Sans";src:url(/fonts/instrument-sans-latin-ext.woff2) format("woff2");font-weight:400 700;font-display:swap;
- unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
-@font-face{font-family:"Source Serif 4";src:url(/fonts/source-serif-4-latin.woff2) format("woff2");font-weight:200 900;font-display:swap;
- unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Source Serif 4";src:url(/fonts/source-serif-4-latin-ext.woff2) format("woff2");font-weight:200 900;font-display:swap;
+@font-face{font-family:"Figtree";src:url(/fonts/figtree-latin-ext.woff2) format("woff2");font-weight:300 900;font-display:swap;
  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
  /* Brand: Safar navy from the logo (#003B6B). Reserved for the brand, selected indicators and the one primary action. */
  --navy:#003b6b;--navy-2:#002c52;--navy-soft:#e9eff6;
- /* Graphite navigation */
- --rail-bg:#23272d;--rail-ink:#e8eaed;--rail-mute:#a7adb5;--rail-line:rgba(255,255,255,.1);--rail-hover:rgba(255,255,255,.07);--rail-on:rgba(255,255,255,.13);
- /* Surfaces and text: a light grey canvas, white working surfaces, graphite type */
- --bg:#eceef1;--surface:#fff;--surface-2:#f6f7f9;--sunk:#eceef1;--line:#e2e5e9;--line-2:#c8cdd4;
- --ink:#1d2127;--ink-2:#3e4651;--mute:#5b6470;
+ /* Navigation: a Safar navy rail, as Journey2Jannah carries its own colour in its rail. The selected item is a
+    white tab with navy type. */
+ --rail-bg:#003b6b;--rail-ink:#e6eef6;--rail-mute:#a9c0d6;--rail-line:rgba(255,255,255,.14);--rail-hover:rgba(255,255,255,.1);--rail-on:#fff;
+ /* Surfaces and text: a soft, cool canvas (a touch of blue in the grey), floating white cards, deep slate type */
+ --bg:#f2f4f8;--surface:#fff;--surface-2:#f6f7fb;--sunk:#eef0f5;--line:#e4e7ee;--line-2:#cbd1dc;
+ --ink:#1c2230;--ink-2:#3c4557;--mute:#5a6375;
  /* Actions and status. Every colour that carries white text is at least 4.5:1. */
  --primary:#003b6b;--primary-hover:#002c52;--primary-soft:#e9eff6;--primary-ink:#0b4a82;
  --ok:#4e7d5b;--ok-soft:#edf3ee;--ok-ink:#2f5a3b;
@@ -35,11 +32,13 @@
  /* Warning levels: 1 notice, 2 serious, 3 miss break */
  --w1:#e2b53a;--w1-ink:#4a3200;--w2:#c2410c;--w3:#b42318;
  /* Shape, space, type */
- --r-sm:6px;--r:8px;--r-lg:12px;
- --font:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
- --font-display:"Source Serif 4",Georgia,"Times New Roman",serif;
- --shadow:0 1px 2px rgba(29,33,39,.05),0 1px 1px rgba(29,33,39,.03);
- --shadow-lift:0 12px 32px rgba(29,33,39,.18);
+ /* Rounder, friendlier shapes: pill buttons and inputs with 12px corners, cards with 20px corners. */
+ --r-sm:8px;--r:12px;--r-lg:20px;--r-pill:999px;
+ --font:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+ --font-display:var(--font);
+ /* Cards float on the canvas with a wide, faint shadow instead of a hairline border. */
+ --shadow:0 1px 2px rgba(28,34,48,.04),0 6px 24px rgba(28,34,48,.06);
+ --shadow-lift:0 16px 40px rgba(28,34,48,.18);
  --rail:232px;
  /* Older names used by the admin pages */
  --navy-ink:var(--rail-ink);--navy-mute:var(--rail-mute);--navy-line:var(--rail-line);
@@ -52,10 +51,10 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 var(--font);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
 h1,h2,h3{margin:0;line-height:1.2;text-wrap:balance}
-h1{font-size:1.625rem;font-weight:600;letter-spacing:-.005em;font-family:var(--font-display)}
-.brand b{font-family:var(--font-display);font-weight:600}
-h2{font-size:1.125rem;font-weight:700}
-h3{font-size:1rem;font-weight:700}
+h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;font-family:var(--font-display)}
+.brand b{font-family:var(--font-display);font-weight:800}
+h2{font-size:1.125rem;font-weight:800;letter-spacing:-.005em}
+h3{font-size:1rem;font-weight:750}
 p{margin:0 0 .75rem}
 a{color:var(--primary-ink);text-underline-offset:.18em}
 button,a,summary,label,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,59,107,.12)}
@@ -80,15 +79,21 @@ a:hover{color:var(--primary-hover)}
 .badge{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff}
 .badge img{width:34px;height:34px;display:block}
 .brand b{display:block;font-size:1.0625rem;font-weight:750;line-height:1.15}
+/* The MySafar wordmark: "My" in a light weight, "Safar" in the heavy weight. */
+.wm{font-weight:400!important;letter-spacing:-.01em}
+.wm span{font-weight:850}
+.rail .brand .wm{font-size:1.25rem}
 .brand small{display:block;font-size:.8125rem;color:var(--rail-mute);line-height:1.2}
 .navt{position:absolute;opacity:0;pointer-events:none}
 .menu-btn{display:none}
 .navs{display:flex;flex-direction:column;gap:2px;padding:4px 10px 12px;flex:1;min-height:0;overflow-y:auto}
-.navh{margin:14px 8px 4px;font-size:.8125rem;font-weight:650;color:var(--rail-mute)}
-.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:8px 10px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--rail-ink)}
+.navh{margin:14px 10px 4px;font-size:.8125rem;font-weight:700;color:var(--rail-mute)}
+.nav{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 12px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--rail-ink)}
 .nav:hover{background:var(--rail-hover);color:#fff}
-.nav[aria-current="page"],.nav[aria-current="true"]{background:var(--rail-on);color:#fff;font-weight:700}
+.nav[aria-current="page"],.nav[aria-current="true"]{background:var(--rail-on);color:var(--navy);font-weight:800;box-shadow:0 4px 14px rgba(0,20,40,.22)}
+.nav[aria-current="page"]:hover,.nav[aria-current="true"]:hover{color:var(--navy)}
 .nav:focus-visible{outline-color:#fff}
+.nav[aria-current]:focus-visible{outline-color:#9cc3e8}
 .nav .ic{flex:none;width:18px;height:18px}
 .nav .ext{margin-left:auto;opacity:.75}
 .nav.j2j .dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex:none;margin:0 5px}
@@ -99,9 +104,9 @@ a:hover{color:var(--primary-hover)}
 .me .who span{color:var(--rail-mute)}
 .me .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .me form{margin:0}
-.me .linkbtn{font:inherit;font-size:.875rem;background:none;border:1px solid var(--navy-line);border-radius:var(--r-sm);padding:6px 10px;min-height:36px;cursor:pointer;color:var(--rail-ink);text-decoration:none;display:inline-flex;align-items:center}
+.me .linkbtn{font:inherit;font-size:.875rem;font-weight:650;background:none;border:1px solid var(--navy-line);border-radius:var(--r-pill);padding:6px 10px;min-height:36px;cursor:pointer;color:var(--rail-ink);text-decoration:none;display:inline-flex;align-items:center}
 .me .linkbtn:hover{background:var(--rail-hover)}
-.me .linkbtn[aria-current="page"]{background:var(--rail-on);color:#fff;font-weight:700}
+.me .linkbtn[aria-current="page"]{background:var(--rail-on);color:var(--navy);border-color:#fff;font-weight:800}
 .work{min-width:0;display:flex;flex-direction:column}
 .content{width:100%;max-width:1240px;margin:0 auto;padding:24px 32px 48px}
 .content.narrow{max-width:880px}
@@ -127,7 +132,7 @@ a:hover{color:var(--primary-hover)}
    It sits on the grey canvas in graphite type; the dashboard's compact head (.head in template.css) matches it. ---------- */
 .band{color:var(--ink);padding:4px 0 0;margin-bottom:16px;position:relative}
 .band-top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;min-height:40px}
-.band h1{font-size:1.5rem;font-weight:750;letter-spacing:-.01em;line-height:1.15;overflow-wrap:anywhere;color:var(--ink);margin-right:auto}
+.band h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;line-height:1.15;overflow-wrap:anywhere;color:var(--navy);margin-right:auto}
 .band .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .band .lede{color:var(--mute);margin:6px 0 0;max-width:60ch}
 .figs{display:flex;flex-wrap:wrap;gap:6px 28px;margin-top:8px}
@@ -137,7 +142,7 @@ a:hover{color:var(--primary-hover)}
 /* A figure that needs attention keeps graphite digits and gains a small amber marker. */
 .fig.alert span::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--warn);margin-right:6px;vertical-align:1px}
 .fig.quiet b{font-size:1.125rem}
-.band.slim h1{font-size:1.5rem}
+.band.slim h1{font-size:1.625rem}
 @media (max-width:959.98px){
  .band h1{font-size:1.375rem}
  .figs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px 12px}
@@ -149,12 +154,12 @@ a:hover{color:var(--primary-hover)}
 
 /* ---------- Panels and modules ----------
    White workspaces carry the work. Modules are separated by space and headings, not by tinted fills. */
-.panel,.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px}
+.panel,.card{background:var(--surface);border:0;border-radius:var(--r-lg);padding:24px;box-shadow:var(--shadow)}
 .mod{background:var(--surface);border-radius:var(--r-lg);padding:20px;min-width:0}
 .mod.line{border:1px solid var(--line)}
 
 .mod-h{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:12px;min-height:36px}
-.mod-h h2{font-size:1.125rem;font-weight:750}
+.mod-h h2{font-size:1.125rem;font-weight:800}
 .cap{font-size:.8125rem;color:var(--mute);margin:0}
 .g12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:20px;align-items:start}
 .g12.eq{align-items:stretch}
@@ -163,11 +168,11 @@ a:hover{color:var(--primary-hover)}
 .g12+.g12,.g12+.mod,.mod+.g12,.mod+.mod{margin-top:20px}
 .g12>.mod{margin-top:0}
 /* A small segmented control, for a shared period or measure */
-.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:var(--r);overflow:hidden;background:var(--surface)}
-.seg button{font:inherit;font-size:.875rem;font-weight:600;border:0;background:none;color:var(--ink-2);padding:6px 12px;min-height:36px;cursor:pointer}
-.seg button+button{border-left:1px solid var(--line-2)}
-.seg button:hover{background:var(--surface-2)}
-.seg button[aria-pressed="true"]{background:var(--navy-soft);color:var(--navy);font-weight:700;box-shadow:inset 0 -2px 0 var(--navy)}
+/* A pill track with the chosen option as a white pill inside it */
+.seg{display:inline-flex;gap:2px;padding:3px;border:0;border-radius:var(--r-pill);background:var(--sunk)}
+.seg button{font:inherit;font-size:.875rem;font-weight:650;border:0;border-radius:var(--r-pill);background:none;color:var(--ink-2);padding:6px 14px;min-height:34px;cursor:pointer}
+.seg button:hover{color:var(--ink);background:rgba(255,255,255,.6)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--navy);font-weight:800;box-shadow:0 1px 3px rgba(28,34,48,.12),0 0 0 1px rgba(0,59,107,.12)}
 .seg button:focus-visible{outline-offset:-3px}
 /* Contextual help: a ? that opens the rules for the screen, by keyboard, touch or pointer */
 .help{position:relative;display:inline-block}
@@ -188,7 +193,7 @@ a:hover{color:var(--primary-hover)}
 .section-title{font-size:1rem;font-weight:700;margin:32px 0 12px;color:var(--ink-2)}
 
 /* ---------- Buttons ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:.9375rem;font-weight:600;line-height:1.2;min-height:40px;padding:8px 14px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none;white-space:nowrap;touch-action:manipulation}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-size:.9375rem;font-weight:700;line-height:1.2;min-height:40px;padding:8px 16px;border-radius:var(--r-pill);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none;white-space:nowrap;touch-action:manipulation}
 .btn:hover{background:var(--surface-2);border-color:var(--mute)}
 .btn:disabled,.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed}
 .btn.primary,.btn.p{background:var(--primary);border-color:var(--primary);color:#fff}
@@ -198,8 +203,8 @@ a:hover{color:var(--primary-hover)}
 .btn.danger,.btn.x{background:var(--surface);color:var(--bad-ink);border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
 .btn.danger:hover,.btn.x:hover{background:var(--bad-soft)}
 .btn.danger.solid,.btn.x.solid{background:var(--bad);border-color:var(--bad);color:#fff}
-.btn.sm{min-height:36px;padding:6px 10px;font-size:.875rem}
-.btn.lg{min-height:48px;padding:12px 18px;font-size:1rem}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:.875rem}
+.btn.lg{min-height:52px;padding:12px 24px;font-size:1rem}
 .btn.wide{width:100%}
 button.link{font:inherit;background:none;border:0;padding:0;color:var(--primary-ink);cursor:pointer;text-decoration:underline;text-underline-offset:.18em}
 
@@ -215,12 +220,12 @@ fieldset{border:1px solid var(--line);border-radius:var(--r-lg);margin:0 0 16px;
 legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 
 /* ---------- Tables ---------- */
-.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface)}
+.tablewrap{overflow-x:auto;border:0;border-radius:var(--r-lg);background:var(--surface);box-shadow:var(--shadow)}
 .mod .tablewrap,.mod .sheetwrap{border:0;border-radius:0}
 .mod fieldset{border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 0 0}
 .tbl{width:100%;border-collapse:collapse;font-size:.9375rem}
 .tbl th,.tbl td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
-.tbl thead th{font-size:.8125rem;font-weight:700;color:var(--mute);background:var(--surface-2);white-space:nowrap}
+.tbl thead th{font-size:.8125rem;font-weight:750;color:var(--mute);background:var(--surface-2);white-space:nowrap}
 .tbl tbody tr:last-child>*{border-bottom:0}
 .tbl td.n,.tbl th.n{text-align:right;font-variant-numeric:tabular-nums}
 .tbl td form{margin:0}
@@ -235,7 +240,7 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 .notice,.error{display:flex;gap:10px;align-items:flex-start;border-radius:var(--r-lg);padding:12px 16px;margin:0 0 16px;border:1px solid}
 .notice{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 40%,transparent);color:var(--ok-ink)}
 .error{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 40%,transparent);color:var(--bad-ink)}
-.empty{padding:20px;border:1px dashed var(--line-2);border-radius:var(--r-lg);color:var(--mute);text-align:center}
+.empty{padding:24px;border:2px dashed var(--line);border-radius:var(--r-lg);color:var(--mute);text-align:center}
 .empty b{display:block;color:var(--ink);margin-bottom:2px}
 .hdot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:none;background:var(--line-2)}
 .hdot.Makkah{background:var(--makkah)}.hdot.Al-Aqsa{background:var(--aqsa)}.hdot.Madinah{background:var(--madinah)}

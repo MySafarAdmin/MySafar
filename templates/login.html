@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 {% block title %}Sign in{% endblock %}
 {% block body_class %}solo{% endblock %}
 {% block content %}
@@ -9,8 +10,8 @@
   <form method="post" action="/login">
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <input type="hidden" name="next" value="{{ next }}">
-    <label class="field">Email<input type="email" name="email" value="{{ email or '' }}" autocomplete="username" spellcheck="false" required autofocus></label>
-    <label class="field">Password<input type="password" name="password" autocomplete="current-password" required></label>
+    <label class="field">Email<span class="fin"><input type="email" name="email" value="{{ email or '' }}" autocomplete="username" spellcheck="false" required autofocus>{{ icon("person") }}</span></label>
+    <label class="field">Password<span class="fin"><input type="password" name="password" autocomplete="current-password" required>{{ icon("lock") }}</span></label>
     <label class="check"><input type="checkbox" name="remember" value="1"> Keep me signed in on this device for 30 days</label>
     <button class="btn primary">Sign in</button>
   </form>

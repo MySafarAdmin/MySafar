@@ -36,11 +36,10 @@ QAIDAH_LEVELS = 10  # keep in step with QAIDAH in src/page.html
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # Reachable without signing in.
-PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css"}
-# Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Instrument Sans with
-# Source Serif 4 for titles (see DESIGN.md).
-FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "instrument-sans-latin.woff2",
-         "instrument-sans-latin-ext.woff2", "source-serif-4-latin.woff2", "source-serif-4-latin-ext.woff2"}
+PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/favicon.png", "/favicon.ico"}
+# Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Figtree
+# for text and titles alike (see DESIGN.md).
+FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
 # /tv/<token> is a TV screen link; tv.py checks the token.
 PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/")
 
@@ -230,7 +229,7 @@ def create_app(test_config=None):
         # The font files are public and never change; everything else is private.
         # The logo is public too, and email apps fetch it for every email they show.
         response.headers["Cache-Control"] = "public, max-age=604800" if (request.path.startswith("/fonts/")
-            or request.path == "/logo.png") and response.status_code == 200 else "no-store"
+            or request.path in ("/logo.png", "/favicon.png", "/favicon.ico")) and response.status_code == 200 else "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
@@ -259,6 +258,12 @@ def create_app(test_config=None):
             logo["png"] = base64.b64decode((ROOT / "src" / "logo.b64").read_text().strip())
         response = Response(logo["png"], mimetype="image/png")
         return response
+
+    # The browser tab icon: the logo on a white disc, so it reads as a circle on light and dark tabs alike.
+    @app.get("/favicon.png")
+    @app.get("/favicon.ico")
+    def favicon():
+        return Response((ROOT / "static" / "favicon.png").read_bytes(), mimetype="image/png")
 
     @app.get("/auth.css")
     def auth_css():

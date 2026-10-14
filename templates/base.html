@@ -4,9 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="same-origin">
-<meta name="theme-color" content="#23272d">
-<title>{% block title %}{% endblock %} · Safar Academy</title>
-<link rel="preload" href="/fonts/atkinson-next-latin.woff2" as="font" type="font/woff2" crossorigin>
+<meta name="theme-color" content="#003b6b">
+<title>{% block title %}{% endblock %} · MySafar</title>
+<link rel="preload" href="/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
 <link rel="stylesheet" href="/auth.css">
 </head>
 {% set shell = user and not user.must_change and self.body_class() != "solo" %}
@@ -16,12 +18,13 @@
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
 <header><div class="rail">
-  <a class="brand" href="/"><span class="badge"><img src="/logo.png" alt="" width="34" height="34"></span><span translate="no"><b>Safar Academy</b><small>Enfield</small></span></a>
+  <a class="brand" href="/"><span class="badge"><img src="/logo.png" alt="" width="34" height="34"></span><span translate="no"><b class="wm">My<span>Safar</span></b><small>Enfield</small></span></a>
   <input type="checkbox" id="navt" class="navt" aria-label="Show the menu">
   <label for="navt" class="menu-btn" aria-hidden="true">Menu</label>
   <nav class="navs" aria-label="Main">
     <a class="nav" href="/">{{ icon("home") }}Dashboard</a>
     <a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
+    <a class="nav" href="/#classes">{{ icon("grid") }}Classes</a>
     {% if user.role == "admin" %}
     <div class="navh" id="adminh">Administration</div>
     <a class="nav" href="/admin/users"{{ ' aria-current="page"'|safe if here == "/admin/users" }}>{{ icon("users") }}Manage users</a>
@@ -48,6 +51,15 @@
 </div>
 {% else %}
 <div class="solo-band"></div>
+<aside class="welcome" aria-label="Welcome">
+  <div class="wmark" translate="no"><span class="badge"><img src="/logo.png" alt="" width="40" height="40"></span><span><b class="wm">My<span>Safar</span></b><small>Safar Academy Enfield</small></span></div>
+  <figure class="wquote">
+    <span class="wtab">Welcome</span>
+    <blockquote><p>“The best of you are those who learn the Qur’ān and teach it.”</p></blockquote>
+    <figcaption>The Prophet Muhammad (peace be upon him), Ṣaḥīḥ al-Bukhārī 5027</figcaption>
+  </figure>
+  <svg class="wart" viewBox="0 0 400 220" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="2"><rect x="166" y="62" width="68" height="68" rx="3"/><rect x="166" y="62" width="68" height="68" rx="3" transform="rotate(45 200 96)"/><circle cx="200" cy="96" r="18"/></g><path d="M330 46a26 26 0 1 0 22 40 21 21 0 1 1-22-40z" fill="currentColor"/><g fill="currentColor"><circle cx="70" cy="60" r="3"/><circle cx="110" cy="30" r="2"/><circle cx="290" cy="150" r="2.5"/><circle cx="60" cy="150" r="2"/><circle cx="360" cy="130" r="3"/></g><path d="M120 200c28-22 52-22 80 0 28-22 52-22 80 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+</aside>
 <main>
 {% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
