@@ -745,6 +745,8 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .qmtn{font-size:.875rem}.qmtn small{color:var(--mute)}
 .qmtr>b{min-width:2ch;text-align:right}
 .qmtr .tk{width:34px;min-height:32px}
+.tdot.mer{background:var(--gold)}
+.qmrec{width:100%;margin-top:12px}
 /* Settings: one column of rows in the same quiet card style as the Quran and Memo tabs. */
 .sets{max-width:780px;display:flex;flex-direction:column;gap:8px}
 .seth{font-family:var(--font-display);font-weight:600;font-size:1.125rem;margin:6px 0 2px}

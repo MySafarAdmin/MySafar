@@ -1010,6 +1010,8 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .qmtn{font-size:.875rem}.qmtn small{color:var(--mute)}
 .qmtr>b{min-width:2ch;text-align:right}
 .qmtr .tk{width:34px;min-height:32px}
+.tdot.mer{background:var(--gold)}
+.qmrec{width:100%;margin-top:12px}
 /* Settings: one column of rows in the same quiet card style as the Quran and Memo tabs. */
 .sets{max-width:780px;display:flex;flex-direction:column;gap:8px}
 .seth{font-family:var(--font-display);font-weight:600;font-size:1.125rem;margin:6px 0 2px}
@@ -1045,7 +1047,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
   <button id="mS" role="tab" aria-controls="vMS" aria-selected="true">Summary</button><button id="mA" role="tab" aria-controls="vMA" aria-selected="false" tabindex="-1">Attention</button><button id="mC" role="tab" aria-controls="vMC" aria-selected="false" tabindex="-1">Classes</button><button id="mR" role="tab" aria-controls="vMR" aria-selected="false" tabindex="-1">Rankings</button><button id="mH" role="tab" aria-controls="vMH" aria-selected="false" tabindex="-1">Houses</button>
  </div>
  <div class="tabs hide" id="sub" role="tablist" aria-label="Class pages">
-  <button id="tQ" role="tab" aria-controls="vQ" aria-selected="true">Quran</button><button id="tI" role="tab" aria-controls="vI" aria-selected="false" tabindex="-1">Record</button><button id="tW" role="tab" aria-controls="vW" aria-selected="false" tabindex="-1">Warnings</button><button id="tT" role="tab" aria-controls="vT" aria-selected="false" tabindex="-1">Memo</button><button id="tD" role="tab" aria-controls="vD" aria-selected="false" tabindex="-1">Progress</button><button id="tH" role="tab" aria-controls="vH" aria-selected="false" tabindex="-1">Rewards</button><button id="tS" role="tab" aria-controls="vS" aria-selected="false" tabindex="-1">Settings</button>
+  <button id="tQ" role="tab" aria-controls="vQ" aria-selected="true">Quran</button><button id="tT" role="tab" aria-controls="vT" aria-selected="false" tabindex="-1">Memo</button><button id="tD" role="tab" aria-controls="vD" aria-selected="false" tabindex="-1">Progress</button><button id="tH" role="tab" aria-controls="vH" aria-selected="false" tabindex="-1">Rewards</button><button id="tS" role="tab" aria-controls="vS" aria-selected="false" tabindex="-1">Settings</button>
  </div>
 </div>
 
@@ -1064,24 +1066,6 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
  <div id="vMR" role="tabpanel" aria-labelledby="mR" class="ws hide"></div>
  <div id="vMH" role="tabpanel" aria-labelledby="mH" class="ws hide"></div>
 </section>
-
-<section id="vI" class="ws hide" role="tabpanel" aria-labelledby="tI">
- <div class="rec">
-  <div class="rtool"><div class="tools"><div class="seg rf" id="rF" role="group" aria-label="Show students"></div><details class="help"><summary aria-label="How recording works">?</summary><div class="hb"><p><b>+</b> under Passes means the student passed their current target and moves to the next one. After the book (L10 T14), targets carry on through the numbered Juz items, starting at 198 An-Naba (Juz 30).</p><p>Select a name to change the target, record a fail, take something back, or see the student's details and history.</p><p>Warnings and Waiting show only the students who need attention. Waiting means no pass in 3 or more weeks, or none yet.</p><p>Use the arrow keys to move between names. Changes save as you go.</p></div></details></div></div>
-  <div class="recmain">
-   <div class="rheads" aria-hidden="true"><span><i>Student</i><i>Passes</i><i>Merits</i></span><span><i>Student</i><i>Passes</i><i>Merits</i></span></div>
-   <ul class="roster" id="body" aria-label="Students"></ul>
-   <p class="none rfnone" id="rfNone" hidden></p>
-  </div>
-  <aside class="recside">
-   <div class="sidec" id="side" aria-label="Selected student and latest records" role="region"></div>
-  </aside>
- </div>
-</section>
-
-<section id="vW" class="ws hide" role="tabpanel" aria-labelledby="tW">
- <div class="toolbar"><div class="wsum" id="wsum"></div><div class="tools"><button class="btn danger sm" id="cw2" type="button">Clear all warnings</button><details class="help"><summary aria-label="How warnings work">?</summary><div class="hb"><p>Tap a warning to give it. Tap it again to take it away.</p><p>Warning 1, then Warning 2, then Miss break. Each student holds one level at a time.</p></div></details></div></div>
- <div id="wrows" class="cols2"></div></section>
 
 <section id="vQ" class="ws hide" role="tabpanel" aria-labelledby="tQ">
  <div class="toolbar qbar">
@@ -1364,22 +1348,11 @@ document.addEventListener("keydown",function(e){
 document.addEventListener("click",function(e){Array.prototype.forEach.call(document.querySelectorAll(".rmore[open],.help[open]"),function(d){if(!d.contains(e.target))d.open=false})});
 function same(c,i,s){if(CID===c&&S[i]===s)return true;toast("The list was updated. Please try again.",1);return false}
 
-/* ---------- Class: Record ---------- */
-/* SEL is the selected student. On wide screens their editor sits beside the roster; on narrow ones it opens in the drawer. */
-var SEL=-1,WIDE=window.matchMedia("(min-width: 1100px)");
-/* Attention lives on the roster itself: markers on each row and the Warnings and Waiting filters above it. */
-var RF="";
-function rfOk(s){return !RF||(RF==="w"?!!s.warn:late(s))}
-function rfHtml(){var W=S.filter(function(s){return s.warn}).length,N=S.filter(late).length;
- return [["","All",S.length],["w","Warnings",W],["l","Waiting",N]].map(function(x){return '<button type="button" data-rf="'+x[0]+'" aria-pressed="'+(RF===x[0])+'">'+x[1]+' <span class="tn">'+x[2]+'</span></button>'}).join("")}
+/* ---------- Class: student record ---------- */
+/* SEL is the student whose record is open in the drawer. */
+var SEL=-1;
 function events(){var E=[];S.forEach(function(s,i){s.log.forEach(function(t,k){E.push({i:i,k:k,t:t,l:s.lt[k],x:pl(s,k)})});s.fl.forEach(function(t,k){E.push({i:i,k:k,t:t,l:0,x:"Fail",f:1})})});
  return E.sort(function(a,b){return b.t-a.t||b.l-a.l})}
-/* Beside the roster when nobody is selected: what to do next, the latest records and the less frequent actions. */
-function sideHtml(){var E=events().slice(0,6);
- return '<section class="sgrp"><p class="sidehint">Select a student to record a fail, change their target, or see their details and history.</p></section>'
-  +'<section class="sgrp"><div class="mod-h"><h2>Latest</h2><button type="button" class="btn sm quiet" data-ct="D" data-pv="hi">Full history</button></div>'
-  +(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(S[e.i].name)+'</b><span class="x'+(e.f?' fail':'')+'">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">Nothing recorded yet.</p>')+'</section>'
-  +'<section class="sgrp sidea"><button type="button" class="btn sm" data-past="1">Add a past pass</button><button type="button" class="btn sm" data-ct="H">Leaders and prize</button><button type="button" class="btn sm" data-ct="S">Add students</button></section>'}
 function ctr(i,k,lab,one,cls,n){var nm=esc(S[i].name);return '<div class="ctr"><span class="lbl">'+lab+'</span><button class="btn minus" type="button" data-a="'+k+'-" data-i="'+i+'" aria-label="Take back a '+one+' from '+nm+'">−</button><b class="cnt">'+n+'</b><button class="btn plus '+cls+'" type="button" data-a="'+k+'+" data-i="'+i+'" aria-label="Add a '+one+' for '+nm+'">+</button></div>'}
 /* The selected student's editor: the current target and today's recording first. Details (with rename and
    remove) open in place; History opens the full record in the drawer. EDD remembers whether Details is open. */
@@ -1397,37 +1370,12 @@ function refill(el,html){var a=document.activeElement,key=null;
  el.innerHTML=html;var x=el.querySelector('[data-f="target"]');if(x){var s=S[+x.dataset.i];x.value=nod(s)?0:s.target}
  if(key){var n=el.querySelector(key);if(n)n.focus()}}
 var DMODE="";
-function side(){if(SEL>=S.length)SEL=-1;
- refill($("side"),SEL>=0&&WIDE.matches?editor(SEL):sideHtml());
- if(DMODE==="ed"){if(SEL>=0&&!WIDE.matches){$("drwT").textContent=S[SEL].name;refill($("drwB"),editor(SEL,1))}else closeDrawer()}
- if(DMODE==="side")refill($("drwB"),sideHtml())}
-function select(i){if(!S[i])return;SEL=i;marks();
- if(WIDE.matches){side();return}
- drawer(S[i].name,"");DMODE="ed";refill($("drwB"),editor(i,1));$("drwX").focus()}
-function marks(){Array.prototype.forEach.call($("body").querySelectorAll(".rname"),function(b){var on=+b.dataset.sel===SEL;b.setAttribute("aria-pressed",on);b.parentNode.classList.toggle("sel",on)})}
-/* The rows are rebuilt only when students are added or removed, so a focused control keeps its place.
-   Two columns on wide screens: rows fill the first column, then the second. */
-function roster(){var b=$("body");
- if(!b.children.length||b.dataset.n!=S.length){b.dataset.n=S.length;
-  b.innerHTML=S.length?S.map(function(s,i){
-  return '<li class="rrow" id="r'+i+'"><button type="button" class="rname" data-sel="'+i+'" aria-pressed="false"><b id="nm'+i+'"></b><small id="mt'+i+'"></small></button>'
-  +'<div class="q"><b class="cnt" id="p'+i+'"></b><button class="btn plus p" type="button" data-a="p+" data-i="'+i+'"><span aria-hidden="true">+</span></button></div>'
-  +'<div class="q"><b class="cnt" id="m'+i+'"></b><button class="btn plus m" type="button" data-a="m+" data-i="'+i+'"><span aria-hidden="true">+</span></button></div></li>'}).join(""):'<li class="empty"><b>No students yet</b><button type="button" class="btn sm" data-ct="S">Add students in Settings</button></li>'}
- S.forEach(function(s,i){$("nm"+i).textContent=s.name;
-  $("mt"+i).innerHTML='<span class="tg">'+esc(ct(s))+'</span>'+(s.warn?'<span class="fl w'+(s.warn===3?' w3':'')+'">'+WL[s.warn]+'</span>':'')+(late(s)?'<span class="fl l">'+(s.passes?'Waiting':'No passes')+'</span>':'');
-  $("r"+i).classList.toggle("flag",!!s.warn||late(s));
-  $("p"+i).textContent=s.passes;$("m"+i).textContent=s.merits;
-  var r=$("r"+i);r.querySelector('[data-a="p+"]').setAttribute("aria-label","Add a pass for "+s.name);r.querySelector('[data-a="m+"]').setAttribute("aria-label","Add a merit for "+s.name);
-  r.querySelector('[data-a="p+"]').title="Passed "+bl(s.target);r.querySelector('[data-a="m+"]').title="Add a merit";
-  r.hidden=!rfOk(s)});
- var shown=S.filter(rfOk).length;b.style.setProperty("--rows",Math.max(1,Math.ceil(shown/2)));
- $("rF").innerHTML=S.length?rfHtml():"";
- var nn=$("rfNone");nn.hidden=!(S.length&&!shown);nn.textContent=RF==="w"?"No warnings in this class.":"Every student has passed in the last 3 weeks.";
- marks()}
-$("rF").addEventListener("click",function(e){var x=e.target.closest("[data-rf]");if(!x)return;RF=x.dataset.rf;roster();var n=$("rF").querySelector('[data-rf="'+RF+'"]');if(n)n.focus()});
+/* The student's record opens in the drawer from the menu on their name (Quran tab), and stays in step with it. */
+function side(){if(DMODE!=="ed")return;if(SEL>=0&&S[SEL]){$("drwT").textContent=S[SEL].name;refill($("drwB"),editor(SEL,1))}else{SEL=-1;closeDrawer()}}
+function select(i){if(!S[i])return;SEL=i;drawer(S[i].name,"");DMODE="ed";refill($("drwB"),editor(i,1));$("drwX").focus()}
 function details(s){return [["Student ID",s.sid],["Safar year",s.year],["School year",s.sy],["Gender",s.gender],["House",s.house],["Islamic Studies",s.ist]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
-/* Recording: the same actions from the roster, the editor beside it and the editor in the drawer. */
-document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]");if(!bt||!bt.closest("#body,#side,#drwB"))return;var a=bt.dataset.a,i=+bt.dataset.i,s=S[i],c=CID;if(!s)return;
+/* Recording from the student's record in the drawer. */
+document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]");if(!bt||!bt.closest("#drwB"))return;var a=bt.dataset.a,i=+bt.dataset.i,s=S[i],c=CID;if(!s)return;
  var nm=fn(s),msg="";
  if(a==="dt"){student(i);return}
  if(a==="dd"){EDD=!EDD;var box=bt.closest(".ed");box.querySelector(".edd").hidden=!EDD;bt.setAttribute("aria-expanded",EDD);return}
@@ -1441,13 +1389,8 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
  if(a==="m+"){s.merits++;s.ml.push(Date.now());msg="Merit added for "+nm}
  if(a==="m-"){if(s.merits>0){s.merits--;s.ml.pop();msg="Merit taken back for "+nm}else{toast(nm+" has no merits to take back",1);return}}
  s.hit=s.log.length?s.log[s.log.length-1]:null;save();render();if(msg)toast(msg)});
-document.addEventListener("change",function(e){var t=e.target;if(t.dataset.f!=="target"||!t.closest("#side,#drwB"))return;var s=S[+t.dataset.i];if(!s)return;
+document.addEventListener("change",function(e){var t=e.target;if(t.dataset.f!=="target"||!t.closest("#drwB"))return;var s=S[+t.dataset.i];if(!s)return;
  s.target=Math.min(Math.max(1,+t.value||1),NB);save();render();toast(fn(s)+"'s target set to "+bl(s.target))});
-/* Arrow keys move between names; Home and End jump to the first and last. */
-$("body").addEventListener("keydown",function(e){var b=e.target.closest(".rname");if(!b)return;
- var V=Array.prototype.filter.call($("body").querySelectorAll(".rname"),function(x){return !x.parentNode.hidden}),i=V.indexOf(b),j=e.key==="ArrowDown"?i+1:e.key==="ArrowUp"?i-1:e.key==="Home"?0:e.key==="End"?V.length-1:null;
- if(j===null||!V[j])return;e.preventDefault();V[j].focus()});
-(WIDE.addEventListener?WIDE.addEventListener.bind(WIDE,"change"):WIDE.addListener.bind(WIDE))(function(){if(CID){if(WIDE.matches&&(DMODE==="ed"||DMODE==="side"))closeDrawer();side()}});
 
 /* ---------- Class: Progress ---------- */
 function qavg(s){var v=Object.keys(s.q).map(function(k){return s.q[k]});return avg(v)}
@@ -1502,7 +1445,7 @@ function sheet(){var ev={},days={};
  el.innerHTML=h+'</tbody></table>'}
 function legend(){$("leg").innerHTML=LEVELS.map(function(_,l){return '<span><b style="background:'+LC[l%LC.length]+'"></b>L'+(l+1)+'</span>'}).join("")+'<span><b style="background:'+BC+'"></b>Juz</span>'}
 /* The Memo tab: a view of where each student is, with a calendar of the days students passed. Nothing is recorded
-   here; passes are recorded on the Record tab. MS is the student whose profile is open (-1 for the whole class),
+   here; passes are recorded from the menu on a student's name on the Quran tab. MS is the student whose profile is open (-1 for the whole class),
    MM the month shown ("2026-10") and MD the day picked on the calendar. */
 var MS=-1,MM="",MD="";
 /* The level or juz a target sits in, and the target's place in it. */
@@ -1691,12 +1634,15 @@ function qMenu(i,keep){var B=$("qB"),s=S[i],b=B.querySelector('.qnb[data-ni="'+i
  var m=document.createElement("div");m.className="qmenu";m.setAttribute("role","dialog");m.setAttribute("aria-label",s.name);
  m.innerHTML='<div class="qmh"><b>'+esc(s.name)+'</b>'+(s.house?'<span class="qhs"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">No house yet</span>')+'</div>'
   +'<p class="qml">Warning</p><div class="qmw" role="group" aria-label="Warning for '+esc(s.name)+'">'+[1,2,3].map(function(l){return '<button type="button" class="wb'+l+'" data-mk="w'+l+'" aria-pressed="'+(w===l)+'">'+WL[l]+'</button>'}).join("")+'</div>'
-  +'<p class="qml">House points<span>'+hp(s)+' points</span></p><div class="qmt">'+TOK.map(function(k){return '<div class="qmtr"><span class="tdot '+k[1]+'"></span><span class="qmtn">'+k[2]+' <small>'+k[3]+'</small></span><b>'+s[k[0]].length+'</b><button type="button" class="tk minus" data-mk="t'+k[0]+'-" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button><button type="button" class="tk add '+k[1]+'" data-mk="t'+k[0]+'+" aria-label="Give '+esc(s.name)+' a '+k[2].toLowerCase()+' token, '+k[3]+' points">+</button></div>'}).join("")+'</div>';
+  +'<p class="qml">Merits</p><div class="qmt"><div class="qmtr"><span class="tdot mer"></span><span class="qmtn">Merits</span><b>'+s.merits+'</b><button type="button" class="tk minus" data-mk="m-" aria-label="Take back a merit from '+esc(s.name)+'">−</button><button type="button" class="tk add m" data-mk="m+" aria-label="Give '+esc(s.name)+' a merit">+</button></div></div>'
+  +'<p class="qml">House points<span>'+hp(s)+' points</span></p><div class="qmt">'+TOK.map(function(k){return '<div class="qmtr"><span class="tdot '+k[1]+'"></span><span class="qmtn">'+k[2]+' <small>'+k[3]+'</small></span><b>'+s[k[0]].length+'</b><button type="button" class="tk minus" data-mk="t'+k[0]+'-" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button><button type="button" class="tk add '+k[1]+'" data-mk="t'+k[0]+'+" aria-label="Give '+esc(s.name)+' a '+k[2].toLowerCase()+' token, '+k[3]+' points">+</button></div>'}).join("")+'</div><button type="button" class="btn sm qmrec" data-mk="rec">Passes, target and more</button>';
  B.appendChild(m);var r=b.getBoundingClientRect(),br=B.getBoundingClientRect(),top=r.bottom-br.top+6;
  if(r.bottom+m.offsetHeight+12>window.innerHeight&&r.top-m.offsetHeight-6>0)top=r.top-br.top-m.offsetHeight-6;
  m.style.top=top+"px";m.style.left=Math.max(0,Math.min(r.left-br.left,B.clientWidth-m.offsetWidth))+"px";
  var f=af&&m.querySelector('[data-mk="'+af+'"]')||(!keep&&m.querySelector("button"));if(f)f.focus()}
 function qMenuAct(k){var i=QMN,s=S[i];if(!s)return;var nm=fn(s);
+ if(k==="rec"){qMenuClose();select(i);return}
+ if(k[0]==="m"){if(k[1]==="+"){s.merits++;s.ml.push(Date.now());toast("Merit added for "+nm)}else if(s.merits>0){s.merits--;s.ml.pop();toast("Merit taken back for "+nm)}else{toast(nm+" has no merits to take back",1);return}save();render();return}
  if(k[0]==="w"){var v=+k[1];if(s.warn===v){s.warn=0;toast(nm+": warning removed")}else{s.warn=v;toast(nm+": "+WL[v]+" given")}save();render();return}
  var f=k.slice(1,3),tk=TOK.filter(function(x){return x[0]===f})[0];if(!tk)return;
  if(k[3]==="+"){s[f].push(Date.now());toast(nm+": "+tk[2].toLowerCase()+" token, +"+tk[3]+" points"+(s.house?" for "+s.house:""))}
@@ -1731,13 +1677,6 @@ function qSheetDraw(){var days={},from=QP==="r"?dk(addDays(today0(),-42).getTime
  $("qSheet").innerHTML=h+'</tbody></table>'}
 
 /* ---------- Class: Warnings ---------- */
-function warnrows(){var n=[0,0,0,0];S.forEach(function(s){n[s.warn||0]++});
- $("wsum").innerHTML=n[1]+n[2]+n[3]?[3,2,1].filter(function(l){return n[l]}).map(function(l){return wl(l)+'<b>'+n[l]+'</b>'}).join(""):'<span class="calm">No warnings</span>';
- $("wrows").innerHTML=S.length?S.map(function(s,i){var w=s.warn||0;return '<div class="trow s'+w+'"><b>'+esc(s.name)+'</b><div class="tset" role="group" aria-label="Warning for '+esc(s.name)+'">'+[1,2,3].map(function(l){return '<button type="button" class="tbtn b'+l+'" aria-pressed="'+(w===l)+'" data-wi="'+i+'" data-wv="'+l+'">'+WL[l]+'</button>'}).join("")+'</div></div>'}).join(""):'<div class="empty"><b>No students yet</b></div>'}
-$("wrows").addEventListener("click",function(e){var b=e.target.closest("[data-wi]");if(!b)return;var s=S[+b.dataset.wi],v=+b.dataset.wv;if(!s)return;var nm=fn(s);
- if(s.warn===v){s.warn=0;save();render();toast(nm+": warning removed");return}
- s.warn=v;save();render();toast(nm+": "+WL[v]+" given")});
-
 /* ---------- Class: Rewards ---------- */
 var LK="p",LT="m";
 function pdots(n){var h="";for(var k=0;k<PRIZE;k++)h+='<i'+(k<n?' class="on"':'')+'></i>';return '<span class="dots" aria-hidden="true">'+h+'</span>'}
@@ -1766,7 +1705,7 @@ $("hrows").addEventListener("click",function(e){var b=e.target.closest("button")
 /* ---------- Class: Settings ---------- */
 function clearW(){var c=CID;if(!S.some(function(s){return s.warn})){toast("No warnings to clear",1);return}
  ask("Clear every warning in "+ST[c].name+"?","Clear warnings",function(){if(CID!==c)return;S.forEach(function(s){s.warn=0});save();render();toast("All warnings cleared")},null,1)}
-$("cw2").onclick=clearW;$("cw").onclick=clearW;
+$("cw").onclick=clearW;
 function blank(n){return {name:n,target:1,passes:0,merits:0,hit:null,log:[],lt:[],lx:[],ml:[],fl:[],q:{},warn:0,tg:[],tb:[],tr:[]}}
 $("add").onclick=function(){addStudent()};
 $("rst").onclick=function(){var c=CID;ask("Reset all passes and merits for "+ST[c].name+"?","Reset scores",function(){if(CID!==c)return;S.forEach(function(s){s.passes=0;s.merits=0;s.ml=[];s.hit=null;s.log=[];s.lt=[];s.lx=[]});save();render();toast("All scores reset")},null,1)};
@@ -1777,16 +1716,16 @@ function classBand(){var W=S.filter(function(s){return s.warn}).length,N=S.filte
  $("figs").innerHTML=fig(S.length,S.length===1?"Student":"Students")+fig(sumOf(S,mpc),"Passes this month")+fig(sumOf(S,mmc),"Merits this month")+fig(W,W===1?"Warning":"Warnings",W?"alert":"")+fig(N,"Waiting for a pass",N?"alert":"")}
 function render(){
  var d=new Date(),ms=new Date(d.getFullYear(),d.getMonth(),1).getTime();S.forEach(function(s){s.mp=s.log.filter(function(t){return t>=ms}).length});
- classBand();roster();side();
- warnrows();quran();sheet();memo();
+ classBand();side();
+ quran();sheet();memo();
  lanes();$("dist").innerHTML=distHtml(S);$("wk").innerHTML=weekChart(allLogs(S));stuTable();past();
  leaders();prize();houses()}
 
 /* ---------- Tabs ---------- */
-/* Teachers record on the Quran tab; Record and Warnings are for admins. A teacher gives warnings and house
-   points from the menu on a student's name instead. */
+/* Recording happens on the Quran tab: scores in the sheet, and warnings, merits, house points and the student's
+   record (passes, target, fails, rename, remove) from the menu on a student's name. */
 var TEACHER=!!(window.ME&&ME.role!=="admin");
-var TABS=TEACHER?["Q","T","D","H","S"]:["Q","I","W","T","D","H","S"],CUR="Q",MT=["S","A","C","R","H"],MCUR="S";
+var TABS=["Q","T","D","H","S"],CUR="Q",MT=["S","A","C","R","H"],MCUR="S";
 /* The selected tab is drawn by one marker (.tabi) that slides to the tab chosen, and the new page slides in from
    the side the tab is on. Reduced motion turns both off (tokens.css). */
 function tabMark(list){var on=list.querySelector('[aria-selected="true"]'),m=list.querySelector(".tabi");if(!on||!on.offsetWidth)return;
@@ -1802,7 +1741,7 @@ var TMR=0;window.addEventListener("resize",function(){clearTimeout(TMR);TMR=setT
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){tabMark($("sub"));tabMark($("mt"))});
 function keyTabs(ids,fn,prefix){ids.forEach(function(k,i){var b=$(prefix+k);b.onclick=function(){fn(k)};
  b.onkeydown=function(e){var j=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?ids.length-1:null;if(j===null)return;e.preventDefault();fn(ids[(j+ids.length)%ids.length],1)}})}
-if(TEACHER){["I","W"].forEach(function(k){$("t"+k).hidden=true});$("hV").querySelector('[data-v="hs"]').hidden=true}
+if(TEACHER){$("hV").querySelector('[data-v="hs"]').hidden=true}
 keyTabs(TABS,tab,"t");keyTabs(MT,mtab,"m");
 /* Segmented controls: one choice pressed at a time. */
 function setSeg(id,v){var g=$(id);Array.prototype.forEach.call(g.querySelectorAll("button"),function(b){var k=b.dataset.p||b.dataset.k||b.dataset.t;b.setAttribute("aria-pressed",k===v)});
@@ -1823,7 +1762,7 @@ function navL(){
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?n.name:"School overview";$("swc").hidden=!n||CIDS.length<2;
  document.title=(n?n.name+" · ":"")+"Safar Enfield Dashboard"}
-function setClass(c){if(c!==CID){SEL=-1;RF="";QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("body").innerHTML="";$("fcd").value=FCD;EXP={};head();render()}
+function setClass(c){if(c!==CID){SEL=-1;QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if(c!=="M"&&!ST[c])c="M";var M=c==="M";closeDrawer();
  $("vM").classList.toggle("hide",!M);$("mt").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M);
  if(M){CID=null;SEL=-1;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master();tabMark($("mt"))}
@@ -1849,8 +1788,8 @@ var AK3=[["wr","Warnings"],["stale","No pass in 3+ weeks"],["quiet","Quiet class
 function attnBox(K){
  if(!K.wr.length&&!K.stale.length&&!K.quiet.length)return '<div class="mod line attn calm"><h2>Needs attention</h2><p class="calmline">Nothing needs attention. No warnings, every student has passed in the last 3 weeks, and every class has activity this month.</p></div>';
  var n=[0,0,0,0];K.wr.forEach(function(o){n[o.s.warn]++});
- var R=[["wr",K.wr.length,K.wr.length===1?"student with a warning":"students with a warning",byClass(K.wr),"W"],
-  ["stale",K.stale.length,(K.stale.length===1?"student":"students")+" with no pass in 3+ weeks",byClass(K.stale),"I"],
+ var R=[["wr",K.wr.length,K.wr.length===1?"student with a warning":"students with a warning",byClass(K.wr),"Q"],
+  ["stale",K.stale.length,(K.stale.length===1?"student":"students")+" with no pass in 3+ weeks",byClass(K.stale),"T"],
   ["quiet",K.quiet.length,(K.quiet.length===1?"class":"classes")+" with no activity this month",K.quiet.map(function(c){return {c:c,L:ST[c].S}}),""]];
  return '<div class="mod line attn"><div class="mod-h"><h2>Needs attention</h2></div>'+R.filter(function(r){return r[1]}).map(function(r){
   return '<div class="ab '+r[0]+'"><button type="button" class="abh" data-list="'+r[0]+'" aria-label="See all '+r[1]+' '+r[2]+'"><b>'+r[1]+'</b><span>'+r[2]+'</span></button>'
@@ -1887,7 +1826,7 @@ function attnTab(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],s
   +a.slice(p*size,(p+1)*size).map(function(c){return '<tr><td class="lead">'+opener(c,esc(ST[c].name))+'</td><td data-label="Students" class="n">'+ST[c].S.length+'</td><td data-label="Last pass">'+ago(lastPass(ST[c].S))+'</td></tr>'}).join("")+'</tbody></table></div>';
  else{var F=[];byClass(a).forEach(function(g){F=F.concat(g.L)});
   h+='<div class="tablewrap"><table class="tbl stackable"><thead><tr><th scope="col">Student</th><th scope="col">Class</th><th scope="col">'+(k==="wr"?"Warning":"Since a pass")+'</th></tr></thead><tbody>'
-  +F.slice(p*size,(p+1)*size).map(function(o){return '<tr><td class="lead"><b>'+esc(o.s.name)+'</b></td><td data-label="Class">'+opener(o.c,esc(ST[o.c].name),k==="wr"?"W":"I")+'</td><td data-label="'+(k==="wr"?"Warning":"Since a pass")+'">'+(k==="wr"?wl(o.s.warn):o.s.log.length?plural(o.d,"day"):'<span class="zero">No passes yet, '+plural(o.d,"day")+'</span>')+'</td></tr>'}).join("")+'</tbody></table></div>'}
+  +F.slice(p*size,(p+1)*size).map(function(o){return '<tr><td class="lead"><b>'+esc(o.s.name)+'</b></td><td data-label="Class">'+opener(o.c,esc(ST[o.c].name),k==="wr"?"Q":"T")+'</td><td data-label="'+(k==="wr"?"Warning":"Since a pass")+'">'+(k==="wr"?wl(o.s.warn):o.s.log.length?plural(o.d,"day"):'<span class="zero">No passes yet, '+plural(o.d,"day")+'</span>')+'</td></tr>'}).join("")+'</tbody></table></div>'}
  $("vMA").innerHTML=h+pagerHtml("a"+k,a.length,size,k==="quiet"?"classes":"students")}
 /* Classes: the searchable directory, ten classes a page. */
 function dirTab(){if(!$("dirQ"))$("dirW").innerHTML='<div class="toolbar"><input type="search" id="dirQ" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><p class="cap" id="dirC"></p></div><div id="dirT"></div>';dirTable()}
@@ -1930,7 +1869,6 @@ document.addEventListener("click",function(e){if(e.target.closest("[data-past]")
 document.addEventListener("click",function(e){var b=e.target.closest("[data-open],[data-ct],[data-mt],[data-exp],[data-list],[data-sel],[data-unsel],[data-pg]");if(!b||b.closest("#dlg"))return;
  if(b.dataset.open){e.preventDefault();go(b.dataset.open,b.dataset.tab);return}
  if(b.dataset.sel){select(+b.dataset.sel);return}
- if(b.dataset.unsel){var k0=SEL;SEL=-1;marks();side();var nb0=$("body").querySelector('[data-sel="'+k0+'"]');if(nb0)nb0.focus();return}
  if(b.dataset.pg){var pk=b.dataset.pg,pd=+b.dataset.pd;PG[pk]=(PG[pk]||0)+pd;if(CID)render();else master();var pb=document.querySelector('[data-pg="'+pk+'"][data-pd="'+pd+'"]');if(pb&&pb.disabled)pb=document.querySelector('[data-pg="'+pk+'"][data-pd="'+(-pd)+'"]');if(pb)pb.focus();return}
  if(b.dataset.ct){if(DMODE==="side")closeDrawer();tab(b.dataset.ct,1);if(b.dataset.pv)view(b.dataset.ct,b.dataset.pv);return}
  if(b.dataset.mt){mtab(b.dataset.mt,1);return}
