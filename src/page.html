@@ -573,9 +573,15 @@ function qDays(){var days={},end=addDays(today0(),56);for(var x=sd();x<=end;x=ad
 function qLatest(D){var t=dk(Date.now()),k=D[0];D.forEach(function(d){if(d<=t)k=d});return k}
 function qDate(k){var p=k.split("-");return new Date(+p[0],+p[1]-1,+p[2],12)}
 /* Where each column sits: k is its place from the focused day (0), negative to the left. */
-function qGeo(W){var side=W<540?1:W<860?2:3,nameW=Math.round(Math.min(230,Math.max(side===1?96:130,W*.19))),houseW=Math.round(Math.min(150,Math.max(side===1?72:96,W*.12))),
+/* Phones (a sheet under 600px wide) show only the focused day: name, box, house. When a name would be cut off,
+   the house goes and the name takes its room, with the box on the right. */
+function qGeo(W,nh){if(W<600){var bw=Math.round(Math.min(84,Math.max(64,W*.2))),hw=nh?0:Math.round(Math.min(120,W*.27)),nw=W-bw-hw;
+  return {side:0,phone:1,nh:nh,w:bw,nameW:nw,houseW:hw,x:function(k){return k<0?k*bw:k===0?nw:nw+bw+hw+(k-1)*bw}}}
+ var side=W<540?1:W<860?2:3,nameW=Math.round(Math.min(230,Math.max(side===1?96:130,W*.19))),houseW=Math.round(Math.min(150,Math.max(side===1?72:96,W*.12))),
   w=(W-nameW-houseW)/(2*side+1);
  return {side:side,w:w,nameW:nameW,houseW:houseW,x:function(k){return k<=0?(k+side)*w+(k===0?nameW:0):side*w+nameW+w+houseW+(k-1)*w}}}
+function qTooLong(w){var c=qTooLong.c||(qTooLong.c=document.createElement("canvas").getContext("2d"));c.font="600 16px "+getComputedStyle(document.body).fontFamily;
+ return S.some(function(s){return c.measureText(s.name).width+(qStarOf(s)?22:0)+(s.warn?16:0)+48>w})}
 function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.24/side)}
 function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name),lt=v!==undefined&&qTest(s,d);
  if(!on)return '<span class="qc'+(v===undefined?'':' has')+(lt?' test':'')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'></span>';
@@ -591,7 +597,7 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  var rec=S.filter(function(s){return s.q[QF]!==undefined});
  $("qSum").innerHTML='<b>'+rec.length+' of '+S.length+'</b> recorded'+(rec.length?' · average <b>'+avg(rec.map(function(s){return s.q[QF]}))+'</b>':'');
  var W=B.clientWidth;if(!W)return; /* hidden: drawn when the tab opens */
- var G=qGeo(W),fb=40,top=B.getBoundingClientRect().top,
+ var G=qGeo(W,0);if(G.phone&&qTooLong(G.nameW))G=qGeo(W,1);B.classList.toggle("qph",!!G.phone);B.classList.toggle("qnh",!!G.nh);var fb=40,top=B.getBoundingClientRect().top,
   rh=fb+6;
  /* The boxes are one size in every class, however many students it has; a long class scrolls. */
  B.style.setProperty("--rh",rh+"px");B.style.setProperty("--w",G.w+"px");B.style.setProperty("--box",Math.min(fb,G.w-10)+"px");
@@ -667,6 +673,9 @@ function qPopClose(back){var p=document.querySelector(".qpop");if(p)p.remove();A
 function qPop(btn){qPopClose();var s=S[+btn.dataset.qi];if(!s)return;var cur=s.q[QF],B=$("qB");QP_=btn;
  var p=document.createElement("div");p.className="qpop";p.setAttribute("role","group");p.setAttribute("aria-label","Score for "+s.name);
  p.innerHTML=[0,1,2,3,4,5].map(function(k){return '<button type="button" style="--c:'+QC[k]+'" data-qv="'+k+'" aria-pressed="'+(cur===k)+'">'+k+'</button>'}).join("")+(cur===undefined?'':'<button type="button" class="qclr" data-qv="x">Clear</button>');
+ if(B.classList.contains("qph")){p.className="qpop qsheet";p.removeAttribute("role");p.removeAttribute("aria-label");
+  p.innerHTML='<div class="qsc" data-qx aria-hidden="true"></div><div class="qscard" role="group" aria-label="Score for '+esc(s.name)+'"><div class="qsh"><b>'+esc(s.name)+'</b><small>'+esc(qlab(QF))+'</small></div><div class="qsb">'+p.innerHTML+'</div></div>';
+  B.appendChild(p);btn.setAttribute("aria-expanded","true");(p.querySelector('[aria-pressed="true"]')||p.querySelector("[data-qv]")).focus({preventScroll:true});return}
  B.appendChild(p);btn.setAttribute("aria-expanded","true");Array.prototype.forEach.call(B.querySelectorAll(".qcol:not(.on)>.qr:nth-child("+(+btn.dataset.qi+1)+"),.qhouses>.qn:nth-child("+(+btn.dataset.qi+1)+")"),function(e){e.classList.add("qhid")});var r=btn.getBoundingClientRect(),b=B.getBoundingClientRect(),x=r.right-b.left+8;if(x+p.offsetWidth>B.clientWidth)x=Math.max(0,r.left-b.left-p.offsetWidth-8);
  p.style.left=x+"px";p.style.top=Math.max(0,r.top-b.top+(r.height-p.offsetHeight)/2)+"px";(p.querySelector('[aria-pressed="true"]')||p.firstChild).focus()}
 function qSet(i,v,next){var s=S[i],d=QF;if(!s)return;if(s.q[d]!==undefined&&qTest(s,d)){toast(TEACHER?"That's a level test score, so only an admin can change it.":"That's a level test score. Change it on the Record page.",1);return}if(d>dk(Date.now())){toast("That class day hasn't happened yet",1);return}
@@ -674,6 +683,7 @@ function qSet(i,v,next){var s=S[i],d=QF;if(!s)return;if(s.q[d]!==undefined&&qTes
  if(v==="x"||s.q[d]===v){delete s.q[d];toast(nm+"'s score cleared for "+lab)}else{s.q[d]=v;toast(nm+" scored "+v+"/5 on "+lab)}
  save();render();var n=$("qB").querySelector('.qcol.on [data-qi="'+Math.min(next?i+1:i,S.length-1)+'"]');if(n)n.focus()}
 $("qB").addEventListener("click",function(e){var a=e.target.closest("#qAdd2");if(a){addStudent();return}
+ if(e.target.closest(".qpop [data-qx]")){qPopClose(1);return}
  var v=e.target.closest(".qpop [data-qv]");if(v){var i=+QP_.dataset.qi;qPopClose();qSet(i,v.dataset.qv==="x"?"x":+v.dataset.qv,1);return}
  var b=e.target.closest(".qcol.on [data-qi]");if(b&&b.dataset.lock){toast(TEACHER?"That's a level test score, so only an admin can change it.":"That's a level test score. Change it on the Record page.",1);return}if(b&&!b.disabled){if(QP_===b){qPopClose(1);return}qPop(b)}});
 $("qB").addEventListener("keydown",function(e){

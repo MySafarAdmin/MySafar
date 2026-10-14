@@ -113,6 +113,13 @@ same dock as plain links (`/#classes`, `/#record`, `/#tab-Q` and so on) and a
 CSS-only More, since they run without scripts. While a text field has the
 keyboard open on a touch screen the dock slides away. Toasts rise above it.
 
+**Quran on phones** (a sheet under 600px wide): only the focused day shows, as
+three columns: the name on the left, the day's box, and the house. If any name
+in the class would be cut off, the house column goes, the name takes its room
+(wrapping onto a second line if it must) and the box sits on the right. Tapping
+a box raises the score picker from the bottom: the student's full name, the
+day, six large score buttons and Clear, over a dim backdrop that closes it.
+
 **Classes** is its own page in the rail, under Journey2Jannah, in place of the
 old list of class names: searchable class cards (patterned banner, year tile,
 students, passes, merits and warnings), all on one scrolling page, with the CSV
