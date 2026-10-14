@@ -1031,20 +1031,35 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .srow textarea{width:100%;resize:vertical}
 .sact{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
 
-/* Record page: three numbered steps in one calm column, then the student's latest records. */
-.recf{max-width:640px;display:flex;flex-direction:column;gap:14px}
-.rstep{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
-.rn{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.875rem;background:var(--navy-soft);color:var(--navy)}
-.rl{display:block;margin:2px 0 8px;font-weight:650;color:var(--ink)}
-.rgap{margin-top:12px}
-.rstep select{width:100%;max-width:420px}
-.rnow{margin:8px 0 0;color:var(--ink-2);font-size:.9375rem}
-.rpair{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
-.rpair label{display:flex;flex-direction:column;gap:6px;font-weight:650;flex:1 1 160px}
-.racts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.rlast{padding:4px 2px}
-.rlast .feed li{grid-template-columns:minmax(0,1fr) auto;padding:5px 0}
-.rhint{padding:8px 2px}
+/* Record page: the numbered steps down the left of the workspace, divided like the overview's sections, and the
+   chosen student in a soft panel on the right. A step's number fills navy once it has an answer. */
+.recf{display:grid;gap:20px 36px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:1000px){.recf{grid-template-columns:minmax(0,1fr) 320px}.rside{position:sticky;top:20px}}
+.rsteps{display:flex;flex-direction:column;min-width:0;max-width:680px}
+.rstep{display:grid;grid-template-columns:32px minmax(0,1fr);gap:16px;align-items:start;padding:20px 0;border-top:1px solid var(--line)}
+.rstep:first-child{border-top:0;padding-top:2px}
+.rn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.9375rem;background:var(--navy-soft);color:var(--navy);transition:background-color .2s,color .2s}
+.rstep.done .rn{background:var(--navy);color:#fff}
+.rl{display:block;margin:4px 0 12px;font-family:var(--font-display);font-weight:800;font-size:1.125rem;color:var(--ink)}
+.rgap{display:block;margin-top:14px}
+.rstep select{width:100%;max-width:440px}
+.rnow{margin:10px 0 0;color:var(--mute);font-size:.9375rem}
+.rpair{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;max-width:440px}
+.rpair label{display:flex;flex-direction:column;gap:6px;font-weight:650;flex:1 1 140px}
+.racts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.rside{min-width:0;background:var(--bg);border-radius:var(--r-lg);padding:20px}
+.rside h2{margin:0;font-family:var(--font-display);font-weight:800;font-size:1.25rem;line-height:1.25;color:var(--navy);overflow-wrap:anywhere}
+.rside.empty h2{color:var(--ink)}
+.rside.empty p{margin:8px 0 0;color:var(--mute);font-size:.9375rem;line-height:1.5}
+.rcls{margin:4px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--mute);font-size:.875rem;font-weight:600}
+.rcls .hdot{margin-left:6px}
+.rfacts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 0}
+.rfacts div{background:var(--surface);border-radius:var(--r);padding:10px 12px}
+.rfacts dt{font-size:.8125rem;font-weight:650;color:var(--mute)}
+.rfacts dd{margin:2px 0 0;font-weight:800;font-size:1.125rem;color:var(--ink)}
+.rlast{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.rlast h3{margin:0;font-size:1rem;font-weight:750}
+.rlast .feed li{grid-template-columns:minmax(0,1fr) auto;padding:6px 0}
 .rsc{display:flex;flex-wrap:wrap;gap:8px}
 .rsc button{width:48px;height:48px;border-radius:10px;border:1px solid color-mix(in srgb,var(--c) 70%,#1d2127);background:var(--c);font:inherit;font-weight:700;font-size:1.0625rem;color:var(--ink);cursor:pointer}
 .rsc button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--navy)}
@@ -1069,6 +1084,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .tsg .wk{height:120px}.tsg .lvc{height:120px}
 .tsl{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
 .tsl>*{margin:0!important}
+@media (min-width:1100px){.tsum.school .tsl{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .tsr .rk4.mine .hb{padding:0;border:0;background:none;box-shadow:none}
 
 /* Year calendar pop-up: twelve months at once, in the dashboard's quiet style. */
@@ -1135,6 +1151,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 @media (max-width:559.98px){.ccards{grid-template-columns:1fr 1fr;gap:10px}.ccard{padding:0 8px 10px}.cban{margin:0 -8px;height:40px}.ctile{width:48px;height:48px;margin-top:-24px}.cfig{grid-template-columns:1fr 1fr}}
 @media (prefers-reduced-motion:reduce){.ccard:hover{transform:none}}
 #vL{margin-top:12px}
+@media (max-width:479.98px){.rsc{flex-wrap:nowrap;gap:6px}.rsc button{flex:1 1 0;width:auto;min-width:0;max-width:48px;height:44px}}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1503,13 +1520,20 @@ function qTest(s,d){var T=s.tests||[];for(var k=T.length-1;k>=0;k--)if(T[k].d===
 function tLab(t){return (t.k==="q"?"Qaidah Level "+t.n:bl(t.n))}
 function rStu(){var p=RS.split("|"),c=p[0],i=+p[1];return ST[c]&&ST[c].S[i]?{c:c,i:i,s:ST[c].S[i]}:null}
 function rSeg(id,cur,o,lab){return '<div class="seg" id="'+id+'" role="group" aria-label="'+lab+'">'+o.map(function(x){return '<button type="button" data-v="'+x[0]+'" aria-pressed="'+(cur===x[0])+'">'+x[1]+'</button>'}).join("")+'</div>'}
-function rStep(n,body){return '<div class="rstep"><span class="rn" aria-hidden="true">'+n+'</span><div>'+body+'</div></div>'}
+function rStep(n,body,done){return '<div class="rstep'+(done?' done':'')+'"><span class="rn" aria-hidden="true">'+n+'</span><div>'+body+'</div></div>'}
+/* The chosen student beside the steps: where they are now and their latest level tests. */
+function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No student chosen</h2><p>Choose a student in step 2 to see their Memo target, Qaidah level and past level tests here.</p></aside>';
+ var T=(s.tests||[]).slice().reverse().slice(0,5);
+ return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(ST[o.c].name)+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
+  +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Qaidah</dt><dd>'+(s.qa?'Level '+s.qa:'No level yet')+'</dd></div></dl>'
+  +'<section class="rlast"><div class="mod-h"><h3>Level tests</h3>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
+  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+t.sc+'/5, '+(t.ok?'passed':'not passed')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
 function recPage(){var o=rStu(),s=o&&o.s,h='';
- h+=rStep(1,'<p class="rl">Level test for</p>'+rSeg("rK",RK,[["q","Quran"],["m","Memo"]],"Level test for"));
+ h+=rStep(1,'<p class="rl">Level test for</p>'+rSeg("rK",RK,[["q","Quran"],["m","Memo"]],"Level test for"),1);
  h+=rStep(2,'<label class="rl" for="rS">Student</label><select id="rS"><option value="">Choose a student</option>'
   +CIDS.map(function(c){return '<optgroup label="'+esc(ST[c].name)+'">'+ST[c].S.map(function(x,i){return '<option value="'+esc(c)+'|'+i+'"'+(RS===c+"|"+i?' selected':'')+'>'+esc(x.name)+'</option>'}).join("")+'</optgroup>'}).join("")+'</select>'
-  +(s?'<p class="rnow">'+(RK==="m"?'Memo target now <b>'+esc(ct(s))+'</b>':'Qaidah <b>'+(s.qa?'Level '+s.qa:'no level yet')+'</b>')+'</p>':''));
- if(!s){refill($("recF"),h+'<p class="none rhint">'+(CIDS.length?'Choose a student to record their level test.':'No classes yet.')+'</p>');return}
+  +(s?'':'<p class="rnow">'+(CIDS.length?'Choose a student to record their level test.':'No classes yet.')+'</p>'),!!s);
+ if(!s){refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  var b;
  if(RK==="q"){if(!RX)RX=Math.min((s.qa||0)+1,QAIDAH);
   b='<label class="rl" for="rQ">Qaidah level tested</label><select id="rQ">'+Array.apply(null,{length:QAIDAH}).map(function(_,l){return '<option value="'+(l+1)+'"'+(RX===l+1?' selected':'')+'>Level '+(l+1)+'</option>'}).join("")+'</select>'}
@@ -1519,14 +1543,11 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
    b+='<div class="rpair"><label>Level<select id="rL">'+LEVELS.map(function(_,k){return '<option value="'+k+'"'+(k===l?' selected':'')+'>Level '+(k+1)+'</option>'}).join("")+'</select></label>'
     +'<label>Target<select id="rT">'+Array.apply(null,{length:LEVELS[l]}).map(function(_,t){var n=LVS[l]+t+1;return '<option value="'+n+'"'+(n===RX?' selected':'')+'>T'+(t+1)+'</option>'}).join("")+'</select></label></div>'}
   else b+='<label class="rgap"><span class="sr-only">Item number and Surah</span><select id="rI" aria-label="Item number and Surah">'+opts(BOOK.slice(0,NB-1)).split('<optgroup label="Juz').slice(1).map(function(g){return '<optgroup label="Juz'+g}).join("").replace('value="'+RX+'"','value="'+RX+'" selected')+'</select></label>'}
- h+=rStep(3,b);
+ h+=rStep(3,b,1);
  h+=rStep(4,'<p class="rl">Score</p><div class="rsc" role="group" aria-label="Score out of 5">'+QC.map(function(c,k){return '<button type="button" data-sc="'+k+'" style="--c:'+c+'" aria-pressed="'+(RSC===k)+'">'+k+'</button>'}).join("")+'</div>'
   +'<div class="racts"><button type="button" class="btn primary" data-r="ok"'+(RSC<0?' disabled':'')+'>Passed</button><button type="button" class="btn" data-r="no"'+(RSC<0?' disabled':'')+'>Not passed</button>'
-  +(RK==="m"?'<button type="button" class="btn quiet" data-r="t">Set as current target, no test</button>':'')+'</div>');
- var T=(s.tests||[]).slice().reverse().slice(0,5);
- h+='<section class="rlast"><div class="mod-h"><h2>Level tests for '+esc(fn(s))+'</h2>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
-  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+t.sc+'/5, '+(t.ok?'passed':'not passed')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section>';
- refill($("recF"),h)}
+  +(RK==="m"?'<button type="button" class="btn quiet" data-r="t">Set as current target, no test</button>':'')+'</div>',RSC>=0);
+ refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o))}
 function rDone(o,msg){persist(o.c);if(o.c===CID)render();recPage();toast(msg)}
 function recAct(k){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d=dk(now);if(!s.tests)s.tests=[];
  if(k==="u"){var t=s.tests.pop();if(!t)return;var prev=qTest(s,t.d);if(prev)s.q[t.d]=prev.sc;else delete s.q[t.d];
@@ -1955,7 +1976,8 @@ function navL(){
  $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");if(PAGE==="M")hello();$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false");$("nL").setAttribute("aria-current",PAGE==="L"||PAGE==="C"?"page":"false")}
 /* The overviews open with a greeting, as Journey2Jannah does, then say which overview this is; a teacher also
    gets their classes as chips to jump straight in. */
-function hello(){var on=PAGE==="M",el=$("hello");el.hidden=!on;$("band").classList.toggle("greet",on);if(!on)return;
+function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("band").classList.toggle("greet",on);if(!on)return;
+ if(PAGE==="R"){el.innerHTML='<span class="hsub">End-of-level tests for Quran and Memo</span>';return}
  var who=window.ME&&ME.name&&ME.name!=="Administrator"?" "+ME.name:"",cls=TEACHER?CIDS:[];
  $("ttl").textContent="Assalāmu ʿalaykum"+who+"!";
  el.innerHTML='<span class="hsub">'+(TEACHER?"Class overview":"School overview")+'</span>'+cls.map(function(c,i){return '<a class="hchip c'+(i%4)+'" href="#'+esc(c)+'" data-open="'+esc(c)+'">'+esc(ST[c].name)+'</a>'}).join("")}
@@ -2011,20 +2033,19 @@ function master(){if(PAGE==="L"){dirTab();return}var K=school(),A=K.A,all=K.all,
 /* Summary: one screen. Attention, this term's activity, houses and top classes, then where students are in the book. */
 function summary(K){var A=K.A,all=K.all;
  if(!A.length){$("mst").innerHTML='<div class="empty"><b>No students yet</b>Upload a CSV in Classes, or open a class and add students in its Settings.</div>';return}
- if(TEACHER){tSummary(K);return}
- var E=latest(A,3);
- $("mst").innerHTML='<div class="sumgrid">'+attnBox(K)
-  +'<div class="mod teal act"><div class="mod-h"><h2>Passes per week</h2><span class="cap">Whole school, last 8 weeks</span></div>'+weekChart(allLogs(all))
-  +'<h3>Latest passes</h3>'+(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(e.s.name)+'<small>'+esc(ST[e.c].name)+'</small></b><span class="x">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">No passes yet.</p>')+'</div>'
-  +'<div class="sumcol">'+houseBoard(all,1)+'<div class="grp topc"><div class="mod-h"><h2>Top classes</h2><button type="button" class="btn sm quiet" data-mt="R">Rankings</button></div>'
-  +rankList("topc",classRows("m"),{limit:3,noMore:1,none:"No passes or merits yet this month.",fmt:function(v){return v.toFixed(1)}})+'<p class="cap">This month, passes and merits per student</p></div></div>'
-  +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target, all '+plural(all.length,"student")+'</span></div>'+levelCols(all)+'</div></div>'}
-/* A teacher's class overview: the rankings (with house points) first and largest, then the graphs, then attention. */
-function tSummary(K){var all=K.all;
- $("mst").innerHTML='<div class="tsum"><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K,1)+'</section>'
-  +'<div class="tsg"><div class="grp"><div class="mod-h"><h2>Passes per week</h2><span class="cap">Last 8 weeks</span></div>'+weekChart(allLogs(all))+'</div>'
-  +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target</span></div>'+levelCols(all)+'</div></div>'
-  +'<div class="tsl">'+attnBox(K)+'</div></div>';
+ tSummary(K,!TEACHER)}
+/* The overview, the same for a teacher's classes and for the whole school: the rankings (with house points) first
+   and largest, then the graphs, then attention. The school overview adds the top classes and the latest passes
+   beside attention. */
+function tSummary(K,school){var all=K.all,E=school?latest(K.A,3):[];
+ $("mst").innerHTML='<div class="tsum'+(school?' school':'')+'"><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K,1)+'</section>'
+  +'<div class="tsg"><div class="grp"><div class="mod-h"><h2>Passes per week</h2><span class="cap">'+(school?'Whole school, last 8 weeks':'Last 8 weeks')+'</span></div>'+weekChart(allLogs(all))+'</div>'
+  +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target'+(school?', all '+plural(all.length,"student"):'')+'</span></div>'+levelCols(all)+'</div></div>'
+  +'<div class="tsl">'+attnBox(K)
+  +(school?'<div class="grp topc"><div class="mod-h"><h2>Top classes</h2><button type="button" class="btn sm quiet" data-mt="R">Rankings</button></div>'
+    +rankList("topc",classRows("m"),{limit:3,noMore:1,none:"No passes or merits yet this month.",fmt:function(v){return v.toFixed(1)}})+'<p class="cap">This month, passes and merits per student</p></div>'
+    +'<div class="grp"><div class="mod-h"><h2>Latest passes</h2></div>'+(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(e.s.name)+'<small>'+esc(ST[e.c].name)+'</small></b><span class="x">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">No passes yet.</p>')+'</div>':'')
+  +'</div></div>';
  $("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
 /* Attention: the complete lists, one kind at a time, grouped by class and paged. */
 function attnTab(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],size=10,h;

@@ -130,6 +130,14 @@ and the sheet will not change it; only the Record page can.
 Summary puts Rankings first and largest (House points, Most passes, Most
 merits), then Passes per week and Students by level, then attention. No latest
 passes or Furthest along list; admins keep Furthest along on their Rankings tab.
+The **school overview** (admins) uses the same layout with school-wide figures,
+and its last row adds Top classes and Latest passes beside attention.
+
+**Record page look**: a subtitle under the title, the four numbered steps down
+the left of the workspace divided by hairlines like the overview's sections (a
+step's number fills navy once answered), and the chosen student in a soft grey
+panel on the right (class, house, Memo target, Qaidah level, latest level tests,
+Take back the latest). On phones the panel follows the steps.
 
 **Star of the week**: a star button beside Day by day / Full sheet on the Quran
 tab picks one student for the week holding the focused class day; a gold star

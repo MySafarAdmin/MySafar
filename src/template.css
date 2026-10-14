@@ -762,20 +762,35 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .srow textarea{width:100%;resize:vertical}
 .sact{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
 
-/* Record page: three numbered steps in one calm column, then the student's latest records. */
-.recf{max-width:640px;display:flex;flex-direction:column;gap:14px}
-.rstep{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
-.rn{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.875rem;background:var(--navy-soft);color:var(--navy)}
-.rl{display:block;margin:2px 0 8px;font-weight:650;color:var(--ink)}
-.rgap{margin-top:12px}
-.rstep select{width:100%;max-width:420px}
-.rnow{margin:8px 0 0;color:var(--ink-2);font-size:.9375rem}
-.rpair{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
-.rpair label{display:flex;flex-direction:column;gap:6px;font-weight:650;flex:1 1 160px}
-.racts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.rlast{padding:4px 2px}
-.rlast .feed li{grid-template-columns:minmax(0,1fr) auto;padding:5px 0}
-.rhint{padding:8px 2px}
+/* Record page: the numbered steps down the left of the workspace, divided like the overview's sections, and the
+   chosen student in a soft panel on the right. A step's number fills navy once it has an answer. */
+.recf{display:grid;gap:20px 36px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:1000px){.recf{grid-template-columns:minmax(0,1fr) 320px}.rside{position:sticky;top:20px}}
+.rsteps{display:flex;flex-direction:column;min-width:0;max-width:680px}
+.rstep{display:grid;grid-template-columns:32px minmax(0,1fr);gap:16px;align-items:start;padding:20px 0;border-top:1px solid var(--line)}
+.rstep:first-child{border-top:0;padding-top:2px}
+.rn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.9375rem;background:var(--navy-soft);color:var(--navy);transition:background-color .2s,color .2s}
+.rstep.done .rn{background:var(--navy);color:#fff}
+.rl{display:block;margin:4px 0 12px;font-family:var(--font-display);font-weight:800;font-size:1.125rem;color:var(--ink)}
+.rgap{display:block;margin-top:14px}
+.rstep select{width:100%;max-width:440px}
+.rnow{margin:10px 0 0;color:var(--mute);font-size:.9375rem}
+.rpair{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;max-width:440px}
+.rpair label{display:flex;flex-direction:column;gap:6px;font-weight:650;flex:1 1 140px}
+.racts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.rside{min-width:0;background:var(--bg);border-radius:var(--r-lg);padding:20px}
+.rside h2{margin:0;font-family:var(--font-display);font-weight:800;font-size:1.25rem;line-height:1.25;color:var(--navy);overflow-wrap:anywhere}
+.rside.empty h2{color:var(--ink)}
+.rside.empty p{margin:8px 0 0;color:var(--mute);font-size:.9375rem;line-height:1.5}
+.rcls{margin:4px 0 0;display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--mute);font-size:.875rem;font-weight:600}
+.rcls .hdot{margin-left:6px}
+.rfacts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 0}
+.rfacts div{background:var(--surface);border-radius:var(--r);padding:10px 12px}
+.rfacts dt{font-size:.8125rem;font-weight:650;color:var(--mute)}
+.rfacts dd{margin:2px 0 0;font-weight:800;font-size:1.125rem;color:var(--ink)}
+.rlast{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
+.rlast h3{margin:0;font-size:1rem;font-weight:750}
+.rlast .feed li{grid-template-columns:minmax(0,1fr) auto;padding:6px 0}
 .rsc{display:flex;flex-wrap:wrap;gap:8px}
 .rsc button{width:48px;height:48px;border-radius:10px;border:1px solid color-mix(in srgb,var(--c) 70%,#1d2127);background:var(--c);font:inherit;font-weight:700;font-size:1.0625rem;color:var(--ink);cursor:pointer}
 .rsc button[aria-pressed="true"]{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--navy)}
@@ -800,6 +815,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .tsg .wk{height:120px}.tsg .lvc{height:120px}
 .tsl{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
 .tsl>*{margin:0!important}
+@media (min-width:1100px){.tsum.school .tsl{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .tsr .rk4.mine .hb{padding:0;border:0;background:none;box-shadow:none}
 
 /* Year calendar pop-up: twelve months at once, in the dashboard's quiet style. */
@@ -866,3 +882,4 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 @media (max-width:559.98px){.ccards{grid-template-columns:1fr 1fr;gap:10px}.ccard{padding:0 8px 10px}.cban{margin:0 -8px;height:40px}.ctile{width:48px;height:48px;margin-top:-24px}.cfig{grid-template-columns:1fr 1fr}}
 @media (prefers-reduced-motion:reduce){.ccard:hover{transform:none}}
 #vL{margin-top:12px}
+@media (max-width:479.98px){.rsc{flex-wrap:nowrap;gap:6px}.rsc button{flex:1 1 0;width:auto;min-width:0;max-width:48px;height:44px}}
