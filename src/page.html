@@ -911,15 +911,15 @@ function attnTab(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],s
 function dirTab(){if(!CIDS.length){$("dirW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>'+(TEACHER?'Ask an administrator to add you to your classrooms on Manage users.':'Upload a CSV of your students below to create them.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';if(LOADED&&!TEACHER)$("up").open=true;return}
  if(!$("dirQ"))$("dirW").innerHTML='<div class="toolbar"><input type="search" id="dirQ" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><p class="cap" id="dirC"></p></div><div id="dirT"></div>';dirTable()}
 /* Classes as cards, after Journey2Jannah's "My Classes": a patterned banner, a tile with the year group, the class
-   name, then the figures the table used to hold. Eight to a page so a page fits one screen. */
-function dirCard(c,i){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,pp=sumOf(L,mpc),m=sumOf(L,mmc),yr=(/(?:^|[^a-z])yr?\s*(\d+(?:-\d+)?)/i.exec(ST[c].name)||[])[1];
+   name, then the figures the table used to hold. Every class is on the one page; the page scrolls. */
+function dirCard(c,i){var L=ST[c].S,w=L.filter(function(s){return s.warn}).length,pp=sumOf(L,mpc),m=sumOf(L,mmc),yr=(/(?:^|[^a-z])yr?\s*(\d+(?:[-/]\d+)?)/i.exec(ST[c].name)||[])[1];
  var h=0;for(var k=0;k<c.length;k++)h=(h*31+c.charCodeAt(k))>>>0;
  return '<li class="ccard k'+(h%4)+' p'+((h>>>3)%3)+'"><div class="cban" aria-hidden="true"></div><span class="ctile" aria-hidden="true">'+(yr?'<small>Year</small>'+esc(yr):'<small>Class</small>'+esc(ST[c].name.charAt(0)))+'</span>'
   +'<h3 class="cname">'+opener(c,esc(ST[c].name))+'</h3><p class="clast">'+(!L.length?'No students yet':lastPass(L)?'Last pass '+ago(lastPass(L)).toLowerCase():'No passes yet')+'</p>'
   +'<dl class="cfig"><div><dt>Students</dt><dd'+(L.length?'':' class="zero"')+'>'+L.length+'</dd></div><div><dt>Passes</dt><dd'+(pp?'':' class="zero"')+'>'+pp+'</dd></div><div><dt>Merits</dt><dd'+(m?'':' class="zero"')+'>'+m+'</dd></div><div><dt>Warnings</dt><dd class="'+(w?'wcount':'zero')+'">'+w+'</dd></div></dl></li>'}
-function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[c].name).indexOf(q)>=0}),size=8,p=pager("dir",C.length,size);
+function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[c].name).indexOf(q)>=0});
  $("dirC").textContent=(q?plural(C.length,"class","classes")+" match":plural(CIDS.length,"class","classes"))+" · passes and merits this month";
- $("dirT").innerHTML=C.length?'<ul class="ccards">'+C.slice(p*size,(p+1)*size).map(dirCard).join("")+'</ul>'+pagerHtml("dir",C.length,size,"classes"):'<p class="none">No class matches that search.</p>'}
+ $("dirT").innerHTML=C.length?'<ul class="ccards">'+C.map(dirCard).join("")+'</ul>':'<p class="none">No class matches that search.</p>'}
 function rankings(K){$("vMR").innerHTML=rankHtml(K);$("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
 /* The rankings, on their own tab and, for teachers, as the centre of the class overview. */
 function rankHtml(K,mine){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
@@ -959,7 +959,7 @@ document.addEventListener("click",function(e){var b=e.target.closest("[data-open
  if(b.dataset.mt){mtab(b.dataset.mt,1);return}
  if(b.dataset.list){AKIND=b.dataset.list;mtab("A",1);return}
  if(b.dataset.exp){var k=b.dataset.exp;EXP[k]=!EXP[k];if(CID)leaders();else master();var nb=document.querySelector('[data-exp="'+k+'"]');if(nb)nb.focus()}});
-$("vL").addEventListener("input",function(e){if(e.target.id==="dirQ"){DQ=e.target.value;PG.dir=0;dirTable()}});
+$("vL").addEventListener("input",function(e){if(e.target.id==="dirQ"){DQ=e.target.value;dirTable()}});
 $("vMA").addEventListener("click",function(e){var b=e.target.closest("#aK button");if(b){AKIND=b.dataset.k;attnTab(school());$("aK").querySelector('[data-k="'+AKIND+'"]').focus()}});
 window.addEventListener("hashchange",function(){var h=(location.hash||"").slice(1);if(h==="classes"&&PAGE!=="L")go("L");else if(h&&ST[h]&&h!==CID)go(h);else if(!h&&(CID||PAGE==="L"))go("M")});
 $("delC").onclick=function(){var c=CID;if(!c)return;

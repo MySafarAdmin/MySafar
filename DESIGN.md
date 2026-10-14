@@ -98,8 +98,8 @@ figures on the canvas.
 
 **Classes** is its own page in the rail, under Journey2Jannah, in place of the
 old list of class names: searchable class cards (patterned banner, year tile,
-students, passes, merits and warnings), eight a page, with the CSV upload under
-them. A card opens that class with every tab, Settings included; the rail keeps
+students, passes, merits and warnings), all on one scrolling page, with the CSV
+upload under them. A card opens that class with every tab, Settings included; the rail keeps
 Classes marked while a class is open, and Switch class sits by the title.
 
 The name is MySafar, set as a wordmark with "My" in the regular weight and
