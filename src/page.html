@@ -52,7 +52,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
    <p class="qday" id="qDay" aria-live="polite"></p>
    <button type="button" class="ibtn" id="qNext" aria-label="Next class day"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
    <button type="button" class="btn sm quiet" id="qToday" hidden>Latest class day</button></div>
-  <p class="qsum qrec" id="qSum"></p><span class="qleg qrec" aria-hidden="true" id="qLeg"></span>
+  <p class="qsum qrec" id="qSum"></p>
   <div class="seg qhis" id="qP" role="group" aria-label="Days shown"><button type="button" data-p="r" aria-pressed="true">Last 6 weeks</button><button type="button" data-p="a" aria-pressed="false">All</button></div>
   <div class="tools"><div class="seg" id="qV" role="group" aria-label="Show"><button type="button" data-v="rec" aria-pressed="true">Day by day</button><button type="button" data-v="his" aria-pressed="false">Full sheet</button></div>
    <span class="ipick qrec"><button type="button" class="ibtn" id="qCal" aria-label="Go to a class day" title="Go to a class day"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h.01M12 14h.01M16 14h.01M8 17.5h.01M12 17.5h.01"/></svg></button><input type="date" id="qD" tabindex="-1" aria-hidden="true"></span>
@@ -328,37 +328,31 @@ document.addEventListener("click",function(e){Array.prototype.forEach.call(docum
 function same(c,i,s){if(CID===c&&S[i]===s)return true;toast("The list was updated. Please try again.",1);return false}
 
 /* ---------- Class: student record ---------- */
-/* SEL is the student whose record is open in the drawer. */
-var SEL=-1;
 function events(){var E=[];S.forEach(function(s,i){s.log.forEach(function(t,k){E.push({i:i,k:k,t:t,l:s.lt[k],x:pl(s,k)})});s.fl.forEach(function(t,k){E.push({i:i,k:k,t:t,l:0,x:"Fail",f:1})})});
  return E.sort(function(a,b){return b.t-a.t||b.l-a.l})}
 function ctr(i,k,lab,one,cls,n){var nm=esc(S[i].name);return '<div class="ctr"><span class="lbl">'+lab+'</span><button class="btn minus" type="button" data-a="'+k+'-" data-i="'+i+'" aria-label="Take back a '+one+' from '+nm+'">−</button><b class="cnt">'+n+'</b><button class="btn plus '+cls+'" type="button" data-a="'+k+'+" data-i="'+i+'" aria-label="Add a '+one+' for '+nm+'">+</button></div>'}
-/* The selected student's editor: the current target and today's recording first. Details (with rename and
+/* A student's record, in their Memo profile: the current target and the Passes / Merits / Fails counters. Details (with rename and
    remove) open in place; History opens the full record in the drawer. EDD remembers whether Details is open. */
 var EDD=false;
-function editor(i,inDrawer){var s=S[i];
- return '<div class="ed">'+(inDrawer?'':'<div class="ed-h"><h2>'+esc(s.name)+'</h2><button type="button" class="btn sm quiet" data-unsel="1" aria-label="Close '+esc(s.name)+'">Close</button></div>')
-  +'<p class="ed-st">'+(s.warn?wl(s.warn)+' ':'')+(late(s)?'<span class="pill red">'+(s.passes?'No pass in 3+ weeks':'No passes yet')+'</span>':'<span class="pill">Last pass: '+since(s).toLowerCase()+'</span>')+'</p>'
+function editor(i){var s=S[i];
+ return '<div class="ed">'
   +'<label class="ed-t">Current target<select data-i="'+i+'" data-f="target" aria-label="Current target for '+esc(s.name)+'"><option value="0">No data</option>'+TO+'</select></label>'
   +'<div class="ctrs">'+ctr(i,"p","Passes","pass","p",s.passes)+ctr(i,"m","Merits","merit","m",s.merits)+ctr(i,"f","Fails","fail","",s.fl.length)+'</div>'
   +'<div class="ed-a"><button class="btn sm" type="button" data-a="dd" data-i="'+i+'" aria-expanded="'+EDD+'" aria-controls="edd'+i+'">Details</button><button class="btn sm" type="button" data-a="dt" data-i="'+i+'">History</button></div>'
   +'<div class="edd" id="edd'+i+'"'+(EDD?'':' hidden')+'><dl class="ddl">'+details(s)+'</dl><div class="ed-a"><button class="btn sm" type="button" data-a="rn" data-i="'+i+'">Rename</button><button class="btn sm danger" type="button" data-a="rm" data-i="'+i+'">Remove student</button></div></div></div>'}
 /* Replace a panel's content, keeping keyboard focus on the same control. */
 function refill(el,html){var a=document.activeElement,key=null;
- if(a&&el.contains(a))key=a.dataset.a?'[data-a="'+a.dataset.a+'"]':a.dataset.f?'[data-f="'+a.dataset.f+'"]':a.dataset.sel?'[data-sel="'+a.dataset.sel+'"]':null;
+ if(a&&el.contains(a))key=a.dataset.a?'[data-a="'+a.dataset.a+'"]':a.dataset.f?'[data-f="'+a.dataset.f+'"]':null;
  el.innerHTML=html;var x=el.querySelector('[data-f="target"]');if(x){var s=S[+x.dataset.i];x.value=nod(s)?0:s.target}
  if(key){var n=el.querySelector(key);if(n)n.focus()}}
 var DMODE="";
-/* The student's record opens in the drawer from the menu on their name (Quran tab), and stays in step with it. */
-function side(){if(DMODE!=="ed")return;if(SEL>=0&&S[SEL]){$("drwT").textContent=S[SEL].name;refill($("drwB"),editor(SEL,1))}else{SEL=-1;closeDrawer()}}
-function select(i){if(!S[i])return;SEL=i;drawer(S[i].name,"");DMODE="ed";refill($("drwB"),editor(i,1));$("drwX").focus()}
 function details(s){return [["Student ID",s.sid],["Safar year",s.year],["School year",s.sy],["Gender",s.gender],["House",s.house],["Islamic Studies",s.ist]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
 /* Recording from the student's record in the drawer. */
 document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]");if(!bt||!bt.closest("#drwB"))return;var a=bt.dataset.a,i=+bt.dataset.i,s=S[i],c=CID;if(!s)return;
  var nm=fn(s),msg="";
  if(a==="dt"){student(i);return}
  if(a==="dd"){EDD=!EDD;var box=bt.closest(".ed");box.querySelector(".edd").hidden=!EDD;bt.setAttribute("aria-expanded",EDD);return}
- if(a==="rm"){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);SEL=-1;if(DMODE==="ed")closeDrawer();save();render();toast(nm+" removed")},null,1);return}
+ if(a==="rm"){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);if(DMODE==="mm")closeDrawer();save();render();toast(nm+" removed")},null,1);return}
  if(a==="rn"){ask("Rename "+s.name,"Save name",function(v){if(!same(c,i,s))return;s.name=v||"Student";save();render();toast("Name updated")},"Student name",0,s.name);return}
  if(a==="p+"){if(s.target<NB){var old=s.target;s.passes++;s.log.push(Date.now());s.lt.push(old);s.lx.push("");s.target++;msg=nm+" passed "+bl(old)+". Next target: "+bl(s.target)}
   else{toast(nm+" has completed every item, up to Juz 1.");return}}
@@ -424,7 +418,7 @@ function sheet(){var ev={},days={};
  el.innerHTML=h+'</tbody></table>'}
 function legend(){$("leg").innerHTML=LEVELS.map(function(_,l){return '<span><b style="background:'+LC[l%LC.length]+'"></b>L'+(l+1)+'</span>'}).join("")+'<span><b style="background:'+BC+'"></b>Juz</span>'}
 /* The Memo tab: a view of where each student is, with a calendar of the days students passed. Nothing is recorded
-   here; passes are recorded from the menu on a student's name on the Quran tab. MS is the student whose profile is open (-1 for the whole class),
+   here except in a student's profile, whose Record section holds their target, passes, merits and fails. MS is the student whose profile is open (-1 for the whole class),
    MM the month shown ("2026-10") and MD the day picked on the calendar. */
 var MS=-1,MM="",MD="";
 /* The level or juz a target sits in, and the target's place in it. */
@@ -477,8 +471,8 @@ function mProfile(){var s=S[MS];if(!s)return "";var n=nod(s),g=mGrp(s.target),co
  var list='';
  if(MD){var L=mPasses()[MD]||[];list='<div class="mphd"><h3>'+qDate(MD).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})+'</h3><button type="button" class="btn sm quiet" data-mmd="1">All passes</button></div><ul class="mpl">'+L.map(function(k){return '<li><span class="mpd">'+ds(s.log[k])+'</span>'+chip(lc(s.lt[k]),esc(pl(s,k)))+'</li>'}).join("")+'</ul>'}
  else list='<div class="mphd"><h3>Targets passed <span class="mct">'+K.length+'</span></h3></div>'+(K.length?'<ul class="mpl">'+K.map(function(k){return '<li><span class="mpd">'+ds(s.log[k])+'</span>'+chip(lc(s.lt[k]),esc(pl(s,k)))+'</li>'}).join("")+'</ul>':'<p class="none">No targets passed yet.</p>');
- return top+mCalHtml()+'<section class="mlog">'+list+'</section>'}
-function mDraw(dir,focus){var B=$("drwB");if(DMODE!=="mm"||!S[MS])return;B.innerHTML=mProfile();
+ return top+'<section class="mrec"><h3>Record</h3>'+editor(MS)+'</section>'+mCalHtml()+'<section class="mlog">'+list+'</section>'}
+function mDraw(dir,focus){var B=$("drwB");if(DMODE!=="mm"||!S[MS])return;refill(B,mProfile());
  var G=B.querySelector(".mgrid");if(dir&&G&&!QM.matches)G.classList.add(dir>0?"in-r":"in-l");
  if(focus){var f=B.querySelector(focus);if(f&&!f.disabled)f.focus()}}
 function mOpen(i){var s=S[i];if(!s)return;MS=i;MD="";MM=s.log.length?mKey(new Date(mLast(s))):"";drawer(s.name,"");DMODE="mm";mDraw(0);mMark()}
@@ -565,7 +559,7 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  if(dir&&!QM.matches){B.classList.add("moving");clearTimeout(QT);QT=setTimeout(function(){B.classList.remove("moving")},430)}
  if(keep>=0){var c=Y.querySelector('.qcol.on [data-qi="'+keep+'"]');if(c)c.focus()}
  if(QMN>=0)qMenu(QMN,1)}
-function quran(){$("qLeg").innerHTML=QC.map(function(c,k){return '<i style="--c:'+c+'"></i><span>'+k+'</span>'}).join("");qGrid(0);qSheetDraw()}
+function quran(){qGrid(0);qSheetDraw()}
 function qGo(d,dir){if(!d||d===QF)return;var was=QF;QF=d;qGrid(dir||(d>was?1:-1))}
 function qStep(n){var D=qDays(),i=D.indexOf(QF)+n;if(i>=0&&i<D.length)qGo(D[i],n)}
 $("qPrev").onclick=function(){qStep(-1)};$("qNext").onclick=function(){qStep(1)};
@@ -611,16 +605,14 @@ function qMenu(i,keep){var B=$("qB"),s=S[i],b=B.querySelector('.qnb[data-ni="'+i
  var act=document.activeElement,af=keep&&act&&act.closest&&act.closest(".qmenu")?act.dataset.mk:null,old=B.querySelector(".qmenu");if(old)old.remove();
  if(!keep&&QMN>=0&&QMN!==i)qMenuClose();QMN=i;b.setAttribute("aria-expanded","true");var w=s.warn||0;
  var m=document.createElement("div");m.className="qmenu";m.setAttribute("role","dialog");m.setAttribute("aria-label",s.name);
- m.innerHTML='<div class="qmh"><b>'+esc(s.name)+'</b>'+(s.house?'<span class="qhs"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">No house yet</span>')+'</div>'
+ m.innerHTML='<div class="qmh"><b>'+esc(s.name)+'</b><div class="qmm" role="group" aria-label="Merits for '+esc(s.name)+'"><span class="qmml">Merits</span><b>'+s.merits+'</b><button type="button" class="tk minus" data-mk="m-" aria-label="Take back a merit from '+esc(s.name)+'">−</button><button type="button" class="tk add m" data-mk="m+" aria-label="Give '+esc(s.name)+' a merit">+</button></div></div>'
   +'<p class="qml">Warning</p><div class="qmw" role="group" aria-label="Warning for '+esc(s.name)+'">'+[1,2,3].map(function(l){return '<button type="button" class="wb'+l+'" data-mk="w'+l+'" aria-pressed="'+(w===l)+'">'+WL[l]+'</button>'}).join("")+'</div>'
-  +'<p class="qml">Merits</p><div class="qmt"><div class="qmtr"><span class="tdot mer"></span><span class="qmtn">Merits</span><b>'+s.merits+'</b><button type="button" class="tk minus" data-mk="m-" aria-label="Take back a merit from '+esc(s.name)+'">−</button><button type="button" class="tk add m" data-mk="m+" aria-label="Give '+esc(s.name)+' a merit">+</button></div></div>'
-  +'<p class="qml">House points<span>'+hp(s)+' points</span></p><div class="qmt">'+TOK.map(function(k){return '<div class="qmtr"><span class="tdot '+k[1]+'"></span><span class="qmtn">'+k[2]+' <small>'+k[3]+'</small></span><b>'+s[k[0]].length+'</b><button type="button" class="tk minus" data-mk="t'+k[0]+'-" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button><button type="button" class="tk add '+k[1]+'" data-mk="t'+k[0]+'+" aria-label="Give '+esc(s.name)+' a '+k[2].toLowerCase()+' token, '+k[3]+' points">+</button></div>'}).join("")+'</div><button type="button" class="btn sm qmrec" data-mk="rec">Passes, target and more</button>';
+  +'<p class="qml">House points<span>'+hp(s)+' points</span></p><div class="qmt">'+TOK.map(function(k){return '<div class="qmtr"><span class="tdot '+k[1]+'"></span><span class="qmtn">'+k[2]+' <small>'+k[3]+'</small></span><b>'+s[k[0]].length+'</b><button type="button" class="tk minus" data-mk="t'+k[0]+'-" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button><button type="button" class="tk add '+k[1]+'" data-mk="t'+k[0]+'+" aria-label="Give '+esc(s.name)+' a '+k[2].toLowerCase()+' token, '+k[3]+' points">+</button></div>'}).join("")+'</div>';
  B.appendChild(m);var r=b.getBoundingClientRect(),br=B.getBoundingClientRect(),top=r.bottom-br.top+6;
  if(r.bottom+m.offsetHeight+12>window.innerHeight&&r.top-m.offsetHeight-6>0)top=r.top-br.top-m.offsetHeight-6;
  m.style.top=top+"px";m.style.left=Math.max(0,Math.min(r.left-br.left,B.clientWidth-m.offsetWidth))+"px";
  var f=af&&m.querySelector('[data-mk="'+af+'"]')||(!keep&&m.querySelector("button"));if(f)f.focus()}
 function qMenuAct(k){var i=QMN,s=S[i];if(!s)return;var nm=fn(s);
- if(k==="rec"){qMenuClose();select(i);return}
  if(k[0]==="m"){if(k[1]==="+"){s.merits++;s.ml.push(Date.now());toast("Merit added for "+nm)}else if(s.merits>0){s.merits--;s.ml.pop();toast("Merit taken back for "+nm)}else{toast(nm+" has no merits to take back",1);return}save();render();return}
  if(k[0]==="w"){var v=+k[1];if(s.warn===v){s.warn=0;toast(nm+": warning removed")}else{s.warn=v;toast(nm+": "+WL[v]+" given")}save();render();return}
  var f=k.slice(1,3),tk=TOK.filter(function(x){return x[0]===f})[0];if(!tk)return;
@@ -695,7 +687,7 @@ function classBand(){var W=S.filter(function(s){return s.warn}).length,N=S.filte
  $("figs").innerHTML=fig(S.length,S.length===1?"Student":"Students")+fig(sumOf(S,mpc),"Passes this month")+fig(sumOf(S,mmc),"Merits this month")+fig(W,W===1?"Warning":"Warnings",W?"alert":"")+fig(N,"Waiting for a pass",N?"alert":"")}
 function render(){
  var d=new Date(),ms=new Date(d.getFullYear(),d.getMonth(),1).getTime();S.forEach(function(s){s.mp=s.log.filter(function(t){return t>=ms}).length});
- classBand();side();
+ classBand();
  quran();sheet();memo();
  lanes();$("dist").innerHTML=distHtml(S);$("wk").innerHTML=weekChart(allLogs(S));stuTable();past();
  leaders();prize();houses()}
@@ -741,10 +733,10 @@ function navL(){
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?n.name:"School overview";$("swc").hidden=!n||CIDS.length<2;
  document.title=(n?n.name+" · ":"")+"Safar Enfield Dashboard"}
-function setClass(c){if(c!==CID){SEL=-1;QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
+function setClass(c){if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if(c!=="M"&&!ST[c])c="M";var M=c==="M";closeDrawer();
  $("vM").classList.toggle("hide",!M);$("mt").classList.toggle("hide",!M);$("sub").classList.toggle("hide",M);
- if(M){CID=null;SEL=-1;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master();tabMark($("mt"))}
+ if(M){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master();tabMark($("mt"))}
  else{setClass(c);tab(keepTab||"Q")}
  try{history.replaceState(null,"",M?location.pathname+location.search:"#"+c)}catch(e){}
  $("navt").checked=false;navL();window.scrollTo(0,0)}
@@ -845,9 +837,8 @@ $("swc").onclick=switcher;
 function goPast(){if(DMODE==="side")closeDrawer();tab("D");view("D","hi");$("pastD").open=true;$("pS").focus()}
 document.addEventListener("click",function(e){if(e.target.closest("[data-past]"))goPast()});
 /* Links between screens: open a class (and tab), switch an overview or class tab, expand a list, open a full list. */
-document.addEventListener("click",function(e){var b=e.target.closest("[data-open],[data-ct],[data-mt],[data-exp],[data-list],[data-sel],[data-unsel],[data-pg]");if(!b||b.closest("#dlg"))return;
+document.addEventListener("click",function(e){var b=e.target.closest("[data-open],[data-ct],[data-mt],[data-exp],[data-list],[data-pg]");if(!b||b.closest("#dlg"))return;
  if(b.dataset.open){e.preventDefault();go(b.dataset.open,b.dataset.tab);return}
- if(b.dataset.sel){select(+b.dataset.sel);return}
  if(b.dataset.pg){var pk=b.dataset.pg,pd=+b.dataset.pd;PG[pk]=(PG[pk]||0)+pd;if(CID)render();else master();var pb=document.querySelector('[data-pg="'+pk+'"][data-pd="'+pd+'"]');if(pb&&pb.disabled)pb=document.querySelector('[data-pg="'+pk+'"][data-pd="'+(-pd)+'"]');if(pb)pb.focus();return}
  if(b.dataset.ct){if(DMODE==="side")closeDrawer();tab(b.dataset.ct,1);if(b.dataset.pv)view(b.dataset.ct,b.dataset.pv);return}
  if(b.dataset.mt){mtab(b.dataset.mt,1);return}
