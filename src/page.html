@@ -1100,20 +1100,26 @@ function importCSV(){if(!CSV)return;var p=planCSV(),fcd=document.getElementById(
  toast(said.join(", "))}
 function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";document.getElementById("csvF").value=""}
 
-/* Just signed in: a greeting on a navy curtain, held until the class records have loaded (at least about two
-   seconds), then the curtain lifts and the page arrives piece by piece (the "enter" styles in template.css).
-   Once per sign-in, not on page changes; skipped under reduced motion. */
-(function(){if(!(window.ME&&ME.fresh)||window.SIGNING_OUT)return;
- try{if(matchMedia("(prefers-reduced-motion: reduce)").matches)return}catch(e){}
- var who=ME.name&&ME.name!=="Administrator"?ME.name:"",logo=document.querySelector(".rail .badge img"),o=document.createElement("div");
- o.className="greet-in";o.setAttribute("aria-hidden","true");
- o.innerHTML='<span class="gi-sky"><i></i><i></i><i></i><i></i><i></i><i></i><b class="gi-shoot"></b></span><div class="gi-core">'
-  +(logo?'<span class="gi-logo"><img src="'+logo.src+'" alt=""></span>':'')
-  +'<p class="gi-salam">Assalāmu ʿalaykum</p>'+(who?'<p class="gi-name">'+esc(who)+'</p>':'')+'</div>';
- document.body.appendChild(o);
- var t0=Date.now();
- (function wait(){var m=document.querySelector("main"),ready=m&&!m.inert,t=Date.now()-t0;
-  if((ready&&t>2300)||t>7000)lift();else setTimeout(wait,100)})();
- function lift(){document.body.classList.add("enter");o.classList.add("out");
-  setTimeout(function(){o.remove()},1100);setTimeout(function(){document.body.classList.remove("enter")},4000)}})();
+/* Just signed in: the greeting in the heading ("Assalāmu ʿalaykum ...!") fades in large in the middle of the page,
+   holds until the class records have loaded, then shrinks and moves into its place in one motion, and the rest of
+   the page arrives piece by piece (the "enter" styles in template.css). Once per sign-in; skipped under reduced
+   motion (html.fresh, set by the server's TAB_GUARD, then hides nothing). */
+(function(){var H=document.documentElement;if(!(window.ME&&ME.fresh)||window.SIGNING_OUT)return;
+ var still=false;try{still=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
+ if(still){H.classList.remove("fresh");return}
+ var h=$("ttl"),t0=Date.now(),EASE="cubic-bezier(.65,0,.25,1)";
+ function loaded(){var m=document.querySelector("main");return m&&!m.inert}
+ (function waitText(){if((/Assal/.test(h.textContent)&&loaded())||Date.now()-t0>6000)show();else setTimeout(waitText,60)})();
+ function show(){h.classList.add("grow");h.style.transition="none";h.style.transform="none";
+  var R=document.createRange();R.selectNodeContents(h);
+  var b=h.getBoundingClientRect(),q=R.getBoundingClientRect(),r={left:b.left,top:b.top,width:q.width||b.width,height:b.height},m=$("main").getBoundingClientRect(),vw=Math.min(m.width,innerWidth),
+   s=Math.max(1,Math.min(2.6,vw*.86/r.width)),cx=m.left+m.width/2,cy=innerHeight/2-20;
+  h.style.transform="translate("+(cx-r.width*s/2-r.left)+"px,"+(cy-r.height*s/2-r.top)+"px) scale("+s+")";
+  h.style.opacity="0";h.getBoundingClientRect();
+  h.style.transition="opacity .9s ease";h.style.opacity="1";
+  setTimeout(move,2000)}
+ function move(){h.style.transition="transform 1.15s "+EASE;h.style.transform="none";
+  setTimeout(function(){document.body.classList.add("enter");H.classList.remove("fresh");h.style.opacity=""},900);
+  setTimeout(function(){h.classList.remove("grow");h.style.transition=h.style.transform=""},1300);
+  setTimeout(function(){document.body.classList.remove("enter")},4600)}})();
 </script>
