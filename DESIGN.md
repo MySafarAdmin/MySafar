@@ -126,6 +126,11 @@ Passed or Not passed, with the student's latest tests and Take back the latest
 below. The score goes into that day's box on the Quran sheet with a gold border,
 and the sheet will not change it; only the Record page can.
 
+**Centred on big screens**: from 1500px wide the content column narrows to
+1360px, centred beside the side menu, and on screens taller than 860px a top gap
+grows with the height (up to 120px), so the title, tabs and work sit nearer the
+middle of the screen. Nothing changes at 1280x720.
+
 **Class overview** (teachers): the Overview title reads Class overview and its
 Summary puts Rankings first and largest (House points, Most passes, Most
 merits), then Passes per week and Students by level, then attention. No latest
