@@ -36,7 +36,7 @@ QAIDAH_LEVELS = 10  # keep in step with QAIDAH in src/page.html
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # Reachable without signing in.
-PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/favicon.png", "/favicon.ico"}
+PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
 # Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Figtree
 # for text and titles alike (see DESIGN.md).
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
@@ -121,6 +121,8 @@ DASHBOARD_CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; style-s
                  "font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
 PAGE_CSP = ("default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; "
             "base-uri 'none'")
+# The sign-in page also runs one script of ours, /intro.js, which focuses the email field after the opening.
+LOGIN_CSP = PAGE_CSP + "; script-src 'self'"
 # Email previews are styled inline, as emails must be; they have no scripts or forms.
 EMAIL_PREVIEW_CSP = ("default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'none'; "
                      "frame-ancestors 'none'; base-uri 'none'")
@@ -247,7 +249,8 @@ def create_app(test_config=None):
         dashboard = request.path in ("/", "/tv") or (request.path.startswith("/tv/") and response.mimetype == "text/html"
                                                         and response.status_code == 200)
         response.headers["Content-Security-Policy"] = DASHBOARD_CSP if dashboard else \
-            EMAIL_PREVIEW_CSP if request.path.startswith("/admin/email/preview/") else PAGE_CSP
+            EMAIL_PREVIEW_CSP if request.path.startswith("/admin/email/preview/") else \
+            LOGIN_CSP if request.path == "/login" else PAGE_CSP
         if app.config["COOKIE_SECURE"]:
             response.headers["Strict-Transport-Security"] = "max-age=31536000"
         return response
@@ -282,6 +285,10 @@ def create_app(test_config=None):
         css = (ROOT / "src" / "tokens.css").read_text(encoding="utf-8") + "\n" + \
             (ROOT / "static" / "auth.css").read_text(encoding="utf-8")
         return Response(css, mimetype="text/css")
+
+    @app.get("/intro.js")
+    def intro_js():
+        return Response((ROOT / "static" / "intro.js").read_text(encoding="utf-8"), mimetype="text/javascript")
 
     @app.get("/fonts/<name>")
     def font(name):
