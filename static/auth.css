@@ -144,7 +144,7 @@ details.confirm p{font-size:.875rem;margin:0 0 8px}
 @keyframes i-fade-in{from{opacity:0}}
 @keyframes i-gone{to{visibility:hidden}}
 @keyframes i-dissolve{to{opacity:0}}
-@media (min-width:880px){@media (prefers-reduced-motion:reduce){.intro{display:none}}
+@media (prefers-reduced-motion:reduce){.intro{display:none}}
 
 /* Idle sky in the welcome panel: now and then a shooting star crosses it, and a few points twinkle. */
 .wsky{position:absolute;inset:0;overflow:hidden;pointer-events:none}
@@ -162,3 +162,8 @@ details.confirm p{font-size:.875rem;margin:0 0 8px}
 .tw.t4{left:10%;top:58%;animation-delay:.7s;width:2px;height:2px}.tw.t5{left:46%;top:8%;animation-delay:2.8s;width:2px;height:2px}
 @keyframes w-tw{0%,100%{opacity:.15;transform:scale(.7)}50%{opacity:.9;transform:scale(1.2)}}
 @media (prefers-reduced-motion:reduce){.wsky{display:none}}
+/* The sign-in fields wait inside a disabled fieldset until the opening ends (static/intro.js); it adds no box of its own,
+   and the fields look ready while they wait. */
+fieldset.hold{border:0;margin:0;padding:0;min-width:0}
+fieldset.hold:disabled .btn{opacity:1;cursor:default}
+fieldset.hold:disabled input{opacity:1;-webkit-text-fill-color:currentColor}
