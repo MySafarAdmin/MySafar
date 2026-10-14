@@ -267,7 +267,7 @@ of it is off when the device asks for reduced motion (the rule at the end of
 out or a failed attempt) plays a short CSS-only sequence of about 4 seconds. A
 deep navy stage with twinkling points; the gold eight-point star draws itself
 around the round logo; MySafar rises in; then the stage crossfades into the
-sign-in screen (a 1.4 second fade) while the form rises in underneath. Clicks and typing pass straight through to the form throughout. Off
+sign-in screen (a 1.4 second fade) while the form rises in underneath. Clicks and typing pass straight through to the form throughout. The email field takes focus only once the opening ends (static/intro.js, the one script the sign-in page runs), so saved-password suggestions appear then and not over the animation. Off
 under reduced motion. Styles at the end of static/auth.css.
 The opening's end overlaps the fade: the card floats up out of a soft blur with
 its parts following one by one, and the welcome panel's quote and art drift in.

@@ -700,6 +700,15 @@ class DashboardTests:
         self.assertEqual(anonymous.get("/fonts/../server.py").status_code, 404)
         self.assertEqual(anonymous.get("/fonts/other.woff2").status_code, 404)
         self.assertIn("font-src 'self'", anonymous.get("/login").headers["Content-Security-Policy"])
+        # The opening on the sign-in page focuses the email field from /intro.js once it ends, not with autofocus,
+        # so saved-password suggestions don't cover the animation. Other pages still run no scripts.
+        login = anonymous.get("/login")
+        self.assertIn("script-src 'self'", login.headers["Content-Security-Policy"])
+        self.assertIn('src="/intro.js"', login.get_data(as_text=True))
+        self.assertNotIn("autofocus", login.get_data(as_text=True))
+        script = anonymous.get("/intro.js")
+        self.assertEqual((script.status_code, script.mimetype), (200, "text/javascript"))
+        self.assertNotIn("script-src", anonymous.get("/forgot").headers["Content-Security-Policy"])
         self.assertEqual(self.client.get("/admin/users").headers["Cache-Control"], "no-store")
 
     def test_password_help_links_to_the_school(self):
