@@ -45,17 +45,17 @@
      the dashboard's pages, and More opens the full menu through the checkbox. #}
   <label for="navt" class="dscrim" aria-hidden="true"></label>
   <nav class="dock" aria-label="Shortcuts">
-    <a class="dk h" href="/"><span class="dki">{{ icon("home") }}</span><span>Home</span></a>
+    <a class="dk dk-home" href="/"><span class="dki">{{ icon("home") }}</span><span>Home</span></a>
     {% if user.role == "admin" %}
-    <a class="dk l" href="/#classes"><span class="dki">{{ icon("grid") }}</span><span>Classes</span></a>
-    <a class="dk r" href="/#record"><span class="dki">{{ icon("pen") }}</span><span>Record</span></a>
+    <a class="dk dk-classes" href="/#classes"><span class="dki">{{ icon("grid") }}</span><span>Classes</span></a>
+    <a class="dk dk-record" href="/#record"><span class="dki">{{ icon("pen") }}</span><span>Record</span></a>
     {% else %}
-    <a class="dk q" href="/#tab-Q"><span class="dki">{{ icon("quran") }}</span><span>Quran</span></a>
-    <a class="dk t" href="/#tab-T"><span class="dki">{{ icon("target") }}</span><span>Memo</span></a>
-    <a class="dk d" href="/#tab-D"><span class="dki">{{ icon("chart") }}</span><span>Progress</span></a>
-    <a class="dk w" href="/#tab-H"><span class="dki">{{ icon("star") }}</span><span>Rewards</span></a>
+    <a class="dk dk-quran" href="/#tab-Q"><span class="dki">{{ icon("quran") }}</span><span>Quran</span></a>
+    <a class="dk dk-memo" href="/#tab-T"><span class="dki">{{ icon("target") }}</span><span>Memo</span></a>
+    <a class="dk dk-progress" href="/#tab-D"><span class="dki">{{ icon("chart") }}</span><span>Progress</span></a>
+    <a class="dk dk-rewards" href="/#tab-H"><span class="dki">{{ icon("star") }}</span><span>Rewards</span></a>
     {% endif %}
-    <label for="navt" class="dk m" aria-hidden="true"><span class="dki">{{ icon("more") }}</span><span>More</span></label>
+    <label for="navt" class="dk dk-more" aria-hidden="true"><span class="dki">{{ icon("more") }}</span><span>More</span></label>
   </nav>
 </div></header>
 <div class="work">

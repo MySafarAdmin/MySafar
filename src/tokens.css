@@ -148,19 +148,19 @@ a:hover{color:var(--primary-hover)}
  @keyframes dkPop{0%{transform:scale(.7) rotate(-8deg)}60%{transform:scale(1.12) rotate(3deg)}100%{transform:none}}
  .dk:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
  /* Each item's own pastel, from the greeting chips and the Quran score colours */
- .dk.h{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
- .dk.l{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
- .dk.r{--dk-bg:#fbf0d6;--dk-ink:#664a0b}
- .dk.q{--dk-bg:#dff1e6;--dk-ink:#2f5a3b}
- .dk.t{--dk-bg:#fbf0d6;--dk-ink:#7a5608}
- .dk.d{--dk-bg:#ebe7fb;--dk-ink:#4c3d99}
- .dk.w{--dk-bg:#fde8e1;--dk-ink:#9a3412}
- .dk.m{--dk-bg:#e9eff6;--dk-ink:#003b6b}
- .navt:checked~.dock .dk.m,.rail .dk.m.on{color:var(--navy);font-weight:800}
- .navt:checked~.dock .dk.m .dki{background:var(--navy);color:#fff}
- .dk.m .ic{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
- .navt:checked~.dock .dk.m .ic{transform:rotate(90deg)}
- .navt:focus-visible~.dock .dk.m{outline:3px solid var(--focus);outline-offset:-3px}
+ .dk.dk-progressk-home{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
+ .dk.dk-progressk-classes{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
+ .dk.dk-progressk-record{--dk-bg:#fbf0d6;--dk-ink:#664a0b}
+ .dk.dk-progressk-quran{--dk-bg:#dff1e6;--dk-ink:#2f5a3b}
+ .dk.dk-progressk-memo{--dk-bg:#fbf0d6;--dk-ink:#7a5608}
+ .dk.dk-progress{--dk-bg:#ebe7fb;--dk-ink:#4c3d99}
+ .dk.dk-rewards{--dk-bg:#fde8e1;--dk-ink:#9a3412}
+ .dk.dk-more{--dk-bg:#e9eff6;--dk-ink:#003b6b}
+ .navt:checked~.dock .dk.dk-more,.rail .dk.dk-more.on{color:var(--navy);font-weight:800}
+ .navt:checked~.dock .dk.dk-more .dki{background:var(--navy);color:#fff}
+ .dk.dk-more .ic{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+ .navt:checked~.dock .dk.dk-more .ic{transform:rotate(90deg)}
+ .navt:focus-visible~.dock .dk.dk-more{outline:3px solid var(--focus);outline-offset:-3px}
  /* While typing on a phone the dock steps aside, so it never sits on top of the keyboard. */
  .typing .dock{transform:translate(-50%,calc(100% + 24px));opacity:0;pointer-events:none}
 
