@@ -99,11 +99,11 @@ Rewards and Settings, and so do admins (Record and Warnings were removed). All
 recording starts from the Quran tab.
 
 - **Quran** scores show as colour (pastel coral 0, peach, butter,
-  pistachio, mint, sea green 5) with a key beside the day's summary; only the focused day also shows the
-  number. Boxes are 40px in every class, so long classes scroll
-  rather than shrink. A student's name opens a menu with Warning 1, Warning 2
-  and Miss break, Merits and their house tokens with − and +, and a "Passes,
-  target and more" button that opens the student's record in the drawer.
+  pistachio, mint, sea green 5), with no key: the picker shows each number with
+  its colour. Only the focused day also shows the number. Boxes are 40px in every class, so long classes scroll
+  rather than shrink. A student's name opens a menu with Merits and − and + in
+  its top right, then Warning 1, Warning 2 and Miss break, and their house
+  tokens with − and +. The house is not repeated there; it is in the row.
 - **Quran**: the day-by-day sheet. The focused class day sits in a soft navy
   lane between the student names and their houses, with up to three earlier
   days fading out to the left and three later ones to the right (one each side
@@ -116,10 +116,10 @@ recording starts from the Quran tab.
   The add-student icon opens a short form (name, house, optional Student ID)
   and the student is saved with the class straight away. Full sheet shows the
   whole table by class day.
-- **Student record** (drawer, from the name menu): target and Passes / Merits /
-  Fails with − and +, where the Pass + is the only solid button; Details
-  reveals identifiers, Rename and Remove student; History opens the full
-  record.
+- **Student record**: a Record section in the student's Memo profile, with
+  target and Passes / Merits / Fails with − and +, where the Pass + is the only
+  solid button; Details reveals identifiers, Rename and Remove student; History
+  opens the full record.
 - **Memo**: the sheet, scrolling inside its frame.
 - **Progress**: Levels (position in the book in two columns, students by
   level with empty levels named once in a line instead of zero rows),
