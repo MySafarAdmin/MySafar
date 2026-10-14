@@ -23,9 +23,10 @@ from flask import Blueprint, abort, current_app, g, redirect, render_template, r
 import emails
 
 MINUTE, HOUR, DAY = 60, 3600, 86400
-SESSION_IDLE = 8 * HOUR
+# A sign-in ends 20 minutes after the dashboard was last open (it checks in while open, even in a background
+# tab), so closing the app signs you out. There is no "keep me signed in": the cookie also ends with the browser.
+SESSION_IDLE = 20 * MINUTE
 SESSION_SHORT = 12 * HOUR
-SESSION_LONG = 30 * DAY
 INVITE_TTL = 72 * HOUR
 RESET_TTL = HOUR
 LIMIT_WINDOW = 15 * MINUTE
@@ -159,7 +160,8 @@ def load_session():
             (token_hash(token),)).fetchone()
         if not row:
             return
-        if row["disabled"] or row["expires_at"] <= t or row["last_seen_at"] + SESSION_IDLE <= t:
+        if (row["disabled"] or row["expires_at"] <= t or row["last_seen_at"] + SESSION_IDLE <= t
+                or row["expires_at"] > t + SESSION_SHORT):
             tx.execute("DELETE FROM sessions WHERE token_hash = ?", (row["token_hash"],))
             return
         # The dashboard polls every 10 seconds; record activity at most once a minute.
@@ -169,15 +171,15 @@ def load_session():
     g.user = {k: row[k] for k in ("id", "email", "name", "role", "must_change")}
 
 
-def start_session(tx, user_id, remember):
+def start_session(tx, user_id):
     token = secrets.token_urlsafe(32)
     t = now()
     tx.execute("INSERT INTO sessions VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                (token_hash(token), user_id, secrets.token_urlsafe(32), t, t,
-                t + (SESSION_LONG if remember else SESSION_SHORT), request.remote_addr,
+                t + SESSION_SHORT, request.remote_addr,
                 (request.user_agent.string or "")[:200]))
     tx.execute("UPDATE users SET last_login_at = ? WHERE id = ?", (t, user_id))
-    return token, (SESSION_LONG if remember else None)
+    return token, None
 
 
 def signed_in_redirect(token, max_age, target):
@@ -294,11 +296,11 @@ def login():
         return redirect(target)
     if request.method == "GET":
         notice = "You've signed out." if request.args.get("out") else None
-        return page("login.html", next=target, notice=notice)
+        # The opening titles play when someone arrives fresh, not after signing out.
+        return page("login.html", next=target, notice=notice, intro=not notice)
     check_form_token()
     email = norm_email(request.form.get("email"))[:254]
     password = request.form.get("password", "")[:256]
-    remember = request.form.get("remember") == "1"
     with db().transaction() as tx:
         if limited(tx, "login", email, EMAIL_FAILS, IP_FAILS):
             audit(tx, "login.blocked", detail={"email": email})
@@ -318,7 +320,7 @@ def login():
     with db().transaction() as tx:
         if hasher.check_needs_rehash(user["password_hash"]):
             tx.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hasher.hash(password), user["id"]))
-        token, max_age = start_session(tx, user["id"], remember)
+        token, max_age = start_session(tx, user["id"])
         audit(tx, "login", user_id=user["id"])
     return signed_in_redirect(token, max_age, target)
 
@@ -382,7 +384,7 @@ def set_password_page(token, purpose):
         tx.execute("UPDATE users SET password_hash = ?, must_change = 0 WHERE id = ?", (hasher.hash(password), row["id"]))
         tx.execute("DELETE FROM sessions WHERE user_id = ?", (row["id"],))
         audit(tx, "invite.accepted" if purpose == "invite" else "password.reset", user_id=row["id"])
-        session_token, max_age = start_session(tx, row["id"], False)
+        session_token, max_age = start_session(tx, row["id"])
     if purpose == "reset":
         password_changed_notice(row, "reset")
     return signed_in_redirect(session_token, max_age, "/")
@@ -661,5 +663,7 @@ def prune(database, retention_days):
         tx.execute("DELETE FROM audit_log WHERE at < ?", (cutoff,))
         tx.execute("DELETE FROM classroom_history WHERE saved_at < ?", (cutoff,))
         tx.execute("DELETE FROM attempts WHERE at < ?", (t - DAY,))
-        tx.execute("DELETE FROM sessions WHERE expires_at < ? OR last_seen_at < ?", (t, t - SESSION_IDLE))
+        # Also ends any 30-day sign-ins left from the old "keep me signed in" option.
+        tx.execute("DELETE FROM sessions WHERE expires_at < ? OR last_seen_at < ? OR expires_at > ?",
+                   (t, t - SESSION_IDLE, t + SESSION_SHORT))
         tx.execute("DELETE FROM user_tokens WHERE expires_at < ?", (t - DAY,))

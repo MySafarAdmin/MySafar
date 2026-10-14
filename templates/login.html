@@ -12,7 +12,6 @@
     <input type="hidden" name="next" value="{{ next }}">
     <label class="field">Email<span class="fin"><input type="email" name="email" value="{{ email or '' }}" autocomplete="username" spellcheck="false" required autofocus>{{ icon("person") }}</span></label>
     <label class="field">Password<span class="fin"><input type="password" name="password" autocomplete="current-password" required>{{ icon("lock") }}</span></label>
-    <label class="check"><input type="checkbox" name="remember" value="1"> Keep me signed in on this device for 30 days</label>
     <button class="btn primary">Sign in</button>
   </form>
   <div class="alt"><a href="/forgot">Forgotten your password?</a></div>

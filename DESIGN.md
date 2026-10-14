@@ -262,3 +262,11 @@ tab is on. The Quran sheet slides its columns when the class day changes, and th
 calendar slides to the next or previous month. All
 of it is off when the device asks for reduced motion (the rule at the end of
 `src/tokens.css`).
+
+**Opening titles** (sign-in page): a fresh visit to /login (not after signing
+out or a failed attempt) plays a short CSS-only sequence of about 3.7 seconds. A
+deep navy stage with twinkling points; the gold eight-point star draws itself
+around the round logo; MySafar and Safar Academy Enfield rise in; then the stage
+folds into the navy welcome panel (into the top band on phones) and the form
+rises in. Clicks and typing pass straight through to the form throughout. Off
+under reduced motion. Styles at the end of static/auth.css.
