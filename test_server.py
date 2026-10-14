@@ -706,6 +706,7 @@ class DashboardTests:
         self.assertIn("script-src 'self'", login.headers["Content-Security-Policy"])
         self.assertIn('src="/intro.js"', login.get_data(as_text=True))
         self.assertNotIn("autofocus", login.get_data(as_text=True))
+        self.assertIn('<fieldset class="hold" disabled>', login.get_data(as_text=True))
         script = anonymous.get("/intro.js")
         self.assertEqual((script.status_code, script.mimetype), (200, "text/javascript"))
         self.assertNotIn("script-src", anonymous.get("/forgot").headers["Content-Security-Policy"])
