@@ -1058,8 +1058,8 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 @media (min-width:900px){.tsg{grid-template-columns:1fr 1fr}}
 .tsg .wk{height:120px}.tsg .lvc{height:120px}
 .tsl{display:grid;gap:16px 28px;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line);padding-top:16px}
-@media (min-width:900px){.tsl{grid-template-columns:1fr 1fr}}
 .tsl>*{margin:0!important}
+.tsr .rk4.mine .hb{padding:0;border:0;background:none;box-shadow:none}
 </style></head><body>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1910,12 +1910,12 @@ function summary(K){var A=K.A,all=K.all;
   +'<div class="sumcol">'+houseBoard(all,1)+'<div class="grp topc"><div class="mod-h"><h2>Top classes</h2><button type="button" class="btn sm quiet" data-mt="R">Rankings</button></div>'
   +rankList("topc",classRows("m"),{limit:3,noMore:1,none:"No passes or merits yet this month.",fmt:function(v){return v.toFixed(1)}})+'<p class="cap">This month, passes and merits per student</p></div></div>'
   +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target, all '+plural(all.length,"student")+'</span></div>'+levelCols(all)+'</div></div>'}
-/* A teacher's class overview: the rankings first and largest, then the graphs, then attention and houses. */
+/* A teacher's class overview: the rankings (with house points) first and largest, then the graphs, then attention. */
 function tSummary(K){var all=K.all;
  $("mst").innerHTML='<div class="tsum"><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K,1)+'</section>'
   +'<div class="tsg"><div class="grp"><div class="mod-h"><h2>Passes per week</h2><span class="cap">Last 8 weeks</span></div>'+weekChart(allLogs(all))+'</div>'
   +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target</span></div>'+levelCols(all)+'</div></div>'
-  +'<div class="tsl">'+attnBox(K)+houseBoard(all,1)+'</div></div>';
+  +'<div class="tsl">'+attnBox(K)+'</div></div>';
  $("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
 /* Attention: the complete lists, one kind at a time, grouped by class and paged. */
 function attnTab(K){var k=AKIND,L={wr:K.wr,stale:K.stale,quiet:K.quiet},a=L[k],size=10,h;
@@ -1940,10 +1940,10 @@ function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[
 function rankings(K){$("vMR").innerHTML=rankHtml(K);$("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
 /* The rankings, on their own tab and, for teachers, as the centre of the class overview. */
 function rankHtml(K,mine){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
- var far=A.filter(function(o){return o.s.target>1}).sort(function(a,b){return b.s.target-a.s.target||a.s.name.localeCompare(b.s.name)}),fp=pager("far"+RP,far.length,5);
+ var far=mine?[]:A.filter(function(o){return o.s.target>1}).sort(function(a,b){return b.s.target-a.s.target||a.s.name.localeCompare(b.s.name)}),fp=pager("far"+RP,far.length,5);
  var h='<div class="toolbar"><div class="seg" id="rP" role="group" aria-label="Period"><button type="button" data-p="m" aria-pressed="'+m+'">This month</button><button type="button" data-p="a" aria-pressed="'+!m+'">All time</button></div><p class="cap">'+(m?'Since the 1st of this month':'Every pass and merit recorded: '+plural(sumOf(K.all,function(s){return s.passes}),"pass","passes")+' and '+plural(sumOf(K.all,function(s){return s.merits}),"merit")+' in total')+'</p></div>';
  h+='<div class="rk4'+(mine?' mine':'')+'">'+(mine?'':'<div class="grp"><div class="mod-h"><h2>Class ranking</h2></div><p class="cap">Passes and merits per student</p>'+rankList("rc"+RP,classRows(RP),{limit:5,page:1,what:"classes",none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}})+'</div>')
-  +'<div class="grp"><div class="mod-h"><h2>Furthest along</h2></div><p class="cap">Current target, any time</p>'+(far.length?'<ul class="alist">'+far.slice(fp*5,fp*5+5).map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b>'+opener(o.c,esc(ST[o.c].name))+'</span><span class="v">'+esc(bl(o.s.target))+'</span></li>'}).join("")+'</ul>'+pagerHtml("far"+RP,far.length,5,"students"):'<p class="none">No progress recorded yet.</p>')+'</div>'
+  +(mine?houseBoard(K.all,1):'<div class="grp"><div class="mod-h"><h2>Furthest along</h2></div><p class="cap">Current target, any time</p>'+(far.length?'<ul class="alist">'+far.slice(fp*5,fp*5+5).map(function(o){return '<li><span class="who"><b>'+esc(o.s.name)+'</b>'+opener(o.c,esc(ST[o.c].name))+'</span><span class="v">'+esc(bl(o.s.target))+'</span></li>'}).join("")+'</ul>'+pagerHtml("far"+RP,far.length,5,"students"):'<p class="none">No progress recorded yet.</p>')+'</div>')
   +'<div class="grp"><div class="mod-h"><h2>Most passes</h2></div><p class="cap">Students, '+tm+'</p>'+rankList("mp"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mpc(o.s):o.s.passes}}),{limit:5,page:1,what:"students",tone:"sky",none:"No passes yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})+'</div>'
   +'<div class="grp"><div class="mod-h"><h2>Most merits</h2></div><p class="cap">Students, '+tm+'</p>'+rankList("mm"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(ST[o.c].name),v:m?mmc(o.s):o.s.merits}}),{limit:5,page:1,what:"students",tone:"gold",none:"No merits yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})+'</div></div>';
  return h}
