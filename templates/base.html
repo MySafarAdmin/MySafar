@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="same-origin">
 <meta name="theme-color" content="#003b6b">
-<title>{% block title %}{% endblock %} · Safar Academy</title>
+<title>{% block title %}{% endblock %} · MySafar</title>
 <link rel="preload" href="/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
 <link rel="stylesheet" href="/auth.css">
 </head>
 {% set shell = user and not user.must_change and self.body_class() != "solo" %}
@@ -16,12 +18,13 @@
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
 <header><div class="rail">
-  <a class="brand" href="/"><span class="badge"><img src="/logo.png" alt="" width="34" height="34"></span><span translate="no"><b>Safar Academy</b><small>Enfield</small></span></a>
+  <a class="brand" href="/"><span class="badge"><img src="/logo.png" alt="" width="34" height="34"></span><span translate="no"><b class="wm">My<span>Safar</span></b><small>Enfield</small></span></a>
   <input type="checkbox" id="navt" class="navt" aria-label="Show the menu">
   <label for="navt" class="menu-btn" aria-hidden="true">Menu</label>
   <nav class="navs" aria-label="Main">
     <a class="nav" href="/">{{ icon("home") }}Dashboard</a>
     <a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
+    <a class="nav" href="/#classes">{{ icon("grid") }}Classes</a>
     {% if user.role == "admin" %}
     <div class="navh" id="adminh">Administration</div>
     <a class="nav" href="/admin/users"{{ ' aria-current="page"'|safe if here == "/admin/users" }}>{{ icon("users") }}Manage users</a>
@@ -49,7 +52,7 @@
 {% else %}
 <div class="solo-band"></div>
 <aside class="welcome" aria-label="Welcome">
-  <div class="wmark" translate="no"><span class="badge"><img src="/logo.png" alt="" width="40" height="40"></span><span><b>Safar Academy</b><small>Enfield</small></span></div>
+  <div class="wmark" translate="no"><span class="badge"><img src="/logo.png" alt="" width="40" height="40"></span><span><b class="wm">My<span>Safar</span></b><small>Safar Academy Enfield</small></span></div>
   <figure class="wquote">
     <span class="wtab">Welcome</span>
     <blockquote><p>“The best of you are those who learn the Qur’ān and teach it.”</p></blockquote>

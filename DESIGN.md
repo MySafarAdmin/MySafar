@@ -96,6 +96,16 @@ with navy type and a soft shadow. The head is sticky on wide screens. Below
 visible without sideways scrolling. Admin pages use `.band`, the same title and
 figures on the canvas.
 
+**Classes** is its own page in the rail, under Journey2Jannah, in place of the
+old list of class names: searchable class cards (patterned banner, year tile,
+students, passes, merits and warnings), eight a page, with the CSV upload under
+them. A card opens that class with every tab, Settings included; the rail keeps
+Classes marked while a class is open, and Switch class sits by the title.
+
+The name is MySafar, set as a wordmark with "My" in the regular weight and
+"Safar" in the heavy weight. The browser tab icon (`/favicon.png`) is the logo
+on a white disc.
+
 **Overview** tabs:
 
 - **Summary**, one screen in three columns divided by hairlines: Needs
@@ -105,7 +115,6 @@ figures on the canvas.
   by level as columns whose heights are the counts.
 - **Attention**: warnings, no pass in 3+ weeks, quiet classes; one list at a
   time, grouped by class, ten a page.
-- **Classes**: the searchable directory, seven a page, and the CSV upload.
 - **Rankings**: class ranking, furthest along, most passes, most merits side by
   side, five a page each, This month or All time.
 - **Houses**: house totals, tokens by house, points by class (six a page).

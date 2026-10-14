@@ -79,6 +79,10 @@ a:hover{color:var(--primary-hover)}
 .badge{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff}
 .badge img{width:34px;height:34px;display:block}
 .brand b{display:block;font-size:1.0625rem;font-weight:750;line-height:1.15}
+/* The MySafar wordmark: "My" in a light weight, "Safar" in the heavy weight. */
+.wm{font-weight:400!important;letter-spacing:-.01em}
+.wm span{font-weight:850}
+.rail .brand .wm{font-size:1.25rem}
 .brand small{display:block;font-size:.8125rem;color:var(--rail-mute);line-height:1.2}
 .navt{position:absolute;opacity:0;pointer-events:none}
 .menu-btn{display:none}
