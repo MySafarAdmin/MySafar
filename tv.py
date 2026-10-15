@@ -57,54 +57,131 @@ def since(times, start):
     return sum(1 for t in times if t >= start)
 
 
-def summary(rows, now=None):
+def between(times, start, end):
+    return sum(1 for t in times if start <= t < end)
+
+
+def podium(entries, key="n"):
+    """The top three different totals, each with everyone on it (ties share a step)."""
+    steps = []
+    for entry in sorted((e for e in entries if e[key]), key=lambda e: (-e[key], natural(e.get("name") or e["class"]))):
+        if steps and steps[-1]["n"] == entry[key]:
+            steps[-1]["who"].append(entry)
+        elif len(steps) < 3:
+            steps.append({"place": len(steps) + 1, "n": entry[key], "who": [entry]})
+        else:
+            break
+    return steps
+
+
+def class_stage(class_name, stages):
+    """A class's stage: from its name (Yr7-B, 9/10), otherwise what most of its students are."""
+    stage = school_stage({}, class_name)
+    if stage or not stages:
+        return stage
+    return max(("primary", "secondary"), key=stages.count)
+
+
+def summary(rows, now=None, teachers=()):
     """Everything the TV shows, worked out from the classroom records."""
     now = now or datetime.now(auth.LONDON)
     day = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    # The dashboard records times in milliseconds.
-    month = day.replace(day=1).timestamp() * 1000
-    week = (day - timedelta(days=day.weekday())).timestamp() * 1000
+    first = day.replace(day=1)
+    # The dashboard records times in milliseconds, and level tests and stars by day ("2026-10-06").
+    month, month_key, today_key = first.timestamp() * 1000, first.strftime("%Y-%m-%d"), day.strftime("%Y-%m-%d")
+    monday = day - timedelta(days=day.weekday())
+    # Stars of the week: every week from the one the month starts in up to the end of last week.
+    weeks, w = [], first - timedelta(days=first.weekday())
+    while w < monday:
+        weeks.append(w)
+        w += timedelta(days=7)
     houses = dict.fromkeys(HOUSES, 0)
-    books, stars, passes = [], [], {"primary": [], "secondary": []}
+    books, stars, memo, qaidah = [], [], [], []
+    tops = {kind: {"primary": [], "secondary": []} for kind in ("memo", "qaidah")}
     for row in rows:
         state = json.loads(row["json"])
         class_name = state.get("name") or row["id"]
-        best = None
+        students, stages, class_memo, class_qaidah = [], [], 0, 0
         for s in state.get("S", []):
             name = short_name(s.get("name", ""))
             if not name:
                 continue
-            if s.get("house") in houses:
-                houses[s["house"]] += sum(len(s.get(k, [])) * v for k, v in TOKEN_POINTS.items())
+            house = s.get("house", "")
+            if house in houses:
+                houses[house] += sum(len(s.get(k, [])) * v for k, v in TOKEN_POINTS.items())
             # A red token is given for completing a book.
             if since(s.get("tr", []), month):
-                books.append({"name": name, "class": class_name, "house": s.get("house", "")})
-            # Star of the week: the most passes and merits since Monday.
-            week_passes, week_merits = since(s.get("log", []), week), since(s.get("ml", []), week)
-            score = (week_passes + week_merits, week_passes, week_merits)
-            if score[0] and (best is None or score > best[0]):
-                best = (score, name, s.get("house", ""))
+                books.append({"name": name, "class": class_name, "house": house})
+            passes = since(s.get("log", []), month)
+            levels = sum(1 for t in s.get("tests") or [] if t.get("k") == "q" and t.get("ok")
+                         and month_key <= str(t.get("d", "")) <= today_key)
+            if passes:
+                memo.append({"name": name, "class": class_name, "house": house, "n": passes})
+            if levels:
+                qaidah.append({"name": name, "class": class_name, "house": house, "n": levels})
+            class_memo, class_qaidah = class_memo + passes, class_qaidah + levels
             stage = school_stage(s, class_name)
-            month_passes = since(s.get("log", []), month)
-            if stage and month_passes:
-                passes[stage].append({"name": name, "class": class_name, "passes": month_passes})
-        stars.append({"class": class_name, "name": best[1] if best else None, "house": best[2] if best else "",
-                      "passes": best[0][1] if best else 0, "merits": best[0][2] if best else 0})
-    for stage in passes:
-        passes[stage] = sorted(passes[stage], key=lambda p: (-p["passes"], p["name"]))[:3]
+            if stage:
+                stages.append(stage)
+            students.append((s, name, house))
+        stage = class_stage(class_name, stages)
+        if stage:
+            tops["memo"][stage].append({"class": class_name, "n": class_memo})
+            tops["qaidah"][stage].append({"class": class_name, "n": class_qaidah})
+        for week in weeks:
+            key, start = week.strftime("%Y-%m-%d"), week.timestamp() * 1000
+            end = (week + timedelta(days=7)).timestamp() * 1000
+            # The teacher's pick from the Quran tab, otherwise the most passes and merits that week.
+            star = next(((n, h) for s, n, h in students if key in (s.get("sw") or [])), None)
+            if not star:
+                best = max(((between(s.get("log", []), start, end) + between(s.get("ml", []), start, end),
+                             between(s.get("log", []), start, end), n, h) for s, n, h in students), default=None)
+                star = best and best[0] and (best[2], best[3])
+            if star:
+                stars.append({"name": star[0], "house": star[1], "class": class_name, "week": key,
+                              "label": "Week of " + week.strftime("%-d %b")})
     return {
         "houses": sorted(({"house": h, "points": p} for h, p in houses.items()), key=lambda h: -h["points"]),
         "books": sorted(books, key=lambda b: b["name"]),
-        "stars": sorted(stars, key=lambda s: natural(s["class"])),
-        "passes": passes,
+        "memo": podium(memo),
+        "qaidah": podium(qaidah),
+        "classes": {kind: {stage: podium(L) for stage, L in v.items()} for kind, v in tops.items()},
+        "stars": sorted(stars, key=lambda s: (s["week"], natural(s["class"]))),
+        "teachers": list(teachers),
         "month": now.strftime("%B"),
     }
 
 
-def data():
+WINDOW = re.compile(r"^([01]\d|2[0-3]):[0-5]\d$")
+
+
+def settings_of(row):
+    try:
+        settings = json.loads(row["settings"] or "{}")
+    except (TypeError, ValueError, KeyError, IndexError):
+        settings = {}
+    return {k: v for k, v in settings.items() if k in ("qaidah", "memo") and isinstance(v, list) and len(v) == 2
+            and all(isinstance(t, str) and WINDOW.match(t) for t in v) and v[0] != v[1]}
+
+
+def focus(settings, now=None):
+    """Which kinds of slide a screen plays now: its Qaidah or Memo window (both when they overlap), else everything."""
+    t = (now or datetime.now(auth.LONDON)).strftime("%H:%M")
+    on = [k for k in ("qaidah", "memo") if k in settings and (
+        settings[k][0] <= t < settings[k][1] if settings[k][0] < settings[k][1]
+        else t >= settings[k][0] or t < settings[k][1])]  # a window can run past midnight
+    return on or None
+
+
+def data(settings=None):
     with auth.db().transaction() as tx:
         rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
-    return jsonify(summary(rows))
+        # Teachers' names drift through the scenes (fish, birds, coconuts), as they appear on the Users page.
+        teachers = [r["name"] for r in tx.execute(
+            "SELECT name FROM users WHERE role = 'teacher' AND disabled = 0 ORDER BY name").fetchall()]
+    result = summary(rows, teachers=teachers)
+    result["focus"] = focus(settings or {})
+    return jsonify(result)
 
 
 def page():
@@ -117,7 +194,7 @@ def screen(token):
         return None
     t = auth.now()
     with auth.db().transaction() as tx:
-        row = tx.execute("SELECT id, last_seen_at FROM tv_screens WHERE token_hash = ? AND revoked_at IS NULL",
+        row = tx.execute("SELECT id, last_seen_at, settings FROM tv_screens WHERE token_hash = ? AND revoked_at IS NULL",
                          (auth.token_hash(token),)).fetchone()
         if row and t - (row["last_seen_at"] or 0) >= SEEN_EVERY:
             tx.execute("UPDATE tv_screens SET last_seen_at = ? WHERE id = ?", (t, row["id"]))
@@ -143,16 +220,19 @@ def screen_page(token):
 
 @bp.get("/tv/<token>/data")
 def screen_data(token):
-    if not screen(token):
+    row = screen(token)
+    if not row:
         return jsonify(error="This screen's link has been turned off."), 404
-    return data()
+    return data(settings_of(row))
 
 
 def screens_page(status=200, **context):
     with auth.db().transaction() as tx:
         screens = [dict(row) for row in tx.execute(
-            "SELECT s.id, s.name, s.created_at, s.last_seen_at, u.name AS created_by FROM tv_screens s "
+            "SELECT s.id, s.name, s.created_at, s.last_seen_at, s.settings, u.name AS created_by FROM tv_screens s "
             "LEFT JOIN users u ON u.id = s.created_by WHERE s.revoked_at IS NULL ORDER BY s.created_at").fetchall()]
+    for s in screens:
+        s["windows"] = settings_of(s)
     return auth.page("admin_tv.html", status, screens=screens, **context)
 
 
@@ -186,3 +266,25 @@ def admin_screen_off(screen_id):
         tx.execute("UPDATE tv_screens SET revoked_at = ? WHERE id = ?", (auth.now(), screen_id))
         auth.audit(tx, "tv.revoked", detail={"screen": screen_id, "name": row["name"]})
     return screens_page(notice=f"Turned off the link for {row['name']}. That TV stops showing the dashboard within a minute.")
+
+
+@bp.post("/admin/tv/<int:screen_id>/settings")
+@auth.admin_required
+def admin_screen_settings(screen_id):
+    """The daily time windows when this screen plays only the Qaidah slides or only the Memo slides."""
+    auth.check_form_token()
+    windows = {}
+    for kind in ("qaidah", "memo"):
+        start, end = request.form.get(kind + "_from", "").strip(), request.form.get(kind + "_to", "").strip()
+        if not start and not end:
+            continue
+        if not (WINDOW.match(start) and WINDOW.match(end)) or start == end:
+            return screens_page(400, error="Give each time window a start and an end time, or leave both empty.")
+        windows[kind] = [start, end]
+    with auth.db().transaction() as tx:
+        row = tx.execute("SELECT name FROM tv_screens WHERE id = ? AND revoked_at IS NULL", (screen_id,)).fetchone()
+        if not row:
+            abort(404)
+        tx.execute("UPDATE tv_screens SET settings = ? WHERE id = ?", (json.dumps(windows), screen_id))
+        auth.audit(tx, "tv.settings", detail={"screen": screen_id, "name": row["name"], **windows})
+    return screens_page(notice=f"Saved the settings for {row['name']}. The TV picks them up within a minute.")

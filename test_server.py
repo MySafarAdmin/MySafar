@@ -649,13 +649,52 @@ class DashboardTests:
         self.assertEqual(data["houses"], [{"house": "Makkah", "points": 55}, {"house": "Madinah", "points": 20},
                                           {"house": "Al-Aqsa", "points": 0}])
         self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Yr3-A")])
-        self.assertEqual([(s["class"], s["name"]) for s in data["stars"]],
-                         [("Yr3-A", "Aisha K."), ("Yr8-B", "Omar F."), ("Yr9-C", None)])
-        self.assertEqual([(p["name"], p["passes"]) for p in data["passes"]["primary"]],
-                         [("Aisha K.", 3), ("Yusuf A.", 3), ("Zara", 1)])
-        self.assertEqual([(p["name"], p["passes"]) for p in data["passes"]["secondary"]], [("Omar F.", 2)])
+        # Stars run to the end of last week, so only the week October starts in counts here.
+        self.assertEqual([(s["class"], s["name"], s["label"]) for s in data["stars"]],
+                         [("Yr3-A", "Yusuf A.", "Week of 28 Sep")])
+        self.assertEqual([(step["place"], step["n"], [w["name"] for w in step["who"]]) for step in data["memo"]],
+                         [(1, 3, ["Aisha K.", "Yusuf A."]), (2, 2, ["Omar F."]), (3, 1, ["Zara"])])
+        self.assertEqual(data["qaidah"], [])
+        self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["memo"]["primary"]],
+                         [(6, ["Yr3-A"])])
+        self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["memo"]["secondary"]],
+                         [(3, ["Yr8-B"])])
         self.assertEqual(data["month"], "October")
         self.assertNotIn("Khan", json.dumps(data))
+
+    def test_tv_podiums_and_stars(self):
+        now = datetime(2026, 10, 22, 12, tzinfo=auth.LONDON)  # a Thursday in the fourth week
+        ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
+        test = lambda d, ok=True, k="q": {"d": d, "k": k, "n": 2, "sc": 4, "ok": ok}  # noqa: E731
+        rows = [{"id": "a", "json": json.dumps({"name": "Yr2-A", "S": [
+                    self.tv_student("Amina Rahman", house="Makkah", tests=[test("2026-10-01"), test("2026-10-08"),
+                                                                           test("2026-09-30"), test("2026-10-09", ok=False)],
+                                    log=[ms(2026, 9, 30, 9)] * 2, sw=["2026-10-05"]),
+                    self.tv_student("Bilal Hussain", house="Al-Aqsa", tests=[test("2026-10-02")],
+                                    log=[ms(2026, 10, 7, 9)] * 4, ml=[ms(2026, 10, 14, 9)])]})},
+                {"id": "b", "json": json.dumps({"name": "Yr10", "S": [
+                    self.tv_student("Hana Ali", tests=[test("2026-10-03")], log=[ms(2026, 10, 21, 9)])]})},
+                {"id": "c", "json": json.dumps({"name": "Juniors", "S": [
+                    self.tv_student("Musa Khan", year="Year 1", tests=[test("2026-10-03")])]})}]
+        data = tv.summary(rows, now, teachers=["Ustadh Ahmed"])
+        self.assertEqual([(step["place"], step["n"], [w["name"] for w in step["who"]]) for step in data["qaidah"]],
+                         [(1, 2, ["Amina R."]), (2, 1, ["Bilal H.", "Hana A.", "Musa K."])])
+        # Juniors is primary from its students' year groups; Yr10 is secondary from its name.
+        self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["qaidah"]["primary"]],
+                         [(3, ["Yr2-A"]), (1, ["Juniors"])])
+        self.assertEqual([c["n"] for c in data["classes"]["qaidah"]["secondary"]], [1])
+        # Stars: weeks from the one October starts in (28 September) to last week (12 October). The teacher's pick
+        # wins its week; other weeks go to the most passes and merits; this week (19 October) isn't over yet.
+        self.assertEqual([(s["label"], s["class"], s["name"]) for s in data["stars"]],
+                         [("Week of 28 Sep", "Yr2-A", "Amina R."), ("Week of 5 Oct", "Yr2-A", "Amina R."),
+                          ("Week of 12 Oct", "Yr2-A", "Bilal H.")])
+        self.assertEqual(data["teachers"], ["Ustadh Ahmed"])
+        window = {"qaidah": ["16:00", "17:00"], "memo": ["23:30", "00:30"]}
+        at = lambda h, m: datetime(2026, 10, 22, h, m, tzinfo=auth.LONDON)  # noqa: E731
+        self.assertEqual(tv.focus(window, at(16, 30)), ["qaidah"])
+        self.assertEqual(tv.focus(window, at(17, 0)), None)
+        self.assertEqual(tv.focus(window, at(0, 10)), ["memo"])
+        self.assertEqual(tv.focus({}, at(16, 30)), None)
 
     def test_tv_screen_links(self):
         student = self.tv_student("Aisha Khan", house="Makkah", tg=[1])
@@ -686,6 +725,15 @@ class DashboardTests:
             self.assertIn(anonymous.get(path).status_code, (302, 401))
         self.assertIn("Made a TV screen link", self.client.get("/admin/activity").get_data(as_text=True))
         screen_id = self.query("SELECT id FROM tv_screens")[0]["id"]
+        # Settings: a daily Qaidah window; a half-filled window is refused.
+        bad = self.form(self.client, "/admin/tv", f"/admin/tv/{screen_id}/settings", qaidah_from="16:00", qaidah_to="")
+        self.assertEqual(bad.status_code, 400)
+        page = self.form(self.client, "/admin/tv", f"/admin/tv/{screen_id}/settings", qaidah_from="00:00",
+                         qaidah_to="23:59", memo_from="", memo_to="").get_data(as_text=True)
+        self.assertIn("Qaidah only 00:00 to 23:59", page)
+        self.assertEqual(teacher.post(f"/admin/tv/{screen_id}/settings", data={"qaidah_from": "01:00"}).status_code, 403)
+        self.assertEqual(anonymous.get(link + "/data").get_json()["focus"], ["qaidah"])
+        self.assertIsNone(teacher.get("/api/tv").get_json()["focus"])
         self.form(self.client, "/admin/tv", f"/admin/tv/{screen_id}/off")
         self.assertEqual(anonymous.get(link).status_code, 404)
         self.assertEqual(anonymous.get(link + "/data").status_code, 404)

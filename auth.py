@@ -58,7 +58,8 @@ ACTIONS = {
     "user.reset_link": "Made a reset link", "user.invite_link": "Made a new invite", "user.disabled": "Turned off a user",
     "user.enabled": "Turned on a user", "class.saved": "Saved classroom", "class.deleted": "Deleted classroom",
     "class.restored": "Restored classroom", "tv.created": "Made a TV screen link",
-    "tv.revoked": "Turned off a TV screen link", "email.test": "Sent a test email",
+    "tv.revoked": "Turned off a TV screen link", "tv.settings": "Changed a TV screen's settings",
+    "email.test": "Sent a test email",
 }
 
 

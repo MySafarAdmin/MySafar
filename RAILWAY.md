@@ -44,16 +44,27 @@ and shows only the dashboard: it can't open the classrooms or change anything.
 **Turn off link** stops it within a minute (the TV then shows a message); make
 a new one if a link is lost or seen by someone it shouldn't be.
 
-The dashboard has two slides that switch every 30 seconds and updates every
-minute:
+The dashboard changes slide every 30 seconds and updates every minute. Each
+slide is its own flat cartoon scene (balloons over hills, the sea, a beach, a
+rainforest, a garden, kites, space, mountains, a night sky with lanterns), and
+active teachers' names drift through it on fish, birds, beach balls, insects
+and so on. House points takes turns between the balloons and the kites, and a
+second rainforest has bees, ladybirds, dragonflies and beetles.
 
-1. **House points** for the whole school, leader first, and **Memorisation**:
-   the top 3 students by passes this month, for primary (Reception to Year 6)
-   and secondary (Year 7 onwards). A student's stage comes from their Safar
-   year group, then the classroom name (`Yr7-...`), then their school year.
-2. **Star of the week** for each class: the student with the most passes and
-   merits since Monday (ties go to more passes). **Passed a book**: students
-   given a red (book completion) token this month.
+- **Podiums** (the top three totals this month; ties share a step): house
+  points, memorisation passes, Qaidah levels passed (Quran level tests on the
+  Record page), and the top classes for Qaidah and for memorisation, primary
+  (Years 1 to 6) and secondary (Year 7 onwards) separately. A class's stage
+  comes from its name (`Yr7-...`), otherwise from most of its students' Safar
+  or school year groups.
+- **Names that take turns**: book passes (red tokens this month) and stars of
+  the week from the week the month starts in to the end of last week. A star
+  is the teacher's pick on the Quran tab, otherwise the student with the most
+  passes and merits that week.
+
+Empty slides are skipped. **Settings** on each TV sets a daily time for
+Qaidah slides only and one for Memo slides only (London time; a window can run
+past midnight). Outside those times the TV plays every slide.
 
 Students are shown by first name and surname initial (`Aisha K.`) with their
 classroom. Signed-in staff can preview it at `/tv`.

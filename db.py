@@ -112,7 +112,12 @@ def _m3_tv_screens(db, postgres):
         revoked_at BIGINT)""")
 
 
-MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens]
+def _m4_tv_settings(db, postgres):
+    # Per-screen TV settings as JSON, such as the daily Qaidah and Memo time windows (see tv.py).
+    db.execute("ALTER TABLE tv_screens ADD COLUMN settings TEXT")
+
+
+MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings]
 
 
 class Database:
