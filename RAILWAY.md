@@ -44,8 +44,10 @@ and shows only the dashboard: it can't open the classrooms or change anything.
 **Turn off link** stops it within a minute (the TV then shows a message); make
 a new one if a link is lost or seen by someone it shouldn't be.
 
-The dashboard shows one thing per slide, centred, and fades to the next every
-30 seconds. It updates every minute.
+The dashboard changes slide every 30 seconds and updates every minute. Each
+slide is its own flat cartoon scene (balloons over hills, the sea, a beach, a
+rainforest, a garden, kites, space, mountains, a night sky with lanterns), and
+active teachers' names drift through it on fish, birds, coconuts and so on.
 
 - **Podiums** (the top three totals this month; ties share a step): house
   points, memorisation passes, Qaidah levels passed (Quran level tests on the

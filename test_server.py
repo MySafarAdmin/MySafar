@@ -674,7 +674,7 @@ class DashboardTests:
                     self.tv_student("Hana Ali", tests=[test("2026-10-03")], log=[ms(2026, 10, 21, 9)])]})},
                 {"id": "c", "json": json.dumps({"name": "Juniors", "S": [
                     self.tv_student("Musa Khan", year="Year 1", tests=[test("2026-10-03")])]})}]
-        data = tv.summary(rows, now)
+        data = tv.summary(rows, now, teachers=["Ustadh Ahmed"])
         self.assertEqual([(step["place"], step["n"], [w["name"] for w in step["who"]]) for step in data["qaidah"]],
                          [(1, 2, ["Amina R."]), (2, 1, ["Bilal H.", "Hana A.", "Musa K."])])
         # Juniors is primary from its students' year groups; Yr10 is secondary from its name.
@@ -686,6 +686,7 @@ class DashboardTests:
         self.assertEqual([(s["label"], s["class"], s["name"]) for s in data["stars"]],
                          [("Week of 28 Sep", "Yr2-A", "Amina R."), ("Week of 5 Oct", "Yr2-A", "Amina R."),
                           ("Week of 12 Oct", "Yr2-A", "Bilal H.")])
+        self.assertEqual(data["teachers"], ["Ustadh Ahmed"])
         window = {"qaidah": ["16:00", "17:00"], "memo": ["23:30", "00:30"]}
         at = lambda h, m: datetime(2026, 10, 22, h, m, tzinfo=auth.LONDON)  # noqa: E731
         self.assertEqual(tv.focus(window, at(16, 30)), ["qaidah"])
