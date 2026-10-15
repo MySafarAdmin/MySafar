@@ -1160,8 +1160,77 @@ function importCSV(){if(!CSV)return;var p=planCSV(),fcd=document.getElementById(
  toast(said.join(", "))}
 function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";document.getElementById("csvF").value=""}
 
-/* Just signed in: the greeting in the heading ("Assalāmu ʿalaykum ...!") fades in large in the middle of the page,
-   holds until the class records have loaded, then shrinks and moves into its place in one motion, and the rest of
+/* ---------- Motion ----------
+   One system for the whole dashboard. Every view is drawn with innerHTML, so this watches the page and, before the
+   browser paints a change, gives it continuity:
+   - bars (rankings, house points, passes per week, levels) grow from nothing the first time they are seen, and
+     afterwards glide from their last length to the new one, so This month / All time never flashes or jumps
+     (the numbers change at once; only the bars move);
+   - ranked students, classes and houses glide from their old place to the new one, keyed by name, and a row that
+     is new to a list fades in; class cards do the same when the search filters them, and rise in a short
+     stagger the first time the Classes page is drawn;
+   - on Record, a step or the student's panel that appears fades in, and a newly saved level test is highlighted;
+   - segmented controls get a thumb, and the side menu a marker, that slide to the choice.
+   It only moves things (Web Animations), never holds anything back, so every control works at once. Off under
+   reduced motion, and while the sign-in arrival plays (it has its own). */
+var MO=(function(){var still=false;try{still=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
+ var EZ="cubic-bezier(.2,.8,.2,1)",BAR=".tr>i,.wkb>i,.lvb>i,.db>i,.hbar>i",GRP=".rank,.wk,.lvc,.dist,.houses,.hbig",ROW=".rank>li,.houses>.house,.ccards>.ccard",
+  LEN={},POS={},SEEN={},SEG={},CARDS={},AP=null,busy=false;
+ function busyNow(){return document.documentElement.classList.contains("fresh")||document.body.classList.contains("enter")}
+ function shown(el){return !!(el.offsetWidth||el.offsetHeight)}
+ function home(el){var c=el.closest("[id]");return c?c.id:""}
+ function gkey(g){var h=home(g),all=h?$(h).querySelectorAll(GRP+",.ccards"):[];return h+"#"+Array.prototype.indexOf.call(all,g)}
+ function rkey(r){if(r.classList.contains("house")||r.classList.contains("hcol"))return r.classList[1];
+  var o=r.querySelector("[data-open]");if(r.classList.contains("ccard")&&o)return o.dataset.open;var n=r.querySelector(".n b,.hn,small,span");return (n||r).textContent}
+ function bars(){var now={};document.querySelectorAll(BAR).forEach(function(el){if(!shown(el))return;
+   var row=el.closest("li,.house,.hcol,.wkc,.lvi"),g=el.closest(GRP),k=(g?gkey(g):home(el))+"|"+(row?rkey(row):""),p=el.style.height?"height":"width",v=el.style[p];now[k]=1;
+   if(el.dataset.mv===v)return;el.dataset.mv=v;
+   var was=LEN[k];LEN[k]=v;
+   if(busy||was===v)return;
+   if(was===undefined){if(SEEN[k])return;SEEN[k]=1;var f={},t={};f[p]="0%";t[p]=v;el.animate([f,t],{duration:650,easing:EZ,delay:Math.min(240,(row&&row.parentNode?Array.prototype.indexOf.call(row.parentNode.children,row):0)*35)})}
+   else{var a={},b={};a[p]=was;b[p]=v;el.animate([a,b],{duration:320,easing:EZ})}});
+  Object.keys(LEN).forEach(function(k){if(!now[k])delete LEN[k]})}
+ function rows(){var now={},firstCards=[];document.querySelectorAll(GRP+",.ccards").forEach(function(g){if(!shown(g))return;var gk=gkey(g),gr=g.getBoundingClientRect(),had=POS[gk];now[gk]={};
+   Array.prototype.forEach.call(g.querySelectorAll(":scope>li,:scope>.house"),function(r){if(!r.matches(ROW))return;var k=rkey(r),b=r.getBoundingClientRect(),x=b.left-gr.left,y=b.top-gr.top;now[gk][k]=[x,y];
+    if(busy||!had)return;var o=had[k];
+    if(!o){if(r.dataset.mk!==k)r.animate([{opacity:0},{opacity:1}],{duration:240,easing:"ease"})}
+    else if(Math.abs(o[0]-x)>1||Math.abs(o[1]-y)>1){var dx=o[0]-x,dy=o[1]-y;
+     // A long way (a search that lifts a card from far down the page) reads better as a short rise than a long slide.
+     if(Math.abs(dy)>260)r.animate([{opacity:0,transform:"translateY(12px)"},{opacity:1,transform:"none"}],{duration:260,easing:EZ});
+     else r.animate([{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"none"}],{duration:300,easing:EZ})}
+    r.dataset.mk=k});
+   if(!had&&g.classList.contains("ccards")&&!CARDS[gk]){CARDS[gk]=1;if(!busy)firstCards.push(g)}});
+  POS=now;
+  firstCards.forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"none"}],{duration:280,easing:EZ,delay:Math.min(i,12)*30,fill:"backwards"})})})}
+ function appear(){var R=$("recF");if(!R||!shown(R)){AP=null;return}
+  var st=R.querySelectorAll(".rsteps>.rstep"),side=R.querySelector(".rside"),sk=side?(side.querySelector("h2")||side).textContent:"",
+   F=side?side.querySelectorAll(".feed>li"):[],top=F.length?F[0].textContent:"",was=AP;
+  AP={n:st.length,side:sk,top:top};Array.prototype.forEach.call(F,function(li,i){if(i)SEEN["t|"+sk+"|"+li.textContent]=1});
+  if(busy||!was)return;
+  for(var i=was.n;i<st.length;i++)st[i].animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:260,easing:EZ,delay:(i-was.n)*40,fill:"backwards"});
+  if(side&&sk!==was.side)side.animate([{opacity:0,transform:"translateX(10px)"},{opacity:1,transform:"none"}],{duration:260,easing:EZ});
+  else if(top&&top!==was.top&&!SEEN["t|"+sk+"|"+top])F[0].animate([{backgroundColor:"#edf3ee",boxShadow:"inset 3px 0 0 #4e7d5b"},{backgroundColor:"rgba(237,243,238,0)",boxShadow:"inset 3px 0 0 rgba(78,125,91,0)"}],{duration:1800,easing:"ease-out"});
+  if(top)SEEN["t|"+sk+"|"+top]=1}
+ function thumbs(){document.querySelectorAll(".seg").forEach(function(g){var on=g.querySelector('button[aria-pressed="true"]');if(!on||!shown(g))return;
+   var k=g.id||gkey(g),m=g.querySelector(":scope>.segi"),pos=[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join();
+   if(!m){m=document.createElement("span");m.className="segi";m.setAttribute("aria-hidden","true");g.insertBefore(m,g.firstChild);g.classList.add("has-i");
+    var o=SEG[k];if(o&&!still){place(m,o)}else{place(m,pos);SEG[k]=pos;m.dataset.p=pos}}
+   if(m.dataset.p===pos)return;m.getBoundingClientRect();if(!still)m.classList.add("go");place(m,pos);m.dataset.p=pos;SEG[k]=pos})}
+ function place(m,p){p=p.split(",");m.style.width=p[2]+"px";m.style.height=p[3]+"px";m.style.transform="translate("+p[0]+"px,"+p[1]+"px)"}
+ function rail(){var nav=$("nav"),on=nav&&nav.querySelector('.nav[aria-current="page"]:not([hidden])'),m=nav&&nav.querySelector(":scope>.navi");if(!nav)return;
+  if(!on||!on.offsetWidth){if(m)m.style.opacity="0";return}
+  if(!m){m=document.createElement("span");m.className="navi";m.setAttribute("aria-hidden","true");nav.insertBefore(m,nav.firstChild);nav.classList.add("has-i")}
+  var pos=[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join();m.style.opacity="1";if(m.dataset.p===pos)return;
+  if(m.dataset.p&&!still)m.classList.add("go");place(m,pos);m.dataset.p=pos}
+ function pass(){busy=still||busyNow();thumbs();rail();if(still)return;bars();rows();appear()}
+ var obs=new MutationObserver(function(){pass();obs.takeRecords()});
+ obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","aria-pressed","aria-current"]});
+ window.addEventListener("resize",function(){clearTimeout(MO.t);MO.t=setTimeout(function(){document.querySelectorAll(".segi,.navi").forEach(function(m){m.classList.remove("go");m.dataset.p=""});pass()},80)});
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(pass);
+ return {pass:pass}})();
+
+/* Just signed in: the greeting in the heading ("Assalāmu ʿalaykum ...!") is typed out letter by letter, large in
+   the middle of the page, once the class records have loaded, then shrinks and moves into its place in one motion, and the rest of
    the page arrives piece by piece (the "enter" styles in template.css). Once per sign-in; skipped under reduced
    motion (html.fresh, set by the server's TAB_GUARD, then hides nothing). */
 (function(){var H=document.documentElement;if(!(window.ME&&ME.fresh)||window.SIGNING_OUT)return;
@@ -1177,13 +1246,17 @@ function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";docume
   rs.forEach(function(r){if(r.width<1)return;w=Math.max(w,r.width);x=Math.min(x,r.left);tops[Math.round(r.top)]=1});
   var lines=Math.max(1,Object.keys(tops).length);if(!w){w=b.width;x=b.left}
   var m=$("main").getBoundingClientRect(),vw=Math.min(m.width,innerWidth),s=Math.max(1,Math.min(2.6,vw*.88/w)),cs=getComputedStyle(h),c=document.createElement("div");
-  c.className="greet-big";c.setAttribute("aria-hidden","true");c.textContent=h.textContent;
+  c.className="greet-big";c.setAttribute("aria-hidden","true");
+  // Typed out letter by letter: every letter is laid out from the start (hidden), so the lines never reflow.
+  var ch=Array.from(h.textContent),K=ch.map(function(x){var e=document.createElement("span");e.className="gk";e.textContent=x;c.appendChild(e);return e}),car=document.createElement("span");car.className="gcar";
   ["fontFamily","fontWeight","color","fontStyle"].forEach(function(k){c.style[k]=cs[k]});
   c.style.fontSize=parseFloat(cs.fontSize)*s+"px";c.style.lineHeight=b.height/lines*s+"px";c.style.width=(w+1)*s+"px";
   if(cs.letterSpacing!=="normal")c.style.letterSpacing=parseFloat(cs.letterSpacing)*s+"px";
   var L=m.left+m.width/2-w*s/2,T=innerHeight/2-20-b.height*s/2;c.style.left=L+"px";c.style.top=T+"px";
-  h.style.opacity="0";document.body.appendChild(c);c.getBoundingClientRect();c.style.opacity="1";
-  setTimeout(function(){move(c,s,x,b.top,L,T)},1100)}
+  h.style.opacity="0";document.body.appendChild(c);c.insertBefore(car,K[0]||null);c.getBoundingClientRect();c.style.opacity="1";
+  var step=Math.max(38,Math.min(70,1500/ch.length)),i=0;
+  (function type(){if(i<K.length){K[i].classList.add("on");if(!/\s/.test(ch[i]))c.insertBefore(car,K[i].nextSibling);i++;setTimeout(type,/[ ,]/.test(ch[i-1])?step*1.8:step);return}
+   setTimeout(function(){car.classList.add("off")},350);setTimeout(function(){move(c,s,x,b.top,L,T)},650)})()}
  function move(c,s,x,y,L,T){c.style.transition="transform .9s "+EASE;c.style.transform="translate("+(x-L)+"px,"+(y-T)+"px) scale("+(1/s)+")";
   setTimeout(function(){document.body.classList.add("enter");H.classList.remove("fresh")},500);
   setTimeout(function(){h.style.opacity="";c.remove()},920);
