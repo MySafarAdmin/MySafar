@@ -14,6 +14,7 @@ import time
 import unittest
 import uuid
 from datetime import datetime
+from unittest import mock
 from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
@@ -644,16 +645,61 @@ class DashboardTests:
                     self.tv_student("Omar Farooq", sy="Year 9", log=[monday] * 2)]})},
                 {"id": "yr9-c", "json": json.dumps({"name": "Yr9-C", "S": [self.tv_student("Idle")]})}]
         data = tv.summary(rows, now)
-        self.assertEqual(data["houses"], [{"house": "Makkah", "points": 55}, {"house": "Madinah", "points": 20},
-                                          {"house": "Al-Aqsa", "points": 0}])
+        self.assertEqual(data["houses"], [{"house": "Makkah", "points": 55, "rank": 1},
+                                          {"house": "Madinah", "points": 20, "rank": 2},
+                                          {"house": "Al-Aqsa", "points": 0, "rank": 3}])
+        self.assertEqual(data["leader"], "Makkah")
         self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Yr3-A")])
         self.assertEqual([(s["class"], s["name"]) for s in data["stars"]],
                          [("Yr3-A", "Aisha K."), ("Yr8-B", "Omar F."), ("Yr9-C", None)])
-        self.assertEqual([(p["name"], p["passes"]) for p in data["passes"]["primary"]],
-                         [("Aisha K.", 3), ("Yusuf A.", 3), ("Zara", 1)])
+        self.assertEqual([(p["name"], p["passes"], p["rank"]) for p in data["passes"]["primary"]],
+                         [("Aisha K.", 3, 1), ("Yusuf A.", 3, 1), ("Zara", 1, 2)])
         self.assertEqual([(p["name"], p["passes"]) for p in data["passes"]["secondary"]], [("Omar F.", 2)])
         self.assertEqual(data["month"], "October")
         self.assertNotIn("Khan", json.dumps(data))
+
+    def test_tv_celebrations(self):
+        now = datetime(2026, 10, 14, 12, tzinfo=auth.LONDON)  # a Wednesday
+        ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
+        rows = [{"id": "yr3-a", "json": json.dumps({"name": "Yr3-A", "S": [
+            self.tv_student("Aisha Bint Khan", house="Makkah", tr=[ms(2026, 10, 13, 9), ms(2026, 9, 1, 9)], tg=[1] * 10,
+                            sw=["2026-10-12"], tests=[{"d": "2026-10-13", "k": "q", "n": 4, "sc": 5, "ok": True},
+                                                      {"d": "2026-10-13", "k": "m", "n": 9, "sc": 1, "ok": False}])]})}]
+        events = {e["kind"]: e for e in tv.summary(rows, now)["events"]}
+        # A book this week (not the one from September), the passed test, the teacher's star and 100 + 50 points.
+        self.assertEqual(sorted(events), ["book", "house", "level", "star"])
+        self.assertEqual((events["level"]["name"], events["level"]["detail"]), ("Aisha K.", "Qaidah Level 4 · Yr3-A"))
+        self.assertEqual(events["house"]["id"], "house:Makkah:100")
+        self.assertNotIn("Khan", json.dumps(events))
+        with mock.patch.dict(os.environ, {"TV_HOUSE_MILESTONES": "50,150", "TV_SCHOOL_MILESTONES": "140"}):
+            events = {e["kind"]: e for e in tv.summary(rows, now)["events"]}
+        self.assertEqual((events["house"]["id"], events["school"]["id"]), ("house:Makkah:150", "school:140"))
+
+        # A display starts from what's already there, celebrates what's new once, and remembers it.
+        self.add_user("t@example.com")
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        self.assertEqual(teacher.get("/api/tv").get_json()["events"], [])
+        student = self.tv_student("Aisha Khan", house="Makkah", tg=[1] * 20, tr=[time.time() * 1000])
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        events = teacher.get("/api/tv").get_json()["events"]
+        self.assertEqual(sorted(e["kind"] for e in events), ["book", "house", "leader"])
+        self.assertEqual(teacher.get("/api/tv").get_json()["events"], events)  # still waiting to be shown
+        self.assertEqual(teacher.post("/api/tv/seen", json={"ids": [e["id"] for e in events]},
+                                      headers={"X-Dashboard-Request": "1"}).status_code, 200)
+        self.assertEqual(teacher.get("/api/tv").get_json()["events"], [])
+        self.assertEqual(teacher.post("/api/tv/seen", json={"ids": "nope"}, headers={"X-Dashboard-Request": "1"}).status_code, 400)
+        # Each screen link remembers its own.
+        page = self.form(self.client, "/admin/tv", "/admin/tv/new", name="Hall").get_data(as_text=True)
+        link = re.search(r'value="http://localhost(/tv/[^"]+)"', page).group(1)
+        anonymous = self.app.test_client()
+        self.assertEqual(anonymous.get(link + "/data").get_json()["events"], [])
+        self.assertEqual(anonymous.post(link + "/seen", json={"ids": []}).status_code, 200)
+        self.assertEqual(anonymous.post("/tv/not-a-real-link/seen", json={"ids": []}).status_code, 404)
+        # The characters are public, like the fonts, so a TV can show them.
+        art = anonymous.get("/tv-art/b-cheer.webp")
+        self.assertEqual((art.status_code, art.mimetype), (200, "image/webp"))
+        self.assertIn("max-age", art.headers["Cache-Control"])
+        self.assertEqual(anonymous.get("/tv-art/../tv.py").status_code, 404)
 
     def test_tv_screen_links(self):
         student = self.tv_student("Aisha Khan", house="Makkah", tg=[1])
@@ -667,7 +713,7 @@ class DashboardTests:
         self.add_user("t@example.com")
         teacher = self.sign_in("t@example.com", "teacher-password-1")
         self.assertEqual(teacher.get("/tv").status_code, 200)
-        self.assertEqual(teacher.get("/api/tv").get_json()["houses"][0], {"house": "Makkah", "points": 5})
+        self.assertEqual(teacher.get("/api/tv").get_json()["houses"][0], {"house": "Makkah", "points": 5, "rank": 1})
         self.assertEqual(teacher.get("/admin/tv").status_code, 403)
         self.assertEqual(teacher.post("/admin/tv/new", data={"name": "Hall"}).status_code, 403)
         page = self.form(self.client, "/admin/tv", "/admin/tv/new", name="Admin area TV").get_data(as_text=True)

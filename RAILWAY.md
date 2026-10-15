@@ -44,16 +44,31 @@ and shows only the dashboard: it can't open the classrooms or change anything.
 **Turn off link** stops it within a minute (the TV then shows a message); make
 a new one if a link is lost or seen by someone it shouldn't be.
 
-The dashboard has two slides that switch every 30 seconds and updates every
-minute:
+The TV is a celebration display that runs by itself, silently, and updates
+every 30 seconds without restarting its rotation:
 
-1. **House points** for the whole school, leader first, and **Memorisation**:
-   the top 3 students by passes this month, for primary (Reception to Year 6)
-   and secondary (Year 7 onwards). A student's stage comes from their Safar
+1. **House points** on a podium: first in the middle, second on the left, third
+   on the right, each with its landmark and colour. A house that is strictly
+   ahead wears a crown; tied houses share a place and a platform height.
+2. **Memorisation champions**, Primary and then Secondary: the three highest
+   numbers of passes this month on a podium. Pupils with the same number share
+   a place and take turns two at a time. A pupil's stage comes from their Safar
    year group, then the classroom name (`Yr7-...`), then their school year.
-2. **Star of the week** for each class: the student with the most passes and
-   merits since Monday (ties go to more passes). **Passed a book**: students
-   given a red (book completion) token this month.
+3. **Stars of the week**, six classes at a time: the teacher's star of the week
+   when one is chosen, otherwise the most passes and merits since Monday.
+4. **Book completions**: pupils given a red (book completion) token this month,
+   eight at a time.
+
+Real achievements are celebrated as they happen, with the two characters on a
+short celebration stage: a book completed, a level test passed, a house or the
+whole school reaching a points milestone, a new house in the lead, and a
+teacher's star of the week. Each TV link (and each member of staff at `/tv`)
+remembers what it has celebrated, so refreshing or reconnecting never replays
+one, and a new link starts from what is already there. Milestones are set with
+`TV_HOUSE_MILESTONES` (default `100,250,500,1000,1500,2000,3000,4000,5000,7500,10000`)
+and `TV_SCHOOL_MILESTONES` (default `500,1000,2500,5000,10000,15000,20000,30000`),
+comma-separated points. Add `?preview` to the TV address to play one of each
+celebration with made-up pupils; nothing is saved.
 
 Students are shown by first name and surname initial (`Aisha K.`) with their
 classroom. Signed-in staff can preview it at `/tv`.

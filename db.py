@@ -112,7 +112,15 @@ def _m3_tv_screens(db, postgres):
         revoked_at BIGINT)""")
 
 
-MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens]
+def _m4_tv_displays(db, postgres):
+    # Which celebrations each TV display has shown (see tv.py): "screen:<id>" or "user:<id>" for staff at /tv.
+    db.execute("""CREATE TABLE tv_displays (
+        display TEXT PRIMARY KEY,
+        state TEXT NOT NULL,
+        updated_at BIGINT NOT NULL)""")
+
+
+MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_displays]
 
 
 class Database:

@@ -6,8 +6,15 @@ and shows the dashboard and nothing else: whole-school totals and short names
 (first name and surname initial), never student records, and no way to change
 anything. An admin can turn a link off at any time. Signed-in staff can open
 the same dashboard at /tv.
+
+Real achievements are celebrated on the screen as they happen: a book or a level test passed, a house or the whole
+school reaching a points milestone, a new house in the lead and a teacher's star of the week. Each display (a screen
+link, or a member of staff at /tv) remembers in `tv_displays` which of these it has already celebrated, so polling,
+refreshing and reconnecting never replay one. A display seen for the first time starts from what is already there.
 """
+import hashlib
 import json
+import os
 import re
 import secrets
 from datetime import datetime, timedelta
@@ -23,6 +30,10 @@ HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 YEAR = re.compile(r"(?:year|yr)\s*(\d+)", re.I)
 SEEN_EVERY = 300  # record a screen's last visit at most every 5 minutes
+RECENT_DAYS = 7  # how far back a display still celebrates a pupil's achievement it missed (it was off, say)
+# Points milestones, changeable with TV_HOUSE_MILESTONES and TV_SCHOOL_MILESTONES (comma-separated numbers).
+HOUSE_MILESTONES = "100,250,500,1000,1500,2000,3000,4000,5000,7500,10000"
+SCHOOL_MILESTONES = "500,1000,2500,5000,10000,15000,20000,30000"
 
 bp = Blueprint("tv", __name__)
 
@@ -57,54 +68,160 @@ def since(times, start):
     return sum(1 for t in times if t >= start)
 
 
+def milestones(name, default):
+    try:
+        return sorted({int(n) for n in os.environ.get(name, default).split(",") if n.strip()})
+    except ValueError:
+        return sorted(int(n) for n in default.split(","))
+
+
+def event_id(*parts):
+    # Ids never carry a full name: the TV is only ever sent short names.
+    return hashlib.sha256("|".join(str(p) for p in parts).encode()).hexdigest()[:20]
+
+
 def summary(rows, now=None):
-    """Everything the TV shows, worked out from the classroom records."""
+    """Everything the TV shows, worked out from the classroom records, plus the achievements it could celebrate."""
     now = now or datetime.now(auth.LONDON)
     day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     # The dashboard records times in milliseconds.
     month = day.replace(day=1).timestamp() * 1000
-    week = (day - timedelta(days=day.weekday())).timestamp() * 1000
+    monday = day - timedelta(days=day.weekday())
+    week, week_key = monday.timestamp() * 1000, monday.strftime("%Y-%m-%d")
+    recent = (day - timedelta(days=RECENT_DAYS)).timestamp() * 1000
+    recent_day = (day - timedelta(days=RECENT_DAYS)).strftime("%Y-%m-%d")
     houses = dict.fromkeys(HOUSES, 0)
-    books, stars, passes = [], [], {"primary": [], "secondary": []}
+    books, stars, passes, events = [], [], {"primary": [], "secondary": []}, []
     for row in rows:
         state = json.loads(row["json"])
         class_name = state.get("name") or row["id"]
-        best = None
+        best, chosen = None, None
         for s in state.get("S", []):
-            name = short_name(s.get("name", ""))
+            full = s.get("name", "")
+            name = short_name(full)
             if not name:
                 continue
-            if s.get("house") in houses:
-                houses[s["house"]] += sum(len(s.get(k, [])) * v for k, v in TOKEN_POINTS.items())
+            house = s.get("house", "") if s.get("house") in houses else ""
+            if house:
+                houses[house] += sum(len(s.get(k, [])) * v for k, v in TOKEN_POINTS.items())
             # A red token is given for completing a book.
             if since(s.get("tr", []), month):
-                books.append({"name": name, "class": class_name, "house": s.get("house", "")})
-            # Star of the week: the most passes and merits since Monday.
+                books.append({"name": name, "class": class_name, "house": house})
+            for t in s.get("tr", []):
+                if t >= recent:
+                    events.append({"id": event_id(row["id"], full, "book", t), "kind": "book", "at": t,
+                                   "title": "Book completed!", "name": name, "detail": class_name, "house": house})
+            for t in s.get("tests", []):
+                if t.get("ok") and str(t.get("d", "")) >= recent_day:
+                    what = f"Qaidah Level {t.get('n')}" if t.get("k") == "q" else "Memorisation test"
+                    events.append({"id": event_id(row["id"], full, "test", t.get("d"), t.get("k"), t.get("n")),
+                                   "kind": "level", "at": str(t.get("d")), "title": "Level complete!", "name": name,
+                                   "detail": f"{what} · {class_name}", "house": house})
             week_passes, week_merits = since(s.get("log", []), week), since(s.get("ml", []), week)
+            # Star of the week: the teacher's choice, otherwise the most passes and merits since Monday.
+            if week_key in (s.get("sw") or []) and not chosen:
+                chosen = (name, house, week_passes, week_merits)
+                events.append({"id": event_id(row["id"], full, "star", week_key), "kind": "star", "at": week_key,
+                               "title": "Star of the week", "name": name, "detail": class_name, "house": house})
             score = (week_passes + week_merits, week_passes, week_merits)
             if score[0] and (best is None or score > best[0]):
-                best = (score, name, s.get("house", ""))
+                best = (score, name, house)
             stage = school_stage(s, class_name)
             month_passes = since(s.get("log", []), month)
             if stage and month_passes:
-                passes[stage].append({"name": name, "class": class_name, "passes": month_passes})
-        stars.append({"class": class_name, "name": best[1] if best else None, "house": best[2] if best else "",
-                      "passes": best[0][1] if best else 0, "merits": best[0][2] if best else 0})
+                passes[stage].append({"name": name, "class": class_name, "passes": month_passes, "house": house})
+        if chosen:
+            stars.append({"class": class_name, "name": chosen[0], "house": chosen[1], "passes": chosen[2],
+                          "merits": chosen[3], "chosen": True})
+        else:
+            stars.append({"class": class_name, "name": best[1] if best else None, "house": best[2] if best else "",
+                          "passes": best[0][1] if best else 0, "merits": best[0][2] if best else 0, "chosen": False})
     for stage in passes:
-        passes[stage] = sorted(passes[stage], key=lambda p: (-p["passes"], p["name"]))[:3]
+        # The three highest numbers of passes make the podium; pupils with the same number share a place.
+        ordered = sorted(passes[stage], key=lambda p: (-p["passes"], p["name"]))
+        counts = sorted({p["passes"] for p in ordered}, reverse=True)
+        for p in ordered:
+            p["rank"] = counts.index(p["passes"]) + 1
+        passes[stage] = [p for p in ordered if p["rank"] <= 3]
+    standings = [{"house": h, "points": houses[h], "rank": 1 + sum(1 for p in houses.values() if p > houses[h])}
+                 for h in sorted(HOUSES, key=lambda h: -houses[h])]
+    top = standings[0]
+    leader = top["house"] if top["points"] > 0 and standings[1]["points"] < top["points"] else None
+    for h in HOUSES:
+        reached = [m for m in milestones("TV_HOUSE_MILESTONES", HOUSE_MILESTONES) if houses[h] >= m]
+        if reached:
+            events.append({"id": f"house:{h}:{reached[-1]}", "kind": "house", "title": f"{reached[-1]:,} house points!",
+                           "name": h, "detail": "A house milestone", "house": h})
+    total = sum(houses.values())
+    reached = [m for m in milestones("TV_SCHOOL_MILESTONES", SCHOOL_MILESTONES) if total >= m]
+    if reached:
+        events.append({"id": f"school:{reached[-1]}", "kind": "school", "title": f"{reached[-1]:,} points together!",
+                       "name": "Safar Academy", "detail": "Every house helped", "house": ""})
     return {
-        "houses": sorted(({"house": h, "points": p} for h, p in houses.items()), key=lambda h: -h["points"]),
+        "houses": standings,
+        "leader": leader,
+        "total": total,
         "books": sorted(books, key=lambda b: b["name"]),
         "stars": sorted(stars, key=lambda s: natural(s["class"])),
         "passes": passes,
         "month": now.strftime("%B"),
+        "events": sorted(events, key=lambda e: str(e.get("at", ""))),
     }
 
 
-def data():
+def leader_event(data):
+    house = data["leader"]
+    return {"id": f"leader:{house}:{data['houses'][0]['points']}", "kind": "leader", "title": "New house in the lead!", "name": house,
+            "detail": f"{data['houses'][0]['points']:,} points", "house": house}
+
+
+def display_state(tx, display):
+    row = tx.execute("SELECT state FROM tv_displays WHERE display = ?", (display,)).fetchone()
+    return json.loads(row["state"]) if row else None
+
+
+def save_state(tx, display, state):
+    tx.execute("INSERT INTO tv_displays (display, state, updated_at) VALUES (?, ?, ?) "
+               "ON CONFLICT (display) DO UPDATE SET state = excluded.state, updated_at = excluded.updated_at",
+               (display, json.dumps(state), auth.now()))
+
+
+def data(display):
     with auth.db().transaction() as tx:
         rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
-    return jsonify(summary(rows))
+        result = summary(rows)
+        candidates = result.pop("events")
+        state = display_state(tx, display)
+        if state is None:
+            # A new display starts from what is already there rather than replaying the school's history.
+            save_state(tx, display, {"seen": [e["id"] for e in candidates], "leader": result["leader"]})
+            events = []
+        else:
+            seen = set(state.get("seen", []))
+            events = [e for e in candidates if e["id"] not in seen]
+            if result["leader"] and result["leader"] != state.get("leader"):
+                events.insert(0, leader_event(result))
+    result["events"] = events
+    return jsonify(result)
+
+
+def seen(display):
+    """The display has celebrated these events (their ids, from data())."""
+    ids = (request.get_json(silent=True) or {}).get("ids")
+    if not isinstance(ids, list) or len(ids) > 100 or not all(isinstance(i, str) and len(i) <= 80 for i in ids):
+        return jsonify(error="Send the ids of the events shown."), 400
+    with auth.db().transaction() as tx:
+        rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
+        result = summary(rows)
+        current = {e["id"] for e in result["events"]}
+        state = display_state(tx, display) or {"seen": [], "leader": result["leader"]}
+        for i in ids:
+            if i.startswith("leader:") and i.split(":")[1] in HOUSES:
+                state["leader"] = i.split(":")[1]
+        # Only ids that could still come back are kept, so the list stays small.
+        state["seen"] = sorted((set(state.get("seen", [])) | set(ids)) & current)
+        save_state(tx, display, state)
+    return jsonify(ok=True)
 
 
 def page():
@@ -131,7 +248,12 @@ def staff_page():
 
 @bp.get("/api/tv")
 def staff_data():
-    return data()
+    return data(f"user:{g.user['id']}")
+
+
+@bp.post("/api/tv/seen")
+def staff_seen():
+    return seen(f"user:{g.user['id']}")
 
 
 @bp.get("/tv/<token>")
@@ -143,9 +265,18 @@ def screen_page(token):
 
 @bp.get("/tv/<token>/data")
 def screen_data(token):
-    if not screen(token):
+    row = screen(token)
+    if not row:
         return jsonify(error="This screen's link has been turned off."), 404
-    return data()
+    return data(f"screen:{row['id']}")
+
+
+@bp.post("/tv/<token>/seen")
+def screen_seen(token):
+    row = screen(token)
+    if not row:
+        return jsonify(error="This screen's link has been turned off."), 404
+    return seen(f"screen:{row['id']}")
 
 
 def screens_page(status=200, **context):

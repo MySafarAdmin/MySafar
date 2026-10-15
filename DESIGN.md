@@ -255,15 +255,24 @@ policy.
 
 ## TV
 
-The TV is a hall display and keeps its own navy look (unchanged by the neutral
-workspace). It keeps its two slides, rotation and privacy rules (first name and
-surname initial, whole-school totals). House points are columns on one
-baseline with heights in proportion to points; "Leading" and a gold number
-appear only when a house is strictly ahead. Every joint first place is
-highlighted. Star of the week and Passed a book shrink to fit, but never below
-2.6% and 2.8% of the screen height; a list that still does not fit is split
-into pages that turn every 10 seconds ("Page 1 of 3"), and the slide stays up
-until every page has been shown. Names wrap rather than being cut off.
+The TV is a hall display for pupils and keeps its own navy look and
+Atkinson type, with warm stage lighting, drifting bubbles, twinkling stars,
+rounded, softly lit panels and cream cards. Everything is drawn on a
+1920 x 1080 stage scaled to the screen, so 1080p and 4K show the same picture
+inside safe margins. House colours are the dashboard's (`--makkah`, `--aqsa`,
+`--madinah`). Names and scores never move while they can be read; the
+background, the characters and scene changes do. Platforms rise when the
+podium comes on; a house that changes place glides with its name, colour,
+landmark and score. Long lists are shown a page at a time so every class gets
+its turn. Reduced motion stops the background, the characters' movement and
+the confetti, and celebrations show still poses.
+
+The two characters (`static/tv-art`) are cut from the supplied character sheet
+by `tools/tv_art.py`. The girl is shown in one pink outfit, because the sheet
+gives her a different outfit in each pose. Their animations are built from the
+sheet's poses in the page itself (`LIB` in `static/tv.html`), not video: pose
+changes, squash and stretch, a blink and UI-drawn stars and confetti. Pupil
+names, scores and messages are always live text.
 
 ## Design skills in this repository
 

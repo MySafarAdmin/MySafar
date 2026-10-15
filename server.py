@@ -41,7 +41,9 @@ PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js"
 # for text and titles alike (see DESIGN.md).
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
 # /tv/<token> is a TV screen link; tv.py checks the token.
-PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/")
+# /tv-art/ holds the TV's two characters, drawn once and shared by every screen.
+PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/", "/tv-art/")
+TV_ART = {p.name for p in (ROOT / "static" / "tv-art").glob("*.webp")}
 
 
 def valid_state(state):
@@ -241,7 +243,7 @@ def create_app(test_config=None):
     def private_responses(response):
         # The font files are public and never change; everything else is private.
         # The logo is public too, and email apps fetch it for every email they show.
-        response.headers["Cache-Control"] = "public, max-age=604800" if (request.path.startswith("/fonts/")
+        response.headers["Cache-Control"] = "public, max-age=604800" if (request.path.startswith(("/fonts/", "/tv-art/"))
             or request.path in ("/logo.png", "/favicon.png", "/favicon.ico")) and response.status_code == 200 else "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
@@ -295,6 +297,12 @@ def create_app(test_config=None):
         if name not in FONTS:
             abort(404)
         return Response((ROOT / "static" / "fonts" / name).read_bytes(), mimetype="font/woff2")
+
+    @app.get("/tv-art/<name>")
+    def tv_art(name):
+        if name not in TV_ART:
+            abort(404)
+        return Response((ROOT / "static" / "tv-art" / name).read_bytes(), mimetype="image/webp")
 
     @app.get("/")
     def dashboard():

@@ -9,138 +9,492 @@
 <title>Safar Academy · Live</title>
 <style>
 @font-face{font-family:"Atkinson Next";src:url(/fonts/atkinson-next-latin.woff2) format("woff2");font-weight:200 800;font-display:swap}
-/* Student-facing display: Safar navy, house colours and real celebration for real achievements. */
-:root{--bg:#002848;--bg2:#003b6b;--panel:#04345d;--line:#1d4f7c;--text:#fff;--mute:#a9c3dd;--gold:#f5c542;--silver:#d7e0ea;--bronze:#e39a5b;
- --makkah:#f2b632;--aqsa:#4bb3f5;--madinah:#3ccf91;color-scheme:dark}
+/* The school's celebration TV. Everything is laid out on a 1920 x 1080 stage that is scaled to fill the screen,
+   so 1080p and 4K TVs show exactly the same picture, inside safe margins. Safar navy with warm stage lighting;
+   the house colours are the ones the dashboard uses (src/tokens.css). Names and scores never move while
+   someone could be reading them: only the background, the characters and scene changes do. */
+:root{--navy:#003b6b;--deep:#001f3d;--ink:#0b2a4a;--cream:#fff8ec;--gold:#f5c542;--gold2:#e9a21a;--text:#fff;--mute:#bcd2ea;
+ --makkah:#c9930c;--aqsa:#2386d1;--madinah:#1c9a68;--r1:#f2c14e;--r2:#b8c7d9;--r3:#d98b4f;color-scheme:dark}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:radial-gradient(120% 90% at 0% 0%,var(--bg2),var(--bg) 60%);color:var(--text);font-family:"Atkinson Next",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
-body{display:flex;flex-direction:column;padding:2.4vh 2.6vw;gap:2.2vh}
-header{display:flex;align-items:center;gap:1.6vw}
-header .badge{flex:none;width:9vh;height:9vh;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 0 0 .5vh rgba(255,255,255,.18)}
-header img{width:7.8vh;height:7.8vh}
-header h1{font-size:4.6vh;margin:0;flex:1;font-weight:800;letter-spacing:-.01em;line-height:1.05}
-header h1 small{display:block;font-size:2.4vh;font-weight:600;color:var(--mute);letter-spacing:0}
-header .clock{font-size:5.4vh;font-weight:800}
-.dots{display:flex;gap:1vh}.dots i{width:1.6vh;height:1.6vh;border-radius:50%;background:var(--line)}.dots i.on{background:var(--gold)}
-main{flex:1;position:relative;min-height:0}
-.slide{position:absolute;inset:0;display:grid;gap:2vh 2vw;opacity:0;transition:opacity .8s;pointer-events:none}
-.slide.on{opacity:1}
-#s1{grid-template-columns:1.1fr 1fr}#s2{grid-template-columns:1.6fr 1fr}
-.panel{background:rgba(4,52,93,.82);border:.25vh solid var(--line);border-radius:2.6vh;padding:2.8vh 2.2vw;display:flex;flex-direction:column;min-height:0;overflow:hidden}
-.panel h2{margin:0 0 2.2vh;font-size:4.4vh;font-weight:800;letter-spacing:-.01em;line-height:1.1}
-.panel h2 small{display:block;font-size:2.5vh;color:var(--mute);font-weight:600;letter-spacing:0;margin-top:.6vh}
-.fit{flex:1;min-height:0;overflow:hidden}
-/* Houses as columns: the height is the points, the leader (only when strictly ahead) is crowned in gold. */
-.houses{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2vw;height:100%}
-.house{display:grid;grid-template-rows:5vh 11vh minmax(0,1fr) auto;grid-template-columns:minmax(0,1fr);min-height:0;min-width:0;text-align:center}
-.house em{grid-row:1;font-style:normal;font-size:2.6vh;font-weight:800;color:#2b1d00;background:var(--gold);border-radius:99px;padding:.4vh 1.6vh;justify-self:center;align-self:start}
-.house .pts{grid-row:2;align-self:end;font-size:7.4vh;font-weight:800;line-height:1;margin-bottom:1.2vh}
-.house.lead .pts{font-size:9.6vh;color:var(--gold)}
-.house .track{grid-row:3;display:flex;align-items:flex-end;min-height:0}
-.house .track i{display:block;width:100%;border-radius:2vh 2vh .6vh .6vh;min-height:1vh}
-.house .hn{grid-row:4;font-size:4.6vh;font-weight:800;white-space:nowrap;margin-top:1.4vh;line-height:1.1}
-.Makkah .hn{color:var(--makkah)}.Makkah .track i{background:var(--makkah)}
-.Al-Aqsa .hn{color:var(--aqsa)}.Al-Aqsa .track i{background:var(--aqsa)}
-.Madinah .hn{color:var(--madinah)}.Madinah .track i{background:var(--madinah)}
-.stages{display:grid;grid-template-rows:1fr 1fr;gap:2vh}
-.stage h3{margin:0 0 .8vh;font-size:3vh;color:var(--gold);font-weight:800}
-.podium{display:flex;flex-direction:column;gap:1vh}
-.pod{display:grid;grid-template-columns:6vh 1fr auto;align-items:center;gap:1.2vw;font-size:3.3vh;font-weight:800;background:rgba(255,255,255,.06);border-radius:1.6vh;padding:.6vh 1.2vw;line-height:1.15}
-.pod .m{width:5.2vh;height:5.2vh;border-radius:50%;display:grid;place-items:center;font-size:3.2vh;font-weight:800;color:#24170a;background:var(--gold);box-shadow:0 0 0 .4vh rgba(245,197,66,.25)}
-.pod .m.r2{background:var(--silver);box-shadow:0 0 0 .4vh rgba(215,224,234,.2)}.pod .m.r3{background:var(--bronze);box-shadow:0 0 0 .4vh rgba(227,154,91,.22)}
-.pod .c{display:block;font-size:2.1vh;color:var(--mute);font-weight:600}
-.pod .n{color:var(--gold);font-weight:800}
-/* First place (every student who shares it) is the moment to celebrate. */
-.pod.top{font-size:4.1vh;padding:.8vh 1.2vw;background:rgba(245,197,66,.16);box-shadow:inset 0 0 0 .3vh rgba(245,197,66,.55)}
-.pod.top .m{width:5.8vh;height:5.8vh;font-size:3.5vh}
-.pod.top .c{font-size:2.2vh}
-.stars{display:grid;gap:1.4vh 1vw;height:100%;align-content:start}
-.star{background:rgba(255,255,255,.06);border-radius:1.6vh;padding:1em .9em;border-left:.5vh solid var(--gold);min-width:0}
-.star .c{font-size:.62em;color:var(--mute);font-weight:700;overflow-wrap:anywhere}
-.star .n{font-size:1.1em;font-weight:800;overflow-wrap:anywhere;line-height:1.15}
-.star .w{font-size:.62em;color:var(--gold);font-weight:700}
-.bookhead{display:flex;align-items:baseline;gap:1.2vw;margin:-.6vh 0 1.6vh}
-.bookhead b{font-size:9vh;font-weight:800;color:var(--gold);line-height:1}
-.bookhead span{font-size:2.8vh;font-weight:700;color:var(--mute)}
-.books.many .book small{display:none}
-.star.none{border-left-color:var(--line)}.star.none .n{color:var(--mute);font-weight:700;white-space:normal;font-size:.9em}
-.books{display:grid;column-gap:2vw;align-content:start}
-/* A list too long for the screen at a readable size is shown a page at a time. */
-.pgn{float:right;font-size:2.4vh;font-weight:700;color:var(--gold);margin-top:1vh}
-.pgn:empty{display:none}
-.book{break-inside:avoid;padding:.35em 0;border-bottom:.2vh solid var(--line);font-weight:800}
-.book small{display:block;font-size:.6em;color:var(--mute);font-weight:600}
-.empty{color:var(--mute);font-size:3.2vh;font-weight:700}
-footer{height:.8vh;background:var(--line);border-radius:1vh;overflow:hidden}
-footer i{display:block;height:100%;width:0;background:var(--gold)}
-footer i.run{width:100%;transition:width linear}
-#off{position:fixed;inset:0;display:none;align-items:center;justify-content:center;text-align:center;background:var(--bg);font-size:4vh;font-weight:800;padding:5vw}
-@media (prefers-reduced-motion:reduce){.slide{transition:none}footer i.run{transition:none}}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--deep);color:var(--text);
+ font-family:"Atkinson Next",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+/* Background: navy sky, warm glow from below, drifting bubbles and twinkling stars. Transforms and opacity only. */
+#sky{position:fixed;top:0;left:0;right:0;bottom:0;overflow:hidden;background:
+ radial-gradient(60% 55% at 50% 108%,rgba(255,184,77,.42),rgba(255,184,77,0) 70%),
+ radial-gradient(45% 45% at 8% 0%,rgba(122,108,230,.30),rgba(122,108,230,0) 70%),
+ radial-gradient(40% 40% at 95% 10%,rgba(60,190,200,.22),rgba(60,190,200,0) 70%),
+ linear-gradient(180deg,#00335e 0%,#002a50 55%,#001f3d 100%)}
+#sky .glow{position:absolute;left:20%;right:20%;bottom:-30%;height:70%;border-radius:50%;background:radial-gradient(closest-side,rgba(255,200,110,.32),rgba(255,200,110,0));animation:glow 9s ease-in-out infinite alternate}
+@keyframes glow{from{opacity:.65;transform:scale(1)}to{opacity:1;transform:scale(1.08)}}
+.bub{position:absolute;bottom:-12vh;border-radius:50%;background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.7),rgba(255,255,255,.12) 30%,var(--t) 64%,rgba(255,255,255,.22) 73%,rgba(255,255,255,0) 75%);animation:rise linear infinite;will-change:transform}
+@keyframes rise{0%{transform:translate3d(0,0,0)}50%{transform:translate3d(var(--sway),-62vh,0)}100%{transform:translate3d(0,-125vh,0)}}
+.twk{position:absolute;width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 10px 2px rgba(255,236,170,.8);animation:twinkle ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;padding:44px 80px 40px}
+header{position:relative;height:118px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;column-gap:32px}
+.brand{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:20px}
+.badge{width:104px;height:104px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 10px 26px rgba(0,0,0,.28),0 0 0 7px rgba(255,255,255,.16)}
+.badge img{width:88px;height:88px}
+.brand b{display:block;font-size:44px;font-weight:800;line-height:1;letter-spacing:-.01em}
+.brand small{display:block;font-size:26px;font-weight:700;color:var(--mute);margin-top:6px}
+.title{text-align:center;transition:opacity .5s}
+.title h1{margin:0;font-size:64px;font-weight:800;line-height:1;letter-spacing:-.015em;text-shadow:0 4px 18px rgba(0,0,0,.25)}
+.title h1 em{font-style:normal;display:inline-block;vertical-align:.12em;margin-left:18px;font-size:34px;padding:8px 22px;border-radius:99px;background:var(--gold);color:var(--ink)}
+.title p{margin:10px 0 0;font-size:30px;font-weight:700;color:var(--mute)}
+.clock{font-size:58px;font-weight:800;padding:14px 30px;border-radius:30px;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));box-shadow:inset 0 2px 0 rgba(255,255,255,.22),0 10px 24px rgba(0,0,0,.2)}
+main{position:absolute;left:80px;right:80px;top:172px;bottom:96px;z-index:0}
+.scene{position:absolute;top:0;left:0;right:0;bottom:0;opacity:0;transition:opacity .7s ease,transform .7s ease;transform:scale(.985);pointer-events:none}
+.scene.on{opacity:1;transform:none}
+footer{position:absolute;left:80px;right:80px;bottom:34px;height:40px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+.dots{grid-column:2;display:grid;grid-auto-flow:column;column-gap:14px}
+.dots i{width:18px;height:18px;border-radius:9px;background:rgba(255,255,255,.22);transition:width .5s,background .5s}
+.dots i.on{width:54px;background:var(--gold)}
+.pg{grid-column:3;justify-self:end;font-size:28px;font-weight:800;color:var(--gold)}
+.bar{position:absolute;left:0;right:0;bottom:-14px;height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:3px}
+
+/* Podium. Columns sit in fixed slots: second on the left, first in the middle, third on the right. A house keeps
+   its name, colour, landmark and score together when it changes place. */
+.pod{position:absolute;left:0;right:0;bottom:0;top:0}
+.floor{position:absolute;left:180px;right:180px;bottom:-26px;height:90px;border-radius:50%;background:radial-gradient(closest-side,rgba(255,214,140,.38),rgba(255,214,140,0))}
+.col{position:absolute;bottom:0;width:420px;margin-left:-210px;display:grid;justify-items:center;transition:left 1.4s cubic-bezier(.6,0,.25,1)}
+.col .over{display:grid;justify-items:center;row-gap:12px;margin-bottom:46px}
+.plat{position:relative;width:400px;height:0;border-radius:34px 34px 14px 14px;transition:height 1.2s cubic-bezier(.3,1.35,.45,1);
+ background:linear-gradient(180deg,var(--c2) 0,var(--c) 34px,var(--c) 70%,var(--c3) 100%);
+ box-shadow:inset 0 4px 0 rgba(255,255,255,.45),inset 0 -10px 0 rgba(0,0,0,.14),0 22px 40px rgba(0,0,0,.32)}
+.plat .face{position:absolute;left:0;right:0;top:0;bottom:0;overflow:hidden;border-radius:inherit;display:grid;align-content:center;justify-items:center}
+.medal{position:absolute;left:50%;top:-30px;transform:translateX(-50%);white-space:nowrap;font-size:30px;font-weight:800;padding:8px 24px;border-radius:99px;color:var(--ink);background:var(--mc,#fff);box-shadow:0 6px 0 rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.6);z-index:2}
+.pts{display:inline-block;font-size:104px;font-weight:800;line-height:1;padding:10px 34px 14px;border-radius:40px;background:var(--cream);color:var(--ink);box-shadow:0 8px 0 rgba(0,0,0,.14),inset 0 -4px 0 rgba(0,0,0,.06)}
+.pts small{font-size:30px;font-weight:800;margin-left:8px;color:#56708c}
+.hname{font-size:52px;font-weight:800;line-height:1;padding:12px 34px 14px;border-radius:99px;background:var(--c);color:#fff;box-shadow:inset 0 3px 0 rgba(255,255,255,.35),0 8px 18px rgba(0,0,0,.25);white-space:nowrap}
+.Makkah{--c:var(--makkah);--c2:#f1c75a;--c3:#a67606}.Makkah .hname{color:var(--ink)}
+.Al-Aqsa{--c:var(--aqsa);--c2:#7cc0f2;--c3:#1767a6}
+.Madinah{--c:var(--madinah);--c2:#6fd3a5;--c3:#137450}
+.land{width:250px;height:200px;filter:drop-shadow(0 12px 14px rgba(0,0,0,.3))}
+.land svg{width:100%;height:100%;display:block}
+.crown{width:150px;height:96px;margin-bottom:-10px;animation:float 3.2s ease-in-out infinite;filter:drop-shadow(0 8px 10px rgba(0,0,0,.3));transition:opacity .6s}
+.crown.off{opacity:0}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+.zero{position:absolute;left:50%;top:0;transform:translateX(-50%);white-space:nowrap;font-size:40px;font-weight:800;padding:16px 40px;border-radius:99px;background:rgba(255,255,255,.12);box-shadow:inset 0 2px 0 rgba(255,255,255,.2)}
+.zero b{color:var(--gold)}
+/* Pupil podiums (memorisation champions): gold, silver and bronze platforms, the names above. */
+.champ .col{width:440px;margin-left:-220px}
+.champ .plat{width:420px}
+.r1{--c:var(--r1);--c2:#ffe199;--c3:#c9962a;--mc:#ffe7a6}.r2{--c:var(--r2);--c2:#e3ebf4;--c3:#8ea2ba;--mc:#eef3f8}.r3{--c:var(--r3);--c2:#f2b98c;--c3:#a9612e;--mc:#f7cfae}
+.names{display:grid;width:440px}
+.pair{grid-area:1/1;display:grid;row-gap:12px;align-content:end;opacity:0;transform:translateY(10px);transition:opacity .6s,transform .6s}
+.pair.on{opacity:1;transform:none}
+.who{width:100%;text-align:center;padding:14px 22px 16px;border-radius:30px;background:var(--cream);color:var(--ink);box-shadow:0 8px 0 rgba(0,0,0,.14),0 16px 30px rgba(0,0,0,.22)}
+.who b{display:block;font-size:48px;font-weight:800;line-height:1.08;white-space:nowrap}
+.who span{display:block;font-size:28px;font-weight:700;color:#4a6481;margin-top:4px;white-space:nowrap}
+.who span i{display:inline-block;width:20px;height:20px;border-radius:50%;margin-right:10px;vertical-align:-1px;background:var(--hc,#9fb3c8)}
+.more{font-size:30px;font-weight:800;color:var(--gold)}
+.champ .pts{font-size:96px}
+/* Characters. Each one is anchored at its feet; the poses are separate images that take turns. */
+.kid{position:absolute;bottom:0;width:0;height:0}
+.kb{position:absolute;left:0;bottom:0;width:0;height:0;transform-origin:0 0}
+.kp{position:absolute;left:0;bottom:0;width:0;height:0;animation:breathe 3.4s ease-in-out infinite;transform-origin:0 0}
+.kid.b .kp{animation-delay:-1.7s}
+@keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,1.022)}}
+.kp img{position:absolute;bottom:0;max-width:none;visibility:hidden;filter:drop-shadow(0 14px 14px rgba(0,0,0,.25))}
+.kp img.on{visibility:visible}
+.kp img.fl{transform:scaleX(-1)}
+.shadow{position:absolute;left:-90px;width:180px;bottom:-14px;height:30px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.32),rgba(0,0,0,0))}
+.noart .kid{display:none}
+/* Cards: stars of the week and book completions, a small group of classes or pupils per page. */
+.cards{position:absolute;left:0;right:0;bottom:0;display:grid;column-gap:40px;row-gap:40px}
+.card{position:relative;min-width:0;border-radius:44px;background:var(--cream);color:var(--ink);text-align:center;display:grid;align-content:center;justify-items:center;padding:30px 30px 34px;overflow:hidden;
+ box-shadow:0 12px 0 rgba(0,0,0,.14),0 26px 44px rgba(0,0,0,.28),inset 0 -6px 0 rgba(0,0,0,.05);border-top:18px solid var(--c,var(--gold))}
+.card .cls{font-size:30px;font-weight:800;padding:8px 24px;border-radius:99px;background:var(--navy);color:#fff;white-space:nowrap}
+.card .nm{font-size:66px;font-weight:800;line-height:1.05;margin:18px 0 10px;white-space:nowrap;max-width:100%}
+.card .why{font-size:30px;font-weight:700;color:#4a6481}
+.card .why b{color:var(--ink)}
+.card .ic{position:absolute;width:104px;height:104px;right:26px;top:22px;animation:wob 5s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(8deg) scale(1.06)}}
+.card.none{background:rgba(255,255,255,.08);color:#fff;border:4px dashed rgba(255,255,255,.3);border-top:4px dashed rgba(255,255,255,.3);box-shadow:none}
+.card.none .cls{background:rgba(255,255,255,.18)}
+.card.none .nm{font-size:50px;color:#fff}
+.card.none .why{color:var(--mute)}
+.book .bk{width:110px;height:84px;margin-bottom:6px}
+.book .nm{font-size:56px;margin:8px 0 6px}
+.bookhead{position:absolute;left:0;right:0;top:0;text-align:center;font-size:44px;font-weight:800}
+.bookhead b{display:inline-block;font-size:76px;line-height:1;padding:6px 30px 10px;margin-right:18px;border-radius:99px;background:var(--gold);color:var(--ink);vertical-align:-6px}
+/* Encouragement when there is nothing yet: the characters and a friendly line. */
+.empty{position:absolute;left:0;right:0;top:40px;text-align:center}
+.empty h2{margin:0;font-size:76px;font-weight:800;line-height:1.05}
+.empty p{margin:18px 0 0;font-size:40px;font-weight:700;color:var(--mute)}
+/* Celebration stage: the heading, the name and the characters, with UI stars and confetti around them. */
+#party{position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;opacity:0;visibility:hidden;transition:opacity .6s,visibility 0s .6s;border-radius:0;
+ background:radial-gradient(70% 60% at 50% 100%,rgba(255,196,96,.45),rgba(255,196,96,0) 70%),radial-gradient(80% 70% at 50% 30%,#0a4a85,#002a52 75%)}
+#party.on{opacity:1;visibility:visible;transition:opacity .6s}
+#party .spot{position:absolute;left:50%;top:-10%;width:1400px;height:1300px;margin-left:-700px;background:conic-gradient(from 180deg at 50% 0%,rgba(255,255,255,0) 160deg,rgba(255,240,200,.16) 172deg,rgba(255,255,255,0) 180deg,rgba(255,240,200,.16) 188deg,rgba(255,255,255,0) 200deg);animation:sway 7s ease-in-out infinite alternate}
+@keyframes sway{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
+#party .txt{position:absolute;left:120px;right:120px;top:70px;text-align:center;z-index:3}
+#party .kind{display:inline-block;font-size:44px;font-weight:800;padding:12px 40px 14px;border-radius:99px;background:var(--gold);color:var(--ink);box-shadow:0 8px 0 rgba(0,0,0,.18)}
+#party .big{display:inline-block;margin-top:28px;font-size:136px;font-weight:800;line-height:1.05;padding:10px 60px 22px;border-radius:70px;background:rgba(0,30,60,.55);box-shadow:inset 0 3px 0 rgba(255,255,255,.18);white-space:nowrap;max-width:100%}
+#party .big.house{background:var(--c);box-shadow:inset 0 5px 0 rgba(255,255,255,.35),0 14px 30px rgba(0,0,0,.3)}
+#party .big.house.Makkah{color:var(--ink)}
+#party .det{margin-top:22px;font-size:46px;font-weight:700;color:#e3eefa}
+#party .duo{position:absolute;left:0;right:0;bottom:24px;height:620px;z-index:2}
+#party .txt>*{opacity:0;transform:translateY(24px) scale(.96)}
+#party.on .txt>*{opacity:1;transform:none;transition:opacity .6s,transform .7s cubic-bezier(.3,1.5,.5,1)}
+#party.on .txt .big{transition-delay:.18s}#party.on .txt .det{transition-delay:.32s}
+.fx{position:absolute;left:0;top:0;width:0;height:0;z-index:1;pointer-events:none}
+.fx i{position:absolute;left:0;top:0;width:var(--s);height:var(--s);background:var(--k);border-radius:2px;opacity:0;animation:pop var(--d) cubic-bezier(.1,.7,.3,1) var(--w) forwards}
+.fx i.st{clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);border-radius:0}
+.fx i.ci{border-radius:50%}
+.fx i.rb{height:calc(var(--s)*.38)}
+@keyframes pop{0%{opacity:1;transform:translate(0,0) rotate(0) scale(.4)}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r)) scale(1)}}
+.flash{position:absolute;width:0;height:0;z-index:3}
+.flash:before{content:"";position:absolute;left:-90px;top:-90px;width:180px;height:180px;border-radius:50%;background:radial-gradient(closest-side,#fff,rgba(255,236,160,.85) 30%,rgba(255,236,160,0));animation:flash .7s ease-out forwards}
+@keyframes flash{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.6);opacity:0}}
+#net{position:fixed;right:2vw;bottom:2vh;font:700 2.2vh "Atkinson Next",system-ui,sans-serif;padding:1vh 2vh;border-radius:99px;background:rgba(0,0,0,.45);color:#fff;display:none}
+#off{position:fixed;top:0;left:0;right:0;bottom:0;display:none;align-items:center;justify-content:center;text-align:center;background:var(--deep);font-size:4vh;font-weight:800;padding:5vw}
+@media (prefers-reduced-motion:reduce){
+ .bub,.twk,#sky .glow,.kp,.crown,.card .ic,#party .spot{animation:none!important}
+ .bub{display:none}
+ .scene,.col,.plat,.title{transition:opacity .4s!important}
+ #party .txt>*{transition:none!important}
+}
 </style>
 </head>
 <body>
-<header><span class="badge"><img src="/logo.png" alt="" width="80" height="80"></span><h1 id="title">Safar Academy<small>Enfield</small></h1><div class="dots"><i class="on"></i><i></i></div><div class="clock" id="clock"></div></header>
-<main>
-  <section class="slide on" id="s1">
-    <div class="panel"><h2>House points<small>Who's leading the school</small></h2><div class="fit"><div class="houses" id="houses"></div></div></div>
-    <div class="panel"><h2>Memorisation<small>Most passes in <span class="month"></span></small></h2><div class="fit stages">
-      <div class="stage"><h3>Primary</h3><div class="podium" id="primary"></div></div>
-      <div class="stage"><h3>Secondary</h3><div class="podium" id="secondary"></div></div>
-    </div></div>
-  </section>
-  <section class="slide" id="s2">
-    <div class="panel"><h2>Star of the week<span class="pgn" id="starsPg"></span><small>Most passes and merits since Monday, in each class</small></h2><div class="fit" id="starsFit"><div class="stars" id="stars"></div></div></div>
-    <div class="panel"><h2>Passed a book<span class="pgn" id="booksPg"></span><small>Well done, all of <span class="month"></span></small></h2><div class="bookhead" id="bookhead"></div><div class="fit" id="booksFit"><div class="books" id="books"></div></div></div>
-  </section>
-</main>
-<footer><i id="prog"></i></footer>
+<div id="sky" aria-hidden="true"><div class="glow"></div></div>
+<div id="stage">
+ <header>
+  <div class="brand"><span class="badge"><img src="/logo.png" alt="" width="88" height="88"></span><div><b>Safar Academy</b><small>Enfield</small></div></div>
+  <div class="title" id="title"></div>
+  <div class="clock" id="clock"></div>
+ </header>
+ <main id="main"></main>
+ <footer><div class="dots" id="dots"></div><div class="pg" id="pg"></div><div class="bar"><i id="bar"></i></div></footer>
+ <div id="party" aria-live="polite"><div class="spot"></div><div class="txt" id="ptxt"></div><div class="duo" id="pduo"></div></div>
+</div>
+<div id="net">Reconnecting…</div>
 <div id="off"></div>
 <script>
 (function(){
-var SLIDE_MS=30000,DATA_MS=60000,PAGE_MS=10000;
-var path=location.pathname.replace(/\/+$/,""),URL=path==="/tv"?"/api/tv":path+"/data";
-var slide=0,data=null;
-function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return "&#"+c.charCodeAt(0)+";"})}
+"use strict";
+/* ---------- Settings ---------- */
+var DATA_MS=30000,SCENE_MS={houses:22000,primary:15000,secondary:15000,stars:13000,books:13000};
+var STARS_PER_PAGE=6,BOOKS_PER_PAGE=8,ORDER=["houses","primary","secondary","stars","books"];
+var path=location.pathname.replace(/\/+$/,""),STAFF=path==="/tv",URL=STAFF?"/api/tv":path+"/data",SEEN=STAFF?"/api/tv/seen":path+"/seen";
+var Q=location.search,PREVIEW=/[?&]preview\b/.test(Q),START=(Q.match(/[?&]scene=([a-z]+)/)||[])[1],PLAY=(Q.match(/[?&]play=([a-z]+)/)||[])[1];
+var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+var CAN_ANIM=typeof document.body.animate==="function";
 function $(id){return document.getElementById(id)}
-function clock(){var d=new Date();$("clock").textContent=d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
-/* Shrinks the text in a box until it fits, down to a size still readable across a room.
-   A list that still does not fit is split into pages that take turns (see pages()). */
-function fit(box,inner,start,min){var size=start;inner.style.fontSize=size+"vh";
- while(size>min&&inner.scrollHeight>box.clientHeight+2){size-=.2;inner.style.fontSize=size+"vh"}}
-var PG={},PI={};
-function pages(key,box,inner,items,start,min){inner.innerHTML=items.join("");fit(box,inner,start,min);var P=[],cur=[];
- if(inner.scrollHeight>box.clientHeight+2){inner.innerHTML="";items.forEach(function(h){inner.insertAdjacentHTML("beforeend",h);
-  if(inner.scrollHeight>box.clientHeight+2&&cur.length){P.push(cur);cur=[];inner.innerHTML=h}cur.push(h)});if(cur.length)P.push(cur)}
- else P=[items];
- PG[key]=P;PI[key]=(PI[key]||0)%P.length;page(key)}
-function page(key){var P=PG[key],i=PI[key];$(key).innerHTML=P[i].join("");$(key+"Pg").textContent=P.length>1?"Page "+(i+1)+" of "+P.length:""}
-function turn(){["stars","books"].forEach(function(k){if(PG[k]&&PG[k].length>1){PI[k]=(PI[k]+1)%PG[k].length;page(k)}})}
-function render(){if(!data)return;
- Array.prototype.forEach.call(document.querySelectorAll(".month"),function(e){e.textContent=data.month});
- var top=Math.max(1,data.houses[0].points);
- $("houses").innerHTML=data.houses.map(function(h,i){var lead=i===0&&h.points>(data.houses[1]||{}).points;return '<div class="house '+esc(h.house)+(lead?' lead':'')+'">'+(lead?'<em>Leading</em>':'')+'<div class="pts">'+h.points+'</div><div class="track"><i style="height:'+Math.max(2,h.points/top*100)+'%"></i></div><div class="hn">'+esc(h.house)+'</div></div>'}).join("");
- ["primary","secondary"].forEach(function(k){var L=data.passes[k];
-  $(k).innerHTML=L.length?L.map(function(p,i){var r=1;while(r-1<i&&L[r-1].passes!==p.passes)r++;return '<div class="pod'+(r===1?' top':'')+'"><span class="m r'+r+'"'+(r<=i?' title="Joint '+r+'"':'')+'>'+r+'</span><span>'+esc(p.name)+'<span class="c">'+esc(p.class)+'</span></span><span class="n">'+p.passes+'</span></div>'}).join(""):'<div class="empty">No passes yet this month. Who will be first?</div>'});
- var S=data.stars,cols=S.length>16?4:S.length>6?3:S.length>2?2:1;
- $("stars").style.gridTemplateColumns="repeat("+cols+",minmax(0,1fr))";
- var SI=S.length?S.map(function(s){return s.name?'<div class="star"><div class="c">'+esc(s.class)+'</div><div class="n">'+esc(s.name)+'</div><div class="w">'+s.passes+(s.passes===1?" pass":" passes")+', '+s.merits+(s.merits===1?" merit":" merits")+'</div></div>':'<div class="star none"><div class="c">'+esc(s.class)+'</div><div class="n">Could it be you?</div></div>'}):['<div class="empty">No classes yet.</div>'];
- var B=data.books;$("books").style.gridTemplateColumns="repeat("+(B.length>24?3:B.length>8?2:1)+",minmax(0,1fr))";$("books").classList.toggle("many",B.length>16);
- $("bookhead").innerHTML=B.length?'<b>'+B.length+'</b><span>'+(B.length===1?"student":"students")+'</span>':"";
- var BI=B.length?B.map(function(b){return '<div class="book">'+esc(b.name)+'<small>'+esc(b.class)+'</small></div>'}):['<div class="empty">No books completed yet this month. Keep going!</div>'];
- pages("stars",$("starsFit"),$("stars"),SI,cols>2?3.4:4.4,2.6);pages("books",$("booksFit"),$("books"),BI,4.2,2.8)}
-/* Each slide stays long enough for every page of its lists to be seen once. */
-var ST=null,PT=null;
-function show(n){slide=n;clearTimeout(ST);clearInterval(PT);["s1","s2"].forEach(function(id,i){$(id).classList.toggle("on",i===n)});
- Array.prototype.forEach.call(document.querySelectorAll(".dots i"),function(d,i){d.classList.toggle("on",i===n)});
- var p=$("prog");p.className="";p.style.transitionDuration="0ms";void p.offsetWidth;render();var ms=n===1?Math.max(SLIDE_MS,PAGE_MS*Math.max((PG.stars||[]).length,(PG.books||[]).length)):SLIDE_MS;
- p.style.transitionDuration=ms+"ms";p.className="run";if(n===1)PT=setInterval(turn,PAGE_MS);ST=setTimeout(function(){show(1-slide)},ms)}
-function load(){fetch(URL,{credentials:"same-origin",cache:"no-store"}).then(function(r){
+function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return "&#"+c.charCodeAt(0)+";"})}
+function h(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+function fmt(n){return Number(n||0).toLocaleString("en-GB")}
+
+/* ---------- Stage scaling: one 1920 x 1080 picture on every screen ---------- */
+function fitStage(){var s=Math.min(innerWidth/1920,innerHeight/1080);var st=$("stage");
+ st.style.transform="translate("+((innerWidth-1920*s)/2)+"px,"+((innerHeight-1080*s)/2)+"px) scale("+s+")";st.style.left="0";st.style.top="0"}
+fitStage();window.addEventListener("resize",fitStage);
+
+/* ---------- Background ---------- */
+(function(){var sky=$("sky");for(var i=0;i<16;i++){var b=h("i","bub"),s=40+Math.random()*130;
+  b.style.cssText="--t:"+["rgba(255,196,96,.14)","rgba(255,143,163,.13)","rgba(124,192,242,.14)","rgba(124,214,168,.12)"][i%4]+";left:"+(Math.random()*100)+"%;width:"+s+"px;height:"+s+"px;--sway:"+(Math.random()*120-60)+"px;animation-duration:"+(38+Math.random()*50)+"s;animation-delay:-"+(Math.random()*80)+"s;opacity:"+(.35+Math.random()*.5);sky.appendChild(b)}
+ for(i=0;i<34;i++){var t=h("i","twk");t.style.cssText="left:"+(Math.random()*100)+"%;top:"+(Math.random()*62)+"%;animation-duration:"+(2.5+Math.random()*4)+"s;animation-delay:-"+(Math.random()*6)+"s";sky.appendChild(t)}})();
+
+/* ---------- Illustrations (house landmarks, crown, star, book) ---------- */
+var OUT='stroke="#3a2614" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"';
+var LAND={
+ "Makkah":'<svg viewBox="0 0 220 170"><ellipse cx="110" cy="158" rx="92" ry="9" fill="rgba(0,0,0,.25)"/><path d="M46 62 L132 62 L132 154 L46 154 Z" fill="#2b2b35" '+OUT+'/><path d="M132 62 L176 44 L176 136 L132 154 Z" fill="#1c1c24" '+OUT+'/><path d="M46 62 L90 44 L176 44 L132 62 Z" fill="#40404e" '+OUT+'/><path d="M48 76 L130 76 L130 90 L48 90 Z" fill="#eebd4a"/><path d="M134 76 L174 59 L174 73 L134 90 Z" fill="#c99325"/><path d="M52 82 h74" stroke="#a87410" stroke-width="2" stroke-dasharray="6 6"/><path d="M96 154 V118 a12 12 0 0 1 24 0 V154 Z" fill="#e2ab3b" '+OUT+'/><path d="M58 70 L66 68" stroke="rgba(255,255,255,.35)" stroke-width="4" stroke-linecap="round"/></svg>',
+ "Al-Aqsa":'<svg viewBox="0 0 220 170"><ellipse cx="110" cy="158" rx="96" ry="9" fill="rgba(0,0,0,.25)"/><path d="M28 104 H192 V154 H28 Z" fill="#3e8fd6" '+OUT+'/><path d="M28 104 H192 V116 H28 Z" fill="#7fc0f0"/><g fill="#1d5b97">'+[44,74,104,134,164].map(function(x){return '<path d="M'+x+' 150 V134 a6 6 0 0 1 12 0 V150 Z"/>'}).join("")+'</g><path d="M66 82 H154 V104 H66 Z" fill="#2f77c0" '+OUT+'/><path d="M60 84 C58 46 82 26 110 22 C138 26 162 46 160 84 Z" fill="#f2bd3a" '+OUT+'/><path d="M80 70 C80 50 92 38 104 34" stroke="rgba(255,255,255,.55)" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M110 22 V8" '+OUT+'/><circle cx="110" cy="6" r="5" fill="#f2bd3a" '+OUT+'/></svg>',
+ "Madinah":'<svg viewBox="0 0 220 170"><ellipse cx="104" cy="158" rx="94" ry="9" fill="rgba(0,0,0,.25)"/><path d="M22 108 H150 V154 H22 Z" fill="#f3e7cf" '+OUT+'/><g fill="#c9b48b">'+[34,62,90,118].map(function(x){return '<path d="M'+x+' 150 V130 a8 8 0 0 1 16 0 V150 Z"/>'}).join("")+'</g><path d="M50 88 H122 V108 H50 Z" fill="#e8d9b8" '+OUT+'/><path d="M46 90 C44 56 66 36 86 32 C106 36 128 56 126 90 Z" fill="#2e9e5b" '+OUT+'/><path d="M62 76 C62 58 72 46 82 42" stroke="rgba(255,255,255,.45)" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M86 32 V18" '+OUT+'/><circle cx="86" cy="15" r="4" fill="#f2bd3a" '+OUT+'/><path d="M160 154 V46 H180 V154 Z" fill="#f3e7cf" '+OUT+'/><path d="M156 96 H184 V104 H156 Z M156 62 H184 V70 H156 Z" fill="#d9c7a0" '+OUT+'/><path d="M158 46 L170 16 L182 46 Z" fill="#2e9e5b" '+OUT+'/></svg>'};
+var CROWN='<svg viewBox="0 0 150 96"><path d="M14 80 L8 22 L44 50 L75 8 L106 50 L142 22 L136 80 Z" fill="#f5c542" stroke="#8a5a00" stroke-width="5" stroke-linejoin="round"/><path d="M16 74 H134 V90 H16 Z" fill="#e9a21a" stroke="#8a5a00" stroke-width="5" stroke-linejoin="round"/><circle cx="75" cy="56" r="9" fill="#e9435a"/><circle cx="40" cy="62" r="7" fill="#3bb3ef"/><circle cx="110" cy="62" r="7" fill="#3ccf91"/><circle cx="8" cy="22" r="7" fill="#f5c542" stroke="#8a5a00" stroke-width="4"/><circle cx="75" cy="8" r="7" fill="#f5c542" stroke="#8a5a00" stroke-width="4"/><circle cx="142" cy="22" r="7" fill="#f5c542" stroke="#8a5a00" stroke-width="4"/><path d="M30 40 L38 66" stroke="rgba(255,255,255,.6)" stroke-width="5" stroke-linecap="round"/></svg>';
+var STAR='<svg viewBox="0 0 100 100"><path d="M50 4 L62 36 L96 37 L69 58 L79 92 L50 72 L21 92 L31 58 L4 37 L38 36 Z" fill="#f5c542" stroke="#c98a00" stroke-width="4" stroke-linejoin="round"/><path d="M40 30 L46 18" stroke="#fff6cf" stroke-width="5" stroke-linecap="round"/></svg>';
+function BOOK(c){return '<svg viewBox="0 0 110 84"><path d="M55 16 C40 6 20 6 6 10 V76 C20 72 40 72 55 82 C70 72 90 72 104 76 V10 C90 6 70 6 55 16 Z" fill="'+c+'" stroke="#2b1d10" stroke-width="4" stroke-linejoin="round"/><path d="M14 16 C28 13 44 14 52 21 V72 C42 66 28 65 14 68 Z M96 16 C82 13 66 14 58 21 V72 C68 66 82 65 96 68 Z" fill="#fff8ec"/><path d="M22 30 H44 M22 40 H44 M66 30 H88 M66 40 H88" stroke="#c8b99c" stroke-width="3" stroke-linecap="round"/></svg>'}
+var HC={"Makkah":"#c9930c","Al-Aqsa":"#2386d1","Madinah":"#1c9a68"};
+
+/* ---------- Characters ----------
+   The boy and the girl are cut from the supplied character sheet (static/tv-art, drawn at twice the sheet's size).
+   ART gives each pose's size on the sheet, the centre of the feet across the image (0 to 1) and the gap below
+   the feet, so every pose stands on the same spot. */
+var ART={"b-book":[162,420,.481,.012],"b-cheer":[263,422,.466,.012],"b-crossed-blink":[162,420,.5,.012],"b-crossed":[162,420,.5,.012],"b-point":[253,420,.36,.012],"b-sit":[233,313,.498,.016],"b-wave-blink":[219,420,.568,.012],"b-wave":[219,420,.568,.012],
+ "g-books":[195,445,.421,.011],"g-cheer":[300,450,.53,.011],"g-clasp-blink":[160,442,.5,.011],"g-clasp":[160,442,.5,.011],"g-point":[268,446,.325,.011],"g-sit":[275,346,.498,.014],"g-wave-blink":[216,447,.549,.011],"g-wave":[216,447,.549,.011]};
+var POSE={b:{idle:"b-crossed",blink:"b-crossed-blink",wave:"b-wave",waveb:"b-wave-blink",book:"b-book",point:"b-point",cheer:"b-cheer",sit:"b-sit"},
+          g:{idle:"g-clasp",blink:"g-clasp-blink",wave:"g-wave",waveb:"g-wave-blink",book:"g-books",point:"g-point",cheer:"g-cheer",sit:"g-sit"}};
+/* Where the raised palm is in the wave pose (fractions of the image), for a high five that meets. */
+var PALM={b:[.150,.342],g:[.153,.317]};
+var artOk=true,artCache={};
+Object.keys(ART).forEach(function(k){var im=new Image();im.onerror=function(){artOk=false;document.body.classList.add("noart")};im.src="/tv-art/"+k+".webp";artCache[k]=im});
+
+/* A character standing at x on a stage element. size is the height of the standing pose, in stage pixels. */
+function Kid(parent,who,x,size){
+ var k=size/420,self=this;this.who=who;this.k=k;this.timers=[];this.anims=[];this.pose=null;this.flip=false;
+ var el=h("div","kid "+who);el.style.left=x+"px";var kb=h("div","kb"),kp=h("div","kp");el.appendChild(h("div","shadow"));kb.appendChild(kp);el.appendChild(kb);
+ this.el=el;this.kb=kb;this.imgs={};
+ Object.keys(POSE[who]).forEach(function(p){var key=POSE[who][p],a=ART[key],im=h("img");im.alt="";im.src="/tv-art/"+key+".webp";
+  var w=a[0]*k,ht=a[1]*k;im.style.width=w+"px";im.style.height=ht+"px";im.style.left=(-a[2]*w)+"px";im.style.bottom=(-a[3]*ht)+"px";
+  im.style.transformOrigin=(a[2]*w)+"px 50%";kp.appendChild(im);self.imgs[p]=im});
+ parent.appendChild(el);this.set("idle");
+}
+Kid.prototype.set=function(p,flip){var cur=this.imgs[this.pose];if(cur)cur.className="";var im=this.imgs[p];im.className="on"+(flip?" fl":"");this.pose=p;this.flip=!!flip};
+Kid.prototype.at=function(ms,p,flip){var s=this;this.timers.push(setTimeout(function(){s.set(p,flip)},ms))};
+Kid.prototype.later=function(ms,fn){this.timers.push(setTimeout(fn,ms))};
+/* frames: [ms, x, y, rotate, scaleX, scaleY] relative to where the character stands, in stage pixels at size 420. */
+Kid.prototype.move=function(dur,frames){if(!CAN_ANIM||RM)return;var k=this.k;
+ var kf=frames.map(function(f){return {offset:Math.min(1,f[0]/dur),transform:"translate("+(f[1]*k)+"px,"+(f[2]*k)+"px) rotate("+(f[3]||0)+"deg) scale("+(f[4]==null?1:f[4])+","+(f[5]==null?(f[4]==null?1:f[4]):f[5])+")",easing:"ease-in-out"}});
+ if(kf[0].offset!==0)kf.unshift({offset:0,transform:"none"});if(kf[kf.length-1].offset!==1)kf.push({offset:1,transform:kf[kf.length-1].transform});
+ this.anims.push(this.kb.animate(kf,{duration:dur,fill:"forwards"}))};
+Kid.prototype.stop=function(){this.timers.forEach(clearTimeout);this.timers=[];this.anims.forEach(function(a){try{a.cancel()}catch(e){}});this.anims=[];this.set("idle")};
+Kid.prototype.palm=function(flip){/* the raised palm in the wave pose, relative to the feet, in stage pixels */
+ var a=ART[POSE[this.who].wave],w=a[0]*this.k,ht=a[1]*this.k,dx=(PALM[this.who][0]-a[2])*w;return [flip?-dx:dx,-(1-PALM[this.who][1]-a[3])*ht]};
+
+/* Idle life: breathing (CSS), blinking, and now and then a small wave or a point. */
+function idle(kids,opts){opts=opts||{};var alive=true,G=[];
+ function blink(kid){if(!alive)return;var p=kid.pose,b=p==="idle"?"blink":p==="wave"?"waveb":null;
+  if(b&&!RM){var f=kid.flip;kid.set(b,f);G.push(setTimeout(function(){if(alive&&kid.pose===b)kid.set(p,f)},140))}
+  G.push(setTimeout(function(){blink(kid)},2600+Math.random()*3800))}
+ kids.forEach(function(kid,i){G.push(setTimeout(function(){blink(kid)},800+i*1300))});
+ var turn=0;function gesture(){if(!alive)return;var kid=kids[turn++%kids.length],busy=kid.pose!=="idle";
+  if(!busy&&!RM){
+   if(opts.point&&turn%3===0){kid.set("point",kid!==kids[0]);kid.move(2200,[[0,0,0],[250,0,-8,0,1.03,.98],[500,0,0],[2000,0,0],[2200,0,0]]);G.push(setTimeout(function(){if(alive)kid.set("idle")},2100))}
+   else{kid.set("wave");kid.move(1900,[[0,0,0],[300,0,-6,-2],[700,0,0,2],[1100,0,-6,-2],[1500,0,0,1],[1900,0,0,0]]);G.push(setTimeout(function(){if(alive)kid.set("idle")},1800))}}
+  G.push(setTimeout(gesture,opts.every||(15000+Math.random()*9000)))}
+ G.push(setTimeout(gesture,opts.first||6000));
+ return {stop:function(){alive=false;G.forEach(clearTimeout)}}}
+
+/* ---------- The animation library ----------
+   Each one plays on a boy (left) and girl (right) pair and returns how long it lasts. fx(x,y,...) adds UI sparkle. */
+function burst(layer,x,y,n,spread,colours,delay){if(RM)return;var fx=h("div","fx");fx.style.left=x+"px";fx.style.top=y+"px";var sh=["st","ci","rb","st"];
+ for(var i=0;i<n;i++){var p=h("i",sh[i%4]),a=Math.random()*Math.PI*2,r=spread*(.45+Math.random()*.7),s=14+Math.random()*24;
+  p.style.cssText="--x:"+Math.cos(a)*r+"px;--y:"+(Math.sin(a)*r*.75-spread*.25)+"px;--r:"+(Math.random()*720-360)+"deg;--s:"+s+"px;--k:"+colours[i%colours.length]+";--d:"+(1100+Math.random()*900)+"ms;--w:"+((delay||0)+Math.random()*160)+"ms";fx.appendChild(p)}
+ layer.appendChild(fx);setTimeout(function(){fx.remove()},3200+(delay||0))}
+function flash(layer,x,y){if(RM)return;var f=h("div","flash");f.style.left=x+"px";f.style.top=y+"px";layer.appendChild(f);setTimeout(function(){f.remove()},800)}
+var bookTurn=0;
+var LIB={
+ /* Main high five, about 6 s: notice and lean in, step in with hands up, palms meet once with a squash, bounce,
+    turn to the viewer and cheer, settle. */
+ highfive:function(b,g,ctx){
+  var pb=b.palm(true),pg=g.palm(false),gap=(parseFloat(g.el.style.left)+pg[0])-(parseFloat(b.el.style.left)+pb[0]);
+  var d=gap/2/b.k-7,dy=(pg[1]-pb[1])/2/b.k;/* each steps in half the gap (palms touching, not overlapping); the shorter one reaches up a little */
+  b.move(6000,[[0,0,0],[800,6,0,5],[1150,d*.45,-14,2],[1500,d*.8,0,1],[1800,d*.97,dy,0],[2000,d,dy,0,.95,1.05],[2200,d,dy,0],[2450,d*.7,0],[2750,d*.62,-44,0],[3000,d*.6,0,0,1.06,.94],[3200,d*.58,-22],[3450,d*.55,0],[3600,d*.55,0,0,1.04],[4300,d*.55,-8],[4700,d*.55,0],[5100,d*.3,0],[6000,0,0]]);
+  g.move(6000,[[0,0,0],[800,-6,0,-5],[1150,-d*.45,-14,-2],[1500,-d*.8,0,-1],[1800,-d*.97,-dy,0],[2000,-d,-dy,0,.95,1.05],[2200,-d,-dy,0],[2450,-d*.7,0],[2750,-d*.62,-44,0],[3000,-d*.6,0,0,1.06,.94],[3200,-d*.58,-22],[3450,-d*.55,0],[3600,-d*.55,0,0,1.04],[4300,-d*.55,-8],[4700,-d*.55,0],[5100,-d*.3,0],[6000,0,0]]);
+  b.at(800,"wave",true);g.at(800,"wave",false);b.at(3500,"cheer");g.at(3500,"cheer");b.at(5000,"idle");g.at(5000,"idle");
+  b.later(2000,function(){var x=parseFloat(b.el.style.left)+pb[0]+d*b.k,y=ctx.h+pb[1]+dy*b.k;flash(ctx.layer,x,y);burst(ctx.layer,x,y,26,240,ctx.colours)});
+  b.later(3550,function(){burst(ctx.layer,ctx.w/2,ctx.h-300*b.k,40,560,ctx.colours)});
+  return 6000},
+ /* Applause, about 4 s: the girl claps three times (hands together, apart), the boy cheers on each clap; both smile
+    at the viewer and settle. */
+ applause:function(b,g,ctx){
+  [0,600,1200].forEach(function(t,i){g.at(t,"cheer");g.at(t+300,"idle");b.at(t,"cheer");
+   g.later(t+300,function(){burst(ctx.layer,parseFloat(g.el.style.left),ctx.h-215*g.k,10,120,ctx.colours)})});
+  b.move(4000,[[0,0,0],[300,0,-20],[600,0,0],[900,0,-20],[1200,0,0],[1500,0,-20],[1800,0,0],[4000,0,0]]);
+  g.move(4000,[[0,0,0],[300,0,4,0,1.02,.98],[600,0,0],[900,0,4,0,1.02,.98],[1200,0,0],[1500,0,4,0,1.02,.98],[1800,0,0],[4000,0,0]]);
+  b.at(1900,"wave");g.at(1900,"wave");b.at(3300,"idle");g.at(3300,"idle");return 4000},
+ /* Book completed, about 5 s: one proudly presents a book while the other applauds (they take turns), then both
+    wave to the viewer. */
+ book:function(b,g,ctx){var P=bookTurn++%2?g:b,O=P===b?g:b;
+  P.set("book");P.move(5000,[[0,0,0],[450,0,-34,0,1.06],[900,0,-22,0,1.04],[1600,0,-26,-2,1.04],[2300,0,-22,2,1.04],[3000,0,-24,0,1.04],[3300,0,0]]);
+  P.later(500,function(){burst(ctx.layer,parseFloat(P.el.style.left),ctx.h-250*P.k,30,260,ctx.colours)});
+  [0,600,1200,1800].forEach(function(t){O.at(t,"cheer");O.at(t+300,O===g?"idle":"cheer")});
+  O.move(5000,[[0,0,0],[300,0,-16],[600,0,0],[900,0,-16],[1200,0,0],[1500,0,-16],[1800,0,0],[2100,0,-16],[2400,0,0],[5000,0,0]]);
+  b.at(3300,"wave");g.at(3300,"wave");b.at(4500,"idle");g.at(4500,"idle");return 5000},
+ /* Big milestone, about 5 s: arms up, one small joyful jump, then a proud pose. */
+ milestone:function(b,g,ctx){b.set("cheer");g.set("cheer");
+  var J=[[0,0,0],[350,0,6,0,1.04,.9],[750,0,-96,0,.97,1.06],[1000,0,-104,0,1,1],[1300,0,0,0,1.07,.9],[1550,0,0],[2200,0,-14],[2500,0,0],[3600,0,0],[3800,0,-6,0,1.03],[5000,0,0,0,1.02]];
+  b.move(5000,J);g.move(5000,J);
+  b.later(900,function(){burst(ctx.layer,ctx.w/2,ctx.h-330*b.k,70,700,ctx.colours)});
+  b.at(3600,"idle");g.at(3600,"idle");return 5000},
+ /* Encouragement, about 3 s: both point to the news with a smile, then wave. */
+ encourage:function(b,g,ctx){b.set("point",false);g.set("point",true);
+  var E=[[0,0,0,0,.94],[250,0,-10,0,1.04],[500,0,0,0,1],[1100,0,0,2],[1500,0,0,-1],[1800,0,0]];b.move(3000,E);g.move(3000,E);
+  b.at(1800,"wave");g.at(1800,"wave");b.at(2700,"idle");g.at(2700,"idle");return 3000}};
+
+/* ---------- Clock ---------- */
+function clock(){$("clock").textContent=new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
+clock();setInterval(clock,1000);
+
+/* Shrinks a line of text until it fits its box. */
+function fitText(el,min){var p=el.parentNode,cs=getComputedStyle(p),room=p.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+ var s=parseFloat(getComputedStyle(el).fontSize);while(s>min&&el.scrollWidth>room+1){s-=2;el.style.fontSize=s+"px"}}
+
+/* ---------- Scenes ---------- */
+var data=null,main=$("main"),W=1760,H=812; /* main is 1760 x 812 stage pixels */
+var SLOT=[W/2-460,W/2,W/2+460]; /* second, first, third */
+function slots(list,key){/* list sorted best first, each with rank: the stage positions in podium order */
+ var pos=[],ranks=list.map(function(x){return x.rank});
+ list.forEach(function(x,i){pos.push(i===0?SLOT[1]:i===1?SLOT[0]:SLOT[2])});return pos}
+function heightFor(rank,allZero){return allZero?230:rank===1?320:rank===2?245:180}
+function medalText(rank,list){var n=list.filter(function(x){return x.rank===rank}).length;return (n>1?"Joint ":"")+(rank===1?"1st":rank===2?"2nd":"3rd")}
+
+/* House podium: built once, then kept up to date in place so houses glide to new places. */
+var HS=null,shownHouses=null;
+function houseScene(){
+ if(HS)return HS;
+ var sec=h("section","scene");sec.innerHTML='<div class="pod"><div class="floor"></div></div>';
+ var pod=sec.firstChild,cols={};
+ ["Makkah","Al-Aqsa","Madinah"].forEach(function(name){var c=h("div","col "+name);
+  c.innerHTML='<svg class="crown off" viewBox="0 0 150 96">'+CROWN.slice(CROWN.indexOf(">")+1)+'<div class="over"><div class="land">'+LAND[name]+'</div><div class="hname">'+esc(name)+'</div></div><div class="plat"><div class="medal"></div><div class="face"><span class="pts">0</span></div></div>';
+  pod.appendChild(c);cols[name]=c});
+ var zero=h("div","zero");zero.style.display="none";pod.appendChild(zero);
+ var b=new Kid(pod,"b",120,380),g=new Kid(pod,"g",W-120,380);
+ HS={sec:sec,cols:cols,zero:zero,kids:[b,g],life:null,shown:{}};return HS}
+function paintHouses(entering,old){var S=houseScene(),L=old||data.houses,lead=old?null:data.leader,allZero=L.every(function(x){return !x.points});
+ var pos=slots(L);
+ L.forEach(function(x,i){var c=S.cols[x.house],plat=c.querySelector(".plat"),pts=c.querySelector(".pts"),crown=c.querySelector(".crown");
+  c.style.left=pos[i]+"px";c.style.zIndex=x.rank===1?3:2;
+  plat.className="plat";
+  var ht=heightFor(x.rank,allZero);
+  if(entering&&!RM){plat.style.transition="none";plat.style.height="0px";void plat.offsetHeight;plat.style.transition="";plat.style.transitionDelay=(x.rank===1?.55:x.rank===2?.3:.05)+"s"}
+  else plat.style.transitionDelay="0s";
+  plat.style.height=ht+"px";
+  var m=c.querySelector(".medal");m.textContent=allZero?"Ready":medalText(x.rank,L);m.style.setProperty("--mc",allZero?"#fff":x.rank===1?"#ffe7a6":x.rank===2?"#eef3f8":"#f7cfae");
+  crown.setAttribute("class","crown"+(lead===x.house?"":" off"));
+  if(entering)countUp(pts,x.points);else if(S.shown[x.house]!==x.points){pts.textContent=fmt(x.points);pop(pts)}
+  S.shown[x.house]=x.points});
+ if(!old)shownHouses=L;
+ S.zero.style.display=allZero?"":"none";S.zero.innerHTML="A brand-new start! <b>Every merit</b> earns points for your house."}
+function countUp(el,to){if(RM||!to){el.textContent=fmt(to);return}var t0=null,D=1400;
+ function f(t){if(!t0)t0=t;var p=Math.min(1,(t-t0)/D),e=1-Math.pow(1-p,3);el.textContent=fmt(Math.round(to*e));if(p<1)requestAnimationFrame(f)}
+ el.textContent="0";setTimeout(function(){requestAnimationFrame(f)},700)}
+function pop(el){if(CAN_ANIM&&!RM)el.animate([{transform:"scale(1)"},{transform:"scale(1.15)"},{transform:"scale(1)"}],{duration:700,easing:"cubic-bezier(.3,1.6,.5,1)"})}
+
+/* Memorisation champions: a pupil podium for one school stage. */
+var PAIR_MS=5500;
+function champScene(stage){var L=data.passes[stage]||[],sec=h("section","scene champ"),pod=h("div","pod");sec.appendChild(pod);var life=null,kids=[],turns=1,tick=null;
+ if(!L.length){emptyInto(sec,"No passes yet this month","Who will be the first "+(stage==="primary"?"Primary":"Secondary")+" champion?");return sec}
+ pod.appendChild(h("div","floor"));
+ var groups=[1,2,3].map(function(r){return {rank:r,pupils:L.filter(function(p){return p.rank===r})}}).filter(function(gq){return gq.pupils.length});
+ var pos=[SLOT[1],SLOT[0],SLOT[2]];
+ groups.forEach(function(gq,i){var r=gq.rank,c=h("div","col r"+r);c.style.left=pos[i]+"px";
+  /* Two names at a time; a longer tie takes turns, a pair every few seconds, so every pupil is seen. */
+  var pairs=[];for(var j=0;j<gq.pupils.length;j+=2)pairs.push(gq.pupils.slice(j,j+2));turns=Math.max(turns,pairs.length);
+  c.innerHTML='<div class="over"><div class="names">'+pairs.map(function(pr,j){return '<div class="pair'+(j?'':' on')+'">'+pr.map(function(p){return '<div class="who" style="--hc:'+(HC[p.house]||"#9fb3c8")+'"><b>'+esc(p.name)+'</b><span><i></i>'+esc(p.class)+'</span></div>'}).join("")+'</div>'}).join("")+'</div>'+(pairs.length>1?'<div class="more" data-n="'+gq.pupils.length+'"><span>1–2</span> of '+gq.pupils.length+'</div>':'')+'</div>'+
+   '<div class="plat"><div class="medal">'+(gq.pupils.length>1?"Joint ":"")+(r===1?"1st":r===2?"2nd":"3rd")+'</div><div class="face"><span class="pts">'+gq.pupils[0].passes+'<small>'+(gq.pupils[0].passes===1?"pass":"passes")+'</small></span></div></div>';
+  pod.appendChild(c);var plat=c.querySelector(".plat");plat.dataset.h=heightFor(r,false)});
+ kids=[new Kid(pod,"b",120,300),new Kid(pod,"g",W-120,300)];
+ sec._enter=function(){Array.prototype.forEach.call(sec.querySelectorAll(".plat"),function(p,i){var r=+p.parentNode.className.match(/r(\d)/)[1];
+   p.style.transitionDelay=RM?"0s":(r===1?.55:r===2?.3:.05)+"s";p.style.height=p.dataset.h+"px"});
+  Array.prototype.forEach.call(sec.querySelectorAll(".who b"),function(e){fitText(e,30)});
+  life=idle(kids,{point:true,first:4000});
+  var n=0,pairMs=Math.max(4000,Math.min(PAIR_MS,58000/turns));if(turns>1)tick=setInterval(function(){n++;Array.prototype.forEach.call(sec.querySelectorAll(".names"),function(box){var P=box.querySelectorAll(".pair");
+   if(P.length<2)return;var i=n%P.length;Array.prototype.forEach.call(P,function(p,j){p.classList.toggle("on",j===i)});
+   var lab=box.parentNode.querySelector(".more");if(lab)lab.firstChild.textContent=(i*2+1)+(i*2+2<=+lab.dataset.n?"–"+(i*2+2):"")})},pairMs)};
+ sec._leave=function(){clearInterval(tick);if(life)life.stop();kids.forEach(function(k){k.stop()})};
+ sec._ms=Math.max(SCENE_MS[stage],Math.min(60000,turns*PAIR_MS+1500));
+ return sec}
+
+/* An encouraging empty state: the two characters and a friendly line. */
+function emptyInto(sec,title,line){sec.innerHTML='<div class="empty"><h2>'+esc(title)+'</h2><p>'+esc(line)+'</p></div>';
+ var duo=h("div","pod");sec.appendChild(duo);var kids=[new Kid(duo,"b",W/2-170,400),new Kid(duo,"g",W/2+170,400)],life=null;
+ sec._enter=function(){var ctx={layer:duo,w:W,h:H,colours:["#f5c542","#ffffff","#7cc0f2"]};var t=LIB.encourage(kids[0],kids[1],ctx);
+  life=idle(kids,{first:t+3000,every:9000})};
+ sec._leave=function(){if(life)life.stop();kids.forEach(function(k){k.stop()})}}
+
+function starsScene(page){var S=data.stars,sec=h("section","scene");
+ if(!S.length){emptyInto(sec,"Stars of the week are coming","Every pass and merit counts!");return sec}
+ var P=S.slice(page*STARS_PER_PAGE,(page+1)*STARS_PER_PAGE),n=P.length,cols=n<=2?n:n<=4?2:3,rows=Math.ceil(n/cols);
+ var g=h("div","cards");g.style.gridTemplateColumns="repeat("+cols+",minmax(0,1fr))";g.style.top=(rows===1?150:0)+"px";if(rows===1)g.style.bottom="150px";
+ g.innerHTML=P.map(function(s){if(!s.name)return '<div class="card none"><span class="cls">'+esc(s.class)+'</span><div class="nm">Could it be you?</div><div class="why">Earn passes and merits this week</div></div>';
+  return '<div class="card" style="--c:'+(HC[s.house]||"var(--gold)")+'"><span class="ic">'+STAR+'</span><span class="cls">'+esc(s.class)+'</span><div class="nm">'+esc(s.name)+'</div><div class="why">'+(s.chosen?"<b>Teacher's star</b> · ":"")+s.passes+(s.passes===1?" pass":" passes")+", "+s.merits+(s.merits===1?" merit":" merits")+'</div></div>'}).join("");
+ sec.appendChild(g);sec._enter=function(){Array.prototype.forEach.call(sec.querySelectorAll(".nm"),function(e){fitText(e,34)})};return sec}
+
+function booksScene(page){var B=data.books,sec=h("section","scene");
+ if(!B.length){emptyInto(sec,"No books completed yet this month","Keep reading. Your name could be here!");return sec}
+ var P=B.slice(page*BOOKS_PER_PAGE,(page+1)*BOOKS_PER_PAGE),n=P.length,cols=n<=3?n:4,rows=Math.ceil(n/cols);
+ sec.appendChild(h("div","bookhead",'<b>'+B.length+'</b>'+(B.length===1?"pupil has":"pupils have")+" completed a book in "+esc(data.month)));
+ var g=h("div","cards");g.style.gridTemplateColumns="repeat("+cols+",minmax(0,1fr))";g.style.top=(rows===1?260:130)+"px";if(rows===1)g.style.bottom="120px";
+ g.innerHTML=P.map(function(b){return '<div class="card book" style="--c:'+(HC[b.house]||"var(--gold)")+'"><span class="bk">'+BOOK(HC[b.house]||"#e9a21a")+'</span><div class="nm">'+esc(b.name)+'</div><div class="why">'+esc(b.class)+'</div></div>'}).join("");
+ sec.appendChild(g);sec._enter=function(){Array.prototype.forEach.call(sec.querySelectorAll(".nm"),function(e){fitText(e,32)})};return sec}
+
+var TITLES={houses:["House points","Who's leading the school"],primary:["Memorisation champions","Most passes in {m}","Primary"],
+ secondary:["Memorisation champions","Most passes in {m}","Secondary"],stars:["Stars of the week","Chosen by teachers, or the most passes and merits since Monday"],books:["Book completions","Well done, everyone who finished a book in {m}"]};
+
+/* The rotation: one entry per scene, with stars and books split into pages. */
+function plan(){var L=["houses","primary","secondary"];
+ for(var i=0;i<Math.max(1,Math.ceil(data.stars.length/STARS_PER_PAGE));i++)L.push("stars:"+i);
+ for(i=0;i<Math.max(1,Math.ceil(data.books.length/BOOKS_PER_PAGE));i++)L.push("books:"+i);return L}
+var cur=null,curSec=null,ends=0,dur=1,started=0;
+function nextKey(){var L=plan();if(!cur)return START&&L.filter(function(k){return k.split(":")[0]===START})[0]||L[0];
+ var i=L.indexOf(cur);if(i>=0)return L[(i+1)%L.length];
+ var t=ORDER.indexOf(cur.split(":")[0]),p=+(cur.split(":")[1]||0);
+ for(var j=0;j<L.length;j++){var tj=ORDER.indexOf(L[j].split(":")[0]),pj=+(L[j].split(":")[1]||0);if(tj>t||(tj===t&&pj>p))return L[j]}return L[0]}
+function show(key,before){var type=key.split(":")[0],page=+(key.split(":")[1]||0),old=curSec,sec;
+ if(old&&old._leave)old._leave();
+ if(type==="houses"){sec=houseScene().sec;if(!sec.parentNode)main.appendChild(sec);paintHouses(true,before);
+  if(before)setTimeout(function(){if(cur==="houses")paintHouses(false)},RM?800:2600);var S=HS;S.life=idle(S.kids,{point:true,first:5000})}
+ else{sec=type==="stars"?starsScene(page):type==="books"?booksScene(page):champScene(type);main.appendChild(sec)}
+ if(old&&old!==sec){if(old===(HS&&HS.sec)){if(HS.life)HS.life.stop();HS.kids.forEach(function(k){k.stop()})}
+  old.classList.remove("on");(function(o){setTimeout(function(){if(o!==(HS&&HS.sec))o.remove()},800)})(old)}
+ void sec.offsetWidth;sec.classList.add("on");if(sec._enter)sec._enter();
+ if(type==="houses")sec._leave=function(){};
+ cur=key;curSec=sec;dur=sec._ms||SCENE_MS[type];started=Date.now();ends=started+dur;
+ var T=TITLES[type],sub=T[1].replace("{m}",esc(data.month));
+ $("title").innerHTML='<h1>'+esc(T[0])+(T[2]?'<em>'+T[2]+'</em>':'')+'</h1><p>'+sub+'</p>';
+ var n=type==="stars"?Math.ceil(data.stars.length/STARS_PER_PAGE):type==="books"?Math.ceil(data.books.length/BOOKS_PER_PAGE):1;
+ $("pg").textContent=n>1?"Page "+(page+1)+" of "+n:"";
+ $("dots").innerHTML=ORDER.map(function(o){return '<i'+(o===type?' class="on"':'')+'></i>'}).join("")}
+
+/* A steady clock drives the rotation; it simply stops counting while a celebration is on screen. */
+var last=Date.now();
+setInterval(function(){var now=Date.now(),dt=now-last;last=now;if(!data)return;
+ if(partyOn){ends+=dt;return}
+ if(toPodium&&!queue.length){toPodium=false;repaint=false;if(cur!=="houses"&&shownHouses){show("houses",shownHouses);return}else repaint=true}
+ if(repaint&&!queue.length){repaint=false;if(cur==="houses"){paintHouses(false);ends=Math.max(ends,now+6000)}}
+ if(queue.length&&now-started>4000){celebrate();return}
+ if(now>=ends)show(nextKey());
+ $("bar").style.width=(100*Math.min(1,1-(ends-now)/dur))+"%"},200);
+
+/* ---------- Celebrations ---------- */
+var queue=[],partyOn=false,queued={},repaint=false,toPodium=false;
+var KIND={book:["Book completed!","book"],level:["Level complete!","applause"],star:["Star of the week","highfive"],house:["House milestone","highfive"],
+ school:["School milestone","milestone"],leader:["New leader!","milestone"],books:["Books completed!","applause"]};
+var party=null;
+function enqueue(events,preview){var fresh=events.filter(function(e){return !queued[e.id]});fresh.forEach(function(e){queued[e.id]=1});
+ var books=fresh.filter(function(e){return e.kind==="book"}),rest=fresh.filter(function(e){return e.kind!=="book"});
+ /* Lots of books at once become one celebration, so the screen gets back to its scenes. */
+ if(books.length>3){rest.unshift({ids:books.map(function(e){return e.id}),kind:"books",title:books.length+" books completed!",name:books.length+" pupils",
+   detail:books.slice(0,5).map(function(e){return e.name}).join(", ")+(books.length>5?" and "+(books.length-5)+" more":""),house:""});fresh=rest}
+ fresh.forEach(function(e){e.preview=!!preview;queue.push(e)})}
+function celebrate(){var e=queue.shift();if(!e)return;partyOn=true;
+ if(!party){var duo=$("pduo");party={duo:duo,kids:[new Kid(duo,"b",960-230,520),new Kid(duo,"g",960+230,520)]}}
+ var k=(KIND[e.kind]||KIND.level).slice();if(e.anim&&LIB[e.anim])k[1]=e.anim;var isHouse=e.kind==="house"||e.kind==="leader";
+ $("ptxt").innerHTML='<div><span class="kind">'+esc(e.title||k[0])+'</span></div><div class="big'+(isHouse?' house '+esc(e.name):'')+'"'+(isHouse?' style="--c:'+(HC[e.name]||"")+'"':'')+'>'+esc(e.name)+'</div>'+(e.detail?'<div class="det">'+esc(e.detail)+'</div>':'');
+ var big=$("ptxt").querySelector(".big");$("party").classList.add("on");setTimeout(function(){fitText(big,56)},30);
+ var colours=["#f5c542","#ffffff","#ff8fa3",HC[e.house]||"#7cc0f2","#7cd6a8"],b=party.kids[0],g=party.kids[1];
+ b.stop();g.stop();
+ var ctx={layer:party.duo,w:1920,h:620,colours:colours},t=1200;
+ setTimeout(function(){if(RM){b.set("cheer");g.set("cheer");return}t=LIB[k[1]](b,g,ctx)},700);
+ var total=700+(RM?4000:({highfive:6000,applause:4000,book:5000,milestone:5000,encourage:3000}[k[1]]||5000))+900;
+ setTimeout(function(){$("party").classList.remove("on");setTimeout(function(){b.stop();g.stop();partyOn=false;last=Date.now()},650)},total);
+ /* After a house moves into the lead, the podium comes back on and the houses glide to their new places. */
+ if((e.kind==="leader"||e.kind==="house")&&!e.preview)toPodium=true;
+ if(!e.preview)ack(e.ids||[e.id])}
+function ack(ids){fetch(SEEN,{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-Dashboard-Request":"1"},body:JSON.stringify({ids:ids})}).catch(function(){
+  /* If this fails the event may come back once; that's better than losing it. */ queued={}})}
+
+/* ---------- Data, with automatic recovery ---------- */
+var fails=0,timer=null;
+function load(){clearTimeout(timer);var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ctl)ctl.abort()},15000);
+ fetch(URL,{credentials:"same-origin",cache:"no-store",signal:ctl&&ctl.signal}).then(function(r){clearTimeout(to);
   if(r.status===404||r.status===401){$("off").style.display="flex";$("off").textContent=r.status===404?"This screen's link has been turned off. Ask an administrator for a new one.":"Sign in to see the dashboard.";return null}
-  return r.ok?r.json():null}).then(function(d){if(d){data=d;$("off").style.display="none";render()}}).catch(function(){/* keep showing the last data */})}
-clock();setInterval(clock,1000);load();setInterval(load,DATA_MS);show(0);
+  if(!r.ok)throw new Error(r.status);return r.json()}).then(function(d){if(!d){timer=setTimeout(load,DATA_MS*2);return}
+  fails=0;$("net").style.display="none";$("off").style.display="none";var first=!data;data=d;
+  if(d.events&&d.events.length)enqueue(d.events);
+  if(first){show(nextKey());if(PREVIEW)enqueue(previewEvents(),true);if(PLAY)enqueue([{id:"play",kind:"level",title:"Preview",name:"Test Pupil A.",detail:PLAY,house:"Al-Aqsa",anim:PLAY}],true)}
+  /* New standings glide into place on the podium, after any celebration, so everyone sees the change. */
+  else if(cur==="houses"){if(queue.length||partyOn)repaint=true;else paintHouses(false)}
+  timer=setTimeout(load,DATA_MS)}).catch(function(){clearTimeout(to);fails++;if(fails>=2||!data)$("net").style.display="block";
+  /* Keep showing the last data and try again, a little less often each time. */
+  timer=setTimeout(load,Math.min(60000,4000*Math.pow(2,fails-1)))})}
+window.addEventListener("online",load);
+load();
 /* Pick up new versions of this page, unless the network is down. */
 setInterval(function(){fetch(location.href,{cache:"no-store"}).then(function(r){if(r.ok)location.reload()}).catch(function(){})},6*3600*1000);
-window.addEventListener("resize",render);
+
+/* ?preview plays one of each celebration with made-up pupils, and ?play=highfive (applause, book, milestone,
+   encourage) plays one animation. Nothing is saved and real events are unaffected. */
+function previewEvents(){return [
+ {id:"p1",kind:"star",title:"Star of the week",name:"Test Pupil A.",detail:"Preview class",house:"Al-Aqsa"},
+ {id:"p2",kind:"book",title:"Book completed!",name:"Test Pupil B.",detail:"Preview class",house:"Madinah"},
+ {id:"p3",kind:"level",title:"Level complete!",name:"Test Pupil C.",detail:"Qaidah Level 4 · Preview class",house:"Makkah"},
+ {id:"p4",kind:"house",title:"500 house points!",name:"Madinah",detail:"A house milestone",house:"Madinah"},
+ {id:"p5",kind:"school",title:"2,500 points together!",name:"Safar Academy",detail:"Every house helped",house:""},
+ {id:"p6",kind:"leader",title:"New house in the lead!",name:"Al-Aqsa",detail:"Preview",house:"Al-Aqsa"}]}
 })();
 </script>
 </body>
