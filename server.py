@@ -23,6 +23,7 @@ from flask import Flask, Response, abort, g, jsonify, redirect, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import auth
+import cleanup
 import tv
 from db import DB_ERRORS, Database
 from mailer import Mailer
@@ -204,6 +205,7 @@ def create_app(test_config=None):
                                            app.config["MAIL_REPLY_TO"] or app.config["SUPPORT_EMAIL"]))
     app.register_blueprint(auth.bp)
     app.register_blueprint(tv.bp)
+    app.register_blueprint(cleanup.bp)
     pruned = {"at": 0}
 
     def wants_json():
