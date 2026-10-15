@@ -10,7 +10,7 @@
 <style>
 @font-face{font-family:"Atkinson Next";src:url(/fonts/atkinson-next-latin.woff2) format("woff2");font-weight:200 800;font-display:swap}
 /* Student-facing display. Every slide is its own little world (the sea, a beach, a rainforest...) that keeps moving
-   while it is on, with teachers' names drifting through on fish, birds, coconuts and lanterns. Slides change every
+   while it is on, with teachers' names drifting through on fish, birds, beach balls, insects and lanterns. Slides change every
    30 seconds with a crossfade and a slow push in, so the screen never cuts. Everything is sized in vh for a 16:9 TV. */
 :root{--navy:#002848;--ink:#0b2340;--mute:#5b7089;--gold:#f5c542;--gold2:#d99a00;--silver:#dfe6ee;--silver2:#9fb0c2;--bronze:#efaa72;--bronze2:#b86a2e;
  --makkah:#e9a400;--aqsa:#2a9fe6;--madinah:#1fae72;color-scheme:dark}
@@ -45,7 +45,7 @@ footer{position:fixed;z-index:5;left:0;right:0;bottom:0;height:.9vh;background:r
 footer i{display:block;height:100%;width:0;background:var(--gold)}
 footer i.run{width:100%;transition:width linear}
 /* ---------- Titles ---------- */
-.title{align-self:center;text-align:center;background:var(--navy);border-radius:2.4vh;padding:1.4vh 2.6vw 1.5vh;box-shadow:0 .8vh 0 rgba(0,20,40,.25);animation:drop 1s .35s both cubic-bezier(.2,.9,.3,1.2)}
+.title{align-self:flex-start;background:var(--navy);border-radius:2.4vh;padding:1.4vh 2.6vw 1.5vh;box-shadow:0 .8vh 0 rgba(0,20,40,.25);animation:drop 1s .35s both cubic-bezier(.2,.9,.3,1.2)}
 .title h2{margin:0;font-size:6vh;font-weight:800;letter-spacing:-.015em;line-height:1.05}
 .title p{margin:.5vh 0 0;font-size:2.5vh;font-weight:600;color:#cfe0f0}
 .title .pg{color:var(--gold);margin-left:1vw}
@@ -105,12 +105,12 @@ footer i.run{width:100%;transition:width linear}
 .flap{transform-box:fill-box;transform-origin:50% 100%;animation:flap .32s ease-in-out infinite alternate}
 .flapx{transform-box:fill-box;transform-origin:0 50%;animation:flapx .28s ease-in-out infinite alternate}
 .flapx.r{transform-origin:100% 50%}
-.wag{transform-box:fill-box;transform-origin:0% 50%;animation:wag .5s ease-in-out infinite alternate}
+.swish{transform-box:view-box;transform-origin:62px 60px;animation:swish .45s ease-in-out infinite alternate}
 .flame{transform-box:fill-box;transform-origin:50% 0;animation:flame .12s infinite alternate}
 .spin{transform-box:fill-box;transform-origin:50% 50%;animation:spin 1.2s linear infinite}
 @keyframes flap{to{transform:scaleY(-.6)}}
 @keyframes flapx{to{transform:scaleX(.25)}}
-@keyframes wag{to{transform:skewY(18deg) scaleX(.85)}}
+@keyframes swish{from{transform:rotate(-14deg)}to{transform:rotate(14deg)}}
 @keyframes flame{to{transform:scaleY(1.5)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* ---------- Scenery that keeps moving ---------- */
@@ -192,7 +192,7 @@ var W={
    +[[60,8],[140,6],[230,9],[1360,7],[1450,9],[1530,6]].map(function(p,i){return '<path class="sway" style="animation-duration:'+(3+i%3)+'s" d="M'+p[0]+' 860 C'+(p[0]-30)+' 760 '+(p[0]+30)+' 680 '+(p[0]-10)+' '+(860-p[1]*42)+'" stroke="'+(i%2?"#2f9e6b":"#3cbf7f")+'" stroke-width="16" fill="none" stroke-linecap="round"/>'}).join("")
    +'<g class="sway" style="animation-duration:6s"><path d="M380 860 q-10-90 30-120 q-30 50 10 70 q10-60 50-80 q-20 70 0 130Z" fill="#ff7a8a"/></g><g class="sway" style="animation-duration:5s"><path d="M1180 860 q-20-80 20-110 q-10 50 20 60 q0-50 40-70 q-10 70 -10 120Z" fill="#ffa24d"/></g>'
    +'<ellipse cx="560" cy="858" rx="70" ry="28" fill="#8b9aa8"/><ellipse cx="1040" cy="862" rx="50" ry="20" fill="#7b8b99"/></svg>'}},
- beach:{sky:"#7fd3fa",rider:"coconut",
+ beach:{sky:"#7fd3fa",rider:"ball",
   html:function(){return bands([[34,"#9adcfb"],[44,"#b6e7fc"]])+'<div class="sun" style="width:16vh;height:16vh;right:9vw;top:15vh"></div>'+clouds(4,[14,36])
    +'<div style="position:absolute;left:0;right:0;top:52vh;height:24vh;overflow:hidden"><svg class="wave" style="top:0;height:100%;animation-duration:14s" viewBox="0 0 3200 240" preserveAspectRatio="none"><path d="M0 40 '+rep(16,function(i){return 'q100 -30 200 0 '}) +'V240 H0Z" fill="#1aa5d6"/></svg><svg class="wave" style="top:4vh;height:100%;animation-duration:9s" viewBox="0 0 3200 240" preserveAspectRatio="none"><path d="M0 40 '+rep(16,function(){return 'q100 -26 200 0 '})+'V240 H0Z" fill="#33c3e8"/></svg><svg class="wave" style="top:9vh;height:100%;animation-duration:6s" viewBox="0 0 3200 240" preserveAspectRatio="none"><path d="M0 40 '+rep(16,function(){return 'q100 -20 200 0 '})+'V240 H0Z" fill="#7fe0f3" opacity=".9"/></svg></div>'
    +LAND+'<path d="M0 700 Q400 670 800 690 T1600 680 V900 H0Z" fill="#f6dfa8"/><path d="M0 760 Q500 730 1000 750 T1600 745 V900 H0Z" fill="#efd090"/>'+palm(70,0)+palm(1530,1)
@@ -207,6 +207,15 @@ var W={
    +'<path d="M0 860 Q120 790 220 850 Q320 780 440 850 Q560 790 680 860 Q820 800 940 860 Q1080 790 1200 855 Q1320 790 1440 855 Q1520 820 1600 850 V900 H0Z" fill="#083a1f"/>'
    +[[300,"#ff5d73"],[1300,"#ffb03a"]].map(function(f){return '<g class="sway" style="animation-duration:4s"><path d="M'+f[0]+' 860 q-30 -60 0 -90 q30 30 0 90Z" fill="'+f[1]+'"/><path d="M'+f[0]+' 860 q-60 -30 -50 -80 q40 20 50 80Z" fill="'+f[1]+'" opacity=".8"/></g>'}).join("")+'</svg>'
    +rep(14,function(){return '<i class="fly" style="left:'+rnd(5,90)+'vw;top:'+rnd(25,90)+'vh;animation-duration:'+rnd(6,12)+'s;animation-delay:-'+rnd(0,10)+'s"></i>'})}},
+ jungle:{sky:"#0e6b62",rider:"insect",
+  html:function(){var leaf=function(x,y,r,c,d){return '<g transform="translate('+x+','+y+') rotate('+r+')"><g class="sway" style="animation-duration:'+d+'s"><path d="M0 0 C-60 -80 -40 -220 0 -300 C40 -220 60 -80 0 0Z" fill="'+c+'"/><path d="M0 -10 V-280" stroke="#0a4f3f" stroke-width="6"/>'+[60,110,160,210].map(function(k){return '<path d="M0 -'+k+' l-36 -24 M0 -'+k+' l36 -24" stroke="#0a4f3f" stroke-width="4"/>'}).join("")+'</g></g>'};
+   return bands([[34,"#0c5f57"],[62,"#0a534c"]])+rep(4,function(i){return '<div class="ray" style="left:'+(10+i*24)+'vw;opacity:.45;animation-delay:-'+(i*1.6)+'s"></div>'})
+   +LAND+'<path d="M0 560 Q90 450 190 520 Q290 420 400 510 Q520 430 640 520 Q760 440 880 520 Q1000 430 1120 515 Q1240 440 1360 520 Q1480 450 1600 520 V900 H0Z" fill="#0b5a4c"/>'
+   +'<path d="M0 720 Q160 640 320 710 Q480 630 640 710 Q800 640 960 715 Q1120 640 1280 710 Q1440 650 1600 705 V900 H0Z" fill="#08483d"/>'
+   +[[40,"#2fae78",-30,5],[150,"#24966a",-8,6],[260,"#3cc189",18,4.5],[1340,"#3cc189",-18,5],[1450,"#24966a",8,6.5],[1560,"#2fae78",30,4.6]].map(function(l){return leaf(l[0],900,l[2],l[1],l[3])}).join("")
+   +[[360,820,"#ff6fa8"],[1240,830,"#ffb03a"],[470,860,"#ff5d73"],[1130,860,"#c77dff"]].map(function(f){return '<g class="sway" style="animation-duration:4s"><path d="M'+f[0]+' 900 V'+(f[1]+10)+'" stroke="#0a4f3f" stroke-width="6"/>'+rep(5,function(i){var a=i*Math.PI*2/5,x=f[0]+Math.cos(a)*16,y=f[1]+Math.sin(a)*16;return '<ellipse cx="'+x+'" cy="'+y+'" rx="14" ry="9" fill="'+f[2]+'" transform="rotate('+(i*72)+' '+x+' '+y+')"/>'})+'<circle cx="'+f[0]+'" cy="'+f[1]+'" r="8" fill="#ffd23f"/></g>'}).join("")
+   +rep(6,function(i){var x=300+i*200;return '<path class="swing" style="animation-duration:'+(5+i%3)+'s" d="M'+x+' 0 q-16 '+(80+i*12)+' 0 '+(150+i*22)+'" stroke="#1d7a5e" stroke-width="7" fill="none"/>'})+'</svg>'
+   +rep(10,function(){return '<i class="fly" style="left:'+rnd(5,90)+'vw;top:'+rnd(30,85)+'vh;animation-duration:'+rnd(6,12)+'s;animation-delay:-'+rnd(0,10)+'s"></i>'})}},
  garden:{sky:"#b5e6ff",rider:"butterfly",
   html:function(){return bands([[40,"#c8edff"],[52,"#dcf4ff"]])+'<div class="sun" style="width:12vh;height:12vh;left:42vw;top:15vh"></div>'+clouds(4,[14,40])
    +LAND+'<path d="M0 640 Q400 540 820 640 T1600 600 V900 H0Z" fill="#a6e39a"/><path d="M0 730 Q500 640 1000 720 T1600 700 V900 H0Z" fill="#79cf6d"/>'
@@ -241,9 +250,15 @@ var W={
 /* The riders: each is drawn facing right; .rtl flips the drawing (never the name). */
 var FISH=["#ff8a3d","#ffd23f","#ff6fa8","#3fe0c5","#b18cff"],HUES=["#ff5d73","#ffb03a","#4fc3ff","#7ee06a","#c77dff"];
 function art(kind){var c=pick(FISH),h=pick(HUES);switch(kind){
- case "fish":return '<svg viewBox="0 0 200 110" style="width:22vh"><g transform="translate(200,0) scale(-1,1)"><path class="wag" d="M150 55 L196 18 L188 55 L196 92Z" fill="'+c+'" style="transform-origin:150px 55px"/><ellipse cx="90" cy="55" rx="72" ry="42" fill="'+c+'"/><path d="M70 16 q20 -16 46 -2 l-10 14Z" fill="'+c+'" opacity=".8"/><path d="M60 24 q12 31 0 62" stroke="#fff" stroke-width="9" fill="none" opacity=".55"/><circle cx="48" cy="45" r="10" fill="#fff"/><circle cx="45" cy="45" r="5" fill="#0b2340"/><path d="M26 64 q8 6 16 0" stroke="#0b2340" stroke-width="4" fill="none" stroke-linecap="round"/></g></svg>';
+ case "fish":return '<svg viewBox="0 0 210 120" style="width:22vh;overflow:visible"><path class="swish" d="M62 60 C46 46 30 26 10 20 C18 42 18 78 10 100 C30 94 46 74 62 60Z" fill="'+c+'"/><path d="M96 20 Q118 2 146 14 L136 28Z" fill="'+c+'"/><path d="M104 98 Q116 112 132 104 L126 94Z" fill="'+c+'"/><ellipse cx="118" cy="60" rx="64" ry="40" fill="'+c+'"/><path d="M60 64 Q118 112 180 70 Q160 96 118 100 Q80 98 60 64Z" fill="#fff" opacity=".28"/><path d="M98 24 q-12 36 0 72" stroke="#fff" stroke-width="8" fill="none" opacity=".45" stroke-linecap="round"/><path d="M126 21 q-10 39 0 78" stroke="#fff" stroke-width="6" fill="none" opacity=".3" stroke-linecap="round"/><circle cx="154" cy="48" r="11" fill="#fff"/><circle cx="157" cy="48" r="5.5" fill="#0b2340"/><path d="M168 68 q6 5 12 0" stroke="#0b2340" stroke-width="4" fill="none" stroke-linecap="round"/></svg>';
  case "bird":return '<svg viewBox="0 0 220 120" style="width:22vh"><g transform="translate(220,0) scale(-1,1)"><path d="M150 70 L200 92 L190 64Z" fill="'+h+'"/><ellipse cx="120" cy="66" rx="48" ry="26" fill="'+h+'"/><circle cx="76" cy="54" r="22" fill="'+h+'"/><path d="M58 54 L36 62 L58 64Z" fill="#ffc531"/><circle cx="72" cy="50" r="5" fill="#fff"/><circle cx="71" cy="50" r="2.6" fill="#0b2340"/><path class="flap" d="M96 60 Q130 4 168 30 Q140 50 120 66Z" fill="#fff" opacity=".9"/></g></svg>';
- case "coconut":return '<svg viewBox="0 0 100 100" style="width:9vh"><g class="spin"><circle cx="50" cy="50" r="44" fill="#6b4423"/><circle cx="50" cy="50" r="44" fill="none" stroke="#4d2f16" stroke-width="6" stroke-dasharray="6 10"/><circle cx="38" cy="36" r="6" fill="#3a220f"/><circle cx="58" cy="34" r="6" fill="#3a220f"/><circle cx="48" cy="52" r="6" fill="#3a220f"/></g></svg>';
+ case "ball":var B=[["#ff5d73","#ffd23f","#3fa9f5"],["#ff8a3d","#3fe0c5","#ff6fa8"],["#7ee06a","#ff5d73","#ffd23f"]][Math.floor(Math.random()*3)];
+  return '<svg viewBox="0 0 100 100" style="width:11vh"><g class="spin"><circle cx="50" cy="50" r="46" fill="#fff"/><path d="M50 4 A46 46 0 0 1 89.8 27 Q60 40 50 50Z" fill="'+B[0]+'"/><path d="M89.8 73 A46 46 0 0 1 50 96 Q46 62 50 50Z" fill="'+B[1]+'"/><path d="M10.2 73 A46 46 0 0 1 10.2 27 Q40 38 50 50 Q38 62 10.2 73Z" fill="'+B[2]+'"/><circle cx="50" cy="50" r="9" fill="#fff"/><circle cx="50" cy="50" r="46" fill="none" stroke="#0b2340" stroke-opacity=".12" stroke-width="3"/></g></svg>';
+ case "insect":switch(pick(["bee","ladybird","dragonfly","beetle"])){
+  case "bee":return '<svg viewBox="0 0 160 110" style="width:19vh;overflow:visible"><g class="flap"><ellipse cx="66" cy="30" rx="22" ry="30" fill="#e8f6ff" opacity=".85"/><ellipse cx="88" cy="34" rx="18" ry="24" fill="#e8f6ff" opacity=".85"/></g><path d="M20 66 L6 70 L20 74Z" fill="#2b2b2b"/><ellipse cx="72" cy="70" rx="54" ry="34" fill="#ffc531"/><path d="M52 38 q-8 32 0 64 M80 36 q-8 34 0 68" stroke="#2b2b2b" stroke-width="14" fill="none"/><circle cx="124" cy="64" r="20" fill="#2b2b2b"/><circle cx="130" cy="58" r="6" fill="#fff"/><path d="M132 46 q8 -20 20 -22 M124 44 q2 -20 12 -26" stroke="#2b2b2b" stroke-width="4" fill="none" stroke-linecap="round"/></svg>';
+  case "ladybird":return '<svg viewBox="0 0 150 110" style="width:16vh;overflow:visible"><g class="flap"><ellipse cx="56" cy="26" rx="34" ry="16" fill="#e8f6ff" opacity=".8" transform="rotate(-20 56 26)"/></g><path d="M40 92 l-10 12 M64 96 l-4 14 M88 94 l4 14" stroke="#2b2b2b" stroke-width="5" stroke-linecap="round"/><circle cx="114" cy="66" r="20" fill="#2b2b2b"/><path d="M20 70 A48 44 0 0 1 116 70Z" fill="#ff4b55"/><path d="M20 70 Q68 96 116 70Z" fill="#2b2b2b"/><path d="M68 28 V72" stroke="#2b2b2b" stroke-width="4"/><circle cx="46" cy="52" r="7" fill="#2b2b2b"/><circle cx="90" cy="50" r="7" fill="#2b2b2b"/><circle cx="62" cy="40" r="5" fill="#2b2b2b"/><circle cx="80" cy="62" r="5" fill="#2b2b2b"/><circle cx="122" cy="60" r="4" fill="#fff"/></svg>';
+  case "dragonfly":return '<svg viewBox="0 0 220 100" style="width:27vh;overflow:visible"><g class="flap" style="animation-duration:.12s"><path d="M120 46 Q100 6 60 4 Q86 30 120 46Z M136 46 Q150 4 190 2 Q164 30 136 46Z" fill="#c9f2ff" opacity=".85"/></g><g class="flap" style="animation-duration:.14s"><path d="M120 52 Q96 92 56 96 Q84 68 120 52Z M136 52 Q154 94 194 96 Q166 68 136 52Z" fill="#c9f2ff" opacity=".7"/></g><rect x="10" y="44" width="122" height="10" rx="5" fill="#1aa8a0"/><path d="M30 44 v10 M50 44 v10 M70 44 v10 M90 44 v10 M110 44 v10" stroke="#0f7d77" stroke-width="3"/><ellipse cx="144" cy="49" rx="16" ry="11" fill="#1aa8a0"/><circle cx="166" cy="42" r="10" fill="#0f7d77"/><circle cx="166" cy="56" r="10" fill="#0f7d77"/><circle cx="169" cy="40" r="3.5" fill="#fff"/></svg>';
+  default:return '<svg viewBox="0 0 160 110" style="width:18vh;overflow:visible"><g class="flap"><path d="M70 40 Q50 0 20 6 Q40 30 70 40Z" fill="#e8f6ff" opacity=".8"/></g><path d="M34 88 l-8 14 M60 94 l-2 14 M86 90 l6 14" stroke="#1d2b22" stroke-width="5" stroke-linecap="round"/><ellipse cx="62" cy="64" rx="48" ry="32" fill="#1f9d6a"/><path d="M62 32 V96" stroke="#137049" stroke-width="4"/><path d="M30 52 q10 -10 22 -12" stroke="#7fe3b5" stroke-width="6" fill="none" stroke-linecap="round"/><circle cx="116" cy="62" r="16" fill="#137049"/><path d="M126 52 q14 -24 30 -22 q-12 6 -18 28Z" fill="#137049"/><circle cx="120" cy="58" r="3.5" fill="#fff"/></svg>'}
  case "butterfly":return '<svg viewBox="0 0 160 120" style="width:15vh"><g class="flapx r"><path d="M80 60 Q30 -10 10 30 Q0 70 80 64Z" fill="'+h+'"/><path d="M80 64 Q20 80 40 110 Q66 112 80 66Z" fill="'+c+'"/></g><g class="flapx"><path d="M80 60 Q130 -10 150 30 Q160 70 80 64Z" fill="'+h+'"/><path d="M80 64 Q140 80 120 110 Q94 112 80 66Z" fill="'+c+'"/></g><rect x="76" y="40" width="8" height="54" rx="4" fill="#3b2a4a"/><path d="M80 42 q-10 -26 -22 -30 M80 42 q10 -26 22 -30" stroke="#3b2a4a" stroke-width="3" fill="none"/></svg>';
  case "kite":return '<svg viewBox="0 0 140 220" style="width:12vh"><path d="M70 0 L130 70 L70 150 L10 70Z" fill="'+h+'"/><path d="M70 0 L70 150 M10 70 L130 70" stroke="#fff" stroke-width="4"/><path d="M70 0 L130 70 L70 70Z" fill="#fff" opacity=".25"/><path class="swing" d="M70 150 q-20 20 0 36 q20 16 0 34" stroke="#fff" stroke-width="3" fill="none"/><path d="M60 170 l10 6 l10 -6 l-10 -4Z M60 200 l10 6 l10 -6 l-10 -4Z" fill="'+c+'"/></svg>';
  case "rocket":return '<svg viewBox="0 0 220 100" style="width:24vh"><path class="flame" d="M40 38 L0 50 L40 62Z" fill="#ffb03a" style="transform-origin:40px 50px"/><path d="M40 30 H150 Q200 34 214 50 Q200 66 150 70 H40Z" fill="#f1f5fb"/><path d="M150 30 Q200 34 214 50 Q200 66 150 70Z" fill="'+h+'"/><circle cx="120" cy="50" r="13" fill="#4fc3ff" stroke="#5b7089" stroke-width="5"/><path d="M50 30 L30 6 L84 30Z M50 70 L30 94 L84 70Z" fill="'+h+'"/></svg>';
@@ -252,11 +267,11 @@ function art(kind){var c=pick(FISH),h=pick(HUES);switch(kind){
  case "balloon":return '<svg viewBox="0 0 140 190" style="width:14vh"><path d="M70 4 C20 4 4 50 14 84 C24 116 52 130 58 146 H82 C88 130 116 116 126 84 C136 50 120 4 70 4Z" fill="'+h+'"/><path d="M70 4 C48 4 40 60 58 146 H82 C100 60 92 4 70 4Z" fill="#fff" opacity=".35"/><path d="M60 146 L56 164 M80 146 L84 164" stroke="#7a5a3a" stroke-width="3"/><rect x="52" y="162" width="36" height="22" rx="4" fill="#9c6b3d"/></svg>'}}
 /* Routes across the screen, in vw and vh, for a rider going left to right. */
 function route(kind){var y=rnd(18,24);switch(kind){
- case "coconut":return {d:8000,k:[[11,58,0,"ease-in"],[6,84,.38,"ease-out"],[4.5,78,.5,"ease-in"],[3,84,.6,"ease-out"],[-12,86,1]]};
+ case "ball":return {d:6500,k:[-10,4,18,32,50,68,82,96,110].map(function(x,i,a){var t=(x-50)/60;return [x,15+46*t*t,i/(a.length-1)]})};
  case "lantern":var x=pick([rnd(4,12),rnd(88,96)]);return {d:16000,k:[[x,105,0],[x+3,60,.5],[x-2,8,1]],up:1};
  case "rocket":return {d:9000,k:[[-25,y+8,0],[125,y-6,1]]};
  case "plane":return {d:11000,k:[[-25,y,0],[30,y-5,.35],[60,y+4,.65],[125,y-3,1]]};
- case "butterfly":return {d:14000,k:[[-20,y,0],[15,y-5,.2],[35,y+4,.4],[55,y-5,.6],[80,y+4,.8],[120,y-3,1]]};
+ case "insect":case "butterfly":return {d:14000,k:[[-20,y,0],[15,y-5,.2],[35,y+4,.4],[55,y-5,.6],[80,y+4,.8],[120,y-3,1]]};
  case "balloon":return {d:20000,k:[[-20,y+4,0],[120,y-4,1]]};
  case "kite":return {d:15000,k:[[-20,y,0],[30,y-4,.35],[70,y+3,.7],[120,y-2,1]]};
  default:return {d:kind==="fish"?13000:11000,k:[[-25,y,0],[30,y-3,.33],[70,y+3,.66],[125,y,1]]}}}
@@ -280,12 +295,12 @@ function housePodium(){var H=data.houses,steps=[];H.forEach(function(h){var last
  steps.forEach(function(s){s.who.forEach(function(w){w.class=""})});return steps.filter(function(s){return s.n})}
 /* id, world, which window it belongs to, title, subtitle, and what it shows. */
 var SLIDES=[
- {id:"houses",world:"balloons",kind:"all",title:"House points",sub:function(){return "Who's leading the school"},steps:housePodium,unit:"point",empty:"No house points yet."},
+ {id:"houses",world:["balloons","kites"],kind:"all",title:"House points",sub:function(){return "Who's leading the school"},steps:housePodium,unit:"point",empty:"No house points yet."},
  {id:"books",world:"sea",kind:"all",title:"Book passes",sub:function(){return "Finished a book in "+month()+". Well done!"},list:function(){return data.books},empty:"No books finished yet this month."},
  {id:"memo",world:"beach",kind:"memo",title:"Memorisation passes",sub:function(){return "Most passes in "+month()},steps:function(){return data.memo},unit:"pass",empty:"No memorisation passes yet this month."},
  {id:"qaidah",world:"forest",kind:"qaidah",title:"Qaidah level passes",sub:function(){return "Most levels passed in "+month()},steps:function(){return data.qaidah},unit:"level",empty:"No Qaidah levels passed yet this month."},
  {id:"qaidah-primary",world:"garden",kind:"qaidah",title:"Top class for Qaidah",sub:function(){return "Primary, Years 1 to 6, in "+month()},steps:function(){return data.classes.qaidah.primary},unit:"level pass",empty:"No primary Qaidah levels passed yet."},
- {id:"memo-primary",world:"kites",kind:"memo",title:"Top class for memorisation",sub:function(){return "Primary, Years 1 to 6, in "+month()},steps:function(){return data.classes.memo.primary},unit:"pass",empty:"No primary memorisation passes yet."},
+ {id:"memo-primary",world:"jungle",kind:"memo",title:"Top class for memorisation",sub:function(){return "Primary, Years 1 to 6, in "+month()},steps:function(){return data.classes.memo.primary},unit:"pass",empty:"No primary memorisation passes yet."},
  {id:"qaidah-secondary",world:"space",kind:"qaidah",title:"Top class for Qaidah",sub:function(){return "Secondary, Year 7 onwards, in "+month()},steps:function(){return data.classes.qaidah.secondary},unit:"level pass",empty:"No secondary Qaidah levels passed yet."},
  {id:"memo-secondary",world:"peaks",kind:"memo",title:"Top class for memorisation",sub:function(){return "Secondary, Year 7 onwards, in "+month()},steps:function(){return data.classes.memo.secondary},unit:"pass",empty:"No secondary memorisation passes yet."},
  {id:"stars",world:"night",kind:"all",title:"Stars of the week",sub:function(){return month()+", up to the end of last week"},list:function(){return data.stars},empty:"No stars of the week yet this month.",week:1}];
@@ -293,7 +308,7 @@ function focusNow(){if(FOCUS==="qaidah"||FOCUS==="memo")return [FOCUS];return da
 function playing(){if(PIN){var p=SLIDES.filter(function(s){return s.id===PIN});if(p.length)return p}
  var f=focusNow(),L=SLIDES.filter(function(s){return !f||f.indexOf(s.kind)>=0});
  var full=L.filter(function(s){return (s.steps?s.steps():s.list()).length});return full.length?full:L}
-function build(s){var w=W[s.world],el=document.createElement("section");el.className="slide";el.style.background=w.sky;
+function build(s){s.w=typeof s.world==="string"?s.world:s.world[(s.turn=(s.turn||0)+1)%s.world.length];var w=W[s.w],el=document.createElement("section");el.className="slide";el.style.background=w.sky;
  var body;if(s.steps)body=podium(s.steps(),s.unit,s.empty);else body='<div class="cycle"></div>';
  el.innerHTML='<div class="scene">'+w.html()+'</div><div class="carriers"></div><div class="content"><div class="title"><h2>'+esc(s.title)+'<span class="pg"></span></h2><p>'+esc(s.sub())+'</p></div>'+body+'</div>';
  return el}
@@ -321,7 +336,7 @@ function show(){if(!data)return;clearTimeout(ST);clearInterval(PT);clearInterval
  void el.offsetWidth;el.classList.add("on");
  if(old){old.classList.add("out");setTimeout(function(){old.remove()},1500)}
  if(s.list)cycle(el,s);else confetti(el);
- var box=el.querySelector(".carriers"),kind=W[s.world].rider;setTimeout(function(){ride(box,kind)},1800);RT=setInterval(function(){ride(box,kind)},7000);
+ var box=el.querySelector(".carriers"),kind=W[s.w].rider;setTimeout(function(){ride(box,kind)},1800);RT=setInterval(function(){ride(box,kind)},7000);
  var p=$("prog");p.className="";p.style.transitionDuration="0ms";void p.offsetWidth;p.style.transitionDuration=SLIDE_MS+"ms";p.className="run";
  ST=setTimeout(show,SLIDE_MS)}
 function load(){fetch(URL,{credentials:"same-origin",cache:"no-store"}).then(function(r){
