@@ -637,7 +637,7 @@ class DashboardTests:
         now = datetime(2026, 10, 14, 12, tzinfo=auth.LONDON)  # a Wednesday
         ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
         monday, last_month = ms(2026, 10, 12, 9), ms(2026, 9, 30, 9)
-        rows = [{"id": "yr3-a", "json": json.dumps({"name": "Yr3-A", "S": [
+        rows = [{"id": "yr3-a", "json": json.dumps({"name": "Yr3-A-QM-Br Ahmed", "S": [
                     self.tv_student("Aisha Bint Khan", house="Makkah", log=[monday] * 3, ml=[monday], tr=[monday], tg=[1]),
                     self.tv_student("Yusuf Ali", house="Madinah", log=[monday] * 3 + [last_month], ml=[], tb=[1]),
                     self.tv_student("Old Book", year="Year 3", tr=[last_month], log=[last_month])]})},
@@ -648,17 +648,17 @@ class DashboardTests:
         data = tv.summary(rows, now)
         self.assertEqual(data["houses"], [{"house": "Makkah", "points": 55}, {"house": "Madinah", "points": 20},
                                           {"house": "Al-Aqsa", "points": 0}])
-        self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Yr3-A")])
+        self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Year 3 · Ustd Ahmed")])
         # Stars run to the end of last week, so only the week October starts in counts here.
         self.assertEqual([(s["class"], s["name"], s["label"]) for s in data["stars"]],
-                         [("Yr3-A", "Yusuf A.", "Week of 28 Sep")])
+                         [("Year 3 · Ustd Ahmed", "Yusuf A.", "Week of 28 Sep")])
         self.assertEqual([(step["place"], step["n"], [w["name"] for w in step["who"]]) for step in data["memo"]],
                          [(1, 3, ["Aisha K.", "Yusuf A."]), (2, 2, ["Omar F."]), (3, 1, ["Zara"])])
         self.assertEqual(data["qaidah"], [])
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["memo"]["primary"]],
-                         [(6, ["Yr3-A"])])
+                         [(6, ["Year 3 · Ustd Ahmed"])])
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["memo"]["secondary"]],
-                         [(3, ["Yr8-B"])])
+                         [(3, ["Year 8"])])
         self.assertEqual(data["month"], "October")
         self.assertNotIn("Khan", json.dumps(data))
 
@@ -666,29 +666,34 @@ class DashboardTests:
         now = datetime(2026, 10, 22, 12, tzinfo=auth.LONDON)  # a Thursday in the fourth week
         ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
         test = lambda d, ok=True, k="q": {"d": d, "k": k, "n": 2, "sc": 4, "ok": ok}  # noqa: E731
-        rows = [{"id": "a", "json": json.dumps({"name": "Yr2-A", "S": [
+        rows = [{"id": "a", "json": json.dumps({"name": "Yr2-A-QM-Ustadh Faeez", "S": [
                     self.tv_student("Amina Rahman", house="Makkah", tests=[test("2026-10-01"), test("2026-10-08"),
                                                                            test("2026-09-30"), test("2026-10-09", ok=False)],
                                     log=[ms(2026, 9, 30, 9)] * 2, sw=["2026-10-05"]),
                     self.tv_student("Bilal Hussain", house="Al-Aqsa", tests=[test("2026-10-02")],
-                                    log=[ms(2026, 10, 7, 9)] * 4, ml=[ms(2026, 10, 14, 9)])]})},
-                {"id": "b", "json": json.dumps({"name": "Yr10", "S": [
+                                    log=[ms(2026, 10, 7, 9)] * 4, ml=[ms(2026, 10, 14, 9)], ist="Yr2-A-AI-Sr Maryam")]})},
+                {"id": "b", "json": json.dumps({"name": "Yr9/10-B-QM-Br Fawaaz", "S": [
                     self.tv_student("Hana Ali", tests=[test("2026-10-03")], log=[ms(2026, 10, 21, 9)])]})},
                 {"id": "c", "json": json.dumps({"name": "Juniors", "S": [
                     self.tv_student("Musa Khan", year="Year 1", tests=[test("2026-10-03")])]})}]
-        data = tv.summary(rows, now, teachers=["Ustadh Ahmed"])
+        # Teachers come from the classrooms (Quran and Islamic Studies) and from accounts, once each.
+        data = tv.summary(rows, now, teachers=["Ustadh Ahmed", "fawaaz Rahman"])
         self.assertEqual([(step["place"], step["n"], [w["name"] for w in step["who"]]) for step in data["qaidah"]],
                          [(1, 2, ["Amina R."]), (2, 1, ["Bilal H.", "Hana A.", "Musa K."])])
-        # Juniors is primary from its students' year groups; Yr10 is secondary from its name.
+        # Juniors is primary from its students' year groups; Yr9/10 is secondary from its name.
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["qaidah"]["primary"]],
-                         [(3, ["Yr2-A"]), (1, ["Juniors"])])
-        self.assertEqual([c["n"] for c in data["classes"]["qaidah"]["secondary"]], [1])
+                         [(3, ["Year 2 · Ustd Faeez"]), (1, ["Juniors"])])
+        self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["qaidah"]["secondary"]],
+                         [(1, ["Year 9/10 · Ustd Fawaaz"])])
         # Stars: weeks from the one October starts in (28 September) to last week (12 October). The teacher's pick
         # wins its week; other weeks go to the most passes and merits; this week (19 October) isn't over yet.
         self.assertEqual([(s["label"], s["class"], s["name"]) for s in data["stars"]],
-                         [("Week of 28 Sep", "Yr2-A", "Amina R."), ("Week of 5 Oct", "Yr2-A", "Amina R."),
-                          ("Week of 12 Oct", "Yr2-A", "Bilal H.")])
-        self.assertEqual(data["teachers"], ["Ustadh Ahmed"])
+                         [("Week of 28 Sep", "Year 2 · Ustd Faeez", "Amina R."), ("Week of 5 Oct", "Year 2 · Ustd Faeez", "Amina R."),
+                          ("Week of 12 Oct", "Year 2 · Ustd Faeez", "Bilal H.")])
+        self.assertEqual(data["teachers"], ["Ustd Ahmed", "Ustd Faeez", "Ustd Fawaaz", "Ustd Maryam"])
+        self.assertEqual([tv.class_label(n) for n in ("Year 3A Quran - Ustadh Faeez", "Yr4-B-QM-Sr Zainab", "Yr5-C Idris",
+                                                      "Reception-QM", "Hifz group")],
+                         ["Year 3 · Ustd Faeez", "Year 4 · Ustd Zainab", "Year 5 · Ustd Idris", "Reception", "Hifz group"])
         window = {"qaidah": ["16:00", "17:00"], "memo": ["23:30", "00:30"]}
         at = lambda h, m: datetime(2026, 10, 22, h, m, tzinfo=auth.LONDON)  # noqa: E731
         self.assertEqual(tv.focus(window, at(16, 30)), ["qaidah"])

@@ -47,9 +47,16 @@ a new one if a link is lost or seen by someone it shouldn't be.
 The dashboard changes slide every 30 seconds and updates every minute. Each
 slide is its own flat cartoon scene (balloons over hills, the sea, a beach, a
 rainforest, a garden, kites, space, mountains, a night sky with lanterns), and
-active teachers' names drift through it on fish, birds, beach balls, insects
-and so on. House points takes turns between the balloons and the kites, and a
-second rainforest has bees, ladybirds, dragonflies and beetles.
+teachers' names ("Ustd Faeez") drift through it on fish, birds, beach balls,
+insects and so on. They move with a little physics: fish kick and glide, birds
+flap and glide, beach balls are thrown in an arc and bounce on the sand, and
+riders keep out of each other's way. The names are every teacher named in a
+classroom (Quran or Islamic Studies) as well as every teacher with an account.
+House points takes turns between the balloons and the kites, and a second
+rainforest has bees, ladybirds, dragonflies and beetles.
+
+Classes are shown by year group and teacher: `Yr3-A-QM-Br Ahmed` becomes
+"Year 3 · Ustd Ahmed".
 
 - **Podiums** (the top three totals this month; ties share a step): house
   points, memorisation passes, Qaidah levels passed (Quran level tests on the

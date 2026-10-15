@@ -35,6 +35,35 @@ def short_name(name):
     return words[0] + (" " + words[-1][0].upper() + "." if len(words) > 1 else "")
 
 
+# A teacher's title in a classroom name ("Yr3-A-QM-Br Ahmed", "Year 3A Quran - Ustadh Faeez").
+TITLE = re.compile(r"^(?:brother|sister|br|sr|ust\w*|shaykh|shaikh|sheikh|sh|mufti|maulana|moulana|mr|mrs|ms|miss)\.?\s+", re.I)
+GROUP = re.compile(r"\b(?:year|yr)\s*(\d+(?:\s*/\s*\d+)?)", re.I)
+
+
+def teacher_of(text):
+    """The teacher's first name in a classroom name: 'Yr3-A-QM-Br Ahmed' -> 'Ahmed'. Empty if there isn't one."""
+    parts = [p.strip() for p in (text or "").split("-")]
+    for i, part in enumerate(parts):
+        if TITLE.match(part):
+            name = TITLE.sub("", "-".join(parts[i:])).split()
+            return name[0][:1].upper() + name[0][1:] if name else ""
+    # No title: a last part that is a name, not the year, the class letter or a subject code (QM, AI).
+    last = re.sub(r"^[A-Z]\s+", "", parts[-1]) if len(parts) > 1 else ""
+    if len(last) >= 3 and not GROUP.search(last) and not last.isupper() and last.isalpha():
+        return last[:1].upper() + last[1:]
+    return ""
+
+
+def class_label(class_name):
+    """How the TV names a class: its year group and teacher. 'Yr3-A-QM-Br Ahmed' -> 'Year 3 · Ustd Ahmed'."""
+    group = GROUP.search(class_name or "")
+    year = ("Year " + re.sub(r"\s+", "", group.group(1))) if group else (
+        "Reception" if re.search(r"\breception\b", class_name or "", re.I) else "")
+    teacher = teacher_of(class_name)
+    label = " · ".join(p for p in (year, teacher and "Ustd " + teacher) if p)
+    return label or class_name
+
+
 def school_stage(student, class_name):
     """'primary' for Reception to Year 6, 'secondary' for Year 7 onwards, None if unknown.
 
@@ -97,10 +126,15 @@ def summary(rows, now=None, teachers=()):
         w += timedelta(days=7)
     houses = dict.fromkeys(HOUSES, 0)
     books, stars, memo, qaidah = [], [], [], []
+    # Every teacher named in the classrooms (Quran and Islamic Studies) as well as those with an account.
+    names = {(TITLE.sub("", t).split() or [""])[0] for t in teachers}
     tops = {kind: {"primary": [], "secondary": []} for kind in ("memo", "qaidah")}
     for row in rows:
         state = json.loads(row["json"])
         class_name = state.get("name") or row["id"]
+        label = class_label(class_name)
+        for name in [class_name] + [s.get("ist", "") for s in state.get("S", [])]:
+            names.add(teacher_of(name))
         students, stages, class_memo, class_qaidah = [], [], 0, 0
         for s in state.get("S", []):
             name = short_name(s.get("name", ""))
@@ -111,14 +145,14 @@ def summary(rows, now=None, teachers=()):
                 houses[house] += sum(len(s.get(k, [])) * v for k, v in TOKEN_POINTS.items())
             # A red token is given for completing a book.
             if since(s.get("tr", []), month):
-                books.append({"name": name, "class": class_name, "house": house})
+                books.append({"name": name, "class": label, "house": house})
             passes = since(s.get("log", []), month)
             levels = sum(1 for t in s.get("tests") or [] if t.get("k") == "q" and t.get("ok")
                          and month_key <= str(t.get("d", "")) <= today_key)
             if passes:
-                memo.append({"name": name, "class": class_name, "house": house, "n": passes})
+                memo.append({"name": name, "class": label, "house": house, "n": passes})
             if levels:
-                qaidah.append({"name": name, "class": class_name, "house": house, "n": levels})
+                qaidah.append({"name": name, "class": label, "house": house, "n": levels})
             class_memo, class_qaidah = class_memo + passes, class_qaidah + levels
             stage = school_stage(s, class_name)
             if stage:
@@ -126,8 +160,8 @@ def summary(rows, now=None, teachers=()):
             students.append((s, name, house))
         stage = class_stage(class_name, stages)
         if stage:
-            tops["memo"][stage].append({"class": class_name, "n": class_memo})
-            tops["qaidah"][stage].append({"class": class_name, "n": class_qaidah})
+            tops["memo"][stage].append({"class": label, "n": class_memo})
+            tops["qaidah"][stage].append({"class": label, "n": class_qaidah})
         for week in weeks:
             key, start = week.strftime("%Y-%m-%d"), week.timestamp() * 1000
             end = (week + timedelta(days=7)).timestamp() * 1000
@@ -138,7 +172,7 @@ def summary(rows, now=None, teachers=()):
                              between(s.get("log", []), start, end), n, h) for s, n, h in students), default=None)
                 star = best and best[0] and (best[2], best[3])
             if star:
-                stars.append({"name": star[0], "house": star[1], "class": class_name, "week": key,
+                stars.append({"name": star[0], "house": star[1], "class": label, "week": key,
                               "label": "Week of " + week.strftime("%-d %b")})
     return {
         "houses": sorted(({"house": h, "points": p} for h, p in houses.items()), key=lambda h: -h["points"]),
@@ -147,7 +181,7 @@ def summary(rows, now=None, teachers=()):
         "qaidah": podium(qaidah),
         "classes": {kind: {stage: podium(L) for stage, L in v.items()} for kind, v in tops.items()},
         "stars": sorted(stars, key=lambda s: (s["week"], natural(s["class"]))),
-        "teachers": list(teachers),
+        "teachers": ["Ustd " + t for t in sorted({t[:1].upper() + t[1:] for t in names if t}, key=str.lower)],
         "month": now.strftime("%B"),
     }
 
@@ -176,7 +210,7 @@ def focus(settings, now=None):
 def data(settings=None):
     with auth.db().transaction() as tx:
         rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
-        # Teachers' names drift through the scenes (fish, birds, coconuts), as they appear on the Users page.
+        # Teachers' names drift through the scenes; summary() adds everyone named in the classrooms.
         teachers = [r["name"] for r in tx.execute(
             "SELECT name FROM users WHERE role = 'teacher' AND disabled = 0 ORDER BY name").fetchall()]
     result = summary(rows, teachers=teachers)
