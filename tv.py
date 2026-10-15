@@ -82,7 +82,7 @@ def class_stage(class_name, stages):
     return max(("primary", "secondary"), key=stages.count)
 
 
-def summary(rows, now=None, teachers=()):
+def summary(rows, now=None):
     """Everything the TV shows, worked out from the classroom records."""
     now = now or datetime.now(auth.LONDON)
     day = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -147,7 +147,6 @@ def summary(rows, now=None, teachers=()):
         "qaidah": podium(qaidah),
         "classes": {kind: {stage: podium(L) for stage, L in v.items()} for kind, v in tops.items()},
         "stars": sorted(stars, key=lambda s: (s["week"], natural(s["class"]))),
-        "teachers": list(teachers),
         "month": now.strftime("%B"),
     }
 
@@ -176,10 +175,7 @@ def focus(settings, now=None):
 def data(settings=None):
     with auth.db().transaction() as tx:
         rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
-        # Teachers' names drift through the scenes (fish, birds, coconuts), as they appear on the Users page.
-        teachers = [r["name"] for r in tx.execute(
-            "SELECT name FROM users WHERE role = 'teacher' AND disabled = 0 ORDER BY name").fetchall()]
-    result = summary(rows, teachers=teachers)
+    result = summary(rows)
     result["focus"] = focus(settings or {})
     return jsonify(result)
 
