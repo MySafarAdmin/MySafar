@@ -1,6 +1,6 @@
 # Safar Academy Enfield dashboards
 
-One page holds the school overview (Summary, Attention, Classes, Rankings, Houses) and a full class
+One page holds the school overview (one Summary page, with Classes and Record beside it) and a full class
 dashboard (Quran, Memo, Progress, Rewards, Settings) for every
 classroom. The dashboard starts empty:
 classrooms and students are added by uploading a CSV on the overview.
@@ -64,7 +64,8 @@ Each classroom's **Rewards** tab gives house tokens:
 | Red (book completion) | 50 |
 
 **−** takes back the latest token of that colour. The tab shows the class's
-points per house. The overview's Houses tab shows the whole school's totals, and on
+points per house. A pass on the Record page gives the student a blue token by itself.
+The overview's House points pop-up shows the whole school's totals, and on
 Railway teachers see those totals too, without seeing other classes'
 students. The points are set in `TOK` near the top of the script in
 `src/page.html` and in `TOKEN_POINTS` in `server.py`; change both together.

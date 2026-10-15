@@ -129,24 +129,38 @@ The name is MySafar, set as a wordmark with "My" in the regular weight and
 "Safar" in the heavy weight. The browser tab icon (`/favicon.png`) is the logo
 on a white disc.
 
-**Overview** tabs:
+**Overview**: one page, the Summary, with no tabs (the user removed the
+Attention, Rankings and Houses tabs on 2026-10-15). Everything they held is
+behind the section titles' pop-ups: Needs attention, House points (totals,
+tokens by house, points by class), Most passes, Most merits and Top classes
+(the class ranking). Only the old Furthest along list is gone.
 
-- **Summary**, one screen in three columns divided by hairlines: Needs
-  attention (each kind as a large count with a small marker that opens its
-  full list, and the warning levels), passes per week (grey columns, this week
-  in navy) with the latest passes, house points and top classes, and students
-  by level as columns whose heights are the counts.
-- **Attention**: warnings, no pass in 3+ weeks, quiet classes; one list at a
-  time, grouped by class, ten a page.
-- **Rankings**: class ranking, furthest along, most passes, most merits side by
-  side, five a page each, This month or All time.
-- **Houses**: house totals, tokens by house, points by class (six a page).
+**Needs attention** is three pairs of counts, each a soft grey button with a
+dot for its tone (red concern, green going well, amber warnings):
+
+- **Quran, this month**: Struggling (average score 2 or less) and Excelling
+  (4 or more). The average is rounded to one decimal place before it is
+  sorted, so the figure shown always matches the group.
+- **Memorisation**: Overdue (no pass in 3+ weeks, or since the first class day)
+  and Advancing (passed a Memo target since Monday).
+- **Behaviour**: Warnings (Warning 1 or 2) and Missed breaks (on Miss break).
+
+A count opens the pop-up on its own tab. The pop-up's tabs are the same pairs,
+two to a row, with Quiet (classes with no passes or merits this month) as a
+seventh only when there are some; the overview shows those as one line under
+the pairs. Each tab lists the students with their class (which opens on the
+Quran or Memo tab) and the figure: the average as a pastel score chip with
+how many scores it covers, days since a pass, what was passed this week, or
+the warning. Ten a page.
 
 **Record** (main navigation, admins only): level tests in four numbered steps,
 Quran (Qaidah level) or Memo (target as level and target, or item number and
 Surah), the student, the level, then a 0 to 5 score on the pastel scale and
 Passed or Not passed, with the student's latest tests and Take back the latest
-below. The score goes into that day's box on the Quran sheet with a gold border,
+below. Every pass, Quran or Memo, gives the student a blue token (20 house
+points); a note under the buttons says so, the pass shows a small "Blue token"
+pill in the student's level tests, and taking the test back takes the token
+back. The score goes into that day's box on the Quran sheet with a gold border,
 and the sheet will not change it; only the Record page can.
 
 **Centred on big screens**: from 1500px wide the content column narrows to
@@ -159,10 +173,8 @@ Summary opens with Needs attention, then Rankings (House points, and the top
 three students for Most passes and for Most merits), then Passes per week and
 Students by level. Each of those section titles (and Top classes) has a small
 arrow and opens its full list in a pop-up (the side drawer; a sheet on phones),
-so the details don't need a trip to another tab. The Attention, Rankings and
-Houses tabs stay as they were (the user kept them). No latest passes or
-Furthest along list on the Summary; admins keep Furthest along on their
-Rankings tab. The **school overview** (admins) uses the same layout with
+so the details don't need a trip to another tab. No latest passes on the
+teacher's Summary. The **school overview** (admins) uses the same layout with
 school-wide figures, and its last row adds Top classes and Latest passes.
 
 **Record page look**: a subtitle under the title, the four numbered steps down

@@ -241,7 +241,9 @@ class DashboardTests:
             self.assertFalse(valid_state(dict(state, S=[dict(student, qa=bad)])))
         test = {"d": "2026-10-14", "k": "m", "n": 12, "sc": 4, "ok": True}
         self.assertTrue(valid_state(dict(state, S=[dict(student, tests=[test, dict(test, k="q", n=3, ok=False, pq=2)])])))
-        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 11}):
+        # A pass keeps the time its blue token was given, so taking the test back takes the token back too.
+        self.assertTrue(valid_state(dict(state, S=[dict(student, tb=[1760400000000], tests=[dict(test, tk=1760400000000)])])))
+        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 11}, {"tk": -1}, {"tk": "now"}):
             self.assertFalse(valid_state(dict(state, S=[dict(student, tests=[dict(test, **bad)])])))
         self.assertFalse(valid_state(dict(state, S=[dict(student, tests={})])))
         self.assertTrue(valid_state(dict(state, S=[dict(student, sw=["2026-10-12"])])))
