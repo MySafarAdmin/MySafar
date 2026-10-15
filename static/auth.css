@@ -95,6 +95,13 @@ details.confirm summary{list-style:none}
 details.confirm summary::-webkit-details-marker{display:none}
 details.confirm form{margin-top:8px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2);max-width:300px}
 details.confirm p{font-size:.875rem;margin:0 0 8px}
+.tvacts{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.tvwin{display:block}
+details.tvset form{max-width:340px}
+details.tvset fieldset{border:0;padding:0;margin:0 0 10px;display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+details.tvset legend{font-weight:700;font-size:.9375rem;padding:0;margin-bottom:2px}
+details.tvset fieldset p{grid-column:1/-1;color:var(--mute)}
+details.tvset .field{margin:0}
 
 /* Opening titles (sign-in page, fresh visits only). A deep navy stage; the eight-point star draws itself in gold
    around the logo, the name rises in, then the stage fades away into the sign-in screen while
