@@ -925,11 +925,22 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 }
 @keyframes g-safety{to{opacity:1}}
 .greet-big{position:fixed;z-index:60;margin:0;pointer-events:none;transform-origin:0 0;opacity:0;transition:opacity .6s ease}
+/* The greeting is typed: each letter fades in quickly, with a navy caret after the last one that blinks, then
+   fades before the greeting moves into place. The caret has no width, so the lines never shift. */
+.greet-big .gk{opacity:0;transition:opacity .12s ease}.greet-big .gk.on{opacity:1}
+.gcar{position:relative}
+.gcar::after{content:"";position:absolute;left:.05em;top:.08em;bottom:.04em;width:.07em;border-radius:2px;background:currentColor;animation:g-blink 1s steps(1) infinite}
+.gcar.off::after{opacity:0;transition:opacity .25s ease;animation:none}
+@keyframes g-blink{50%{opacity:0}}
 @keyframes e-rise{from{opacity:0;transform:translateY(22px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes e-slide{from{opacity:0;transform:translateX(-18px)}}
 @keyframes e-grow{from{transform:scaleY(0)}}
 @keyframes e-bar{from{transform:scaleX(0)}}
 body.enter .shell>header,body.enter .rail{animation:e-fade .8s ease both}
+/* On a computer the side menu slides in from the left edge as the greeting settles, and its items follow it in. */
+@media (min-width:960px){body.enter .rail{animation:e-rail .85s cubic-bezier(.16,1,.3,1) .05s both}
+ html.fresh .shell,body.enter .shell{background:var(--bg)}}
+@keyframes e-rail{from{transform:translateX(-100%);opacity:.6}to{transform:none;opacity:1}}
 @keyframes e-fade{from{opacity:0}}
 body.enter .rail .brand,body.enter .rail .navs>*,body.enter .rail .me{animation:e-slide .7s cubic-bezier(.16,1,.3,1) both}
 body.enter .rail .brand{animation-delay:.35s}
@@ -989,3 +1000,36 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .ovp .g12>*{grid-column:1/-1}
 .ovp .hbig{grid-template-columns:1fr;margin-left:0;margin-right:0;border-radius:var(--r-lg)}
 .ovp>.cap:first-child{margin:0 0 10px}
+
+/* ---------- Motion system (page.html, "Motion") ----------
+   Feedback 150-200ms, panels 200-300ms, one easing. The side menu's selected item is drawn by one marker (.navi)
+   that slides to the page chosen; segmented controls get a thumb (.segi) that slides to the choice. */
+:root{--ease-out:cubic-bezier(.2,.8,.2,1)}
+.navs{position:relative}
+.navi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;border-radius:var(--r);background:var(--rail-on);box-shadow:0 4px 14px rgba(0,20,40,.22)}
+.navi.go{transition:transform .26s var(--ease-out),height .26s var(--ease-out),width .26s var(--ease-out),opacity .2s ease}
+.navs.has-i>.nav{position:relative;z-index:1;transition:color .18s ease,background-color .18s ease}
+.navs.has-i>.nav[aria-current="page"]{background:none;box-shadow:none}
+.nav .ic{transition:transform .18s var(--ease-out)}
+.nav:not([aria-current="page"]):hover .ic{transform:translateX(2px)}
+.seg{position:relative}
+.seg.has-i>button{position:relative;z-index:1;transition:color .18s ease}
+.seg.has-i>button[aria-pressed="true"]{background:none;box-shadow:none}
+.segi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;border-radius:var(--r-pill);background:var(--surface);box-shadow:0 1px 3px rgba(28,34,48,.12),0 0 0 1px rgba(0,59,107,.12)}
+.segi.go{transition:transform .22s var(--ease-out),width .22s var(--ease-out),height .22s var(--ease-out)}
+/* Class cards: lift on hover, a clear ring for the keyboard, a press that sinks. */
+.ccard{transition:box-shadow .18s ease,transform .18s var(--ease-out),border-color .18s ease}
+.ccard:hover{border-color:var(--line-2)}
+.ccard:active{transform:translateY(0) scale(.985);box-shadow:var(--shadow);transition-duration:.1s}
+.ccard:focus-within{box-shadow:none}
+.ccard:has(.lk:focus-visible){box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--navy)}
+.ccard .ctile{transition:transform .2s var(--ease-out)}
+.ccard:hover .ctile{transform:translateY(-2px) rotate(-3deg)}
+/* Record: buttons answer a press; the score chosen pops a little. */
+.btn{transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .12s ease,box-shadow .15s ease}
+.btn:not(:disabled):active{transform:scale(.97)}
+.rsc button{transition:transform .15s var(--ease-out),box-shadow .15s ease}
+.rsc button:hover{transform:translateY(-2px)}
+.rsc button[aria-pressed="true"]{transform:scale(1.06)}
+.rstep .rn{transition:background-color .2s ease,color .2s ease}
+@media (prefers-reduced-motion:reduce){.ccard:active,.ccard:hover .ctile,.rsc button:hover,.rsc button[aria-pressed="true"],.btn:not(:disabled):active{transform:none}}

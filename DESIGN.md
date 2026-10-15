@@ -303,14 +303,33 @@ seconds and a few twinkling points. "Safar Academy Enfield" appears once, under
 MySafar in the card's logo (no footer, nothing under the panel's wordmark).
 
 **Greeting after signing in**: the first dashboard load after signing in shows
-only the overview's own greeting ("Assalāmu ʿalaykum ...!"), faded in large in
-the middle of the page (a copy set at the large font size, so it stays sharp,
-wrapping as the heading does). Once the records have loaded (about 1 second at
-least) it shrinks and moves into its usual place in one motion, and the rest of the
-page fades in behind it: the side menu items slide in, the tabs rise, the
+only the overview's own greeting ("Assalāmu ʿalaykum ...!"), typed out letter
+by letter, large in the middle of the page, with a navy caret (a copy set at the
+large font size, so it stays sharp, wrapping as the heading does; every letter is
+laid out from the start, so lines never reflow). Once the records have loaded and
+the greeting is typed, it shrinks and moves into its usual place in one motion,
+and the rest of the page fades in behind it: on a computer the navy side menu
+slides in from the left edge with its items following, the tabs rise, the
 overview sections and class cards rise in turn, ranking rows follow, and the
 bars grow. Once per sign-in (html.fresh, then body.enter for a few seconds),
 off under reduced motion.
+
+**Motion system** (page.html "Motion", template.css "Motion system"): one
+easing, about 150-200ms for feedback and 200-300ms for panels. Views are drawn
+with innerHTML, so a MutationObserver gives redrawn content continuity before it
+paints, using Web Animations only (nothing is held back, controls work at once):
+bars grow from nothing the first time they are seen and afterwards glide from
+their old length (This month / All time changes the numbers at once and only
+moves the bars); ranked students, houses and class cards glide to their new
+places by name, and new rows fade in; class cards rise in a short stagger the
+first time the Classes page is drawn; on Record a new step or a newly chosen
+student's panel fades in and a level test just saved flashes green. Segmented
+controls have a sliding thumb (.segi) and the side menu a sliding marker
+(.navi). Class cards lift on hover, sink when pressed and show a navy ring for the
+keyboard. Off under reduced motion and during the sign-in arrival.
+
+**Sign-in layout**: on a computer the white sign-in card is on the left and the
+navy welcome panel on the right.
 
 **Tracker button on phones**: a teacher's overview on a phone has one large
 navy "Open tracker" button straight under the greeting (just the words), since

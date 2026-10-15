@@ -68,8 +68,8 @@ a{color:var(--primary-ink);text-underline-offset:.18em}
 button,a,summary,label,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,59,107,.12)}
 a:hover{color:var(--primary-hover)}
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-.skip{position:absolute;left:12px;top:-60px;z-index:200;background:#fff;color:var(--navy);font-weight:700;padding:10px 14px;border-radius:var(--r);box-shadow:var(--shadow-lift)}
-.skip:focus{top:12px}
+.skip{position:absolute;left:12px;top:-60px;z-index:200;background:#fff;color:var(--navy);font-weight:700;padding:10px 14px;border-radius:var(--r)}
+.skip:focus{top:12px;box-shadow:var(--shadow-lift)}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .hide,[hidden]{display:none!important}
 .sub,.hint{color:var(--mute)}
@@ -1252,11 +1252,22 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 }
 @keyframes g-safety{to{opacity:1}}
 .greet-big{position:fixed;z-index:60;margin:0;pointer-events:none;transform-origin:0 0;opacity:0;transition:opacity .6s ease}
+/* The greeting is typed: each letter fades in quickly, with a navy caret after the last one that blinks, then
+   fades before the greeting moves into place. The caret has no width, so the lines never shift. */
+.greet-big .gk{opacity:0;transition:opacity .12s ease}.greet-big .gk.on{opacity:1}
+.gcar{position:relative}
+.gcar::after{content:"";position:absolute;left:.05em;top:.08em;bottom:.04em;width:.07em;border-radius:2px;background:currentColor;animation:g-blink 1s steps(1) infinite}
+.gcar.off::after{opacity:0;transition:opacity .25s ease;animation:none}
+@keyframes g-blink{50%{opacity:0}}
 @keyframes e-rise{from{opacity:0;transform:translateY(22px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @keyframes e-slide{from{opacity:0;transform:translateX(-18px)}}
 @keyframes e-grow{from{transform:scaleY(0)}}
 @keyframes e-bar{from{transform:scaleX(0)}}
 body.enter .shell>header,body.enter .rail{animation:e-fade .8s ease both}
+/* On a computer the side menu slides in from the left edge as the greeting settles, and its items follow it in. */
+@media (min-width:960px){body.enter .rail{animation:e-rail .85s cubic-bezier(.16,1,.3,1) .05s both}
+ html.fresh .shell,body.enter .shell{background:var(--bg)}}
+@keyframes e-rail{from{transform:translateX(-100%);opacity:.6}to{transform:none;opacity:1}}
 @keyframes e-fade{from{opacity:0}}
 body.enter .rail .brand,body.enter .rail .navs>*,body.enter .rail .me{animation:e-slide .7s cubic-bezier(.16,1,.3,1) both}
 body.enter .rail .brand{animation-delay:.35s}
@@ -1316,6 +1327,39 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .ovp .g12>*{grid-column:1/-1}
 .ovp .hbig{grid-template-columns:1fr;margin-left:0;margin-right:0;border-radius:var(--r-lg)}
 .ovp>.cap:first-child{margin:0 0 10px}
+
+/* ---------- Motion system (page.html, "Motion") ----------
+   Feedback 150-200ms, panels 200-300ms, one easing. The side menu's selected item is drawn by one marker (.navi)
+   that slides to the page chosen; segmented controls get a thumb (.segi) that slides to the choice. */
+:root{--ease-out:cubic-bezier(.2,.8,.2,1)}
+.navs{position:relative}
+.navi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;border-radius:var(--r);background:var(--rail-on);box-shadow:0 4px 14px rgba(0,20,40,.22)}
+.navi.go{transition:transform .26s var(--ease-out),height .26s var(--ease-out),width .26s var(--ease-out),opacity .2s ease}
+.navs.has-i>.nav{position:relative;z-index:1;transition:color .18s ease,background-color .18s ease}
+.navs.has-i>.nav[aria-current="page"]{background:none;box-shadow:none}
+.nav .ic{transition:transform .18s var(--ease-out)}
+.nav:not([aria-current="page"]):hover .ic{transform:translateX(2px)}
+.seg{position:relative}
+.seg.has-i>button{position:relative;z-index:1;transition:color .18s ease}
+.seg.has-i>button[aria-pressed="true"]{background:none;box-shadow:none}
+.segi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;border-radius:var(--r-pill);background:var(--surface);box-shadow:0 1px 3px rgba(28,34,48,.12),0 0 0 1px rgba(0,59,107,.12)}
+.segi.go{transition:transform .22s var(--ease-out),width .22s var(--ease-out),height .22s var(--ease-out)}
+/* Class cards: lift on hover, a clear ring for the keyboard, a press that sinks. */
+.ccard{transition:box-shadow .18s ease,transform .18s var(--ease-out),border-color .18s ease}
+.ccard:hover{border-color:var(--line-2)}
+.ccard:active{transform:translateY(0) scale(.985);box-shadow:var(--shadow);transition-duration:.1s}
+.ccard:focus-within{box-shadow:none}
+.ccard:has(.lk:focus-visible){box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--navy)}
+.ccard .ctile{transition:transform .2s var(--ease-out)}
+.ccard:hover .ctile{transform:translateY(-2px) rotate(-3deg)}
+/* Record: buttons answer a press; the score chosen pops a little. */
+.btn{transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .12s ease,box-shadow .15s ease}
+.btn:not(:disabled):active{transform:scale(.97)}
+.rsc button{transition:transform .15s var(--ease-out),box-shadow .15s ease}
+.rsc button:hover{transform:translateY(-2px)}
+.rsc button[aria-pressed="true"]{transform:scale(1.06)}
+.rstep .rn{transition:background-color .2s ease,color .2s ease}
+@media (prefers-reduced-motion:reduce){.ccard:active,.ccard:hover .ctile,.rsc button:hover,.rsc button[aria-pressed="true"],.btn:not(:disabled):active{transform:none}}
 </style></head><body>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -2472,8 +2516,77 @@ function importCSV(){if(!CSV)return;var p=planCSV(),fcd=document.getElementById(
  toast(said.join(", "))}
 function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";document.getElementById("csvF").value=""}
 
-/* Just signed in: the greeting in the heading ("Assalāmu ʿalaykum ...!") fades in large in the middle of the page,
-   holds until the class records have loaded, then shrinks and moves into its place in one motion, and the rest of
+/* ---------- Motion ----------
+   One system for the whole dashboard. Every view is drawn with innerHTML, so this watches the page and, before the
+   browser paints a change, gives it continuity:
+   - bars (rankings, house points, passes per week, levels) grow from nothing the first time they are seen, and
+     afterwards glide from their last length to the new one, so This month / All time never flashes or jumps
+     (the numbers change at once; only the bars move);
+   - ranked students, classes and houses glide from their old place to the new one, keyed by name, and a row that
+     is new to a list fades in; class cards do the same when the search filters them, and rise in a short
+     stagger the first time the Classes page is drawn;
+   - on Record, a step or the student's panel that appears fades in, and a newly saved level test is highlighted;
+   - segmented controls get a thumb, and the side menu a marker, that slide to the choice.
+   It only moves things (Web Animations), never holds anything back, so every control works at once. Off under
+   reduced motion, and while the sign-in arrival plays (it has its own). */
+var MO=(function(){var still=false;try{still=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
+ var EZ="cubic-bezier(.2,.8,.2,1)",BAR=".tr>i,.wkb>i,.lvb>i,.db>i,.hbar>i",GRP=".rank,.wk,.lvc,.dist,.houses,.hbig",ROW=".rank>li,.houses>.house,.ccards>.ccard",
+  LEN={},POS={},SEEN={},SEG={},CARDS={},AP=null,busy=false;
+ function busyNow(){return document.documentElement.classList.contains("fresh")||document.body.classList.contains("enter")}
+ function shown(el){return !!(el.offsetWidth||el.offsetHeight)}
+ function home(el){var c=el.closest("[id]");return c?c.id:""}
+ function gkey(g){var h=home(g),all=h?$(h).querySelectorAll(GRP+",.ccards"):[];return h+"#"+Array.prototype.indexOf.call(all,g)}
+ function rkey(r){if(r.classList.contains("house")||r.classList.contains("hcol"))return r.classList[1];
+  var o=r.querySelector("[data-open]");if(r.classList.contains("ccard")&&o)return o.dataset.open;var n=r.querySelector(".n b,.hn,small,span");return (n||r).textContent}
+ function bars(){var now={};document.querySelectorAll(BAR).forEach(function(el){if(!shown(el))return;
+   var row=el.closest("li,.house,.hcol,.wkc,.lvi"),g=el.closest(GRP),k=(g?gkey(g):home(el))+"|"+(row?rkey(row):""),p=el.style.height?"height":"width",v=el.style[p];now[k]=1;
+   if(el.dataset.mv===v)return;el.dataset.mv=v;
+   var was=LEN[k];LEN[k]=v;
+   if(busy||was===v)return;
+   if(was===undefined){if(SEEN[k])return;SEEN[k]=1;var f={},t={};f[p]="0%";t[p]=v;el.animate([f,t],{duration:650,easing:EZ,delay:Math.min(240,(row&&row.parentNode?Array.prototype.indexOf.call(row.parentNode.children,row):0)*35)})}
+   else{var a={},b={};a[p]=was;b[p]=v;el.animate([a,b],{duration:320,easing:EZ})}});
+  Object.keys(LEN).forEach(function(k){if(!now[k])delete LEN[k]})}
+ function rows(){var now={},firstCards=[];document.querySelectorAll(GRP+",.ccards").forEach(function(g){if(!shown(g))return;var gk=gkey(g),gr=g.getBoundingClientRect(),had=POS[gk];now[gk]={};
+   Array.prototype.forEach.call(g.querySelectorAll(":scope>li,:scope>.house"),function(r){if(!r.matches(ROW))return;var k=rkey(r),b=r.getBoundingClientRect(),x=b.left-gr.left,y=b.top-gr.top;now[gk][k]=[x,y];
+    if(busy||!had)return;var o=had[k];
+    if(!o){if(r.dataset.mk!==k)r.animate([{opacity:0},{opacity:1}],{duration:240,easing:"ease"})}
+    else if(Math.abs(o[0]-x)>1||Math.abs(o[1]-y)>1){var dx=o[0]-x,dy=o[1]-y;
+     // A long way (a search that lifts a card from far down the page) reads better as a short rise than a long slide.
+     if(Math.abs(dy)>260)r.animate([{opacity:0,transform:"translateY(12px)"},{opacity:1,transform:"none"}],{duration:260,easing:EZ});
+     else r.animate([{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"none"}],{duration:300,easing:EZ})}
+    r.dataset.mk=k});
+   if(!had&&g.classList.contains("ccards")&&!CARDS[gk]){CARDS[gk]=1;if(!busy)firstCards.push(g)}});
+  POS=now;
+  firstCards.forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"none"}],{duration:280,easing:EZ,delay:Math.min(i,12)*30,fill:"backwards"})})})}
+ function appear(){var R=$("recF");if(!R||!shown(R)){AP=null;return}
+  var st=R.querySelectorAll(".rsteps>.rstep"),side=R.querySelector(".rside"),sk=side?(side.querySelector("h2")||side).textContent:"",
+   F=side?side.querySelectorAll(".feed>li"):[],top=F.length?F[0].textContent:"",was=AP;
+  AP={n:st.length,side:sk,top:top};Array.prototype.forEach.call(F,function(li,i){if(i)SEEN["t|"+sk+"|"+li.textContent]=1});
+  if(busy||!was)return;
+  for(var i=was.n;i<st.length;i++)st[i].animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:260,easing:EZ,delay:(i-was.n)*40,fill:"backwards"});
+  if(side&&sk!==was.side)side.animate([{opacity:0,transform:"translateX(10px)"},{opacity:1,transform:"none"}],{duration:260,easing:EZ});
+  else if(top&&top!==was.top&&!SEEN["t|"+sk+"|"+top])F[0].animate([{backgroundColor:"#edf3ee",boxShadow:"inset 3px 0 0 #4e7d5b"},{backgroundColor:"rgba(237,243,238,0)",boxShadow:"inset 3px 0 0 rgba(78,125,91,0)"}],{duration:1800,easing:"ease-out"});
+  if(top)SEEN["t|"+sk+"|"+top]=1}
+ function thumbs(){document.querySelectorAll(".seg").forEach(function(g){var on=g.querySelector('button[aria-pressed="true"]');if(!on||!shown(g))return;
+   var k=g.id||gkey(g),m=g.querySelector(":scope>.segi"),pos=[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join();
+   if(!m){m=document.createElement("span");m.className="segi";m.setAttribute("aria-hidden","true");g.insertBefore(m,g.firstChild);g.classList.add("has-i");
+    var o=SEG[k];if(o&&!still){place(m,o)}else{place(m,pos);SEG[k]=pos;m.dataset.p=pos}}
+   if(m.dataset.p===pos)return;m.getBoundingClientRect();if(!still)m.classList.add("go");place(m,pos);m.dataset.p=pos;SEG[k]=pos})}
+ function place(m,p){p=p.split(",");m.style.width=p[2]+"px";m.style.height=p[3]+"px";m.style.transform="translate("+p[0]+"px,"+p[1]+"px)"}
+ function rail(){var nav=$("nav"),on=nav&&nav.querySelector('.nav[aria-current="page"]:not([hidden])'),m=nav&&nav.querySelector(":scope>.navi");if(!nav)return;
+  if(!on||!on.offsetWidth){if(m)m.style.opacity="0";return}
+  if(!m){m=document.createElement("span");m.className="navi";m.setAttribute("aria-hidden","true");nav.insertBefore(m,nav.firstChild);nav.classList.add("has-i")}
+  var pos=[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join();m.style.opacity="1";if(m.dataset.p===pos)return;
+  if(m.dataset.p&&!still)m.classList.add("go");place(m,pos);m.dataset.p=pos}
+ function pass(){busy=still||busyNow();thumbs();rail();if(still)return;bars();rows();appear()}
+ var obs=new MutationObserver(function(){pass();obs.takeRecords()});
+ obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","aria-pressed","aria-current"]});
+ window.addEventListener("resize",function(){clearTimeout(MO.t);MO.t=setTimeout(function(){document.querySelectorAll(".segi,.navi").forEach(function(m){m.classList.remove("go");m.dataset.p=""});pass()},80)});
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(pass);
+ return {pass:pass}})();
+
+/* Just signed in: the greeting in the heading ("Assalāmu ʿalaykum ...!") is typed out letter by letter, large in
+   the middle of the page, once the class records have loaded, then shrinks and moves into its place in one motion, and the rest of
    the page arrives piece by piece (the "enter" styles in template.css). Once per sign-in; skipped under reduced
    motion (html.fresh, set by the server's TAB_GUARD, then hides nothing). */
 (function(){var H=document.documentElement;if(!(window.ME&&ME.fresh)||window.SIGNING_OUT)return;
@@ -2489,13 +2602,17 @@ function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";docume
   rs.forEach(function(r){if(r.width<1)return;w=Math.max(w,r.width);x=Math.min(x,r.left);tops[Math.round(r.top)]=1});
   var lines=Math.max(1,Object.keys(tops).length);if(!w){w=b.width;x=b.left}
   var m=$("main").getBoundingClientRect(),vw=Math.min(m.width,innerWidth),s=Math.max(1,Math.min(2.6,vw*.88/w)),cs=getComputedStyle(h),c=document.createElement("div");
-  c.className="greet-big";c.setAttribute("aria-hidden","true");c.textContent=h.textContent;
+  c.className="greet-big";c.setAttribute("aria-hidden","true");
+  // Typed out letter by letter: every letter is laid out from the start (hidden), so the lines never reflow.
+  var ch=Array.from(h.textContent),K=ch.map(function(x){var e=document.createElement("span");e.className="gk";e.textContent=x;c.appendChild(e);return e}),car=document.createElement("span");car.className="gcar";
   ["fontFamily","fontWeight","color","fontStyle"].forEach(function(k){c.style[k]=cs[k]});
   c.style.fontSize=parseFloat(cs.fontSize)*s+"px";c.style.lineHeight=b.height/lines*s+"px";c.style.width=(w+1)*s+"px";
   if(cs.letterSpacing!=="normal")c.style.letterSpacing=parseFloat(cs.letterSpacing)*s+"px";
   var L=m.left+m.width/2-w*s/2,T=innerHeight/2-20-b.height*s/2;c.style.left=L+"px";c.style.top=T+"px";
-  h.style.opacity="0";document.body.appendChild(c);c.getBoundingClientRect();c.style.opacity="1";
-  setTimeout(function(){move(c,s,x,b.top,L,T)},1100)}
+  h.style.opacity="0";document.body.appendChild(c);c.insertBefore(car,K[0]||null);c.getBoundingClientRect();c.style.opacity="1";
+  var step=Math.max(38,Math.min(70,1500/ch.length)),i=0;
+  (function type(){if(i<K.length){K[i].classList.add("on");if(!/\s/.test(ch[i]))c.insertBefore(car,K[i].nextSibling);i++;setTimeout(type,/[ ,]/.test(ch[i-1])?step*1.8:step);return}
+   setTimeout(function(){car.classList.add("off")},350);setTimeout(function(){move(c,s,x,b.top,L,T)},650)})()}
  function move(c,s,x,y,L,T){c.style.transition="transform .9s "+EASE;c.style.transform="translate("+(x-L)+"px,"+(y-T)+"px) scale("+(1/s)+")";
   setTimeout(function(){document.body.classList.add("enter");H.classList.remove("fresh")},500);
   setTimeout(function(){h.style.opacity="";c.remove()},920);
