@@ -1254,7 +1254,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .greet-big{position:fixed;z-index:60;margin:0;pointer-events:none;transform-origin:0 0;opacity:0;transition:opacity .6s ease}
 /* The greeting is typed: each letter fades in quickly, with a navy caret after the last one that blinks, then
    fades before the greeting moves into place. The caret has no width, so the lines never shift. */
-.greet-big .gk{opacity:0;transition:opacity .12s ease}.greet-big .gk.on{opacity:1}
+.greet-big .gk{opacity:0;transition:opacity .04s linear}.greet-big .gk.on{opacity:1}
 .gcar{position:relative}
 .gcar::after{content:"";position:absolute;left:.05em;top:.08em;bottom:.04em;width:.07em;border-radius:2px;background:currentColor;animation:g-blink 1s steps(1) infinite}
 .gcar.off::after{opacity:0;transition:opacity .25s ease;animation:none}
@@ -1336,7 +1336,7 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .navi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;border-radius:var(--r);background:var(--rail-on);box-shadow:0 4px 14px rgba(0,20,40,.22)}
 .navi.go{transition:transform .26s var(--ease-out),height .26s var(--ease-out),width .26s var(--ease-out),opacity .2s ease}
 .navs.has-i>.nav{position:relative;z-index:1;transition:color .18s ease,background-color .18s ease}
-.navs.has-i>.nav[aria-current="page"]{background:none;box-shadow:none}
+.navs.has-i>.nav[data-i]{background:none;box-shadow:none}
 .nav .ic{transition:transform .18s var(--ease-out)}
 .nav:not([aria-current="page"]):hover .ic{transform:translateX(2px)}
 .seg{position:relative}
@@ -2529,33 +2529,49 @@ function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";docume
    - segmented controls get a thumb, and the side menu a marker, that slide to the choice.
    It only moves things (Web Animations), never holds anything back, so every control works at once. Off under
    reduced motion, and while the sign-in arrival plays (it has its own). */
-var MO=(function(){var still=false;try{still=matchMedia("(prefers-reduced-motion: reduce)").matches}catch(e){}
+var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduce)")}catch(e){}
  var EZ="cubic-bezier(.2,.8,.2,1)",BAR=".tr>i,.wkb>i,.lvb>i,.db>i,.hbar>i",GRP=".rank,.wk,.lvc,.dist,.houses,.hbig",ROW=".rank>li,.houses>.house,.ccards>.ccard",
-  LEN={},POS={},SEEN={},SEG={},CARDS={},AP=null,busy=false;
+  LEN={},POS={},SEEN={},SEG={},CARDS={},AP=null,busy=false,still=false,GK=null,T=0;
  function busyNow(){return document.documentElement.classList.contains("fresh")||document.body.classList.contains("enter")}
  function shown(el){return !!(el.offsetWidth||el.offsetHeight)}
  function home(el){var c=el.closest("[id]");return c?c.id:""}
- function gkey(g){var h=home(g),all=h?$(h).querySelectorAll(GRP+",.ccards"):[];return h+"#"+Array.prototype.indexOf.call(all,g)}
+ function gkey(g){if(GK&&GK.has(g))return GK.get(g);var h=home(g),all=h?$(h).querySelectorAll(GRP+",.ccards"):[],k=h+"#"+Array.prototype.indexOf.call(all,g);if(GK)GK.set(g,k);return k}
+ // A row's identity: its house, the class a card opens, the student's or class's name (with the class it opens, so
+ // namesakes in different classes differ), or a chart column's label. Never the rank badge, which ties share.
  function rkey(r){if(r.classList.contains("house")||r.classList.contains("hcol"))return r.classList[1];
-  var o=r.querySelector("[data-open]");if(r.classList.contains("ccard")&&o)return o.dataset.open;var n=r.querySelector(".n b,.hn,small,span");return (n||r).textContent}
- function bars(){var now={};document.querySelectorAll(BAR).forEach(function(el){if(!shown(el))return;
-   var row=el.closest("li,.house,.hcol,.wkc,.lvi"),g=el.closest(GRP),k=(g?gkey(g):home(el))+"|"+(row?rkey(row):""),p=el.style.height?"height":"width",v=el.style[p];now[k]=1;
+  var o=r.querySelector("[data-open]");if(r.classList.contains("ccard")&&o)return o.dataset.open;
+  var n=r.querySelector(".n b")||r.querySelector(".hn")||r.querySelector(":scope>small")||r.querySelector(":scope>span");return (n||r).textContent+(o?"@"+o.dataset.open:"")}
+ // Keys repeat only for true namesakes in one list; numbering them keeps every row and bar its own entry.
+ function uniq(d,k){d[k]=(d[k]||0)+1;return d[k]>1?k+"#"+d[k]:k}
+ // Layout position, ignoring transforms, so a row measured mid-animation is recorded where it really sits.
+ function at(el){var x=0,y=0;for(var e=el;e;e=e.offsetParent){x+=e.offsetLeft;y+=e.offsetTop}return [x,y]}
+ // Each step reads all it needs first and writes after, so a redraw costs one layout, not one per bar or row.
+ function bars(){var now={},dup={},L=[];
+  document.querySelectorAll(BAR).forEach(function(el){if(shown(el))L.push(el)});
+  L.forEach(function(el){var row=el.closest("li,.house,.hcol,.wkc,.lvi"),g=el.closest(GRP),k=uniq(dup,(g?gkey(g):home(el))+"|"+(row?rkey(row):"")),
+    p=el.style.height?"height":"width",v=el.style[p],was=LEN[k];now[k]=1;LEN[k]=v;
    if(el.dataset.mv===v)return;el.dataset.mv=v;
-   var was=LEN[k];LEN[k]=v;
-   if(busy||was===v)return;
-   if(was===undefined){if(SEEN[k])return;SEEN[k]=1;var f={},t={};f[p]="0%";t[p]=v;el.animate([f,t],{duration:650,easing:EZ,delay:Math.min(240,(row&&row.parentNode?Array.prototype.indexOf.call(row.parentNode.children,row):0)*35)})}
-   else{var a={},b={};a[p]=was;b[p]=v;el.animate([a,b],{duration:320,easing:EZ})}});
+   if(was===v)return;
+   if(was===undefined){if(SEEN[k])return;SEEN[k]=1;if(busy)return;var f={},t={};f[p]="0%";t[p]=v;
+    el.animate([f,t],{duration:650,easing:EZ,fill:"backwards",delay:Math.min(240,(row&&row.parentNode?Array.prototype.indexOf.call(row.parentNode.children,row):0)*35)})}
+   else if(!busy){var a={},b={};a[p]=was;b[p]=v;el.animate([a,b],{duration:320,easing:EZ})}});
   Object.keys(LEN).forEach(function(k){if(!now[k])delete LEN[k]})}
- function rows(){var now={},firstCards=[];document.querySelectorAll(GRP+",.ccards").forEach(function(g){if(!shown(g))return;var gk=gkey(g),gr=g.getBoundingClientRect(),had=POS[gk];now[gk]={};
-   Array.prototype.forEach.call(g.querySelectorAll(":scope>li,:scope>.house"),function(r){if(!r.matches(ROW))return;var k=rkey(r),b=r.getBoundingClientRect(),x=b.left-gr.left,y=b.top-gr.top;now[gk][k]=[x,y];
-    if(busy||!had)return;var o=had[k];
-    if(!o){if(r.dataset.mk!==k)r.animate([{opacity:0},{opacity:1}],{duration:240,easing:"ease"})}
-    else if(Math.abs(o[0]-x)>1||Math.abs(o[1]-y)>1){var dx=o[0]-x,dy=o[1]-y;
-     // A long way (a search that lifts a card from far down the page) reads better as a short rise than a long slide.
-     if(Math.abs(dy)>260)r.animate([{opacity:0,transform:"translateY(12px)"},{opacity:1,transform:"none"}],{duration:260,easing:EZ});
-     else r.animate([{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"none"}],{duration:300,easing:EZ})}
+ // Positions are not kept while the sign-in arrival plays: it moves everything itself, and the first pass after it
+ // records where things settled without moving anything.
+ function rows(){if(busy){POS={};return}
+  var now={},firstCards=[],M=[];
+  document.querySelectorAll(GRP+",.ccards").forEach(function(g){if(!shown(g))return;var ga=at(g),dup={},R=[];
+   Array.prototype.forEach.call(g.children,function(r){if(!r.matches(ROW))return;var a=at(r);R.push([r,uniq(dup,rkey(r)),a[0]-ga[0],a[1]-ga[1]])});M.push([g,gkey(g),R])});
+  M.forEach(function(m){var g=m[0],gk=m[1],had=POS[gk];now[gk]={};
+   m[2].forEach(function(x){var r=x[0],k=x[1],X=x[2],Y=x[3];now[gk][k]=[X,Y];
+    if(had){var o=had[k];
+     if(!o){if(r.dataset.mk!==k)r.animate([{opacity:0},{opacity:1}],{duration:240,easing:"ease"})}
+     else if(Math.abs(o[0]-X)>1||Math.abs(o[1]-Y)>1){var dx=o[0]-X,dy=o[1]-Y;
+      // A long way (a search that lifts a card from far down the page) reads better as a short rise than a long slide.
+      if(Math.abs(dy)>260)r.animate([{opacity:0,transform:"translateY(12px)"},{opacity:1,transform:"none"}],{duration:260,easing:EZ});
+      else r.animate([{transform:"translate("+dx+"px,"+dy+"px)"},{transform:"none"}],{duration:300,easing:EZ})}}
     r.dataset.mk=k});
-   if(!had&&g.classList.contains("ccards")&&!CARDS[gk]){CARDS[gk]=1;if(!busy)firstCards.push(g)}});
+   if(!had&&g.classList.contains("ccards")&&!CARDS[gk]){CARDS[gk]=1;firstCards.push(g)}});
   POS=now;
   firstCards.forEach(function(g){Array.prototype.forEach.call(g.children,function(c,i){c.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"none"}],{duration:280,easing:EZ,delay:Math.min(i,12)*30,fill:"backwards"})})})}
  function appear(){var R=$("recF");if(!R||!shown(R)){AP=null;return}
@@ -2567,22 +2583,30 @@ var MO=(function(){var still=false;try{still=matchMedia("(prefers-reduced-motion
   if(side&&sk!==was.side)side.animate([{opacity:0,transform:"translateX(10px)"},{opacity:1,transform:"none"}],{duration:260,easing:EZ});
   else if(top&&top!==was.top&&!SEEN["t|"+sk+"|"+top])F[0].animate([{backgroundColor:"#edf3ee",boxShadow:"inset 3px 0 0 #4e7d5b"},{backgroundColor:"rgba(237,243,238,0)",boxShadow:"inset 3px 0 0 rgba(78,125,91,0)"}],{duration:1800,easing:"ease-out"});
   if(top)SEEN["t|"+sk+"|"+top]=1}
- function thumbs(){document.querySelectorAll(".seg").forEach(function(g){var on=g.querySelector('button[aria-pressed="true"]');if(!on||!shown(g))return;
-   var k=g.id||gkey(g),m=g.querySelector(":scope>.segi"),pos=[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join();
+ function thumbs(){var W=[];document.querySelectorAll(".seg").forEach(function(g){var on=g.querySelector('button[aria-pressed="true"]');if(!on||!shown(g))return;
+   W.push([g,g.id||gkey(g),[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join()])});
+  W.forEach(function(w){var g=w[0],k=w[1],pos=w[2],m=g.querySelector(":scope>.segi");
    if(!m){m=document.createElement("span");m.className="segi";m.setAttribute("aria-hidden","true");g.insertBefore(m,g.firstChild);g.classList.add("has-i");
-    var o=SEG[k];if(o&&!still){place(m,o)}else{place(m,pos);SEG[k]=pos;m.dataset.p=pos}}
-   if(m.dataset.p===pos)return;m.getBoundingClientRect();if(!still)m.classList.add("go");place(m,pos);m.dataset.p=pos;SEG[k]=pos})}
+    var o=SEG[k]&&!still?SEG[k]:pos;place(m,o);m.dataset.p=o;if(o!==pos)m.getBoundingClientRect()}
+   if(m.dataset.p===pos)return;if(!still)m.classList.add("go");else m.classList.remove("go");place(m,pos);m.dataset.p=pos;SEG[k]=pos})}
  function place(m,p){p=p.split(",");m.style.width=p[2]+"px";m.style.height=p[3]+"px";m.style.transform="translate("+p[0]+"px,"+p[1]+"px)"}
- function rail(){var nav=$("nav"),on=nav&&nav.querySelector('.nav[aria-current="page"]:not([hidden])'),m=nav&&nav.querySelector(":scope>.navi");if(!nav)return;
-  if(!on||!on.offsetWidth){if(m)m.style.opacity="0";return}
+ // The side menu's marker sits under the first current item that is visible (a class's Settings marks both the
+ // phone-only Class settings and Classes); only that item hands its pill to the marker.
+ function rail(){var nav=$("nav");if(!nav)return;var on=null,m=nav.querySelector(":scope>.navi");
+  nav.querySelectorAll('.nav[aria-current="page"]').forEach(function(e){if(!on&&!e.hidden&&e.offsetWidth)on=e});
+  nav.querySelectorAll(".nav[data-i]").forEach(function(e){if(e!==on)e.removeAttribute("data-i")});
+  if(!on){if(m)m.style.opacity="0";return}
   if(!m){m=document.createElement("span");m.className="navi";m.setAttribute("aria-hidden","true");nav.insertBefore(m,nav.firstChild);nav.classList.add("has-i")}
-  var pos=[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join();m.style.opacity="1";if(m.dataset.p===pos)return;
-  if(m.dataset.p&&!still)m.classList.add("go");place(m,pos);m.dataset.p=pos}
- function pass(){busy=still||busyNow();thumbs();rail();if(still)return;bars();rows();appear()}
+  var pos=[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join();if(!on.hasAttribute("data-i"))on.setAttribute("data-i","");m.style.opacity="1";if(m.dataset.p===pos)return;
+  if(m.dataset.p&&!still)m.classList.add("go");else m.classList.remove("go");place(m,pos);m.dataset.p=pos}
+ function pass(){still=!!(RM&&RM.matches);busy=still||busyNow();GK=typeof Map==="function"?new Map():null;thumbs();rail();if(!still){bars();rows();appear()}GK=null}
  var obs=new MutationObserver(function(){pass();obs.takeRecords()});
  obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","aria-pressed","aria-current"]});
- window.addEventListener("resize",function(){clearTimeout(MO.t);MO.t=setTimeout(function(){document.querySelectorAll(".segi,.navi").forEach(function(m){m.classList.remove("go");m.dataset.p=""});pass()},80)});
- if(document.fonts&&document.fonts.ready)document.fonts.ready.then(pass);
+ // A new window size moves everything: markers jump to their new places and nothing slides from the old layout.
+ window.addEventListener("resize",function(){clearTimeout(T);T=setTimeout(function(){document.querySelectorAll(".segi,.navi").forEach(function(m){m.classList.remove("go");m.dataset.p=""});POS={};pass();obs.takeRecords()},80)});
+ // The menu re-measures its marker when it changes size (the phone's More card, a pane that briefly widens the page).
+ if(window.ResizeObserver&&$("nav"))new ResizeObserver(function(){rail();obs.takeRecords()}).observe($("nav"));
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){pass();obs.takeRecords()});
  return {pass:pass}})();
 
 /* Just signed in: the greeting in the heading ("Assalāmu ʿalaykum ...!") is typed out letter by letter, large in
@@ -2604,7 +2628,7 @@ var MO=(function(){var still=false;try{still=matchMedia("(prefers-reduced-motion
   var m=$("main").getBoundingClientRect(),vw=Math.min(m.width,innerWidth),s=Math.max(1,Math.min(2.6,vw*.88/w)),cs=getComputedStyle(h),c=document.createElement("div");
   c.className="greet-big";c.setAttribute("aria-hidden","true");
   // Typed out letter by letter: every letter is laid out from the start (hidden), so the lines never reflow.
-  var ch=Array.from(h.textContent),K=ch.map(function(x){var e=document.createElement("span");e.className="gk";e.textContent=x;c.appendChild(e);return e}),car=document.createElement("span");car.className="gcar";
+  var ch=window.Intl&&Intl.Segmenter?Array.from(new Intl.Segmenter().segment(h.textContent),function(x){return x.segment}):Array.from(h.textContent),K=ch.map(function(x){var e=document.createElement("span");e.className="gk";e.textContent=x;c.appendChild(e);return e}),car=document.createElement("span");car.className="gcar";
   ["fontFamily","fontWeight","color","fontStyle"].forEach(function(k){c.style[k]=cs[k]});
   c.style.fontSize=parseFloat(cs.fontSize)*s+"px";c.style.lineHeight=b.height/lines*s+"px";c.style.width=(w+1)*s+"px";
   if(cs.letterSpacing!=="normal")c.style.letterSpacing=parseFloat(cs.letterSpacing)*s+"px";
