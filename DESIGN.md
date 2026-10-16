@@ -122,13 +122,10 @@ line. No message pops up after each score; the box shows it. Tapping
 a box raises the score picker from the bottom: the student's full name, the
 day, six large score buttons and Clear, over a dim backdrop that closes it.
 
-**Quran full sheet on phones** (below 960px): Full sheet opens as a full-screen
-view over the dock: the class name and a close button on top, Last 6 weeks or
-All under it (beside it in landscape), then the table filling the rest. Names
-stay pinned on the left and dates along the top while it scrolls both ways, and
-it opens scrolled to the latest days. Cells are compact: a coloured number
-without "/5", and "Avg" for the average. The close button or Escape returns to
-Day by day. Desktop keeps the table inside the page.
+**Phones keep to the daily work** (below 960px): no Full sheet on the Quran or
+Memo page (the Day by day and student views only; a sheet left open on a wider
+screen falls back when the window narrows), no Presenter button and no help
+note on the Quran page. Desktop keeps all three.
 
 **Classes** is its own page in the rail, under Journey2Jannah for admins
 (teachers have Journey2Jannah at the foot of the menu, just above their name), in place of the
