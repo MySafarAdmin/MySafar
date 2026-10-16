@@ -148,13 +148,11 @@ a:hover{color:var(--primary-hover)}
  @keyframes dkPop{0%{transform:scale(.7) rotate(-8deg)}60%{transform:scale(1.12) rotate(3deg)}100%{transform:none}}
  .dk:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
  /* Each item's own pastel, from the greeting chips and the Quran score colours */
- .dk.dk-progressk-home{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
- .dk.dk-progressk-classes{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
- .dk.dk-progressk-record{--dk-bg:#fbf0d6;--dk-ink:#664a0b}
- .dk.dk-progressk-quran{--dk-bg:#dff1e6;--dk-ink:#2f5a3b}
- .dk.dk-progressk-memo{--dk-bg:#fbf0d6;--dk-ink:#7a5608}
- .dk.dk-progress{--dk-bg:#ebe7fb;--dk-ink:#4c3d99}
- .dk.dk-rewards{--dk-bg:#fde8e1;--dk-ink:#9a3412}
+ .dk.dk-home{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
+ .dk.dk-classes{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
+ .dk.dk-record{--dk-bg:#fbf0d6;--dk-ink:#664a0b}
+ .dk.dk-quran{--dk-bg:#dff1e6;--dk-ink:#2f5a3b}
+ .dk.dk-memo{--dk-bg:#fbf0d6;--dk-ink:#7a5608}
  .dk.dk-more{--dk-bg:#e9eff6;--dk-ink:#003b6b}
  .navt:checked~.dock .dk.dk-more,.rail .dk.dk-more.on{color:var(--navy);font-weight:800}
  .navt:checked~.dock .dk.dk-more .dki{background:var(--navy);color:#fff}
