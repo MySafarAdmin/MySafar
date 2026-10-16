@@ -783,6 +783,46 @@ class DashboardTests:
         self.assertEqual(tv.focus(window, at(0, 10)), ["memo"])
         self.assertEqual(tv.focus({}, at(16, 30)), None)
 
+    def test_presenter_shows_one_class_to_its_teachers(self):
+        now = datetime(2026, 10, 22, 12, tzinfo=auth.LONDON)  # a Thursday in the fourth week
+        ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
+        q = lambda *scores: {f"2026-10-{d:02d}": v for d, v in zip(range(1, 30), scores)}  # noqa: E731
+        row = {"id": "yr3-a", "json": json.dumps({"name": "Yr3-A-QM-Br Ahmed", "S": [
+            self.tv_student("Amina Rahman", house="Makkah", q=q(5, 5, 4, 5) | {"2026-09-30": 0},
+                            log=[ms(2026, 10, 6, 9)] * 3, tg=[ms(2026, 10, 2, 9)], tb=[ms(2026, 9, 2, 9)], sw=["2026-10-05"]),
+            self.tv_student("Bilal Hussain", house="Madinah", q=q(4, 4, 4), log=[ms(2026, 10, 14, 9)],
+                            ml=[ms(2026, 10, 14, 9)] * 2, tr=[ms(2026, 10, 15, 9)], tb=[ms(2026, 10, 16, 9)]),
+            self.tv_student("Hana Ali", house="Makkah", q=q(5, 5), tg=[ms(2026, 10, 3, 9)] * 2)]})}
+        data = tv.class_summary(row, now)
+        self.assertEqual(data["class"], "Year 3 · Ustd Ahmed")
+        # Quran: the best average this month, from students with 3 or more scores (Hana has only 2).
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["quran"]], [(4.8, ["Amina R."]), (4.0, ["Bilal H."])])
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["memo"]], [(3, ["Amina R."]), (1, ["Bilal H."])])
+        # House points earned this month only (Amina's blue token is from September; a book is a red token).
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["points"]],
+                         [(70, ["Bilal H."]), (10, ["Hana A."]), (5, ["Amina R."])])
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["houses"]], [(70, ["Madinah"]), (15, ["Makkah"])])
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["merits"]], [(2, ["Bilal H."])])
+        self.assertEqual([b["name"] for b in data["books"]], ["Bilal H."])
+        self.assertEqual([(s["label"], s["name"]) for s in data["stars"]],
+                         [("Week of 5 Oct", "Amina R."), ("Week of 12 Oct", "Bilal H.")])
+        self.assertEqual(data["riders"], ["Amina R.", "Bilal H.", "Hana A."])
+        self.assertNotIn("Rahman", json.dumps(data))
+        # Teachers present their own classes; admins any class.
+        self.write(class_id="yr3-a")
+        self.write("Yr4-B", class_id="yr4-b")
+        self.add_user("t@example.com", classes=["yr3-a"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        page = teacher.get("/presenter/yr3-a")
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("script-src 'self' 'unsafe-inline'", page.headers["Content-Security-Policy"])
+        self.assertEqual(teacher.get("/api/presenter/yr3-a").get_json()["class"], "Year 3")
+        self.assertEqual(teacher.get("/presenter/yr4-b").status_code, 404)
+        self.assertEqual(teacher.get("/api/presenter/yr4-b").status_code, 404)
+        self.assertEqual(self.client.get("/api/presenter/yr4-b").get_json()["class"], "Year 4")
+        self.assertEqual(self.client.get("/presenter/nope").status_code, 404)
+        self.assertEqual(self.app.test_client().get("/api/presenter/yr3-a").status_code, 401)
+
     def test_tv_screen_links(self):
         student = self.tv_student("Aisha Khan", house="Makkah", tg=[1])
         self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)

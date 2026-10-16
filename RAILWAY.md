@@ -76,6 +76,16 @@ past midnight). Outside those times the TV plays every slide.
 Students are shown by first name and surname initial (`Aisha K.`) with their
 classroom. Signed-in staff can preview it at `/tv`.
 
+### Presenter
+
+**Presenter**, at the top of a class, shows that class's month on the big screen in the
+same scenes, with the class's students riding through instead of teachers. Teachers
+can present their own classes and admins any class. Its slides are podiums for the best Quran average
+(students with 3 or more scores this month), memorisation passes, Qaidah levels,
+house points earned, the class's house race and merits, then book passes and stars
+of the week taking turns. **Full screen** and **Close** show when the mouse moves;
+Close (or Escape) goes back to the class.
+
 ## Variables for the MySafar service
 
 | Variable | Value |

@@ -141,6 +141,10 @@ footer i.run{width:100%;transition:width linear}
 @keyframes shoot{0%,82%{opacity:0;transform:translate(0,0) rotate(18deg)}86%{opacity:1}100%{opacity:0;transform:translate(40vw,13vh) rotate(18deg)}}
 .glowwin{animation:tw 4s ease-in-out infinite}
 .confetti{position:absolute;width:1.2vh;height:1.8vh;border-radius:.3vh;pointer-events:none}
+#ctl{position:fixed;z-index:8;right:2vw;bottom:3vh;display:flex;gap:.8vw;opacity:0;transition:opacity .4s}
+#ctl.on,#ctl:focus-within{opacity:1}
+#ctl button{font:inherit;font-size:2.2vh;font-weight:800;color:#fff;background:var(--navy);border:0;border-radius:99px;padding:1.1vh 1.6vw;cursor:pointer;box-shadow:0 .5vh 0 rgba(0,20,40,.3)}
+#ctl button:focus-visible{outline:.4vh solid #ffd23f;outline-offset:.3vh}
 #off{position:fixed;z-index:9;inset:0;display:none;align-items:center;justify-content:center;text-align:center;background:var(--navy);font-size:4vh;font-weight:800;padding:5vw}
 @media (prefers-reduced-motion:reduce){
  .slide,.slide.out{transition:opacity .6s}.slide{transform:none}
@@ -150,17 +154,20 @@ footer i.run{width:100%;transition:width linear}
 </head>
 <body>
 <div id="stage"></div>
-<header><div class="brand"><span class="badge"><img src="/logo.png" alt="" width="80" height="80"></span><h1>Safar Academy<small>Enfield</small></h1></div><span class="mode" id="mode"></span><span class="spacer"></span><div class="dots" id="dots"></div><div class="clock" id="clock"></div></header>
+<header><div class="brand"><span class="badge"><img src="/logo.png" alt="" width="80" height="80"></span><h1 id="brand">Safar Academy<small>Enfield</small></h1></div><span class="mode" id="mode"></span><span class="spacer"></span><div class="dots" id="dots"></div><div class="clock" id="clock"></div></header>
 <footer><i id="prog"></i></footer>
 <div id="off"></div>
+<nav id="ctl" hidden><button type="button" id="fs">Full screen</button><button type="button" id="close">Close</button></nav>
 <script>
 (function(){
 var SLIDE_MS=30000,DATA_MS=60000;
-var path=location.pathname.replace(/\/+$/,""),URL=path==="/tv"?"/api/tv":path+"/data";
+/* /presenter/<class> is a teacher's Presenter: the same scenes, for one class, with its students riding through. */
+var path=location.pathname.replace(/\/+$/,""),PRESENT=path.indexOf("/presenter/")===0,
+ URL=path==="/tv"?"/api/tv":PRESENT?"/api"+path:path+"/data";
 /* Test hooks for previews: ?slide=<id> keeps one slide on, ?focus=qaidah or memo plays only those. */
 var Q=new URLSearchParams(location.search),PIN=Q.get("slide"),FOCUS=Q.get("focus");
 var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
-var data=null,cur=null,curId=null,ST=null,PT=null,RT=null,teach=0;
+var data=null,cur=null,curId=null,ST=null,PT=null,RT=null,teach=Math.floor(Math.random()*1e3);
 function esc(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return "&#"+c.charCodeAt(0)+";"})}
 function $(id){return document.getElementById(id)}
 function rnd(a,b){return a+Math.random()*(b-a)}
@@ -324,7 +331,7 @@ var MOVE={
   // Warm air lifts it towards a steady climb; the breeze sways it.
   r.vy+=(-7-r.vy)*.6*dt;r.vx+=(wave(r,.3)*2.5-r.vx)*.8*dt;r.a=r.vx*.05}
 };
-function names(){return data&&data.teachers&&data.teachers.length?data.teachers:[""]}
+function names(){var L=data&&(data.riders||data.teachers);return L&&L.length?L:[""]}
 function ride(box,kind){if(RM||!box.isConnected)return;var W0=sw(),y=rnd(18,24),el=document.createElement("div"),L=names(),
   sub=kind==="insect"?pick(["bee","ladybird","dragonfly","beetle"]):"",
   r={el:el,box:box,kind:kind,sub:sub,t:0,p1:rnd(0,6.3),p2:rnd(0,6.3),ph:0,kick:0,push:0,dir:Math.random()<.5?1:-1,y0:y,vy:0,a:0,spin:0};
@@ -363,10 +370,10 @@ function cards(who,max){var h=who.slice(0,max).map(function(w){
   var c=w.name?[w.name,w.class]:String(w.class).split(" · ");return '<div class="pc '+(w.name?"":"cls ")+esc(w.house||"")+'"><span class="pn">'+esc(c[0])+'</span>'+(c[1]?'<span class="pcl">'+esc(c[1])+'</span>':'')+'</div>'}).join("");
  return h+(who.length>max?'<div class="more">and '+(who.length-max)+' more</div>':'')}
 var CROWN='<div class="crown"><svg viewBox="0 0 100 70"><path d="M8 62 L4 16 L30 38 L50 6 L70 38 L96 16 L92 62Z" fill="#ffd23f" stroke="#c68a00" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="44" r="7" fill="#ff5d73"/></svg></div>';
-function podium(steps,unit,empty){if(!steps.length)return '<div class="empty">'+empty+'<small>Who will be first?</small></div>';
+function podium(steps,unit,empty,fmt){if(!steps.length)return '<div class="empty">'+empty+'<small>Who will be first?</small></div>';
  var by={};steps.forEach(function(s){by[s.place]=s});
  return '<div class="podium">'+[2,1,3].map(function(p){var s=by[p];return '<div class="col p'+p+'"><div class="who">'+(s?(p===1?CROWN+'<i class="spark" style="left:-2vh;top:10%"></i><i class="spark" style="right:-2vh;top:40%;animation-delay:-1s"></i>':'')+cards(s.who,2):'')+'</div>'
-  +'<div class="step'+(s?'':' none')+'"><b>'+p+'</b>'+(s?'<span>'+plural(s.n,unit)+'</span>':'')+'</div></div>'}).join("")+'</div>'}
+  +'<div class="step'+(s?'':' none')+'"><b>'+p+'</b>'+(s?'<span>'+(fmt?fmt(s.n):plural(s.n,unit))+'</span>':'')+'</div></div>'}).join("")+'</div>'}
 function housePodium(){var H=data.houses,steps=[];H.forEach(function(h){var last=steps[steps.length-1];if(last&&last.n===h.points)last.who.push({name:h.house,house:h.house});else if(h.points||!steps.length)steps.push({place:steps.length+1,n:h.points,who:[{name:h.house,house:h.house}]})});
  steps.forEach(function(s){s.who.forEach(function(w){w.class=""})});return steps.filter(function(s){return s.n})}
 /* id, world, which window it belongs to, title, subtitle, and what it shows. */
@@ -380,12 +387,23 @@ var SLIDES=[
  {id:"qaidah-secondary",world:"space",kind:"qaidah",title:"Top class for Qaidah",sub:function(){return "Secondary, Year 7 onwards, in "+month()},steps:function(){return data.classes.qaidah.secondary},unit:"level pass",empty:"No secondary Qaidah levels passed yet."},
  {id:"memo-secondary",world:"peaks",kind:"memo",title:"Top class for memorisation",sub:function(){return "Secondary, Year 7 onwards, in "+month()},steps:function(){return data.classes.memo.secondary},unit:"pass",empty:"No secondary memorisation passes yet."},
  {id:"stars",world:"night",kind:"all",title:"Stars of the week",sub:function(){return month()+", up to the end of last week"},list:function(){return data.stars},empty:"No stars of the week yet this month.",week:1}];
+/* A class's Presenter: this month's tops in the class. */
+var PSLIDES=[
+ {id:"quran",world:"sea",kind:"all",title:"Quran",sub:function(){return "Best average score in "+month()},steps:function(){return data.quran},fmt:function(n){return n.toFixed(1)+" average"},empty:"Not enough Quran scores yet this month."},
+ {id:"memo",world:"beach",kind:"all",title:"Memorisation passes",sub:function(){return "Most passes in "+month()},steps:function(){return data.memo},unit:"pass",empty:"No memorisation passes yet this month."},
+ {id:"qaidah",world:"forest",kind:"all",title:"Qaidah level passes",sub:function(){return "Most levels passed in "+month()},steps:function(){return data.qaidah},unit:"level",empty:"No Qaidah levels passed yet this month."},
+ {id:"points",world:["balloons","kites"],kind:"all",title:"House points",sub:function(){return "Most points earned in "+month()},steps:function(){return data.points},unit:"point",empty:"No house points earned yet this month."},
+ {id:"houses",world:"peaks",kind:"all",title:"House race",sub:function(){return "Points this class earned for each house in "+month()},steps:function(){return data.houses},unit:"point",empty:"No house points earned yet this month."},
+ {id:"merits",world:"garden",kind:"all",title:"Merits",sub:function(){return "Most merits in "+month()},steps:function(){return data.merits},unit:"merit",empty:"No merits yet this month."},
+ {id:"books",world:"jungle",kind:"all",title:"Book passes",sub:function(){return "Finished a book in "+month()+". Well done!"},list:function(){return data.books},empty:"No books finished yet this month."},
+ {id:"stars",world:"night",kind:"all",title:"Stars of the week",sub:function(){return month()+", up to the end of last week"},list:function(){return data.stars},empty:"No stars of the week yet this month.",week:1}];
+if(PRESENT)SLIDES=PSLIDES;
 function focusNow(){if(FOCUS==="qaidah"||FOCUS==="memo")return [FOCUS];return data&&data.focus}
 function playing(){if(PIN){var p=SLIDES.filter(function(s){return s.id===PIN});if(p.length)return p}
  var f=focusNow(),L=SLIDES.filter(function(s){return !f||f.indexOf(s.kind)>=0});
  var full=L.filter(function(s){return (s.steps?s.steps():s.list()).length});return full.length?full:L}
 function build(s){s.w=typeof s.world==="string"?s.world:s.world[(s.turn=(s.turn||0)+1)%s.world.length];var w=W[s.w],el=document.createElement("section");el.className="slide";el.style.background=w.sky;
- var body;if(s.steps)body=podium(s.steps(),s.unit,s.empty);else body='<div class="cycle"></div>';
+ var body;if(s.steps)body=podium(s.steps(),s.unit,s.empty,s.fmt);else body='<div class="cycle"></div>';
  el.innerHTML='<div class="scene">'+w.html()+'</div><div class="carriers"></div><div class="content"><div class="title"><h2>'+esc(s.title)+'<span class="pg"></span></h2><p>'+esc(s.sub())+'</p></div>'+body+'</div>';
  return el}
 /* A list takes turns a page at a time so everyone is seen within the slide's 30 seconds:
@@ -395,7 +413,7 @@ function cycle(el,s){var L=s.list(),box=el.querySelector(".cycle");if(!L.length)
  var cols=per===4?2:per<=3?per:per<=9?3:per<=16?4:5,size=per===1?12:per<=2?8.4:per<=4?7:per<=6?5.8:per<=9?5:per<=16?4:3.2;
  function draw(){var P=L.slice(i*per,i*per+per),g=document.createElement("div");g.className="names"+(per===1?" solo":"");
   g.style.gridTemplateColumns=per===1?"minmax(0,64vw)":"repeat("+Math.min(cols,P.length)+",minmax(0,"+(per<=2?40:per===4?38:per<=9?28:20)+"vw))";g.style.fontSize=size+"vh";
-  g.innerHTML=P.map(function(w,k){return '<div class="nc '+esc(w.house||"")+'" style="animation-delay:'+(.15+k*.08)+'s"><span class="pn">'+esc(w.name)+'</span><span class="pcl">'+esc(w.class)+'</span>'+(s.week?'<span class="wk">'+esc(w.label)+'</span>':'')+'</div>'}).join("");
+  g.innerHTML=P.map(function(w,k){return '<div class="nc '+esc(w.house||"")+'" style="animation-delay:'+(.15+k*.08)+'s"><span class="pn">'+esc(w.name)+'</span>'+(w.class?'<span class="pcl">'+esc(w.class)+'</span>':'')+''+(s.week?'<span class="wk">'+esc(w.label)+'</span>':'')+'</div>'}).join("");
   var old=box.querySelector(".names:not(.leave)");if(old){old.classList.add("leave");setTimeout(function(){old.remove()},650)}
   box.appendChild(g);var f=size;while(f>2.4&&g.scrollHeight>box.clientHeight+2){f-=.2;g.style.fontSize=f+"vh"}
   pg.textContent=pages>1?(i+1)+" of "+pages:""}
@@ -416,9 +434,18 @@ function show(){if(!data)return;clearTimeout(ST);clearInterval(PT);clearInterval
  var p=$("prog");p.className="";p.style.transitionDuration="0ms";void p.offsetWidth;p.style.transitionDuration=SLIDE_MS+"ms";p.className="run";
  ST=setTimeout(show,SLIDE_MS)}
 function load(){fetch(URL,{credentials:"same-origin",cache:"no-store"}).then(function(r){
-  if(r.status===404||r.status===401){$("off").style.display="flex";$("off").textContent=r.status===404?"This screen's link has been turned off. Ask an administrator for a new one.":"Sign in to see the dashboard.";return null}
-  return r.ok?r.json():null}).then(function(d){if(d){var first=!data;data=d;$("off").style.display="none";if(first)show()}}).catch(function(){/* keep showing the last data */})}
+  if(r.status===404||r.status===401){$("off").style.display="flex";$("off").textContent=r.status===401?"Sign in to see the dashboard.":PRESENT?"This class isn't one of yours, or it has been deleted.":"This screen's link has been turned off. Ask an administrator for a new one.";return null}
+  return r.ok?r.json():null}).then(function(d){if(d){var first=!data;data=d;$("off").style.display="none";
+   if(PRESENT){$("brand").innerHTML=esc(d.class)+"<small>Safar Academy</small>";document.title=d.class+" · Presenter"}if(first)show()}}).catch(function(){/* keep showing the last data */})}
 clock();setInterval(clock,1000);load();setInterval(load,DATA_MS);
+/* The Presenter runs on a teacher's screen: Full screen and Close show while the mouse moves; Escape also closes. */
+if(PRESENT){var C=$("ctl"),CT=0;C.hidden=false;
+ function wake(){C.classList.add("on");clearTimeout(CT);CT=setTimeout(function(){C.classList.remove("on")},2500)}
+ function close(){location.href="/"+(data&&data.id?"#"+data.id:"")} // back to the class on the dashboard
+ document.addEventListener("mousemove",wake);document.addEventListener("touchstart",wake,{passive:true});wake();
+ $("fs").onclick=function(){if(document.fullscreenElement)document.exitFullscreen();else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen()};
+ document.addEventListener("fullscreenchange",function(){$("fs").textContent=document.fullscreenElement?"Exit full screen":"Full screen"});
+ $("close").onclick=close;document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.fullscreenElement)close()})}
 /* Pick up new versions of this page, unless the network is down. */
 setInterval(function(){fetch(location.href,{cache:"no-store"}).then(function(r){if(r.ok)location.reload()}).catch(function(){})},6*3600*1000);
 })();

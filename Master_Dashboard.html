@@ -337,7 +337,7 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head{color:var(--ink);padding:2px 0 0}
 .head-top{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;min-height:40px}
 .head h1{margin-right:auto}
-.head .save{order:2}.head .swc{order:1}.head .figpop{order:3}
+.head .save{order:2}.head .swc{order:1}.head .pres{text-decoration:none;color:inherit}.head .figpop{order:3}
 .head .save[data-s="ok"]{display:none}
 .head h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;line-height:1.15;color:var(--navy);overflow-wrap:anywhere;min-width:0}
 .figpop{position:relative}
@@ -1414,7 +1414,7 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 <div class="work">
 <main><div class="content" id="main" tabindex="-1">
 <div class="head" id="band">
- <div class="head-top"><h1 id="ttl">School overview</h1><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button><span class="save" id="st" role="status" aria-live="polite"></span><details class="figpop" id="figP"><summary class="ibtn" aria-label="Figures" title="Figures"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg></summary><div class="figs" id="figs"></div></details></div>
+ <div class="head-top"><h1 id="ttl">School overview</h1><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button><a class="btn ghost sm swc pres" id="pres" href="#" hidden title="Show this class's tops for the month on the big screen">Presenter</a><span class="save" id="st" role="status" aria-live="polite"></span><details class="figpop" id="figP"><summary class="ibtn" aria-label="Figures" title="Figures"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg></summary><div class="figs" id="figs"></div></details></div>
  <div class="hello" id="hello" hidden></div>
  <div class="tabs hide" id="sub" role="tablist" aria-label="Class pages">
   <button id="tQ" role="tab" aria-controls="vQ" aria-selected="true">Quran</button><button id="tT" role="tab" aria-controls="vT" aria-selected="false" tabindex="-1">Memo</button><button id="tD" role="tab" aria-controls="vD" aria-selected="false" tabindex="-1">Progress</button><button id="tH" role="tab" aria-controls="vH" aria-selected="false" tabindex="-1">Rewards</button><button id="tS" role="tab" aria-controls="vS" aria-selected="false" tabindex="-1">Settings</button>
@@ -2251,6 +2251,8 @@ function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("ba
  el.innerHTML='<span class="hsub">'+(TEACHER?"Class overview":"School overview")+'</span>'+(c?'<button type="button" class="track" data-open="'+esc(c)+'" data-tab="Q">Open tracker</button>':'')}
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?n.name:PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
+ // The Presenter (the TV's scenes for one class) is served by the Railway server, in this tab.
+ $("pres").hidden=!n||!window.RAILWAY;if(n)$("pres").href="/presenter/"+encodeURIComponent(CID);
  document.title=(n?n.name+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+"MySafar"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if(c==="R"&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L";PAGE=R?"R":M?"M":L?"L":"C";closeDrawer();
