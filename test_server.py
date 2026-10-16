@@ -779,8 +779,10 @@ class DashboardTests:
                          [("Week of 12 Oct", "Yr2A Ustadh Faeez", "Amina R."), ("Week of 12 Oct", "Yr9/10B Ustadh Fawaaz", "Hana A.")])
         self.assertEqual(data["teachers"], ["Ustadh Ahmed", "Ustadh Faeez", "Ustadh Fawaaz", "Ustadha Maryam"])
         self.assertEqual([tv.class_label(n) for n in ("Year 3A Quran - Ustadh Faeez", "Yr4-B-QM-Sr Zainab", "Yr5-C Idris",
-                                                      "Reception-QM", "Hifz group")],
-                         ["Yr3A Ustadh Faeez", "Yr4B Ustadha Zainab", "Yr5C Ustadh Idris", "Reception", "Hifz group"])
+                                                      "Reception-QM", "Hifz group", "Yr8-A-QM-Ustadha Kawthar/Sr",
+                                                      "Yr8-B-QM-Kawthar/Sr")],
+                         ["Yr3A Ustadh Faeez", "Yr4B Ustadha Zainab", "Yr5C Ustadh Idris", "Reception", "Hifz group",
+                          "Yr8A Ustadha Kawthar", "Yr8B Ustadha Kawthar"])
         window = {"qaidah": ["16:00", "17:00"], "memo": ["23:30", "00:30"]}
         at = lambda h, m: datetime(2026, 10, 22, h, m, tzinfo=auth.LONDON)  # noqa: E731
         self.assertEqual(tv.focus(window, at(16, 30)), ["qaidah"])

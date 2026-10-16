@@ -53,11 +53,15 @@ def teacher_parts(text):
             name = TITLE.sub("", "-".join(parts[i:])).split()
             if not name:
                 return None
-            return ("Ustadha" if FEMALE.match(title.group(0).strip()) else "Ustadh"), name[0][:1].upper() + name[0][1:]
-    # No title: a last part that is a name, not the year, the class letter or a subject code (QM, AI).
-    last = re.sub(r"^[A-Z]\s+", "", parts[-1]) if len(parts) > 1 else ""
+            # A title can also trail the name after a slash: "Ustadha Kawthar/Sr".
+            first, _, after = name[0].partition("/")
+            female = FEMALE.match(title.group(0).strip()) or FEMALE.match(after.strip())
+            return ("Ustadha" if female else "Ustadh"), first[:1].upper() + first[1:]
+    # No title: a last part that is a name, not the year, the class letter or a subject code (QM, AI),
+    # perhaps with its title after a slash ("Kawthar/Sr").
+    last, _, after = (re.sub(r"^[A-Z]\s+", "", parts[-1]) if len(parts) > 1 else "").partition("/")
     if len(last) >= 3 and not GROUP.search(last) and not last.isupper() and last.isalpha():
-        return "Ustadh", last[:1].upper() + last[1:]
+        return ("Ustadha" if FEMALE.match(after.strip()) else "Ustadh"), last[:1].upper() + last[1:]
     return None
 
 
