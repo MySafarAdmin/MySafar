@@ -2286,7 +2286,7 @@ function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?n.name:PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  document.title=(n?n.name+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+"MySafar"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
-function go(c,keepTab){if(c==="R"&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U";PAGE=R?"R":M?"M":L?"L":U?"U":"C";closeDrawer();
+function go(c,keepTab){if((c==="R"||c==="U")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U";PAGE=R?"R":M?"M":L?"L":U?"U":"C";closeDrawer();
  $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("vL").classList.toggle("hide",!L);$("vU").classList.toggle("hide",!U);$("sub").classList.toggle("hide",M||R||L||U);
  if(U){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();stuPage()}
  else if(L){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();dirTab()}
@@ -2409,7 +2409,7 @@ function dirCard(c,i){var L=ST[c].S,w=L.filter(function(s){return s.warn}).lengt
 function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[c].name).indexOf(q)>=0});
  $("dirC").textContent=(q?plural(C.length,"class","classes")+" match":plural(CIDS.length,"class","classes"))+" · passes and merits this month";
  $("dirT").innerHTML=C.length?'<ul class="ccards">'+C.map(dirCard).join("")+'</ul>':'<p class="none">No class matches that search.</p>'}
-/* Students: everyone on the dashboard in one list (a teacher sees the students of their own classes), with a
+/* Students (administrators only; teachers don't see it): every student on the dashboard in one list, with a
    search, a class filter, Add student into any class the viewer has, and Remove, which asks first. Every change
    is saved with the student's class straight away, as on the Quran tab. */
 var SQ="",SC="",SNEW=null,SPG=25,
@@ -2487,7 +2487,7 @@ var f=$("fcd");
 f.onchange=function(){if(!f.value||!CID)return;FCD=f.value;ST[CID].fcd=FCD;save();head();render();toast("First class day set")};
 $("bulkA").onclick=function(){if(!CID)return;var n=$("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);$("bulk").focus();return}
  n.forEach(function(x){S.push(blank(x))});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added")};
-$("nM").onclick=function(){go("M")};$("nL").onclick=function(){go("L")};$("nU").onclick=function(){go("U")};$("nR").onclick=function(){go("R")};if(TEACHER)$("nR").hidden=true;$("home").onclick=function(e){e.preventDefault();go("M")};
+$("nM").onclick=function(){go("M")};$("nL").onclick=function(){go("L")};$("nU").onclick=function(){go("U")};$("nR").onclick=function(){go("R")};if(TEACHER){$("nR").hidden=true;$("nU").hidden=true}$("home").onclick=function(e){e.preventDefault();go("M")};
 $("swc").onclick=switcher;
 $("dH").onclick=function(){go("M")};$("dL").onclick=function(){go("L")};$("dR").onclick=function(){go("R")};
 Object.keys(DKC).forEach(function(id){$(id).onclick=function(){var k=DKC[id];if(PAGE==="C"){tab(k);window.scrollTo(0,0);return}var c=lastC();if(c)go(c,k);else go("L")}});
