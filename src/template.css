@@ -15,7 +15,7 @@ body{padding-bottom:env(safe-area-inset-bottom,0px)}
 .head{color:var(--ink);padding:2px 0 0}
 .head-top{display:flex;flex-wrap:wrap;align-items:center;gap:2px 16px;min-height:40px}
 .head h1{margin-right:auto}
-.head .save{order:2}.head .swc{order:1}.head .figpop{order:3}
+.head .save{order:2}.head .swc{order:1}.head .pres{text-decoration:none;color:inherit}.head .figpop{order:3}
 .head .save[data-s="ok"]{display:none}
 .head h1{font-size:1.75rem;font-weight:800;letter-spacing:-.015em;line-height:1.15;color:var(--navy);overflow-wrap:anywhere;min-width:0}
 .figpop{position:relative}

@@ -733,15 +733,17 @@ class DashboardTests:
         data = tv.summary(rows, now)
         self.assertEqual(data["houses"], [{"house": "Makkah", "points": 55}, {"house": "Madinah", "points": 20},
                                           {"house": "Al-Aqsa", "points": 0}])
-        self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Year 3 · Ustd Ahmed")])
-        # Stars run to the end of last week, so only the week October starts in counts here.
-        self.assertEqual([(s["class"], s["name"], s["label"]) for s in data["stars"]],
-                         [("Year 3 · Ustd Ahmed", "Yusuf A.", "Week of 28 Sep")])
+        self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Year 3 · Ustadh Ahmed")])
+        # The TV's stars are last week's (5 October), when nobody passed or earned a merit.
+        self.assertEqual(data["stars"], [])
         self.assertEqual([(step["place"], step["n"], [w["name"] for w in step["who"]]) for step in data["memo"]],
                          [(1, 3, ["Aisha K.", "Yusuf A."]), (2, 2, ["Omar F."]), (3, 1, ["Zara"])])
+        # Memo passes list every rank, not only the top three.
+        self.assertEqual([step["place"] for step in tv.podium([{"name": str(n), "n": n} for n in range(5, 0, -1)], places=None)],
+                         [1, 2, 3, 4, 5])
         self.assertEqual(data["qaidah"], [])
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["memo"]["primary"]],
-                         [(6, ["Year 3 · Ustd Ahmed"])])
+                         [(6, ["Year 3 · Ustadh Ahmed"])])
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["memo"]["secondary"]],
                          [(3, ["Year 8"])])
         self.assertEqual(data["month"], "October")
@@ -754,11 +756,12 @@ class DashboardTests:
         rows = [{"id": "a", "json": json.dumps({"name": "Yr2-A-QM-Ustadh Faeez", "S": [
                     self.tv_student("Amina Rahman", house="Makkah", tests=[test("2026-10-01"), test("2026-10-08"),
                                                                            test("2026-09-30"), test("2026-10-09", ok=False)],
-                                    log=[ms(2026, 9, 30, 9)] * 2, sw=["2026-10-05"]),
+                                    log=[ms(2026, 9, 30, 9)] * 2, sw=["2026-10-12"]),
                     self.tv_student("Bilal Hussain", house="Al-Aqsa", tests=[test("2026-10-02")],
                                     log=[ms(2026, 10, 7, 9)] * 4, ml=[ms(2026, 10, 14, 9)], ist="Yr2-A-AI-Sr Maryam")]})},
                 {"id": "b", "json": json.dumps({"name": "Yr9/10-B-QM-Br Fawaaz", "S": [
-                    self.tv_student("Hana Ali", tests=[test("2026-10-03")], log=[ms(2026, 10, 21, 9)])]})},
+                    self.tv_student("Hana Ali", tests=[test("2026-10-03")], log=[ms(2026, 10, 21, 9)],
+                                    ml=[ms(2026, 10, 13, 9)])]})},
                 {"id": "c", "json": json.dumps({"name": "Juniors", "S": [
                     self.tv_student("Musa Khan", year="Year 1", tests=[test("2026-10-03")])]})}]
         # Teachers come from the classrooms (Quran and Islamic Studies) and from accounts, once each.
@@ -767,24 +770,63 @@ class DashboardTests:
                          [(1, 2, ["Amina R."]), (2, 1, ["Bilal H.", "Hana A.", "Musa K."])])
         # Juniors is primary from its students' year groups; Yr9/10 is secondary from its name.
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["qaidah"]["primary"]],
-                         [(3, ["Year 2 · Ustd Faeez"]), (1, ["Juniors"])])
+                         [(3, ["Year 2 · Ustadh Faeez"]), (1, ["Juniors"])])
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["qaidah"]["secondary"]],
-                         [(1, ["Year 9/10 · Ustd Fawaaz"])])
-        # Stars: weeks from the one October starts in (28 September) to last week (12 October). The teacher's pick
-        # wins its week; other weeks go to the most passes and merits; this week (19 October) isn't over yet.
+                         [(1, ["Year 9/10 · Ustadh Fawaaz"])])
+        # Stars: one per class for last week (12 October), all on one page. The teacher's pick (Amina) wins over
+        # Bilal's merit; elsewhere the most passes and merits win; classes with nothing that week have none.
         self.assertEqual([(s["label"], s["class"], s["name"]) for s in data["stars"]],
-                         [("Week of 28 Sep", "Year 2 · Ustd Faeez", "Amina R."), ("Week of 5 Oct", "Year 2 · Ustd Faeez", "Amina R."),
-                          ("Week of 12 Oct", "Year 2 · Ustd Faeez", "Bilal H.")])
-        self.assertEqual(data["teachers"], ["Ustd Ahmed", "Ustd Faeez", "Ustd Fawaaz", "Ustd Maryam"])
+                         [("Week of 12 Oct", "Year 2 · Ustadh Faeez", "Amina R."), ("Week of 12 Oct", "Year 9/10 · Ustadh Fawaaz", "Hana A.")])
+        self.assertEqual(data["teachers"], ["Ustadh Ahmed", "Ustadh Faeez", "Ustadh Fawaaz", "Ustadha Maryam"])
         self.assertEqual([tv.class_label(n) for n in ("Year 3A Quran - Ustadh Faeez", "Yr4-B-QM-Sr Zainab", "Yr5-C Idris",
                                                       "Reception-QM", "Hifz group")],
-                         ["Year 3 · Ustd Faeez", "Year 4 · Ustd Zainab", "Year 5 · Ustd Idris", "Reception", "Hifz group"])
+                         ["Year 3 · Ustadh Faeez", "Year 4 · Ustadha Zainab", "Year 5 · Ustadh Idris", "Reception", "Hifz group"])
         window = {"qaidah": ["16:00", "17:00"], "memo": ["23:30", "00:30"]}
         at = lambda h, m: datetime(2026, 10, 22, h, m, tzinfo=auth.LONDON)  # noqa: E731
         self.assertEqual(tv.focus(window, at(16, 30)), ["qaidah"])
         self.assertEqual(tv.focus(window, at(17, 0)), None)
         self.assertEqual(tv.focus(window, at(0, 10)), ["memo"])
         self.assertEqual(tv.focus({}, at(16, 30)), None)
+
+    def test_presenter_shows_one_class_to_its_teachers(self):
+        now = datetime(2026, 10, 22, 12, tzinfo=auth.LONDON)  # a Thursday in the fourth week
+        ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
+        q = lambda *scores: {f"2026-10-{d:02d}": v for d, v in zip(range(1, 30), scores)}  # noqa: E731
+        row = {"id": "yr3-a", "json": json.dumps({"name": "Yr3-A-QM-Br Ahmed", "S": [
+            self.tv_student("Amina Rahman", house="Makkah", q=q(5, 5, 4, 5) | {"2026-09-30": 0},
+                            log=[ms(2026, 10, 6, 9)] * 3, tg=[ms(2026, 10, 2, 9)], tb=[ms(2026, 9, 2, 9)], sw=["2026-10-05"]),
+            self.tv_student("Bilal Hussain", house="Madinah", q=q(4, 4, 4), log=[ms(2026, 10, 14, 9)],
+                            ml=[ms(2026, 10, 14, 9)] * 2, tr=[ms(2026, 10, 15, 9)], tb=[ms(2026, 10, 16, 9)]),
+            self.tv_student("Hana Ali", house="Makkah", q=q(5, 5), tg=[ms(2026, 10, 3, 9)] * 2)]})}
+        data = tv.class_summary(row, now)
+        self.assertEqual(data["class"], "Year 3 · Ustadh Ahmed")
+        # Quran: the best average this month, from students with 3 or more scores (Hana has only 2).
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["quran"]], [(4.8, ["Amina R."]), (4.0, ["Bilal H."])])
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["memo"]], [(3, ["Amina R."]), (1, ["Bilal H."])])
+        # House points earned this month only (Amina's blue token is from September; a book is a red token).
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["points"]],
+                         [(70, ["Bilal H."]), (10, ["Hana A."]), (5, ["Amina R."])])
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["houses"]], [(70, ["Madinah"]), (15, ["Makkah"])])
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["merits"]], [(2, ["Bilal H."])])
+        self.assertEqual([b["name"] for b in data["books"]], ["Bilal H."])
+        self.assertEqual([(s["label"], s["name"]) for s in data["stars"]],
+                         [("Week of 5 Oct", "Amina R."), ("Week of 12 Oct", "Bilal H.")])
+        self.assertEqual(data["riders"], ["Amina R.", "Bilal H.", "Hana A."])
+        self.assertNotIn("Rahman", json.dumps(data))
+        # Teachers present their own classes; admins any class.
+        self.write(class_id="yr3-a")
+        self.write("Yr4-B", class_id="yr4-b")
+        self.add_user("t@example.com", classes=["yr3-a"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        page = teacher.get("/presenter/yr3-a")
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("script-src 'self' 'unsafe-inline'", page.headers["Content-Security-Policy"])
+        self.assertEqual(teacher.get("/api/presenter/yr3-a").get_json()["class"], "Year 3")
+        self.assertEqual(teacher.get("/presenter/yr4-b").status_code, 404)
+        self.assertEqual(teacher.get("/api/presenter/yr4-b").status_code, 404)
+        self.assertEqual(self.client.get("/api/presenter/yr4-b").get_json()["class"], "Year 4")
+        self.assertEqual(self.client.get("/presenter/nope").status_code, 404)
+        self.assertEqual(self.app.test_client().get("/api/presenter/yr3-a").status_code, 401)
 
     def test_tv_screen_links(self):
         student = self.tv_student("Aisha Khan", house="Makkah", tg=[1])

@@ -40,27 +40,39 @@ TITLE = re.compile(r"^(?:brother|sister|br|sr|ust\w*|shaykh|shaikh|sheikh|sh|muf
 GROUP = re.compile(r"\b(?:year|yr)\s*(\d+(?:\s*/\s*\d+)?)", re.I)
 
 
-def teacher_of(text):
-    """The teacher's first name in a classroom name: 'Yr3-A-QM-Br Ahmed' -> 'Ahmed'. Empty if there isn't one."""
+# Titles for women teachers; every other title (Br, Ustadh, Ustd...) is written as Ustadh.
+FEMALE = re.compile(r"^(?:sister|sr|ustadhah?|ustdh|ustazah?|ustada|mrs|ms|miss)\.?$", re.I)
+
+
+def teacher_parts(text):
+    """The teacher in a classroom name: 'Yr3-A-QM-Br Ahmed' -> ('Ustadh', 'Ahmed'). None if there isn't one."""
     parts = [p.strip() for p in (text or "").split("-")]
     for i, part in enumerate(parts):
-        if TITLE.match(part):
+        title = TITLE.match(part)
+        if title:
             name = TITLE.sub("", "-".join(parts[i:])).split()
-            return name[0][:1].upper() + name[0][1:] if name else ""
+            if not name:
+                return None
+            return ("Ustadha" if FEMALE.match(title.group(0).strip()) else "Ustadh"), name[0][:1].upper() + name[0][1:]
     # No title: a last part that is a name, not the year, the class letter or a subject code (QM, AI).
     last = re.sub(r"^[A-Z]\s+", "", parts[-1]) if len(parts) > 1 else ""
     if len(last) >= 3 and not GROUP.search(last) and not last.isupper() and last.isalpha():
-        return last[:1].upper() + last[1:]
-    return ""
+        return "Ustadh", last[:1].upper() + last[1:]
+    return None
+
+
+def teacher_of(text):
+    """The teacher with their title in full: 'Yr3-A-QM-Br Ahmed' -> 'Ustadh Ahmed', 'Yr4-B-QM-Sr Zainab' -> 'Ustadha Zainab'."""
+    parts = teacher_parts(text)
+    return " ".join(parts) if parts else ""
 
 
 def class_label(class_name):
-    """How the TV names a class: its year group and teacher. 'Yr3-A-QM-Br Ahmed' -> 'Year 3 · Ustd Ahmed'."""
+    """How the TV names a class: its year group and teacher. 'Yr3-A-QM-Br Ahmed' -> 'Year 3 · Ustadh Ahmed'."""
     group = GROUP.search(class_name or "")
     year = ("Year " + re.sub(r"\s+", "", group.group(1))) if group else (
         "Reception" if re.search(r"\breception\b", class_name or "", re.I) else "")
-    teacher = teacher_of(class_name)
-    label = " · ".join(p for p in (year, teacher and "Ustd " + teacher) if p)
+    label = " · ".join(p for p in (year, teacher_of(class_name)) if p)
     return label or class_name
 
 
@@ -90,13 +102,13 @@ def between(times, start, end):
     return sum(1 for t in times if start <= t < end)
 
 
-def podium(entries, key="n"):
-    """The top three different totals, each with everyone on it (ties share a step)."""
+def podium(entries, key="n", places=3):
+    """The top three different totals (or all of them, with places=None), each with everyone on it: ties share a step."""
     steps = []
     for entry in sorted((e for e in entries if e[key]), key=lambda e: (-e[key], natural(e.get("name") or e["class"]))):
         if steps and steps[-1]["n"] == entry[key]:
             steps[-1]["who"].append(entry)
-        elif len(steps) < 3:
+        elif places is None or len(steps) < places:
             steps.append({"place": len(steps) + 1, "n": entry[key], "who": [entry]})
         else:
             break
@@ -111,30 +123,66 @@ def class_stage(class_name, stages):
     return max(("primary", "secondary"), key=stages.count)
 
 
-def summary(rows, now=None, teachers=()):
-    """Everything the TV shows, worked out from the classroom records."""
-    now = now or datetime.now(auth.LONDON)
+def period(now):
+    """This month so far: its start in milliseconds, its first day and today ("2026-10-06"), and its finished weeks.
+
+    The dashboard records times in milliseconds, and level tests, Quran scores and stars by day. Stars of the week
+    run from the week the month starts in up to the end of last week."""
     day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     first = day.replace(day=1)
-    # The dashboard records times in milliseconds, and level tests and stars by day ("2026-10-06").
-    month, month_key, today_key = first.timestamp() * 1000, first.strftime("%Y-%m-%d"), day.strftime("%Y-%m-%d")
     monday = day - timedelta(days=day.weekday())
-    # Stars of the week: every week from the one the month starts in up to the end of last week.
     weeks, w = [], first - timedelta(days=first.weekday())
     while w < monday:
         weeks.append(w)
         w += timedelta(days=7)
+    return first.timestamp() * 1000, first.strftime("%Y-%m-%d"), day.strftime("%Y-%m-%d"), weeks
+
+
+def levels_passed(student, month_key, today_key):
+    return sum(1 for t in student.get("tests") or [] if t.get("k") == "q" and t.get("ok")
+               and month_key <= str(t.get("d", "")) <= today_key)
+
+
+def week_star(students, week):
+    """A class's star of the week: the teacher's pick from the Quran tab, otherwise the most passes and merits.
+
+    students is a list of (record, short name, house); the answer is (short name, house) or None."""
+    key, start = week.strftime("%Y-%m-%d"), week.timestamp() * 1000
+    end = (week + timedelta(days=7)).timestamp() * 1000
+    star = next(((n, h) for s, n, h in students if key in (s.get("sw") or [])), None)
+    if not star:
+        best = max(((between(s.get("log", []), start, end) + between(s.get("ml", []), start, end),
+                     between(s.get("log", []), start, end), n, h) for s, n, h in students), default=None)
+        star = best and best[0] and (best[2], best[3])
+    return star or None
+
+
+def summary(rows, now=None, teachers=()):
+    """Everything the TV shows, worked out from the classroom records."""
+    now = now or datetime.now(auth.LONDON)
+    month, month_key, today_key, _ = period(now)
+    # The TV shows one star per class on one page: each class's star for last week (the last full week).
+    day = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    last_week = day - timedelta(days=day.weekday() + 7)
     houses = dict.fromkeys(HOUSES, 0)
     books, stars, memo, qaidah = [], [], [], []
     # Every teacher named in the classrooms (Quran and Islamic Studies) as well as those with an account.
-    names = {(TITLE.sub("", t).split() or [""])[0] for t in teachers}
+    # A title from a classroom name wins; teachers known only by their account are Ustadh unless the name says otherwise.
+    names = {}
+    for t in teachers:
+        title, first = TITLE.match(t), (TITLE.sub("", t).split() or [""])[0]
+        if first:
+            names.setdefault(first.lower(), ("Ustadha" if title and FEMALE.match(title.group(0).strip()) else None,
+                                             first[:1].upper() + first[1:]))
     tops = {kind: {"primary": [], "secondary": []} for kind in ("memo", "qaidah")}
     for row in rows:
         state = json.loads(row["json"])
         class_name = state.get("name") or row["id"]
         label = class_label(class_name)
         for name in [class_name] + [s.get("ist", "") for s in state.get("S", [])]:
-            names.add(teacher_of(name))
+            parts = teacher_parts(name)
+            if parts and not (names.get(parts[1].lower()) or (None,))[0]:
+                names[parts[1].lower()] = parts
         students, stages, class_memo, class_qaidah = [], [], 0, 0
         for s in state.get("S", []):
             name = short_name(s.get("name", ""))
@@ -147,8 +195,7 @@ def summary(rows, now=None, teachers=()):
             if since(s.get("tr", []), month):
                 books.append({"name": name, "class": label, "house": house})
             passes = since(s.get("log", []), month)
-            levels = sum(1 for t in s.get("tests") or [] if t.get("k") == "q" and t.get("ok")
-                         and month_key <= str(t.get("d", "")) <= today_key)
+            levels = levels_passed(s, month_key, today_key)
             if passes:
                 memo.append({"name": name, "class": label, "house": house, "n": passes})
             if levels:
@@ -162,26 +209,66 @@ def summary(rows, now=None, teachers=()):
         if stage:
             tops["memo"][stage].append({"class": label, "n": class_memo})
             tops["qaidah"][stage].append({"class": label, "n": class_qaidah})
-        for week in weeks:
-            key, start = week.strftime("%Y-%m-%d"), week.timestamp() * 1000
-            end = (week + timedelta(days=7)).timestamp() * 1000
-            # The teacher's pick from the Quran tab, otherwise the most passes and merits that week.
-            star = next(((n, h) for s, n, h in students if key in (s.get("sw") or [])), None)
-            if not star:
-                best = max(((between(s.get("log", []), start, end) + between(s.get("ml", []), start, end),
-                             between(s.get("log", []), start, end), n, h) for s, n, h in students), default=None)
-                star = best and best[0] and (best[2], best[3])
-            if star:
-                stars.append({"name": star[0], "house": star[1], "class": label, "week": key,
-                              "label": "Week of " + week.strftime("%-d %b")})
+        star = week_star(students, last_week)
+        if star:
+            stars.append({"name": star[0], "house": star[1], "class": label, "week": last_week.strftime("%Y-%m-%d"),
+                          "label": "Week of " + last_week.strftime("%-d %b")})
     return {
         "houses": sorted(({"house": h, "points": p} for h, p in houses.items()), key=lambda h: -h["points"]),
         "books": sorted(books, key=lambda b: b["name"]),
-        "memo": podium(memo),
+        "memo": podium(memo, places=None),  # every rank, shown as a list so ties are never cut
         "qaidah": podium(qaidah),
         "classes": {kind: {stage: podium(L) for stage, L in v.items()} for kind, v in tops.items()},
-        "stars": sorted(stars, key=lambda s: (s["week"], natural(s["class"]))),
-        "teachers": ["Ustd " + t for t in sorted({t[:1].upper() + t[1:] for t in names if t}, key=str.lower)],
+        "stars": sorted(stars, key=lambda s: natural(s["class"])),
+        "teachers": [(title or "Ustadh") + " " + name for title, name in sorted(names.values(), key=lambda t: t[1].lower())],
+        "month": now.strftime("%B"),
+    }
+
+
+QURAN_DAYS = 3  # Quran scores a student needs this month to be on the Quran podium
+
+
+def class_summary(row, now=None):
+    """What a class's Presenter shows: this month's tops in one class, and its students' names to ride through."""
+    now = now or datetime.now(auth.LONDON)
+    month, month_key, today_key, weeks = period(now)
+    state = json.loads(row["json"])
+    class_name = state.get("name") or row["id"]
+    tops = {k: [] for k in ("quran", "memo", "qaidah", "points", "merits")}
+    houses, books, students = dict.fromkeys(HOUSES, 0), [], []
+    for s in state.get("S", []):
+        name = short_name(s.get("name", ""))
+        if not name:
+            continue
+        house = s.get("house", "")
+        entry = {"name": name, "house": house}
+        scores = [v for d, v in (s.get("q") or {}).items() if month_key <= d <= today_key and isinstance(v, (int, float))]
+        points = sum(since(s.get(k, []), month) * v for k, v in TOKEN_POINTS.items())
+        if house in houses:
+            houses[house] += points
+        for key, n in (("quran", round(sum(scores) / len(scores), 1) if len(scores) >= QURAN_DAYS else 0),
+                       ("memo", since(s.get("log", []), month)), ("qaidah", levels_passed(s, month_key, today_key)),
+                       ("points", points), ("merits", since(s.get("ml", []), month))):
+            if n:
+                tops[key].append(dict(entry, n=n))
+        if since(s.get("tr", []), month):
+            books.append(entry)
+        students.append((s, name, house))
+    stars = []
+    for week in weeks:
+        star = week_star(students, week)
+        if star:
+            stars.append({"name": star[0], "house": star[1], "week": week.strftime("%Y-%m-%d"),
+                          "label": "Week of " + week.strftime("%-d %b")})
+    return {
+        "mode": "presenter",
+        "id": row["id"],
+        "class": class_label(class_name),
+        **{k: podium(v, places=None if k == "memo" else 3) for k, v in tops.items()},
+        "houses": podium([{"name": h, "house": h, "n": p} for h, p in houses.items()]),
+        "books": sorted(books, key=lambda b: b["name"]),
+        "stars": stars,
+        "riders": sorted({n for _, n, _ in students}),
         "month": now.strftime("%B"),
     }
 
@@ -243,6 +330,29 @@ def staff_page():
 @bp.get("/api/tv")
 def staff_data():
     return data()
+
+
+def presenter_class(class_id):
+    """The class a signed-in teacher may present: one of their own; an admin may present any."""
+    with auth.db().transaction() as tx:
+        if g.user["role"] != "admin" and not tx.execute(
+                "SELECT 1 FROM classroom_members WHERE class_id = ? AND user_id = ?", (class_id, g.user["id"])).fetchone():
+            abort(404)
+        row = tx.execute("SELECT id, json FROM classrooms WHERE id = ?", (class_id,)).fetchone()
+    if not row:
+        abort(404)
+    return row
+
+
+@bp.get("/presenter/<class_id>")
+def presenter_page(class_id):
+    presenter_class(class_id)
+    return page()
+
+
+@bp.get("/api/presenter/<class_id>")
+def presenter_data(class_id):
+    return jsonify(class_summary(presenter_class(class_id)))
 
 
 @bp.get("/tv/<token>")
