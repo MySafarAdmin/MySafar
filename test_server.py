@@ -733,7 +733,7 @@ class DashboardTests:
         data = tv.summary(rows, now)
         self.assertEqual(data["houses"], [{"house": "Makkah", "points": 55}, {"house": "Madinah", "points": 20},
                                           {"house": "Al-Aqsa", "points": 0}])
-        self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Year 3 · Ustadh Ahmed")])
+        self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Yr3A Ustadh Ahmed")])
         # The TV's stars are last week's (5 October), when nobody passed or earned a merit.
         self.assertEqual(data["stars"], [])
         self.assertEqual([(step["place"], step["n"], [w["name"] for w in step["who"]]) for step in data["memo"]],
@@ -743,9 +743,9 @@ class DashboardTests:
                          [1, 2, 3, 4, 5])
         self.assertEqual(data["qaidah"], [])
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["memo"]["primary"]],
-                         [(6, ["Year 3 · Ustadh Ahmed"])])
+                         [(6, ["Yr3A Ustadh Ahmed"])])
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["memo"]["secondary"]],
-                         [(3, ["Year 8"])])
+                         [(3, ["Yr8B"])])
         self.assertEqual(data["month"], "October")
         self.assertNotIn("Khan", json.dumps(data))
 
@@ -770,17 +770,17 @@ class DashboardTests:
                          [(1, 2, ["Amina R."]), (2, 1, ["Bilal H.", "Hana A.", "Musa K."])])
         # Juniors is primary from its students' year groups; Yr9/10 is secondary from its name.
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["qaidah"]["primary"]],
-                         [(3, ["Year 2 · Ustadh Faeez"]), (1, ["Juniors"])])
+                         [(3, ["Yr2A Ustadh Faeez"]), (1, ["Juniors"])])
         self.assertEqual([(c["n"], [w["class"] for w in c["who"]]) for c in data["classes"]["qaidah"]["secondary"]],
-                         [(1, ["Year 9/10 · Ustadh Fawaaz"])])
+                         [(1, ["Yr9/10B Ustadh Fawaaz"])])
         # Stars: one per class for last week (12 October), all on one page. The teacher's pick (Amina) wins over
         # Bilal's merit; elsewhere the most passes and merits win; classes with nothing that week have none.
         self.assertEqual([(s["label"], s["class"], s["name"]) for s in data["stars"]],
-                         [("Week of 12 Oct", "Year 2 · Ustadh Faeez", "Amina R."), ("Week of 12 Oct", "Year 9/10 · Ustadh Fawaaz", "Hana A.")])
+                         [("Week of 12 Oct", "Yr2A Ustadh Faeez", "Amina R."), ("Week of 12 Oct", "Yr9/10B Ustadh Fawaaz", "Hana A.")])
         self.assertEqual(data["teachers"], ["Ustadh Ahmed", "Ustadh Faeez", "Ustadh Fawaaz", "Ustadha Maryam"])
         self.assertEqual([tv.class_label(n) for n in ("Year 3A Quran - Ustadh Faeez", "Yr4-B-QM-Sr Zainab", "Yr5-C Idris",
                                                       "Reception-QM", "Hifz group")],
-                         ["Year 3 · Ustadh Faeez", "Year 4 · Ustadha Zainab", "Year 5 · Ustadh Idris", "Reception", "Hifz group"])
+                         ["Yr3A Ustadh Faeez", "Yr4B Ustadha Zainab", "Yr5C Ustadh Idris", "Reception", "Hifz group"])
         window = {"qaidah": ["16:00", "17:00"], "memo": ["23:30", "00:30"]}
         at = lambda h, m: datetime(2026, 10, 22, h, m, tzinfo=auth.LONDON)  # noqa: E731
         self.assertEqual(tv.focus(window, at(16, 30)), ["qaidah"])
@@ -799,7 +799,7 @@ class DashboardTests:
                             ml=[ms(2026, 10, 14, 9)] * 2, tr=[ms(2026, 10, 15, 9)], tb=[ms(2026, 10, 16, 9)]),
             self.tv_student("Hana Ali", house="Makkah", q=q(5, 5), tg=[ms(2026, 10, 3, 9)] * 2)]})}
         data = tv.class_summary(row, now)
-        self.assertEqual(data["class"], "Year 3 · Ustadh Ahmed")
+        self.assertEqual(data["class"], "Yr3A Ustadh Ahmed")
         # Quran: the best average this month, from students with 3 or more scores (Hana has only 2).
         self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["quran"]], [(4.8, ["Amina R."]), (4.0, ["Bilal H."])])
         self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["memo"]], [(3, ["Amina R."]), (1, ["Bilal H."])])
@@ -821,10 +821,10 @@ class DashboardTests:
         page = teacher.get("/presenter/yr3-a")
         self.assertEqual(page.status_code, 200)
         self.assertIn("script-src 'self' 'unsafe-inline'", page.headers["Content-Security-Policy"])
-        self.assertEqual(teacher.get("/api/presenter/yr3-a").get_json()["class"], "Year 3")
+        self.assertEqual(teacher.get("/api/presenter/yr3-a").get_json()["class"], "Yr3A")
         self.assertEqual(teacher.get("/presenter/yr4-b").status_code, 404)
         self.assertEqual(teacher.get("/api/presenter/yr4-b").status_code, 404)
-        self.assertEqual(self.client.get("/api/presenter/yr4-b").get_json()["class"], "Year 4")
+        self.assertEqual(self.client.get("/api/presenter/yr4-b").get_json()["class"], "Yr4B")
         self.assertEqual(self.client.get("/presenter/nope").status_code, 404)
         self.assertEqual(self.app.test_client().get("/api/presenter/yr3-a").status_code, 401)
 

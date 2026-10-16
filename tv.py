@@ -68,11 +68,14 @@ def teacher_of(text):
 
 
 def class_label(class_name):
-    """How the TV names a class: its year group and teacher. 'Yr3-A-QM-Br Ahmed' -> 'Year 3 · Ustadh Ahmed'."""
+    """How the TV names a class: year group, class letter and teacher. 'Yr3-A-QM-Br Ahmed' -> 'Yr3A Ustadh Ahmed'."""
     group = GROUP.search(class_name or "")
-    year = ("Year " + re.sub(r"\s+", "", group.group(1))) if group else (
-        "Reception" if re.search(r"\breception\b", class_name or "", re.I) else "")
-    label = " · ".join(p for p in (year, teacher_of(class_name)) if p)
+    if group:
+        letter = re.match(r"\s*-?\s*([A-Z])\b", class_name[group.end():])
+        year = "Yr" + re.sub(r"\s+", "", group.group(1)) + (letter.group(1) if letter else "")
+    else:
+        year = "Reception" if re.search(r"\breception\b", class_name or "", re.I) else ""
+    label = " ".join(p for p in (year, teacher_of(class_name)) if p)
     return label or class_name
 
 
