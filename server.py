@@ -252,8 +252,8 @@ def create_app(test_config=None):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
-        dashboard = request.path in ("/", "/tv") or (request.path.startswith("/tv/") and response.mimetype == "text/html"
-                                                        and response.status_code == 200)
+        dashboard = request.path in ("/", "/tv") or (request.path.startswith(("/tv/", "/presenter/"))
+                                                        and response.mimetype == "text/html" and response.status_code == 200)
         response.headers["Content-Security-Policy"] = DASHBOARD_CSP if dashboard else \
             EMAIL_PREVIEW_CSP if request.path.startswith("/admin/email/preview/") else \
             LOGIN_CSP if request.path == "/login" else PAGE_CSP
