@@ -1399,32 +1399,8 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
  .stul .srm{min-height:44px;min-width:44px}
 }
 
-/* Quran full sheet on phones: a full-screen view over the dock, with the names and dates kept in view while it scrolls both ways. */
-.fsh,.sh .fs{display:none}
-@media (max-width:959.98px){
- #vQ[data-v="his"]:not(.hide){position:fixed;inset:0;z-index:120;margin:0;border-radius:0;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:8px;background:var(--surface);animation:fs-in .32s cubic-bezier(.16,1,.3,1) both}
- #vQ[data-v="his"] .fsh{display:flex;align-items:center;gap:10px}
- .fst{margin:0;flex:1 1 auto;min-width:0;display:flex;flex-direction:column;line-height:1.2}
- .fst b{font-size:1.0625rem;overflow-wrap:anywhere}.fst span{font-size:.8125rem;color:var(--mute)}
- #vQ[data-v="his"] .qbar{margin:0;padding:0;flex-wrap:nowrap}
- #vQ[data-v="his"] #qV,#vQ[data-v="his"] #qAdd{display:none}
- #vQ[data-v="his"] .pane[data-pane="his"]{flex:1 1 auto;min-height:0;display:flex;margin:0 calc(-1 * max(12px,env(safe-area-inset-left))) 0 calc(-1 * max(12px,env(safe-area-inset-right)))}
- #vQ[data-v="his"] .sheetwrap{flex:1 1 auto;max-height:none;border-radius:0;border-left:0;border-right:0;border-bottom:0;overscroll-behavior:contain;padding-bottom:env(safe-area-inset-bottom)}
- #vQ .sh{font-size:.8125rem}
- #vQ .sh th,#vQ .sh td{min-width:0;padding:5px 6px;text-align:center;vertical-align:middle}
- #vQ .sh thead th{font-size:.6875rem;line-height:1.15;width:44px;white-space:normal}
- #vQ .sh .t1{min-width:112px;max-width:132px;text-align:left;font-size:.8125rem;line-height:1.2}
- #vQ .sh .fl,#vQ .sh .of{display:none}#vQ .sh .fs{display:inline}
- #vQ .sh .nc{margin:0;min-width:26px;padding:2px 0;justify-content:center;text-align:center}
-}
-@media (max-width:959.98px) and (max-height:520px){
- #vQ[data-v="his"]:not(.hide){display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto minmax(0,1fr);align-items:center;column-gap:12px}
- #vQ[data-v="his"] .fsh{display:contents}
- #vQ[data-v="his"] .fst{grid-area:1/1}#vQ[data-v="his"] .qbar{grid-area:1/2}#vQ[data-v="his"] #qFsX{grid-area:1/3}
- #vQ[data-v="his"] .pane[data-pane="his"]{grid-area:2/1/3/4;align-self:stretch}
-}
-@keyframes fs-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){#vQ[data-v="his"]:not(.hide){animation:none}}
+/* Phones: no Full sheet (Quran or Memo), no Presenter, and no help note on the Quran page. */
+@media (max-width:959.98px){#qV,#tV,#pres,#vQ .qbar .help{display:none!important}}
 </style></head><body>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1472,7 +1448,6 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 <section id="vR" class="ws hide" aria-labelledby="ttl"><div class="recf" id="recF"></div></section>
 
 <section id="vQ" class="ws hide" role="tabpanel" aria-labelledby="tQ">
- <div class="fsh qhis"><p class="fst"><b id="qFsC"></b><span>Quran sheet</span></p><button type="button" class="ibtn" id="qFsX" aria-label="Close the full sheet" title="Close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
  <div class="toolbar qbar">
   <div class="qnav qrec"><button type="button" class="ibtn" id="qPrev" aria-label="Previous class day"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
    <p class="qday" id="qDay" aria-live="polite"></p>
@@ -2178,13 +2153,12 @@ function qSheetDraw(){var days={},from=QP==="r"?dk(addDays(today0(),-42).getTime
  S.forEach(function(s){Object.keys(s.q).forEach(function(k){days[k]=1})});
  var D=Object.keys(days).filter(function(k){return k>=from}).sort();
  if(!S.length){$("qSheet").innerHTML='<div class="empty"><b>Nothing recorded yet</b></div>';return}
- var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th><th scope="col"><span class="fl">Average, all days</span><span class="fs">Avg</span></th>'+D.map(function(k){return '<th scope="col">'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
- S.forEach(function(s){h+='<tr><th scope="row" class="t1">'+esc(s.name)+'</th><td><b>'+(qavg(s)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'<span class="of">/5</span>'))+'</td>'}).join("")+'</tr>'});
+ var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th><th scope="col">Average, all days</th>'+D.map(function(k){return '<th scope="col">'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
+ S.forEach(function(s){h+='<tr><th scope="row" class="t1">'+esc(s.name)+'</th><td><b>'+(qavg(s)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'/5'))+'</td>'}).join("")+'</tr>'});
  h+='<tr><th scope="row" class="t1">Class average</th><td></td>'+D.map(function(k){return '<td><b>'+avg(S.filter(function(s){return s.q[k]!==undefined}).map(function(s){return s.q[k]}))+'</b></td>'}).join("")+'</tr>';
- $("qSheet").innerHTML=h+'</tbody></table>';$("qFsC").textContent=CID&&ST[CID]?cname(ST[CID].name):""}
-$("qFsX").onclick=function(){view("Q","rec")};
-$("qV").addEventListener("click",function(){requestAnimationFrame(function(){var w=$("qSheet");if(VW.Q==="his"&&matchMedia("(max-width:959px)").matches)w.scrollLeft=w.scrollWidth})});
-document.addEventListener("keydown",function(e){if(e.key==="Escape"&&VW.Q==="his"&&!$("vQ").classList.contains("hide")&&matchMedia("(max-width:959px)").matches&&!document.querySelector(".qpop:not([hidden]),dialog[open]"))view("Q","rec")});
+ $("qSheet").innerHTML=h+'</tbody></table>'}
+/* Phones have no Full sheet (Quran or Memo): fall back to the day-by-day and student views. */
+var PHN=matchMedia("(max-width:959.98px)");function noSheet(){if(!PHN.matches)return;if(VW.Q==="his")view("Q","rec");if(VW.T==="his")view("T","rec")}
 
 /* ---------- Class: Warnings ---------- */
 /* ---------- Class: Rewards ---------- */
@@ -2261,6 +2235,7 @@ var VW={Q:"rec",D:"lv",H:"ld",T:"rec"};
 function view(k,v){VW[k]=v;var sec=$("v"+k);sec.setAttribute("data-v",v);Array.prototype.forEach.call(sec.querySelectorAll(".pane"),function(p){p.hidden=p.dataset.pane!==v});
  Array.prototype.forEach.call($(k.toLowerCase()+"V").querySelectorAll("button"),function(b){b.setAttribute("aria-pressed",b.dataset.v===v)});if(k==="T"){if(v==="rec"&&CID)mList();else mSeg()}}
 ["Q","D","H","T"].forEach(function(k){view(k,VW[k]);$(k.toLowerCase()+"V").addEventListener("click",function(e){var b=e.target.closest("button");if(b)view(k,b.dataset.v)})});
+if(PHN.addEventListener)PHN.addEventListener("change",noSheet);else PHN.addListener(noSheet);
 
 /* ---------- Navigation ---------- */
 /* The rail has no list of classes: Classes opens the class cards, and stays marked while a class is open. */
@@ -2435,14 +2410,14 @@ function stuAll(){var A=[];CIDS.forEach(function(c){if(SC&&c!==SC)return;ST[c].S
  return A.sort(function(a,b){return a.s.name.localeCompare(b.s.name,undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function stuPage(){if(!CIDS.length){$("stuW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>'+(TEACHER?'Ask an administrator to add you to your classrooms on Manage users.':'Students belong to a class, so upload a CSV on Classes to create the classrooms first.<button type="button" class="btn sm p" data-open="L">Go to Classes</button>')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';return}
  if(SC&&!ST[SC])SC="";
- if(!$("stuQ"))$("stuW").innerHTML='<div class="toolbar stbar"><input type="search" id="stuQ" placeholder="Find a student or Student ID…" aria-label="Find a student or Student ID" autocomplete="off"><select id="stuC" aria-label="Class"></select><p class="cap" id="stuN"></p><div class="tools"><button type="button" class="btn p" id="stuA">'+ADDIC+'Add student</button></div></div><div id="stuT"></div>';
+ if(!$("stuQ"))$("stuW").innerHTML='<div class="toolbar stbar"><input type="search" id="stuQ" placeholder="Find a student or Student ID…" aria-label="Find a student or Student ID" autocomplete="off"><select id="stuC" aria-label="Class"></select><p class="cap" id="stuN"></p><div class="tools"><button type="button" class="btn p" id="stuA">'+ADDIC+'Add student</button></div></div><div id="stuL"></div>';
  var sel=$("stuC");sel.hidden=CIDS.length<2;sel.innerHTML='<option value="">All classes</option>'+CIDS.map(function(c){return '<option value="'+esc(c)+'"'+(c===SC?' selected':'')+'>'+esc(cname(ST[c].name))+'</option>'}).join("");
- stuTable()}
-function stuTable(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return !q||nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0});
+ stuRows()}
+function stuRows(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return !q||nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0});
  $("stuN").textContent=q?A.length+" of "+plural(all.length,"student")+" match":plural(all.length,"student")+(SC||CIDS.length<2?"":" in "+plural(CIDS.length,"class","classes"));
- if(!A.length){$("stuT").innerHTML='<div class="empty"><b>'+(q?'No student matches that search':'No students yet')+'</b>'+(q?'Check the spelling, or search by Student ID.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
+ if(!A.length){$("stuL").innerHTML='<div class="empty"><b>'+(q?'No student matches that search':'No students yet')+'</b>'+(q?'Check the spelling, or search by Student ID.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
  var p=pager("stu",A.length,SPG);
- $("stuT").innerHTML='<div class="tablewrap"><table class="tbl stackable stul"><thead><tr><th scope="col">Student</th><th scope="col">Class</th><th scope="col">Safar year</th><th scope="col">Student ID</th><th scope="col">House</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>'
+ $("stuL").innerHTML='<div class="tablewrap"><table class="tbl stackable stul"><thead><tr><th scope="col">Student</th><th scope="col">Class</th><th scope="col">Safar year</th><th scope="col">Student ID</th><th scope="col">House</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>'
   +A.slice(p*SPG,(p+1)*SPG).map(function(o){var s=o.s;return '<tr data-c="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(s)+'"'+(s===SNEW?' class="snew"':'')+'><td class="lead"><b>'+esc(s.name)+'</b></td>'
    +'<td data-label="Class" class="sm">'+opener(o.c,esc(cname(ST[o.c].name)))+'</td>'
    +'<td data-label="Safar year" class="sy">'+(s.year?esc(s.year):'<span class="zero">Not recorded</span>')+'</td>'
@@ -2450,7 +2425,7 @@ function stuTable(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return 
    +'<td data-label="House" class="sm">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">Not set</span>')+'</td>'
    +'<td class="act"><button type="button" class="btn sm srm" aria-label="Remove '+esc(s.name)+'" title="Remove student">'+BINIC+'<span aria-hidden="true">Remove</span></button></td></tr>'}).join("")
   +'</tbody></table></div>'+pagerHtml("stu",A.length,SPG,"students");
- var nw=$("stuT").querySelector("tr.snew");SNEW=null;
+ var nw=$("stuL").querySelector("tr.snew");SNEW=null;
  if(nw){nw.classList.remove("snew");if(nw.scrollIntoView)nw.scrollIntoView({block:"center"});if(!QM.matches&&nw.animate)nw.animate([{backgroundColor:"#edf3ee",boxShadow:"inset 3px 0 0 #4e7d5b"},{backgroundColor:"rgba(237,243,238,0)",boxShadow:"inset 3px 0 0 rgba(78,125,91,0)"}],{duration:1800,easing:"ease-out"})}}
 function stuAdd(){var c0=SC||(LASTC&&ST[LASTC]?LASTC:CIDS[0]);if(!c0)return;
  drawer("Add a student",'<form class="addf" id="suF" novalidate><p class="cap">They are saved with their class straight away, and appear on its Quran, Memo and Progress pages.</p>'
@@ -2470,13 +2445,13 @@ $("drwB").addEventListener("submit",function(e){if(e.target.id!=="suF")return;e.
  var s=blank(n),yr=safarYear(ST[c].name);if(h)s.house=h;if(id)s.sid=id;if(yr)s.year=yr;L.push(s);persist(c);closeDrawer();
  SQ="";if($("stuQ"))$("stuQ").value="";if(SC&&SC!==c)SC="";
  var k=0;stuAll().some(function(o,i){k=i;return o.s===s});PG.stu=Math.floor(k/SPG);SNEW=s;stuPage();toast(n+" added to "+cname(ST[c].name))});
-$("vU").addEventListener("input",function(e){if(e.target.id==="stuQ"){SQ=e.target.value;PG.stu=0;stuTable()}});
-$("vU").addEventListener("change",function(e){if(e.target.id==="stuC"){SC=e.target.value;PG.stu=0;stuTable()}});
+$("vU").addEventListener("input",function(e){if(e.target.id==="stuQ"){SQ=e.target.value;PG.stu=0;stuRows()}});
+$("vU").addEventListener("change",function(e){if(e.target.id==="stuC"){SC=e.target.value;PG.stu=0;stuRows()}});
 $("vU").addEventListener("click",function(e){if(e.target.closest("#stuA,#stuA2")){stuAdd();return}
  var b=e.target.closest(".srm");if(!b)return;var tr=b.closest("tr"),c=tr.dataset.c,s=ST[c]&&ST[c].S[+tr.dataset.i];if(!s)return;
  ask("Remove "+s.name+" from "+cname(ST[c].name)+"? Their passes, merits, warnings, house points and Quran scores are removed with them. This can't be undone.","Remove student",function(){
-  function done(){var i=ST[c]?ST[c].S.indexOf(s):-1;if(i<0){toast("That student has already changed. Try again.",1);stuTable();return}
-   ST[c].S.splice(i,1);persist(c);stuTable();toast(s.name+" removed from "+cname(ST[c].name));if($("stuQ"))$("stuQ").focus()}
+  function done(){var i=ST[c]?ST[c].S.indexOf(s):-1;if(i<0){toast("That student has already changed. Try again.",1);stuRows();return}
+   ST[c].S.splice(i,1);persist(c);stuRows();toast(s.name+" removed from "+cname(ST[c].name));if($("stuQ"))$("stuQ").focus()}
   if(QM.matches||!tr.animate||!document.contains(tr))done();else tr.animate([{opacity:1},{opacity:0,transform:"translateX(12px)"}],{duration:220,easing:"ease",fill:"forwards"}).onfinish=done},null,1)});
 /* The overview's rankings: house points and the top three students for passes and for merits. Each title opens
    the full list. */
