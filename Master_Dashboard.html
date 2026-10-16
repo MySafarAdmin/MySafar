@@ -2421,14 +2421,14 @@ function stuAll(){var A=[];CIDS.forEach(function(c){if(SC&&c!==SC)return;ST[c].S
  return A.sort(function(a,b){return a.s.name.localeCompare(b.s.name,undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function stuPage(){if(!CIDS.length){$("stuW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>'+(TEACHER?'Ask an administrator to add you to your classrooms on Manage users.':'Students belong to a class, so upload a CSV on Classes to create the classrooms first.<button type="button" class="btn sm p" data-open="L">Go to Classes</button>')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';return}
  if(SC&&!ST[SC])SC="";
- if(!$("stuQ"))$("stuW").innerHTML='<div class="toolbar stbar"><input type="search" id="stuQ" placeholder="Find a student or Student ID…" aria-label="Find a student or Student ID" autocomplete="off"><select id="stuC" aria-label="Class"></select><p class="cap" id="stuN"></p><div class="tools"><button type="button" class="btn p" id="stuA">'+ADDIC+'Add student</button></div></div><div id="stuT"></div>';
+ if(!$("stuQ"))$("stuW").innerHTML='<div class="toolbar stbar"><input type="search" id="stuQ" placeholder="Find a student or Student ID…" aria-label="Find a student or Student ID" autocomplete="off"><select id="stuC" aria-label="Class"></select><p class="cap" id="stuN"></p><div class="tools"><button type="button" class="btn p" id="stuA">'+ADDIC+'Add student</button></div></div><div id="stuL"></div>';
  var sel=$("stuC");sel.hidden=CIDS.length<2;sel.innerHTML='<option value="">All classes</option>'+CIDS.map(function(c){return '<option value="'+esc(c)+'"'+(c===SC?' selected':'')+'>'+esc(ST[c].name)+'</option>'}).join("");
- stuTable()}
-function stuTable(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return !q||nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0});
+ stuList()}
+function stuList(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return !q||nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0});
  $("stuN").textContent=q?A.length+" of "+plural(all.length,"student")+" match":plural(all.length,"student")+(SC||CIDS.length<2?"":" in "+plural(CIDS.length,"class","classes"));
- if(!A.length){$("stuT").innerHTML='<div class="empty"><b>'+(q?'No student matches that search':'No students yet')+'</b>'+(q?'Check the spelling, or search by Student ID.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
+ if(!A.length){$("stuL").innerHTML='<div class="empty"><b>'+(q?'No student matches that search':'No students yet')+'</b>'+(q?'Check the spelling, or search by Student ID.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
  var p=pager("stu",A.length,SPG);
- $("stuT").innerHTML='<div class="tablewrap"><table class="tbl stackable stul"><thead><tr><th scope="col">Student</th><th scope="col">Class</th><th scope="col">Safar year</th><th scope="col">Student ID</th><th scope="col">House</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>'
+ $("stuL").innerHTML='<div class="tablewrap"><table class="tbl stackable stul"><thead><tr><th scope="col">Student</th><th scope="col">Class</th><th scope="col">Safar year</th><th scope="col">Student ID</th><th scope="col">House</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>'
   +A.slice(p*SPG,(p+1)*SPG).map(function(o){var s=o.s;return '<tr data-c="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(s)+'"'+(s===SNEW?' class="snew"':'')+'><td class="lead"><b>'+esc(s.name)+'</b></td>'
    +'<td data-label="Class" class="sm">'+opener(o.c,esc(ST[o.c].name))+'</td>'
    +'<td data-label="Safar year" class="sy">'+(s.year?esc(s.year):'<span class="zero">Not recorded</span>')+'</td>'
@@ -2436,7 +2436,7 @@ function stuTable(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return 
    +'<td data-label="House" class="sm">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">Not set</span>')+'</td>'
    +'<td class="act"><button type="button" class="btn sm srm" aria-label="Remove '+esc(s.name)+'" title="Remove student">'+BINIC+'<span aria-hidden="true">Remove</span></button></td></tr>'}).join("")
   +'</tbody></table></div>'+pagerHtml("stu",A.length,SPG,"students");
- var nw=$("stuT").querySelector("tr.snew");SNEW=null;
+ var nw=$("stuL").querySelector("tr.snew");SNEW=null;
  if(nw){nw.classList.remove("snew");if(nw.scrollIntoView)nw.scrollIntoView({block:"center"});if(!QM.matches&&nw.animate)nw.animate([{backgroundColor:"#edf3ee",boxShadow:"inset 3px 0 0 #4e7d5b"},{backgroundColor:"rgba(237,243,238,0)",boxShadow:"inset 3px 0 0 rgba(78,125,91,0)"}],{duration:1800,easing:"ease-out"})}}
 function stuAdd(){var c0=SC||(LASTC&&ST[LASTC]?LASTC:CIDS[0]);if(!c0)return;
  drawer("Add a student",'<form class="addf" id="suF" novalidate><p class="cap">They are saved with their class straight away, and appear on its Quran, Memo and Progress pages.</p>'
@@ -2456,13 +2456,13 @@ $("drwB").addEventListener("submit",function(e){if(e.target.id!=="suF")return;e.
  var s=blank(n),yr=safarYear(ST[c].name);if(h)s.house=h;if(id)s.sid=id;if(yr)s.year=yr;L.push(s);persist(c);closeDrawer();
  SQ="";if($("stuQ"))$("stuQ").value="";if(SC&&SC!==c)SC="";
  var k=0;stuAll().some(function(o,i){k=i;return o.s===s});PG.stu=Math.floor(k/SPG);SNEW=s;stuPage();toast(n+" added to "+ST[c].name)});
-$("vU").addEventListener("input",function(e){if(e.target.id==="stuQ"){SQ=e.target.value;PG.stu=0;stuTable()}});
-$("vU").addEventListener("change",function(e){if(e.target.id==="stuC"){SC=e.target.value;PG.stu=0;stuTable()}});
+$("vU").addEventListener("input",function(e){if(e.target.id==="stuQ"){SQ=e.target.value;PG.stu=0;stuList()}});
+$("vU").addEventListener("change",function(e){if(e.target.id==="stuC"){SC=e.target.value;PG.stu=0;stuList()}});
 $("vU").addEventListener("click",function(e){if(e.target.closest("#stuA,#stuA2")){stuAdd();return}
  var b=e.target.closest(".srm");if(!b)return;var tr=b.closest("tr"),c=tr.dataset.c,s=ST[c]&&ST[c].S[+tr.dataset.i];if(!s)return;
  ask("Remove "+s.name+" from "+ST[c].name+"? Their passes, merits, warnings, house points and Quran scores are removed with them. This can't be undone.","Remove student",function(){
-  function done(){var i=ST[c]?ST[c].S.indexOf(s):-1;if(i<0){toast("That student has already changed. Try again.",1);stuTable();return}
-   ST[c].S.splice(i,1);persist(c);stuTable();toast(s.name+" removed from "+ST[c].name);if($("stuQ"))$("stuQ").focus()}
+  function done(){var i=ST[c]?ST[c].S.indexOf(s):-1;if(i<0){toast("That student has already changed. Try again.",1);stuList();return}
+   ST[c].S.splice(i,1);persist(c);stuList();toast(s.name+" removed from "+ST[c].name);if($("stuQ"))$("stuQ").focus()}
   if(QM.matches||!tr.animate||!document.contains(tr))done();else tr.animate([{opacity:1},{opacity:0,transform:"translateX(12px)"}],{duration:220,easing:"ease",fill:"forwards"}).onfinish=done},null,1)});
 /* The overview's rankings: house points and the top three students for passes and for merits. Each title opens
    the full list. */
