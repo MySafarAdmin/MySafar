@@ -398,6 +398,49 @@ class DashboardTests:
             self.assertEqual(teacher.get(path).status_code, 403)
         self.assertEqual(json.loads(self.records()["yr4-b"]["json"])["name"], "Yr4-B")
 
+    def test_admin_downloads_the_school_spreadsheet(self):
+        from io import BytesIO
+        from openpyxl import load_workbook
+        t = int(datetime(2026, 10, 14, 17, 30).timestamp() * 1000)
+        student = {"name": "Musa Khan", "sid": "ST099", "house": "Madinah", "target": 12, "passes": 2, "merits": 1,
+                   "warn": 2, "log": [t - 864e5, t], "lt": [10, 11], "lx": ["", ""], "ml": [t], "fl": [t], "qa": 3,
+                   "q": {"2026-10-13": 4, "2026-10-14": 5}, "tg": [t], "tb": [t], "tr": [], "sw": ["2026-10-12"],
+                   "tests": [{"d": "2026-10-14", "k": "m", "n": 11, "sc": 4, "ok": True, "tk": t}]}
+        self.write(state=dict(self.state, S=[student], L=[9, 9]), class_id="yr3-a")
+        self.add_user("t@example.com", classes=["yr3-a"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        for path in ("/admin/export", "/admin/export.xlsx"):
+            self.assertEqual(teacher.get(path).status_code, 403)
+        self.assertIn(b'href="/admin/export.xlsx"', self.client.get("/admin/export").data)
+        response = self.client.get("/admin/export.xlsx")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.mimetype, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+        self.assertIn("attachment", response.headers["Content-Disposition"])
+        book = load_workbook(BytesIO(response.data))
+        self.assertEqual(book.sheetnames, ["Summary", "Students", "Classes", "Quran scores", "Memo passes and fails",
+                                           "Level tests", "Rewards", "Stars of the week", "Warnings", "Staff"])
+        rows = {name: [[c.value for c in r] for r in book[name].iter_rows()] for name in book.sheetnames}
+        students = dict(zip(rows["Students"][0], rows["Students"][1]))
+        self.assertEqual((students["Student"], students["Memo target"], students["Memo passes"], students["Warning"],
+                          students["House points"], students["Quran average"]), ("Musa Khan", "L2 T3", 2, "Warning 2", 25, 4.5))
+        self.assertEqual(rows["Classes"][1][:3], ["Yr3-A", "T", 1])
+        self.assertEqual([r[4] for r in rows["Quran scores"][1:]], [5, 4])
+        self.assertEqual([(r[4], r[5]) for r in rows["Memo passes and fails"][1:]],
+                         [("Pass", "L2 T2"), ("Not passed", None), ("Pass", "L2 T1")])
+        self.assertEqual(rows["Level tests"][1][5:], ["L2 T2", 4, "Passed", "Yes"])
+        self.assertEqual(sorted(r[5] for r in rows["Rewards"][1:]), ["Blue token", "Green token", "Merit"])
+        self.assertEqual(book["Students"].freeze_panes, "A2")
+        self.assertEqual(book["Students"].auto_filter.ref, "A1:W2")
+        self.assertIn(["Admin@Example.com".lower(), "Administrator"], [r[1:3] for r in rows["Staff"][1:]])
+        self.assertEqual(self.query("SELECT action FROM audit_log WHERE action = 'export.downloaded'"),
+                         [{"action": "export.downloaded"}])
+
+    def test_spreadsheet_names_targets_past_the_book(self):
+        import export
+        self.assertEqual(export.target_label(1, [9]), "L1 T1")
+        self.assertEqual(export.target_label(10, [9]), "198 An-Naba")
+        self.assertEqual(export.target_label(10 + len(export.JUZ_ITEMS), [9]), "Quran complete")
+
     def test_teacher_adds_a_student_from_the_quran_tab(self):
         self.write(class_id="yr3-a")
         self.write("Yr4-B", class_id="yr4-b")

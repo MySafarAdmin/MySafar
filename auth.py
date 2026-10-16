@@ -59,7 +59,7 @@ ACTIONS = {
     "user.enabled": "Turned on a user", "class.saved": "Saved classroom", "class.deleted": "Deleted classroom",
     "class.restored": "Restored classroom", "tv.created": "Made a TV screen link",
     "tv.revoked": "Turned off a TV screen link", "tv.settings": "Changed a TV screen's settings",
-    "email.test": "Sent a test email",
+    "email.test": "Sent a test email", "export.downloaded": "Downloaded the school spreadsheet",
 }
 
 
