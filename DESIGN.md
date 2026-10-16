@@ -99,12 +99,14 @@ figures on the canvas.
 **Phone dock** (below 960px, `.dock` in tokens.css): a white, slightly
 translucent bar with 26px corners floating 10px above the bottom edge (and the
 home indicator), with an icon and a short label per item. A teacher always has
-Home, Quran, Memo, Progress, Rewards and More; tapping a class page from
-elsewhere opens the class used last. An admin has Home, Classes, Record and
-More, and while a class is open Classes, the four class pages and More. The
+Home, Quran, Memo and More; tapping a class page from elsewhere opens the
+class used last. An admin has Home, Classes, Record and More, and while a class
+is open Classes, Quran, Memo and More. Progress and Rewards are left off phones
+because they repeat what Home and the Quran and Memo pages already show; the
+desktop class tabs keep them. The
 class tab row is not shown above the page on phones, since the dock carries it;
 Class settings is the first item under More. The selected item sits in a pastel
-bubble of its own colour (sky, mint, butter, lavender, coral) with a small pop;
+bubble of its own colour (sky, mint, butter) with a small pop;
 the rest are graphite. More turns navy and opens the full menu (the rail's
 links, Account and Sign out) as a navy card rising from the dock over a dim
 scrim; Escape or a tap outside closes it. The admin and account pages carry the
@@ -118,6 +120,14 @@ under the date, and the house on the right. A long name wraps onto a second
 line. No message pops up after each score; the box shows it. Tapping
 a box raises the score picker from the bottom: the student's full name, the
 day, six large score buttons and Clear, over a dim backdrop that closes it.
+
+**Quran full sheet on phones** (below 960px): Full sheet opens as a full-screen
+view over the dock: the class name and a close button on top, Last 6 weeks or
+All under it (beside it in landscape), then the table filling the rest. Names
+stay pinned on the left and dates along the top while it scrolls both ways, and
+it opens scrolled to the latest days. Cells are compact: a coloured number
+without "/5", and "Avg" for the average. The close button or Escape returns to
+Day by day. Desktop keeps the table inside the page.
 
 **Classes** is its own page in the rail, under Journey2Jannah, in place of the
 old list of class names: searchable class cards (patterned banner, year tile,
