@@ -4,7 +4,7 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-COPY server.py auth.py db.py mailer.py emails.py tv.py cleanup.py export.py gunicorn.conf.py railway-storage.js Master_Dashboard_standalone.html ./
+COPY server.py auth.py db.py mailer.py emails.py tv.py cleanup.py export.py helpdesk.py gunicorn.conf.py railway-storage.js Master_Dashboard_standalone.html ./
 COPY templates ./templates
 COPY static ./static
 COPY src/logo.b64 src/tokens.css ./src/

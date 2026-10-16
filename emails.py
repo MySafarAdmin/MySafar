@@ -10,6 +10,8 @@ and a plain-text part (<name>.txt) with the same words. Subjects are here.
 | reset            | Someone asks for a reset link, or an admin sends one.                   |
 | password_changed | A password is changed on the Account page or with a reset link.         |
 | test             | An admin sends a test email from Manage users.                          |
+| help_reply       | An admin answers a Help or Requests message on FAQs and picks email.    |
+| help_summary     | Sundays at 12:00 London time: the week's Help or Requests (helpdesk.py). |
 
 PREVIEWS holds sample details for each email, for the admin preview pages and the tests.
 """
@@ -24,8 +26,11 @@ SUBJECTS = {
     "reset": "Reset your Safar Academy dashboard password",
     "password_changed": "Your Safar Academy dashboard password was changed",
     "test": "Test email from the Safar Academy dashboard",
+    "help_reply": "A reply to your message on the Safar Academy dashboard",
+    "help_summary": "This week's Help or Requests on the Safar Academy dashboard",
 }
-TAGS = {"invite": "invite", "reset": "password_reset", "password_changed": "security", "test": "test"}
+TAGS = {"invite": "invite", "reset": "password_reset", "password_changed": "security", "test": "test",
+        "help_reply": "help_reply", "help_summary": "help_summary"}
 
 
 def hours(n):
@@ -61,4 +66,17 @@ PREVIEWS = {
     "password_changed": lambda: {"name": "Sr Maryam", "email": "maryam@example.com", "how": "reset",
                                  "at": int(time.time())},
     "test": lambda: {"name": "Br Ahmed", "email": "ahmed@example.com", "at": int(time.time())},
+    "help_reply": lambda: {"name": "Sr Maryam", "kind": "Help", "asked_at": int(time.time()) - 86400,
+                           "body": "How do I record a Memo pass for a student who was absent last week?",
+                           "reply": "Open the Memo tab, choose the student and use Add a past pass under Progress.",
+                           "by": "Br Ahmed"},
+    "help_summary": lambda: {"name": "Admin", "start": int(time.time()) - 7 * 86400, "end": int(time.time()),
+                             "helps": 1, "requests": 1, "waiting": 1, "faqs": auth.public_url("/admin/faqs"),
+                             "items": [{"kind": "Help", "name": "Sr Maryam", "email": "maryam@example.com",
+                                        "body": "How do I record a Memo pass for a student who was absent?",
+                                        "at": int(time.time()) - 3 * 86400, "reply": "Use Add a past pass.",
+                                        "by": "Br Ahmed"},
+                                       {"kind": "Request", "name": "Br Idris", "email": "idris@example.com",
+                                        "body": "Could we have a second TV in the hall?", "at": int(time.time()) - 86400,
+                                        "reply": None, "by": None}]},
 }

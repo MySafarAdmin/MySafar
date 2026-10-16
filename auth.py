@@ -60,6 +60,8 @@ ACTIONS = {
     "class.restored": "Restored classroom", "tv.created": "Made a TV screen link",
     "tv.revoked": "Turned off a TV screen link", "tv.settings": "Changed a TV screen's settings",
     "email.test": "Sent a test email", "export.downloaded": "Downloaded the school spreadsheet",
+    "help.sent": "Sent a Help or Requests message", "help.replied": "Replied on FAQs",
+    "help.deleted": "Deleted a FAQs message",
 }
 
 
@@ -491,7 +493,7 @@ def users_page(status=200, **context):
 
 
 EMAIL_PREVIEWS = (("invite", "Invite"), ("reset", "Password reset"), ("password_changed", "Password changed"),
-                  ("test", "Test email"))
+                  ("test", "Test email"), ("help_reply", "FAQs reply"), ("help_summary", "Weekly Help or Requests summary"))
 
 
 def chosen_classes(tx):
