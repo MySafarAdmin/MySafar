@@ -46,14 +46,15 @@ a new one if a link is lost or seen by someone it shouldn't be.
 
 The dashboard changes slide every 30 seconds and updates every minute. Each
 slide is a flat cartoon still from an Islamic place or story, kept moving: the
-Kaaba in Makkah (with the clock tower showing the real time and washing swinging
-on lines between the old houses), Masjid an-Nabawi with its umbrellas opening and
-closing, Masjid al-Aqsa and the Dome of the Rock, Cave Hira on Jabal al-Nour,
-Cave Thawr with the spider's web and the dove's nest, the Ark of Nuh after the
-flood, the sea parting for Musa, and the splitting of the moon. Washing, palms,
-cypresses and the web move in a gusty wind with a little physics, the Ark floats
-on the swell, and pigeons, doves and lanterns fly through. A caption names the
-scene. House points is a festival with bunting and fireworks.
+Kaaba in Makkah as it was in the Prophet's time (an open valley ringed by
+mountains, people going round the Kaaba, the well of Zamzam, mud-brick houses
+with washing tied out on the lines), Masjid an-Nabawi with its umbrellas opening
+and closing, Masjid al-Aqsa and the Dome of the Rock, Cave Hira on Jabal al-Nour
+under shooting stars, Cave Thawr with the spider's web and the dove's nest, the
+Ark of Nuh after the flood, the sea parting for Musa, and the splitting of the
+moon. Washing, palms, cypresses and the web move in a gusty wind with a little
+physics and the Ark floats on the swell. House points is a festival with bunting
+and fireworks. The podium steps rise in order: first, then second, then third.
 
 Classes are shown by year group, class letter and teacher, with the title in
 full: Sr, Sister, Ustadha and Mrs/Ms/Miss become Ustadha, every other title (Br,
@@ -62,10 +63,10 @@ the Presenter and the dashboard (the stored name is unchanged, so Rename and the
 CSV upload still use it). On the top-class podiums the teacher's name is the big
 line and "Yr3A" sits under it.
 
-- **Memorisation passes** is one board listing everyone with a pass this month:
-  a band for each rank with everyone tied on it, in boxes of the same size. A
-  month too full for the screen scrolls steadily down, reaching the end just
-  before the slide changes.
+- **Memorisation passes** is one board with the top three ranks: a band for
+  each with everyone tied on it, in boxes of the same size. If they don't all
+  fit, the board stays on first place for a while, moves on to second, then
+  slowly through third, reaching the bottom 29 seconds in.
 - **Podiums** (the top three totals this month; ties share a step): Qaidah
   levels passed (Quran level tests on the Record page), and the top classes for
   Qaidah and for memorisation, primary (Years 1 to 6) and secondary (Year 7
@@ -89,11 +90,11 @@ classroom. Signed-in staff can preview it at `/tv`.
 ### Presenter
 
 **Presenter**, at the top of a class, shows that class's month on the big screen in the
-same scenes, with the class's students riding through instead of teachers. Teachers
+same scenes, with the class's students riding through by name (the TV has no riders). Teachers
 can present their own classes and admins any class. Its slides are podiums for the best Quran average
 (students with 3 or more scores this month), Qaidah levels, house points earned,
-the class's house race (with the house logos) and merits; memorisation passes as a
-ranked list like the TV's; book passes taking turns; and the month's stars of the
+the class's house race (with the house logos) and merits; memorisation passes as the
+TV's top-three board; book passes taking turns; and the month's stars of the
 week on one page. **Full screen** and **Close** show when the mouse moves;
 Close (or Escape) goes back to the class.
 

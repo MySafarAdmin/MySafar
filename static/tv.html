@@ -9,9 +9,9 @@
 <title>Safar Academy · Live</title>
 <style>
 @font-face{font-family:"Atkinson Next";src:url(/fonts/atkinson-next-latin.woff2) format("woff2");font-weight:200 800;font-display:swap}
-/* Student-facing display. Every slide is a still from an Islamic place or story (the Kaaba, Masjid an-Nabawi,
-   Al-Aqsa, Cave Hira, Cave Thawr, the Ark, the parting of the sea, the split moon) that keeps moving while it is on:
-   washing and trees in the wind, birds, water, light. On the Presenter the class's students ride through by name. Slides change every
+/* Student-facing display. Every slide is a still from an Islamic place or story (the Kaaba in the Prophet's time,
+   Masjid an-Nabawi, Al-Aqsa, Cave Hira, Cave Thawr, the Ark, the parting of the sea, the split moon) that keeps moving
+   while it is on: washing and trees in the wind, water, light. On the Presenter the class's students ride through by name. Slides change every
    30 seconds with a crossfade and a slow push in, so the screen never cuts. Everything is sized in vh for a 16:9 TV. */
 :root{--navy:#002848;--ink:#0b2340;--mute:#5b7089;--gold:#f5c542;--gold2:#d99a00;--silver:#dfe6ee;--silver2:#9fb0c2;--bronze:#efaa72;--bronze2:#b86a2e;
  --makkah:#e9a400;--aqsa:#2a9fe6;--madinah:#1fae72;color-scheme:dark}
@@ -74,11 +74,14 @@ footer i.run{width:100%;transition:width linear}
 .p3 .step{height:17vh;background:var(--bronze);color:#3a1c05}
 .p3 .step b{font-size:7vh}
 .step.none{opacity:.45}
-/* First place: it rises last, then keeps a crown bobbing and light sweeping over the gold. */
-.p2 .step,.p2 .pc{animation-delay:.55s}.p3 .step,.p3 .pc{animation-delay:.75s}.p1 .step{animation-delay:.95s}.p1 .pc{animation-delay:1.35s}
+/* The steps rise in order: first place, then second, then third, each step before its names. First place then
+   keeps a crown bobbing and light sweeping over the gold. */
+.p1 .step{animation-delay:.4s}.p1 .pc,.p1 .more{animation-delay:.9s}
+.p2 .step{animation-delay:1.6s}.p2 .pc,.p2 .more{animation-delay:2.1s}
+.p3 .step{animation-delay:2.8s}.p3 .pc,.p3 .more{animation-delay:3.3s}
 .p1 .step::after{content:"";position:absolute;inset:0;background:rgba(255,255,255,.3);clip-path:polygon(30% 0,42% 0,22% 100%,10% 100%);transform:translateX(-120%);animation:sweep 4.5s 2.4s infinite}
 .p1 .who{animation:float 4s 2s ease-in-out infinite}
-.crown{position:absolute;left:50%;top:-6.4vh;width:8vh;margin-left:-4vh;animation:pop .8s 1.7s both cubic-bezier(.3,1.6,.5,1)}
+.crown{position:absolute;left:50%;top:-6.4vh;width:8vh;margin-left:-4vh;animation:pop .8s 1.3s both cubic-bezier(.3,1.6,.5,1)}
 .crown svg{width:100%;display:block;animation:bob 2.6s 2.5s ease-in-out infinite}
 .spark{position:absolute;width:2.4vh;height:2.4vh;background:#fff;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:twinkle 2.2s infinite}
 @keyframes rise{from{transform:scaleY(0)}}
@@ -87,9 +90,9 @@ footer i.run{width:100%;transition:width linear}
 @keyframes float{50%{transform:translateY(-1vh)}}
 @keyframes bob{50%{transform:translateY(-.8vh) rotate(-4deg)}}
 @keyframes twinkle{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
-/* ---------- Ranked list: every student on every rank, ties together ----------
+/* ---------- Ranked list: the top three ranks, ties together ----------
    One navy board. Each rank is a band: its place and score on the left, then the students in a grid of boxes that
-   are all the same size. A month too full for the board scrolls steadily to the bottom by the end of the slide. */
+   are all the same size. A month too full for the board scrolls rank by rank (fitRanks). */
 .ranks{flex:0 1 auto;min-height:0;margin:2.6vh 0 3vh;position:relative;overflow:hidden;font-size:3.6vh;background:var(--navy);border-radius:2.4vh;border:.5vh solid var(--navy);box-shadow:0 .8vh 0 rgba(0,20,40,.25);animation:pop .8s .3s both cubic-bezier(.3,1.4,.5,1)}
 .rk-in{will-change:transform}
 .rk{display:grid;grid-template-columns:5.2em 1fr;gap:.5em;padding:.5em .55em;border-bottom:.12em solid rgba(255,255,255,.12)}
@@ -129,8 +132,6 @@ footer i.run{width:100%;transition:width linear}
 .sfish{position:absolute;width:3vh;height:1.6vh;border-radius:50%;opacity:.85;animation:sfish ease-in-out infinite alternate}
 .sfish::after{content:"";position:absolute;left:-1.2vh;top:.2vh;border:.6vh solid transparent;border-right:1.2vh solid;border-right-color:inherit;color:inherit}
 @keyframes sfish{from{left:var(--l)}to{left:var(--r)}}
-.scap{position:absolute;right:2.4vw;bottom:2.4vh;z-index:3;background:rgba(0,40,72,.85);color:#fff;font-weight:700;font-size:1.9vh;border-radius:99px;padding:.6vh 1.2vw;animation:pop .8s 1.6s both}
-.scap:empty{display:none}
 /* ---------- Festival scenery ---------- */
 .fw{position:absolute;width:0;height:0}
 .fw i{position:absolute;left:-.3vh;top:0;width:.6vh;height:4.6vh;border-radius:99px;background:var(--c);transform-origin:50% 0;opacity:0;animation:burst 3.6s ease-out infinite}
@@ -194,8 +195,16 @@ footer i.run{width:100%;transition:width linear}
 @keyframes wave{to{transform:translateX(-50%)}}
 .mist{position:absolute;left:-20vw;width:80vw;height:12vh;border-radius:99px;background:rgba(255,255,255,.18);animation:mist 26s ease-in-out infinite alternate}
 @keyframes mist{to{transform:translateX(60vw)}}
-.shoot{position:absolute;width:12vw;height:.35vh;background:#fff;border-radius:99px;opacity:0;animation:shoot 9s ease-in infinite}
-@keyframes shoot{0%,82%{opacity:0;transform:translate(0,0) rotate(18deg)}86%{opacity:1}100%{opacity:0;transform:translate(40vw,13vh) rotate(18deg)}}
+/* A shooting star: a bright head with a long tail that tapers and fades behind it, streaking down along its own
+   line (the holder is turned to the angle, the star moves straight along it) and burning out, then a long wait. */
+.shoot{position:absolute;width:0;height:0;transform:rotate(var(--a,24deg))}
+.shoot b{position:absolute;right:0;top:-.5vh;height:1vh;width:16vw;opacity:0;animation:shoot var(--t,11s) var(--d,0s) linear infinite}
+.shoot u{position:absolute;inset:0;transform-origin:100% 50%;animation:tail var(--t,11s) var(--d,0s) linear infinite}
+.shoot u::before,.shoot u::after{content:"";position:absolute;right:.5vh;top:0;bottom:0;left:0;background:#fff;clip-path:polygon(0 50%,100% 15%,100% 85%)}
+.shoot u::before{opacity:.35;left:-30%;clip-path:polygon(0 50%,100% 0,100% 100%)}
+.shoot i{position:absolute;right:-.2vh;top:50%;width:1.3vh;height:1.3vh;margin-top:-.65vh;border-radius:50%;background:#fff;box-shadow:0 0 0 .5vh rgba(255,255,255,.25),0 0 0 1.1vh rgba(190,215,255,.12)}
+@keyframes shoot{0%{opacity:0;transform:translateX(0)}1.5%{opacity:1}9%{opacity:1}11%,100%{opacity:0;transform:translateX(46vw)}}
+@keyframes tail{0%{transform:scaleX(.05)}5%{transform:scaleX(1)}9%{transform:scaleX(.7)}11%,100%{transform:scaleX(.1)}}
 .glowwin{animation:tw 4s ease-in-out infinite}
 .confetti{position:absolute;width:1.2vh;height:1.8vh;border-radius:.3vh;pointer-events:none}
 #ctl{position:fixed;z-index:8;right:2vw;bottom:3vh;display:flex;gap:.8vw;opacity:0;transition:opacity .4s}
@@ -264,31 +273,52 @@ function hands(cx,cy,r){var d=new Date(),m=d.getMinutes()*60+d.getSeconds(),h=(d
 
 /* ---------- The worlds ----------
    Each is a still from an Islamic place or story, with a sky (CSS background), scenery that keeps moving on its own,
-   a caption, and what flies through it (rider). Flat colours, no gradients. The horizon sits about a third of the
+   and what carries the Presenter's names through it (rider). Flat colours, no gradients. The horizon sits about a third of the
    way down so the landmark shows above the podium and the lists. */
 var W={
- makkah:{sky:"#86cdf2",rider:"pigeon",cap:"The Kaaba, Makkah",
-  html:function(){var sand="#efe4cf",wall="#f6f0e2",gold="#d9a531";
-   return bands([[24,"#9ad6f5"],[34,"#b3e1f8"]])+clouds(5,[12,30])
-   +LAND+'<path d="M0 360 L120 300 L240 340 L380 285 L520 330 L660 292 L820 335 L960 302 L1100 330 L1250 290 L1400 322 L1600 292 V900 H0Z" fill="#d3a46e"/><path d="M0 382 L160 342 L330 372 L500 338 L700 374 L900 344 L1120 370 L1340 340 L1600 362 V900 H0Z" fill="#c08b55"/>'
-   +'<rect y="372" width="1600" height="528" fill="'+sand+'"/><rect y="560" width="1600" height="340" fill="#e8dcc3"/><rect y="760" width="1600" height="140" fill="#dfd0b4"/>'
-   // The clock tower behind the mosque, with the real time on its clock.
-   +'<rect x="1190" y="226" width="150" height="120" fill="#e3d7bf"/><rect x="1225" y="96" width="80" height="150" fill="#eee5d2"/><rect x="1225" y="96" width="20" height="150" fill="#dacdb2"/>'
-   +'<rect x="1233" y="68" width="64" height="30" fill="#e2d3b3"/><path d="M1247 68 L1265 4 L1283 68Z" fill="'+gold+'"/><circle cx="1265" cy="136" r="31" fill="#fff" stroke="#1d8a57" stroke-width="7"/>'+hands(1265,136,26)
-   // The mosque's arcades and minarets, then the Kaaba with people going round it.
-   +'<rect x="960" y="296" width="640" height="78" fill="'+wall+'"/><rect x="960" y="296" width="640" height="10" fill="#e3d9c3"/>'+arches(970,316,42,15,52,"#c9b48c")
-   +minaret(990,150,300,wall,gold)+minaret(1120,160,300,wall,gold)+minaret(1450,150,300,wall,gold)+minaret(1575,160,300,wall,gold)
-   +'<rect x="960" y="364" width="640" height="14" fill="#fbf8f1"/>'
-   +'<path d="M1300 312 L1352 318 V372 L1300 366Z" fill="#141414"/><path d="M1352 318 L1376 310 V364 L1352 372Z" fill="#262626"/><path d="M1300 312 L1324 304 L1376 310 L1352 318Z" fill="#333"/>'
-   +'<path d="M1300 326 L1352 332 L1376 324" stroke="'+gold+'" stroke-width="5" fill="none"/><rect x="1312" y="340" width="12" height="20" fill="'+gold+'" opacity=".85"/>'
-   +rep(14,function(i){return '<circle r="3.2" fill="#fff"><animateMotion dur="'+(26+i%4*3)+'s" begin="-'+(i*2.1)+'s" repeatCount="indefinite" path="M1258 368 a82 13 0 1 0 164 0 a82 13 0 1 0 -164 0"/></circle>'})
-   // Old Makkah houses with wooden windows, and washing out on the lines.
-   +'<rect x="0" y="176" width="112" height="724" fill="#d8b384"/><rect x="104" y="236" width="100" height="664" fill="#c99f6d"/>'
-   +rep(5,function(i){return '<rect x="26" y="'+(206+i*120)+'" width="58" height="76" rx="4" fill="#8a5a2e"/><path d="M38 '+(214+i*120)+' V'+(274+i*120)+' M55 '+(214+i*120)+' V'+(274+i*120)+' M72 '+(214+i*120)+' V'+(274+i*120)+'" stroke="#b07a43" stroke-width="4"/>'
-    +'<rect x="128" y="'+(262+i*120)+'" width="50" height="60" rx="4" fill="#7a4c26"/>'})
-   +'<rect x="1440" y="400" width="160" height="500" fill="#d4ae7f"/>'+rep(4,function(i){return '<rect x="1478" y="'+(436+i*112)+'" width="56" height="70" rx="4" fill="#8a5a2e"/>'})
-   +washing(196,262,620,296,26,["#ffffff","#e9604f","#4a90d9","#f4c542","#ffffff","#3fae72"])+washing(1440,420,1600,412,16,["#ffffff","#e9604f"])+'</svg>'}},
- madinah:{sky:"#8fd3f5",rider:"pigeon",cap:"Masjid an-Nabawi, Madinah",
+ makkah:{sky:"#86cdf2",rider:"pigeon",
+  // Makkah in the Prophet's time (peace be upon him): the Kaaba in an open valley ringed by bare mountains, people going
+  // round it, the well of Zamzam, and flat-roofed mud-brick houses with washing tied out on the lines.
+  html:function(){var sand="#efe0c2",gold="#d9a531";
+   var house=function(x,y,w,h,c,win){return '<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+c+'"/><rect x="'+(x-3)+'" y="'+(y-8)+'" width="'+(w+6)+'" height="10" fill="'+c+'"/><path d="M'+x+' '+(y+2)+' H'+(x+w)+'" stroke="rgba(0,0,0,.12)" stroke-width="3"/>'
+     +rep(Math.max(2,Math.round(w/34)),function(i){return '<rect x="'+(x+8+i*30)+'" y="'+(y+8)+'" width="7" height="6" fill="#7a5530"/>'})
+     +(win?rep(win,function(i){return '<rect x="'+(x+w*(i+.5)/win-8)+'" y="'+(y+h*.28)+'" width="16" height="20" rx="8" fill="#5c3d22"/>'}):'')
+     +'<path d="M'+(x+w*.5-14)+' '+(y+h)+' V'+(y+h-38)+' Q'+(x+w*.5)+' '+(y+h-52)+' '+(x+w*.5+14)+' '+(y+h-38)+' V'+(y+h)+'Z" fill="#6b4626"/>'};
+   var pole=function(x,top,base){return '<path d="M'+x+' '+base+' V'+top+'" stroke="#7a5230" stroke-width="9" stroke-linecap="round"/><path d="M'+(x-12)+' '+(top-14)+' L'+x+' '+(top+4)+' L'+(x+12)+' '+(top-14)+'" stroke="#7a5230" stroke-width="6" fill="none" stroke-linecap="round"/>'};
+   var knot=function(x,y){return '<circle cx="'+x+'" cy="'+y+'" r="5" fill="#6b5544"/>'};
+   return bands([[24,"#9ad6f5"],[34,"#b3e1f8"]])+clouds(5,[10,26])
+   +LAND
+   // The mountains round the valley: far ridges, then nearer, darker ones; little houses up the slopes.
+   +'<path d="M0 300 L90 236 L170 262 L260 196 L360 248 L470 214 L560 262 L660 230 L760 270 L860 236 L960 280 L1040 250 L1460 262 L1530 222 L1600 244 V900 H0Z" fill="#cfa577"/>'
+   +'<path d="M0 340 L120 286 L230 318 L330 280 L450 330 L560 300 L700 344 L820 316 L940 352 L1030 330 L1100 360 L1400 356 L1480 320 L1560 296 L1600 310 V900 H0Z" fill="#b98a5a"/>'
+   +'<path d="M150 300 L190 312 M420 254 L450 268 M1500 250 L1530 262 M640 252 L680 262" stroke="#a87a4c" stroke-width="6" stroke-linecap="round"/>'
+   +[[300,322,26,18],[340,318,20,14],[520,330,24,16],[600,338,30,18],[880,340,22,14],[960,348,28,16],[1470,330,26,18],[1520,322,22,16]].map(function(h){return '<rect x="'+h[0]+'" y="'+(h[1]-h[3])+'" width="'+h[2]+'" height="'+h[3]+'" fill="#e3c597"/><rect x="'+(h[0]+h[2]*.4)+'" y="'+(h[1]-h[3]*.6)+'" width="4" height="5" fill="#8a6238"/>'}).join("")
+   // The valley floor and the open ground round the Kaaba.
+   +'<rect y="372" width="1600" height="528" fill="'+sand+'"/><rect y="560" width="1600" height="340" fill="#e7d4b0"/><rect y="760" width="1600" height="140" fill="#dcc69c"/>'
+   +'<ellipse cx="1232" cy="392" rx="330" ry="42" fill="#f6ecd6"/>'
+   // People going round the Kaaba, drawn first so the Kaaba hides those behind it.
+   +rep(22,function(i){return '<g><animateMotion dur="40s" begin="-'+(i*40/22).toFixed(2)+'s" repeatCount="indefinite" path="M982 386 a250 30 0 1 0 500 0 a250 30 0 1 0 -500 0"/><circle cy="-11" r="5" fill="#f2d2a9"/><path d="M-6 -6 H6 L5 6 H-5Z" fill="'+(i%5?"#fff":"#e8e2d3")+'"/></g>'})
+   // The low curved wall of the Hijr beside it.
+   +'<path d="M1078 384 Q1018 384 1010 366 Q1018 346 1080 344" stroke="#e9dfc8" stroke-width="12" fill="none"/>'
+   // The Kaaba: a black cube with its gold band, its raised door and the Black Stone on its corner.
+   +'<ellipse cx="1238" cy="384" rx="170" ry="16" fill="rgba(80,55,20,.18)"/>'
+   +'<path d="M1088 150 L1180 134 L1386 134 L1294 150Z" fill="#3b3b3b"/><rect x="1088" y="150" width="206" height="232" fill="#151515"/><path d="M1294 150 L1386 134 V364 L1294 382Z" fill="#292929"/>'
+   +'<rect x="1088" y="196" width="206" height="16" fill="'+gold+'"/><path d="M1294 196 L1386 180 V196 L1294 212Z" fill="#b98a22"/>'
+   +rep(9,function(i){return '<rect x="'+(1096+i*22)+'" y="201" width="12" height="6" rx="2" fill="#7a5a12"/>'})+rep(4,function(i){return '<path d="M'+(1302+i*20)+' '+(203-i*3.5)+' l12 -2" stroke="#6b4d0e" stroke-width="5"/>'})
+   +'<rect x="1214" y="250" width="44" height="82" rx="3" fill="'+gold+'"/><rect x="1222" y="258" width="28" height="66" fill="#a8791b"/><path d="M1236 258 V324" stroke="'+gold+'" stroke-width="3"/>'
+   +'<ellipse cx="1288" cy="344" rx="7" ry="10" fill="#3a3a3a" stroke="#c9c9c9" stroke-width="4"/>'
+   // The well of Zamzam, with its bucket swinging on the rope.
+   +'<ellipse cx="930" cy="404" rx="44" ry="12" fill="#a99a80"/><rect x="886" y="380" width="88" height="24" fill="#bdae92"/><ellipse cx="930" cy="380" rx="44" ry="12" fill="#cfc1a6"/><ellipse cx="930" cy="380" rx="32" ry="7" fill="#3c5f74"/>'
+   +'<path d="M892 384 V318 M968 384 V318 M884 318 H976" stroke="#7a5230" stroke-width="7" stroke-linecap="round"/>'
+   +ph('<path d="M930 318 V350" stroke="#6b5544" stroke-width="2.5"/><path d="M920 350 H940 L937 368 H923Z" fill="#8a5a2e"/>',8,.6)
+   // Houses at the edge of the valley, with washing lines tied between a roof beam and a pole.
+   +house(0,180,150,720,"#d6b07f",2)+house(140,250,110,650,"#c99f6d",1)+house(1430,330,170,570,"#d2ab79",2)+house(1340,392,96,508,"#dcbb8a",1)
+   +'<path d="M250 268 H272" stroke="#7a5230" stroke-width="8" stroke-linecap="round"/>'+knot(270,268)+pole(640,300,620)+knot(640,300)
+   +washing(270,268,640,300,24,["#ffffff","#b8473a","#3e5f9e","#e2b04a","#f3ecdc","#6c8f4e"])
+   +'<path d="M1430 352 H1408" stroke="#7a5230" stroke-width="8" stroke-linecap="round"/>'+pole(1590,346,520)+knot(1590,346)+knot(1410,352)+washing(1410,352,1590,346,16,["#f3ecdc","#3e5f9e"])
+   +datePalm(60,560,250)+datePalm(1530,620,220,1)
+   +'</svg>'}},
+ madinah:{sky:"#8fd3f5",rider:"pigeon",
   html:function(){var wall="#f3ebda",green="#1f9254",cap="#d9a531";
    return bands([[26,"#a5dcf7"],[36,"#bfe6fa"]])+'<div class="sun" style="width:11vh;height:11vh;left:56vw;top:15vh"></div>'+clouds(5,[12,30])
    +LAND+'<path d="M0 372 Q140 250 300 330 Q420 280 560 345 L700 372Z" fill="#b98a5c"/><path d="M0 372 Q100 320 220 352 Q360 330 520 372Z" fill="#a8784a"/>'
@@ -302,7 +332,7 @@ var W={
    // The courtyard umbrellas open and close.
    +[1040,1150,1260,1370,1480,1580].map(function(x,i){return '<path d="M'+x+' 382 V330" stroke="#c8c3b8" stroke-width="4"/><path class="umb" style="animation-delay:-'+(i*1.3)+'s" d="M'+(x-50)+' 336 Q'+x+' 296 '+(x+50)+' 336 Q'+(x+25)+' 326 '+x+' 336 Q'+(x-25)+' 326 '+(x-50)+' 336Z" fill="#fbfbf8" stroke="#e1ddd2" stroke-width="2"/>'}).join("")
    +datePalm(70,900,560)+datePalm(190,900,470,1)+datePalm(1530,900,430,1)+'</svg>'}},
- aqsa:{sky:"#87cbe9",rider:"bird",cap:"Masjid al-Aqsa and the Dome of the Rock, Al-Quds",
+ aqsa:{sky:"#87cbe9",rider:"bird",
   html:function(){var stone="#dcc195",gold="#f2b531";
    return bands([[28,"#9fd5ee"],[38,"#bde2f3"]])+'<div class="sun" style="width:12vh;height:12vh;left:60vw;top:14vh"></div>'+clouds(4,[12,28])
    +LAND+'<path d="M0 330 Q200 260 420 310 Q640 250 860 312 Q1080 262 1300 300 Q1460 270 1600 296 V900 H0Z" fill="#a0aa70"/><path d="M0 352 Q260 300 520 340 Q800 300 1060 338 Q1320 302 1600 334 V900 H0Z" fill="#8c9760"/>'
@@ -320,8 +350,8 @@ var W={
    +cypress(1070,374,170)+cypress(1380,374,130,"#3a7a48")+cypress(40,600,330)+cypress(130,640,260,"#3a7a48")
    +ph('<path d="M226 900 Q232 760 218 700" stroke="#7a5a3a" stroke-width="16" fill="none"/><ellipse cx="216" cy="650" rx="92" ry="66" fill="#8fae6a"/><ellipse cx="180" cy="626" rx="50" ry="36" fill="#a3bf7c"/>',6,.4,1)
    +ph('<path d="M1530 900 Q1524 760 1540 700" stroke="#7a5a3a" stroke-width="16" fill="none"/><ellipse cx="1540" cy="650" rx="88" ry="62" fill="#8fae6a"/><ellipse cx="1570" cy="626" rx="46" ry="34" fill="#a3bf7c"/>',6,.4,1)+'</svg>'}},
- hira:{sky:"#1c2457",rider:"lantern",cap:"Cave Hira on Jabal al-Nour, where the first revelation came",
-  html:function(){return bands([[30,"#22306a"],[40,"#2b3b7a"]])+stars(80,40)+'<i class="shoot" style="left:30vw;top:14vh"></i><i class="shoot" style="left:58vw;top:20vh;animation-delay:-5s"></i>'
+ hira:{sky:"#1c2457",rider:"lantern",
+  html:function(){return bands([[30,"#22306a"],[40,"#2b3b7a"]])+stars(80,40)+[[8,6,22,11,1],[34,4,28,13,6],[52,12,18,9,3.5],[20,16,32,14,10]].map(function(z){return '<span class="shoot" style="left:'+z[0]+'vw;top:'+z[1]+'vh;--a:'+z[2]+'deg;--t:'+z[3]+'s"><b style="--d:'+z[4]+'s"><u></u><i></i></b></span>'}).join("")
    +'<div style="position:absolute;left:62vw;top:13vh;width:9vh;height:9vh;border-radius:50%;box-shadow:inset 2.2vh -1.1vh 0 0 #ffe9a8;transform:rotate(-20deg)"></div>'
    +LAND+'<path d="M0 380 Q160 330 320 362 Q480 320 660 360 Q760 342 880 372 V900 H0Z" fill="#2f2650"/>'
    +rep(40,function(i){return '<rect class="glowwin" style="animation-delay:-'+(i*.37)+'s" x="'+(14+i*21)+'" y="'+(366+(i*37%22))+'" width="7" height="9" rx="2" fill="#ffd56b"/>'})
@@ -332,7 +362,7 @@ var W={
    +'<path d="M1296 168 Q1300 134 1320 132 Q1342 136 1340 170Z" fill="#140d22"/><path d="M1306 168 Q1310 146 1322 145 Q1332 148 1330 168Z" fill="#ffd56b" opacity=".55" class="glowwin"/>'
    +'<path d="M1550 900 Q1470 700 1500 560 Q1430 470 1400 380 Q1360 300 1330 172" stroke="#6a5a86" stroke-width="5" stroke-dasharray="10 14" fill="none"/>'
    +rep(12,function(i){var x=i<6?20+i*30:1450+(i-6)*26;return ph('<path d="M'+x+' 900 Q'+(x-6)+' 840 '+(x+4)+' '+(790-i%3*30)+'" stroke="#3d5a46" stroke-width="7" fill="none" stroke-linecap="round"/>',12,.7,1)})+'</svg>'}},
- thawr:{sky:"#9fd4f0",rider:"dove",cap:"Cave Thawr on the Hijrah: the spider's web and the dove's nest",
+ thawr:{sky:"#9fd4f0",rider:"dove",
   html:function(){var web='';for(var i=0;i<10;i++){var a=i*Math.PI/5;web+='<path d="M1282 262 L'+(1282+Math.cos(a)*78)+' '+(262+Math.sin(a)*64)+'"/>'}
    [16,30,44,58,72].forEach(function(r){var p="";for(var i=0;i<=10;i++){var a=i*Math.PI/5;p+=(i?"L":"M")+(1282+Math.cos(a)*r).toFixed(1)+" "+(262+Math.sin(a)*r*.82).toFixed(1)}web+='<path d="'+p+'"/>'});
    return bands([[26,"#b3dcf2"],[34,"#f6dfb0"]])+'<div class="sun" style="width:12vh;height:12vh;left:58vw;top:13vh"></div>'+clouds(3,[12,24])
@@ -347,7 +377,7 @@ var W={
    +'<rect y="760" width="1600" height="140" fill="#ecc98a"/><path d="M0 700 Q300 650 620 690 T1240 680 T1600 690 V900 H0Z" fill="#f1d39b"/><path d="M0 800 Q400 760 820 790 T1600 780 V900 H0Z" fill="#e5bf7c"/>'
    +ph('<path d="M150 900 Q160 760 140 660" stroke="#7a5230" stroke-width="18" fill="none"/><path d="M144 668 L90 600 M146 660 L210 596" stroke="#7a5230" stroke-width="10"/><ellipse cx="150" cy="590" rx="140" ry="34" fill="#6b9a3e"/><ellipse cx="120" cy="572" rx="80" ry="22" fill="#7fb04c"/>',5,.35,1)
    +ph('<path d="M1530 900 Q1524 800 1540 740" stroke="#7a5230" stroke-width="12" fill="none"/><ellipse cx="1540" cy="728" rx="90" ry="24" fill="#6b9a3e"/>',5,.35,1)+'</svg>'}},
- ark:{sky:"#8ecdf0",rider:"dove",cap:"The Ark of Nuh (AS) after the flood",
+ ark:{sky:"#8ecdf0",rider:"dove",
   html:function(){var R=["#e74c3c","#f39c34","#f6d13a","#4cb85c","#3a8fdc","#5a5bd6","#9b59c7"];
    return bands([[22,"#9fd5f2"]])+clouds(4,[12,26])
    +'<svg class="land" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true">'+R.map(function(c,i){var r=330-i*13;return '<path d="M'+(1150-r)+' 360 A'+r+' '+r+' 0 0 1 '+(1150+r)+' 360" stroke="'+c+'" stroke-width="13" fill="none" opacity=".85"/>'}).join("")
@@ -356,13 +386,18 @@ var W={
    +'<div style="position:absolute;left:0;right:0;top:37vh;height:8vh;overflow:hidden"><svg class="wave" style="height:100%;animation-duration:12s" viewBox="0 0 3200 80" preserveAspectRatio="none"><path d="M0 30 '+rep(16,function(){return 'q100 -24 200 0 '})+'V80 H0Z" fill="#3a9ddb"/></svg></div>'
    // The Ark floats on the swell (moved by the floats in phys()), animals looking out.
    +'<svg class="land" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><g class="float" data-x="1300">'
-   +'<path d="M1150 300 Q1300 330 1460 296 L1430 356 Q1300 372 1176 356Z" fill="#8b5a2b"/><path d="M1162 316 Q1300 344 1452 312 M1170 336 Q1300 360 1440 332" stroke="#6e4520" stroke-width="4" fill="none"/>'
-   +'<rect x="1210" y="244" width="180" height="62" fill="#a8743f"/><path d="M1198 248 L1300 214 L1402 248Z" fill="#7a4a22"/>'+rep(4,function(i){return '<rect x="'+(1226+i*42)+'" y="262" width="22" height="20" rx="3" fill="#4a2c12"/>'})
-   +'<path d="M1342 222 Q1340 180 1352 150" stroke="#f3c04d" stroke-width="14" fill="none" stroke-linecap="round"/><ellipse cx="1360" cy="146" rx="16" ry="10" fill="#f3c04d"/><circle cx="1364" cy="143" r="2.5" fill="#222"/><path d="M1352 138 l-3 -10 M1360 136 l1 -10" stroke="#8a5a2b" stroke-width="3"/><circle cx="1346" cy="190" r="3" fill="#b07a2c"/><circle cx="1343" cy="170" r="3" fill="#b07a2c"/>'
-   +'<path d="M1238 272 Q1226 290 1236 300" stroke="#9aa3ad" stroke-width="8" fill="none" stroke-linecap="round"/><circle cx="1237" cy="268" r="8" fill="#9aa3ad"/></g>'
+   // A solid hull with a flat deck, the cabin standing on the deck (it overlaps it, so there is no gap), then the roof.
+   +'<path d="M1124 270 L1170 296 H1436 L1484 268 L1462 330 Q1446 368 1400 372 H1206 Q1158 368 1144 330Z" fill="#8b5a2b"/>'
+   +'<path d="M1136 306 H1474 M1146 330 H1462 M1162 352 H1446" stroke="#6e4520" stroke-width="4" fill="none"/><path d="M1124 270 L1170 296 H1436 L1484 268" stroke="#a8743f" stroke-width="7" fill="none" stroke-linejoin="round"/>'
+   +'<rect x="1204" y="236" width="196" height="64" fill="#a8743f"/><path d="M1204 252 H1400 M1204 268 H1400 M1204 284 H1400" stroke="#946234" stroke-width="2.5"/>'
+   +'<path d="M1190 240 L1302 200 L1414 240Z" fill="#7a4a22"/><path d="M1190 240 H1414" stroke="#5e3716" stroke-width="5"/>'
+   +rep(4,function(i){return '<rect x="'+(1224+i*44)+'" y="254" width="24" height="22" rx="3" fill="#4a2c12"/>'})
+   // A giraffe looking out over the roof and an elephant's head at a window.
+   +'<path d="M1344 216 Q1342 172 1354 140" stroke="#f3c04d" stroke-width="14" fill="none" stroke-linecap="round"/><ellipse cx="1362" cy="136" rx="16" ry="10" fill="#f3c04d"/><circle cx="1366" cy="133" r="2.5" fill="#222"/><path d="M1354 128 l-3 -10 M1362 126 l1 -10" stroke="#8a5a2b" stroke-width="3"/><circle cx="1348" cy="182" r="3" fill="#b07a2c"/><circle cx="1345" cy="162" r="3" fill="#b07a2c"/>'
+   +'<circle cx="1236" cy="266" r="10" fill="#9aa3ad"/><path d="M1236 272 Q1228 290 1238 298" stroke="#9aa3ad" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="1240" cy="263" r="1.8" fill="#222"/></g>'
    +'</svg><div style="position:absolute;left:0;right:0;top:46vh;bottom:0;overflow:hidden">'
    +[[0,16,"#4aa8e6",14],[9,10,"#2f8fd1",10],[24,7,"#2a83c2",8]].map(function(w){return '<svg class="wave" style="top:'+w[0]+'vh;height:'+w[1]+'vh;animation-duration:'+w[3]+'s" viewBox="0 0 3200 100" preserveAspectRatio="none"><path d="M0 40 '+rep(16,function(){return 'q100 -30 200 0 '})+'V100 H0Z" fill="'+w[2]+'"/></svg>'}).join("")+'</div>'}},
- sea:{sky:"#7fc4ee",rider:"bird",cap:"The sea parts for Musa (AS)",
+ sea:{sky:"#7fc4ee",rider:"bird",
   html:function(){var fish=function(n,l,r){return rep(n,function(i){return '<i class="sfish" style="--l:'+l+'vw;--r:'+r+'vw;top:'+rnd(36,92)+'vh;animation-duration:'+rnd(9,16)+'s;animation-delay:-'+rnd(0,16)+'s;background:'+pick(FISH)+'"></i>'})};
    return bands([[26,"#98d0f2"]])+clouds(5,[12,26])
    +LAND+'<rect y="330" width="1600" height="570" fill="#e8cf98"/><path d="M770 340 L830 340 L1170 900 H430Z" fill="#e8cf98"/>'+rep(26,function(i){var t=i/26,y=360+t*t*520,x=800+(i%2?1:-1)*(20+t*300)*Math.random();return '<ellipse cx="'+x+'" cy="'+y+'" rx="'+(4+t*12)+'" ry="'+(2+t*6)+'" fill="#d4b77c"/>'})
@@ -373,7 +408,7 @@ var W={
    +'<path class="foam" d="M0 120 L740 300 M1600 120 L860 300" stroke="#e8f6ff" stroke-width="12" stroke-dasharray="40 26" stroke-linecap="round" fill="none"/>'
    +'<path class="foam" style="animation-duration:3s" d="M740 300 L770 340 L430 900 M860 300 L830 340 L1170 900" stroke="#bfe6ff" stroke-width="6" stroke-dasharray="18 22" fill="none"/></svg>'
    +fish(6,2,30)+fish(6,70,98)+rep(12,function(){var s=rnd(1,2.6),l=Math.random()<.5;return '<i class="bub" style="left:'+(l?rnd(2,40):rnd(60,98))+'vw;width:'+s+'vh;height:'+s+'vh;animation-duration:'+rnd(8,14)+'s;animation-delay:-'+rnd(0,14)+'s"></i>'})}},
- moon:{sky:"#0e1a44",rider:"lantern",cap:"The splitting of the moon",
+ moon:{sky:"#0e1a44",rider:"lantern",
   html:function(){return bands([[34,"#13235a"],[42,"#1a2c6b"]])+stars(110,44)
    +LAND
    +'<g class="half l"><path d="M1180 110 A80 80 0 0 0 1180 270Z" fill="#ffe7a3"/><circle cx="1140" cy="170" r="12" fill="#f0d488"/><circle cx="1150" cy="228" r="8" fill="#f0d488"/></g>'
@@ -536,14 +571,19 @@ function podium(steps,unit,empty,fmt){if(!steps.length)return '<div class="empty
  return '<div class="podium">'+[2,1,3].map(function(p){var s=by[p];return '<div class="col p'+p+'"><div class="who">'+(s?(p===1?CROWN+'<i class="spark" style="left:-2vh;top:10%"></i><i class="spark" style="right:-2vh;top:40%;animation-delay:-1s"></i>':'')+cards(s.who,2):'')+'</div>'
   +'<div class="step'+(s?'':' none')+'"><b>'+p+'</b>'+(s?'<span>'+(fmt?fmt(s.n):plural(s.n,unit))+'</span>':'')+'</div></div>'}).join("")+'</div>'}
 function ord(n){var t=n%100,u=n%10;return n+(t>10&&t<14?"th":u===1?"st":u===2?"nd":u===3?"rd":"th")}
-/* Every rank as a band on one board: its place and score, then everyone on it in boxes of one size. If a big month
-   doesn't fit, the board scrolls steadily down after a pause, reaching the last rank just before the slide ends. */
-function ranks(steps,unit,empty,fmt){if(!steps.length)return '<div class="empty">'+empty+'<small>Who will be first?</small></div>';
+/* The top three ranks as bands on one board: the place and score, then everyone tied on it in boxes of one size. */
+function ranks(steps,unit,empty,fmt){steps=steps.filter(function(s){return s.place<=3});if(!steps.length)return '<div class="empty">'+empty+'<small>Who will be first?</small></div>';
  return '<div class="ranks"><div class="rk-in">'+steps.map(function(s){return '<div class="rk'+(s.place<=3?" m"+s.place:"")+'"><div class="rb"><b>'+ord(s.place)+'</b><span>'+(fmt?fmt(s.n):plural(s.n,unit))+'</span></div><div class="rw">'
   +s.who.map(function(w){return '<span class="chip '+esc(w.house||"")+'"><span class="pn">'+esc(w.name)+'</span>'+(w.class?'<span class="pcl">'+esc(w.class)+'</span>':'')+'</span>'}).join("")+'</div></div>'}).join("")+'</div></div>'}
-function fitRanks(el){var box=el.querySelector(".ranks"),inner=box&&box.firstChild;if(!box||RM)return;var over=inner.scrollHeight-box.clientHeight;if(over<=2)return;
- var start=1600,dur=SLIDE_MS-start-1200,hold=2400;
- inner.animate([{transform:"translateY(0)"},{transform:"translateY(0)",offset:hold/dur,easing:"cubic-bezier(.45,0,.55,1)"},{transform:"translateY(-"+over+"px)"}],{duration:dur,delay:start,fill:"both"})}
+/* If the three ranks don't fit, the board stays on first place for a good while (reading slowly down it if it is
+   taller than the board), then glides on until second place is all in view, stops, and glides slowly through third,
+   reaching the bottom 29 seconds in. */
+function fitRanks(el){var box=el.querySelector(".ranks"),inner=box&&box.firstChild;if(!box||RM)return;var view=box.clientHeight,over=inner.scrollHeight-view;if(over<=2)return;
+ var R=inner.querySelectorAll(".rk"),t2=R[1]?R[1].offsetTop:inner.scrollHeight,b2=R[1]?t2+R[1].offsetHeight:t2,end=29000,K=[],
+  at=function(t,y,ease){K.push({offset:t/end,transform:"translateY(-"+y+"px)",easing:ease||"linear"})},glide="cubic-bezier(.45,0,.55,1)";
+ var a1=Math.max(0,Math.min(t2-view,over)),s2=b2-view<=a1?a1:Math.min(t2,over);if(s2>=over)s2=Math.max(a1,Math.min(b2-view,over));
+ at(0,0);at(3000,0,"ease-in-out");at(11000,a1,glide);at(13500,s2);at(19000,s2,"ease-in-out");at(end,over);
+ inner.animate(K,{duration:end,fill:"both"})}
 /* The houses' logos, as simple black silhouettes: the Kaaba for Makkah, Masjid an-Nabawi for Madinah, the Dome of the Rock for Al-Aqsa. */
 var LOGO={
  "Makkah":'<path d="M14 34 L46 25 L88 32 L58 42Z M14 36 L57 44 V92 L14 84Z M59 44 L88 34 V81 L59 92Z" fill="#111"/><path d="M14 47 L57 55 L88 45" stroke="#fff" stroke-width="3" fill="none"/><path d="M28 86 V66 H40 V88" stroke="#fff" stroke-width="2.4" fill="none"/><path d="M6 94 H94" stroke="#111" stroke-width="4" stroke-linecap="round"/>',
@@ -569,7 +609,7 @@ function fitNames(el){[].forEach.call(el.querySelectorAll(".pc.cls .pn"),functio
 /* id, world, which window it belongs to, title, subtitle, and what it shows. */
 var SLIDES=[
  {id:"books",world:"sea",kind:"all",title:"Book passes",sub:function(){return "Finished a book in "+month()+". Well done!"},list:function(){return data.books},empty:"No books finished yet this month."},
- {id:"memo",world:"hira",kind:"memo",title:"Memorisation passes",sub:function(){return "Most passes in "+month()+", everyone on every rank"},ranks:function(){return data.memo},unit:"pass",empty:"No memorisation passes yet this month."},
+ {id:"memo",world:"hira",kind:"memo",title:"Memorisation passes",sub:function(){return "The top three in "+month()+", everyone tied on each"},ranks:function(){return data.memo},unit:"pass",empty:"No memorisation passes yet this month."},
  {id:"qaidah",world:"madinah",kind:"qaidah",title:"Qaidah level passes",sub:function(){return "Most levels passed in "+month()},steps:function(){return data.qaidah},unit:"level",empty:"No Qaidah levels passed yet this month."},
  {id:"qaidah-primary",world:"thawr",kind:"qaidah",title:"Top class for Qaidah",sub:function(){return "Primary, Years 1 to 6, in "+month()},steps:function(){return data.classes.qaidah.primary},unit:"level pass",empty:"No primary Qaidah levels passed yet."},
  {id:"memo-primary",world:"aqsa",kind:"memo",title:"Top class for memorisation",sub:function(){return "Primary, Years 1 to 6, in "+month()},steps:function(){return data.classes.memo.primary},unit:"pass",empty:"No primary memorisation passes yet."},
@@ -580,7 +620,7 @@ var SLIDES=[
 /* A class's Presenter: this month's tops in the class. */
 var PSLIDES=[
  {id:"quran",world:"makkah",kind:"all",title:"Quran",sub:function(){return "Best average score in "+month()},steps:function(){return data.quran},fmt:function(n){return n.toFixed(1)+" average"},empty:"Not enough Quran scores yet this month."},
- {id:"memo",world:"hira",kind:"all",title:"Memorisation passes",sub:function(){return "Most passes in "+month()+", everyone on every rank"},ranks:function(){return data.memo},unit:"pass",empty:"No memorisation passes yet this month."},
+ {id:"memo",world:"hira",kind:"all",title:"Memorisation passes",sub:function(){return "The top three in "+month()+", everyone tied on each"},ranks:function(){return data.memo},unit:"pass",empty:"No memorisation passes yet this month."},
  {id:"qaidah",world:"madinah",kind:"all",title:"Qaidah level passes",sub:function(){return "Most levels passed in "+month()},steps:function(){return data.qaidah},unit:"level",empty:"No Qaidah levels passed yet this month."},
  {id:"points",world:"aqsa",kind:"all",title:"House points",sub:function(){return "Most points earned in "+month()},steps:function(){return data.points},unit:"point",empty:"No house points earned yet this month."},
  {id:"houses",world:"festival",kind:"all",title:"House race",sub:function(){return "Points this class earned for each house in "+month()},board:classHouses,unit:"point"},
@@ -594,7 +634,7 @@ function playing(){if(PIN){var p=SLIDES.filter(function(s){return s.id===PIN});i
  var full=L.filter(function(s){return (s.steps?s.steps():s.ranks?s.ranks():s.board?s.board():s.list()).length});return full.length?full:L}
 function build(s){s.w=typeof s.world==="string"?s.world:s.world[(s.turn=(s.turn||0)+1)%s.world.length];var w=W[s.w],el=document.createElement("section");el.className="slide";el.style.background=w.sky;
  var body=s.steps?podium(s.steps(),s.unit,s.empty,s.fmt):s.ranks?ranks(s.ranks(),s.unit,s.empty,s.fmt):s.board?houseBoard(s.board(),s.unit):'<div class="cycle"></div>';
- el.innerHTML='<div class="scene">'+w.html()+'</div><div class="carriers"></div><div class="scap">'+esc(w.cap||"")+'</div><div class="content"><div class="title"><h2>'+esc(s.title)+'<span class="pg"></span></h2><p>'+esc(s.sub())+'</p></div>'+body+'</div>';
+ el.innerHTML='<div class="scene">'+w.html()+'</div><div class="carriers"></div><div class="content"><div class="title"><h2>'+esc(s.title)+'<span class="pg"></span></h2><p>'+esc(s.sub())+'</p></div>'+body+'</div>';
  return el}
 /* A list takes turns a page at a time so everyone is seen within the slide's 30 seconds:
    up to six pages, each at least five seconds, as many names on a page as that needs.
@@ -611,7 +651,7 @@ function cycle(el,s){var L=s.list(),box=el.querySelector(".cycle");if(!L.length)
  draw();if(pages>1)PT=setInterval(function(){i=(i+1)%pages;draw()},SLIDE_MS/pages)}
 function confetti(el){if(RM)return;var c=el.querySelector(".p1 .step");if(!c)return;var r=c.getBoundingClientRect(),C=["#ffd23f","#ff5d73","#4fc3ff","#7ee06a","#c77dff","#fff"];
  for(var i=0;i<46;i++){var p=document.createElement("i");p.className="confetti";p.style.background=pick(C);p.style.left=(r.left+r.width/2)+"px";p.style.top=(r.top)+"px";el.appendChild(p);
-  var dx=rnd(-30,30),dy=rnd(-55,-25);var a=p.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:"translate("+dx+"vw,"+dy+"vh) rotate("+rnd(200,700)+"deg)",opacity:1,offset:.45},{transform:"translate("+dx*1.3+"vw,"+(dy+60)+"vh) rotate("+rnd(700,1200)+"deg)",opacity:0}],{duration:rnd(2600,3800),delay:1300,easing:"cubic-bezier(.2,.6,.4,1)",fill:"both"});
+  var dx=rnd(-30,30),dy=rnd(-55,-25);var a=p.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:"translate("+dx+"vw,"+dy+"vh) rotate("+rnd(200,700)+"deg)",opacity:1,offset:.45},{transform:"translate("+dx*1.3+"vw,"+(dy+60)+"vh) rotate("+rnd(700,1200)+"deg)",opacity:0}],{duration:rnd(2600,3800),delay:1200,easing:"cubic-bezier(.2,.6,.4,1)",fill:"both"});
   a.onfinish=(function(p){return function(){p.remove()}})(p)}}
 function show(){if(!data)return;clearTimeout(ST);clearInterval(PT);clearInterval(RT);
  var L=playing(),k=0;for(var j=0;j<L.length;j++)if(L[j].id===curId){k=(j+1)%L.length;break}
@@ -623,7 +663,8 @@ function show(){if(!data)return;clearTimeout(ST);clearInterval(PT);clearInterval
  if(s.list)cycle(el,s);else{confetti(el);fitNames(el);fitRanks(el)}
  physOn(el);
  if(s.board)PT=setInterval(function(){confetti(el)},9000); // the house leaderboard keeps celebrating
- var box=el.querySelector(".carriers"),kind=W[s.w].rider;setTimeout(function(){ride(box,kind)},1800);RT=setInterval(function(){ride(box,kind)},7000);
+ // Only the Presenter has riders, carrying the class's names; the TV's scenes move on their own.
+ if(PRESENT){var box=el.querySelector(".carriers"),kind=W[s.w].rider;setTimeout(function(){ride(box,kind)},1800);RT=setInterval(function(){ride(box,kind)},7000)}
  var p=$("prog");p.className="";p.style.transitionDuration="0ms";void p.offsetWidth;p.style.transitionDuration=SLIDE_MS+"ms";p.className="run";
  ST=setTimeout(show,SLIDE_MS)}
 function load(){fetch(URL,{credentials:"same-origin",cache:"no-store"}).then(function(r){
