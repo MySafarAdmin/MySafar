@@ -47,8 +47,9 @@ footer i{display:block;height:100%;width:0;background:var(--gold)}
 footer i.run{width:100%;transition:width linear}
 /* ---------- Titles ---------- */
 .title{align-self:flex-start;background:var(--navy);border-radius:2.4vh;padding:1.4vh 2.6vw 1.5vh;box-shadow:0 .8vh 0 rgba(0,20,40,.25);animation:drop 1s .35s both cubic-bezier(.2,.9,.3,1.2)}
-.title h2{margin:0;font-size:6vh;font-weight:800;letter-spacing:-.015em;line-height:1.05}
-.title p{margin:.5vh 0 0;font-size:2.5vh;font-weight:600;color:#cfe0f0}
+.title h2{margin:0;font-size:6.4vh;font-weight:800;letter-spacing:-.015em;line-height:1.05}
+.title .stage{display:block;font-size:4.8vh;font-weight:800;color:var(--gold);line-height:1.1;margin-top:.3vh}
+.title p{margin:.6vh 0 0;font-size:3.3vh;font-weight:700;color:#e3eef8}
 .title .pg{color:var(--gold);margin-left:1vw}
 @keyframes drop{from{opacity:0;transform:translateY(-3vh)}}
 /* ---------- Podium ---------- */
@@ -90,9 +91,9 @@ footer i.run{width:100%;transition:width linear}
 @keyframes float{50%{transform:translateY(-1vh)}}
 @keyframes bob{50%{transform:translateY(-.8vh) rotate(-4deg)}}
 @keyframes twinkle{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
-/* ---------- Ranked list: the top three ranks, ties together ----------
+/* ---------- Memorisation and book passes board ----------
    One navy board. Each rank is a band: its place and score on the left, then the students in a grid of boxes that
-   are all the same size. A month too full for the board scrolls rank by rank (fitRanks). */
+   are all the same size. A month too full for the board scrolls band by band (fitRanks). */
 .ranks{flex:0 1 auto;min-height:0;margin:2.6vh 0 3vh;position:relative;overflow:hidden;font-size:3.6vh;background:var(--navy);border-radius:2.4vh;border:.5vh solid var(--navy);box-shadow:0 .8vh 0 rgba(0,20,40,.25);animation:pop .8s .3s both cubic-bezier(.3,1.4,.5,1)}
 .rk-in{will-change:transform}
 .rk{display:grid;grid-template-columns:5.2em 1fr;gap:.5em;padding:.5em .55em;border-bottom:.12em solid rgba(255,255,255,.12)}
@@ -100,7 +101,7 @@ footer i.run{width:100%;transition:width linear}
 .rb{display:flex;flex-direction:column;align-items:center;justify-content:center;height:2.6em;border-radius:.4em;background:rgba(255,255,255,.14);color:#fff}
 .rb b{font-size:1.15em;font-weight:800;line-height:1}
 .rb span{font-size:.46em;font-weight:800;opacity:.85;margin-top:.15em}
-.m1 .rb{background:var(--gold);color:#2b1d00}.m2 .rb{background:var(--silver);color:#26313d}.m3 .rb{background:var(--bronze);color:#3a1c05}
+.m1 .rb{background:var(--gold);color:#2b1d00}.bk .rb{background:#e9604f;color:#fff}.m2 .rb{background:var(--silver);color:#26313d}.m3 .rb{background:var(--bronze);color:#3a1c05}
 .rw{display:grid;grid-template-columns:repeat(var(--cols,4),minmax(0,1fr));gap:.36em}
 .chip{height:2.6em;display:flex;flex-direction:column;justify-content:center;background:#fff;color:var(--ink);border-radius:.4em;padding:0 .6em;border-left:.24em solid var(--hc,#c9d6e3);line-height:1.15;min-width:0}
 .chip .pn{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -575,12 +576,17 @@ function podium(steps,unit,empty,fmt){if(!steps.length)return '<div class="empty
  return '<div class="podium">'+[2,1,3].map(function(p){var s=by[p];return '<div class="col p'+p+'"><div class="who">'+(s?(p===1?CROWN+'<i class="spark" style="left:-2vh;top:10%"></i><i class="spark" style="right:-2vh;top:40%;animation-delay:-1s"></i>':'')+cards(s.who,2):'')+'</div>'
   +'<div class="step'+(s?'':' none')+'"><b>'+p+'</b>'+(s?'<span>'+(fmt?fmt(s.n):plural(s.n,unit))+'</span>':'')+'</div></div>'}).join("")+'</div>'}
 function ord(n){var t=n%100,u=n%10;return n+(t>10&&t<14?"th":u===1?"st":u===2?"nd":u===3?"rd":"th")}
-/* The top three ranks as bands on one board: the place and score, then everyone tied on it in boxes of one size. */
-function ranks(steps,unit,empty,fmt){steps=steps.filter(function(s){return s.place<=3});if(!steps.length)return '<div class="empty">'+empty+'<small>Who will be first?</small></div>';
- return '<div class="ranks"><div class="rk-in">'+steps.map(function(s){return '<div class="rk'+(s.place<=3?" m"+s.place:"")+'"><div class="rb"><b>'+ord(s.place)+'</b><span>'+(fmt?fmt(s.n):plural(s.n,unit))+'</span></div><div class="rw">'
-  +s.who.map(function(w){return '<span class="chip '+esc(w.house||"")+'"><span class="pn">'+esc(w.name)+'</span>'+(w.class?'<span class="pcl">'+esc(w.class)+'</span>':'')+'</span>'}).join("")+'</div></div>'}).join("")+'</div></div>'}
-/* If the three ranks don't fit, the board stays on first place for a good while (reading slowly down it if it is
-   taller than the board), then glides on until second place is all in view, stops, and glides slowly through third,
+/* Bands on one board, each with its heading on the left and everyone on it in boxes of one size: first place for
+   memorisation passes (everyone tied on the most), then everyone who finished a book this month. */
+function memoBands(){var B=[],m=(data.memo||[]).filter(function(s){return s.place===1})[0];
+ if(m)B.push({cls:"m1",head:"1st",sub:plural(m.n,"pass"),who:m.who});
+ if(data.books&&data.books.length)B.push({cls:"bk",head:"Books",sub:data.books.length+" finished",who:data.books});
+ return B}
+function ranks(bands,empty){if(!bands.length)return '<div class="empty">'+empty+'<small>Who will be first?</small></div>';
+ return '<div class="ranks"><div class="rk-in">'+bands.map(function(b){return '<div class="rk '+b.cls+'"><div class="rb"><b>'+esc(b.head)+'</b><span>'+esc(b.sub)+'</span></div><div class="rw">'
+  +b.who.map(function(w){return '<span class="chip '+esc(w.house||"")+'"><span class="pn">'+esc(w.name)+'</span>'+(w.class?'<span class="pcl">'+esc(w.class)+'</span>':'')+'</span>'}).join("")+'</div></div>'}).join("")+'</div></div>'}
+/* If the bands don't fit, the board stays on first place for a good while (reading slowly down it if it is taller
+   than the board), then glides on until the book passes are in view, stops, and glides slowly through the rest,
    reaching the bottom 29 seconds in. */
 function fitRanks(el){var box=el.querySelector(".ranks"),inner=box&&box.firstChild;if(!box||RM)return;var view=box.clientHeight,over=inner.scrollHeight-view;if(over<=2)return;
  var R=inner.querySelectorAll(".rk"),t2=R[1]?R[1].offsetTop:inner.scrollHeight,b2=R[1]?t2+R[1].offsetHeight:t2,end=29000,K=[],
@@ -612,24 +618,22 @@ function fitNames(el){[].forEach.call(el.querySelectorAll(".pc.cls .pn"),functio
  while(f>2.4&&n.scrollWidth>n.clientWidth+1){f-=.2;n.style.fontSize=f+"vh"}})}
 /* id, world, which window it belongs to, title, subtitle, and what it shows. */
 var SLIDES=[
- {id:"books",world:"sea",kind:"all",title:"Book passes",sub:function(){return "Finished a book in "+month()+". Well done!"},list:function(){return data.books},empty:"No books finished yet this month."},
- {id:"memo",world:"hira",kind:"memo",title:"Memorisation passes",sub:function(){return "The top three in "+month()+", everyone tied on each"},ranks:function(){return data.memo},unit:"pass",empty:"No memorisation passes yet this month."},
+ {id:"memo",world:"hira",kind:"memo",title:"Memorisation and book passes",sub:function(){return "Most memorisation passes in "+month()+", and every book finished"},ranks:memoBands,empty:"No memorisation or book passes yet this month."},
  {id:"qaidah",world:"madinah",kind:"qaidah",title:"Qaidah level passes",sub:function(){return "Most levels passed in "+month()},steps:function(){return data.qaidah},unit:"level",empty:"No Qaidah levels passed yet this month."},
- {id:"qaidah-primary",world:"thawr",kind:"qaidah",title:"Top class for Qaidah",sub:function(){return "Primary, Years 1 to 6, in "+month()},steps:function(){return data.classes.qaidah.primary},unit:"level pass",empty:"No primary Qaidah levels passed yet."},
- {id:"memo-primary",world:"aqsa",kind:"memo",title:"Top class for memorisation",sub:function(){return "Primary, Years 1 to 6, in "+month()},steps:function(){return data.classes.memo.primary},unit:"pass",empty:"No primary memorisation passes yet."},
- {id:"qaidah-secondary",world:"ark",kind:"qaidah",title:"Top class for Qaidah",sub:function(){return "Secondary, Year 7 onwards, in "+month()},steps:function(){return data.classes.qaidah.secondary},unit:"level pass",empty:"No secondary Qaidah levels passed yet."},
- {id:"memo-secondary",world:"makkah",kind:"memo",title:"Top class for memorisation",sub:function(){return "Secondary, Year 7 onwards, in "+month()},steps:function(){return data.classes.memo.secondary},unit:"pass",empty:"No secondary memorisation passes yet."},
+ {id:"qaidah-primary",world:"thawr",kind:"qaidah",title:"Top Class for Qaidah",stage:"(Primary Years)",sub:function(){return "Years 2 to 6, in "+month()},steps:function(){return data.classes.qaidah.primary},unit:"level pass",empty:"No primary Qaidah levels passed yet."},
+ {id:"memo-primary",world:"aqsa",kind:"memo",title:"Top Class for Memorisation",stage:"(Primary Years)",sub:function(){return "Years 2 to 6, in "+month()},steps:function(){return data.classes.memo.primary},unit:"pass",empty:"No primary memorisation passes yet."},
+ {id:"qaidah-secondary",world:"ark",kind:"qaidah",title:"Top Class for Qaidah",stage:"(Secondary Years)",sub:function(){return "Years 7 to 10, in "+month()},steps:function(){return data.classes.qaidah.secondary},unit:"level pass",empty:"No secondary Qaidah levels passed yet."},
+ {id:"memo-secondary",world:"makkah",kind:"memo",title:"Top Class for Memorisation",stage:"(Secondary Years)",sub:function(){return "Years 7 to 10, in "+month()},steps:function(){return data.classes.memo.secondary},unit:"pass",empty:"No secondary memorisation passes yet."},
  {id:"stars",world:"moon",kind:"all",title:"Stars of the week",sub:function(){return "One from every class"+(data.stars.length?", "+data.stars[0].label.replace("Week","week"):"")},list:function(){return data.stars},empty:"No stars of the week last week.",one:1},
  {id:"houses",world:"festival",kind:"all",title:"House points",sub:function(){return "The house leaderboard"},board:schoolHouses,unit:"point"}];
 /* A class's Presenter: this month's tops in the class. */
 var PSLIDES=[
  {id:"quran",world:"makkah",kind:"all",title:"Quran",sub:function(){return "Best average score in "+month()},steps:function(){return data.quran},fmt:function(n){return n.toFixed(1)+" average"},empty:"Not enough Quran scores yet this month."},
- {id:"memo",world:"hira",kind:"all",title:"Memorisation passes",sub:function(){return "The top three in "+month()+", everyone tied on each"},ranks:function(){return data.memo},unit:"pass",empty:"No memorisation passes yet this month."},
+ {id:"memo",world:"hira",kind:"all",title:"Memorisation and book passes",sub:function(){return "Most memorisation passes in "+month()+", and every book finished"},ranks:memoBands,empty:"No memorisation or book passes yet this month."},
  {id:"qaidah",world:"madinah",kind:"all",title:"Qaidah level passes",sub:function(){return "Most levels passed in "+month()},steps:function(){return data.qaidah},unit:"level",empty:"No Qaidah levels passed yet this month."},
  {id:"points",world:"aqsa",kind:"all",title:"House points",sub:function(){return "Most points earned in "+month()},steps:function(){return data.points},unit:"point",empty:"No house points earned yet this month."},
  {id:"houses",world:"festival",kind:"all",title:"House race",sub:function(){return "Points this class earned for each house in "+month()},board:classHouses,unit:"point"},
  {id:"merits",world:"thawr",kind:"all",title:"Merits",sub:function(){return "Most merits in "+month()},steps:function(){return data.merits},unit:"merit",empty:"No merits yet this month."},
- {id:"books",world:"sea",kind:"all",title:"Book passes",sub:function(){return "Finished a book in "+month()+". Well done!"},list:function(){return data.books},empty:"No books finished yet this month."},
  {id:"stars",world:"moon",kind:"all",title:"Stars of the week",sub:function(){return month()+", up to the end of last week"},list:function(){return data.stars},empty:"No stars of the week yet this month.",week:1,one:1}];
 if(PRESENT)SLIDES=PSLIDES;
 function focusNow(){if(FOCUS==="qaidah"||FOCUS==="memo")return [FOCUS];return data&&data.focus}
@@ -637,8 +641,8 @@ function playing(){if(PIN){var p=SLIDES.filter(function(s){return s.id===PIN});i
  var f=focusNow(),L=SLIDES.filter(function(s){return !f||f.indexOf(s.kind)>=0});
  var full=L.filter(function(s){return (s.steps?s.steps():s.ranks?s.ranks():s.board?s.board():s.list()).length});return full.length?full:L}
 function build(s){s.w=typeof s.world==="string"?s.world:s.world[(s.turn=(s.turn||0)+1)%s.world.length];var w=W[s.w],el=document.createElement("section");el.className="slide";el.style.background=w.sky;
- var body=s.steps?podium(s.steps(),s.unit,s.empty,s.fmt):s.ranks?ranks(s.ranks(),s.unit,s.empty,s.fmt):s.board?houseBoard(s.board(),s.unit):'<div class="cycle"></div>';
- el.innerHTML='<div class="scene">'+w.html()+'</div><div class="carriers"></div><div class="content"><div class="title"><h2>'+esc(s.title)+'<span class="pg"></span></h2><p>'+esc(s.sub())+'</p></div>'+body+'</div>';
+ var body=s.steps?podium(s.steps(),s.unit,s.empty,s.fmt):s.ranks?ranks(s.ranks(),s.empty):s.board?houseBoard(s.board(),s.unit):'<div class="cycle"></div>';
+ el.innerHTML='<div class="scene">'+w.html()+'</div><div class="carriers"></div><div class="content"><div class="title"><h2>'+esc(s.title)+'<span class="pg"></span></h2>'+(s.stage?'<span class="stage">'+esc(s.stage)+'</span>':'')+'<p>'+esc(s.sub())+'</p></div>'+body+'</div>';
  return el}
 /* A list takes turns a page at a time so everyone is seen within the slide's 30 seconds:
    up to six pages, each at least five seconds, as many names on a page as that needs.

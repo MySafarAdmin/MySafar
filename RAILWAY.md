@@ -63,19 +63,20 @@ the Presenter and the dashboard (the stored name is unchanged, so Rename and the
 CSV upload still use it). On the top-class podiums the teacher's name is the big
 line and "Yr3A" sits under it.
 
-- **Memorisation passes** is one board with the top three ranks: a band for
-  each with everyone tied on it, in boxes of the same size. If they don't all
-  fit, the board stays on first place for a while, moves on to second, then
-  slowly through third, reaching the bottom 29 seconds in.
+- **Memorisation and book passes** is one board: first place for memorisation
+  passes (everyone tied on the most this month), then everyone who finished a
+  book this month, in boxes of the same size. If it doesn't all fit, it stays on
+  first place for a while, moves on to the books, and reaches the bottom 29
+  seconds in.
 - **Podiums** (the top three totals this month; ties share a step): Qaidah
   levels passed (Quran level tests on the Record page), and the top classes for
-  Qaidah and for memorisation, primary (Years 1 to 6) and secondary (Year 7
-  onwards) separately. A class's stage comes from its name (`Yr7-...`),
+  Qaidah and for memorisation, titled "(Primary Years)" (Years 2 to 6; a
+  Year 1 or Reception class counts as primary) and "(Secondary Years)" (Years 7
+  to 10, and any later year). A class's stage comes from its name (`Yr7-...`),
   otherwise from most of its students' Safar or school year groups.
 - **Stars of the week**: one page with each class's star for last week. A star
   is the teacher's pick on the Quran tab, otherwise the student with the most
   passes and merits that week.
-- **Book passes** (red tokens this month) take turns a page at a time.
 - **House points** comes last: a podium of all three houses with their rank,
   points and a black silhouette logo (the Kaaba for Makkah, Masjid an-Nabawi
   for Madinah, the Dome of the Rock for Al-Aqsa), at a festival.
@@ -93,8 +94,8 @@ classroom. Signed-in staff can preview it at `/tv`.
 same scenes, with the class's students riding through by name (the TV has no riders). Teachers
 can present their own classes and admins any class. Its slides are podiums for the best Quran average
 (students with 3 or more scores this month), Qaidah levels, house points earned,
-the class's house race (with the house logos) and merits; memorisation passes as the
-TV's top-three board; book passes taking turns; and the month's stars of the
+the class's house race (with the house logos) and merits; memorisation and book passes on
+one board like the TV's; and the month's stars of the
 week on one page. **Full screen** and **Close** show when the mouse moves;
 Close (or Escape) goes back to the class.
 

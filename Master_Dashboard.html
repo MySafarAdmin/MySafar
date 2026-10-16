@@ -2240,9 +2240,10 @@ function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("ba
    Rename (Settings shows it), the CSV upload and searches still use it. The TV does the same (tv.class_label). */
 var CT=/^(?:brother|sister|br|sr|ust\w*|shaykh|shaikh|sheikh|sh|mufti|maulana|moulana|mr|mrs|ms|miss)\.?\s+/i,CF=/^(?:sister|sr|ustadhah?|ustdh|ustazah?|ustada|mrs|ms|miss)\.?$/i,CNM={};
 function cteach(n){var P=n.split("-").map(function(p){return p.trim()}),up=function(w){return w.charAt(0).toUpperCase()+w.slice(1)};
- for(var i=0;i<P.length;i++){var m=CT.exec(P[i]);if(m){var w=P.slice(i).join("-").replace(CT,"").split(/\s+/).filter(Boolean);return w.length?(CF.test(m[0].trim())?"Ustadha ":"Ustadh ")+up(w[0]):""}}
- var last=P.length>1?P[P.length-1].replace(/^[A-Z]\s+/,""):"";
- return last.length>=3&&!/\b(?:year|yr)\s*\d/i.test(last)&&last!==last.toUpperCase()&&/^[A-Za-z]+$/.test(last)?"Ustadh "+up(last):""}
+ for(var i=0;i<P.length;i++){var m=CT.exec(P[i]);if(m){var w=P.slice(i).join("-").replace(CT,"").split(/\s+/).filter(Boolean);if(!w.length)return "";var f=w[0].split("/");return (CF.test(m[0].trim())||CF.test((f[1]||"").trim())?"Ustadha ":"Ustadh ")+up(f[0])}}
+ // A title can trail the name after a slash: "Kawthar/Sr".
+ var last=(P.length>1?P[P.length-1].replace(/^[A-Z]\s+/,""):"").split("/");
+ return last[0].length>=3&&!/\b(?:year|yr)\s*\d/i.test(last[0])&&last[0]!==last[0].toUpperCase()&&/^[A-Za-z]+$/.test(last[0])?(CF.test((last[1]||"").trim())?"Ustadha ":"Ustadh ")+up(last[0]):""}
 function cname(n){n=String(n||"");if(CNM.hasOwnProperty(n))return CNM[n];var g=/\b(?:year|yr)\s*(\d+(?:\s*\/\s*\d+)?)/i.exec(n),y="",l;
  if(g){l=/^\s*-?\s*([A-Z])\b/.exec(n.slice(g.index+g[0].length));y="Yr"+g[1].replace(/\s+/g,"")+(l?l[1]:"")}else if(/\breception\b/i.test(n))y="Reception";
  return CNM[n]=[y,cteach(n)].filter(Boolean).join(" ")||n}
