@@ -54,7 +54,8 @@ under shooting stars, Cave Thawr with the spider's web and the dove's nest, the
 Ark of Nuh after the flood, the sea parting for Musa, and the splitting of the
 moon. Washing, palms, cypresses and the web move in a gusty wind with a little
 physics and the Ark floats on the swell. House points is a festival with bunting
-and fireworks. The podium steps rise in order: first, then second, then third.
+and fireworks. The podium steps rise in order: first, then second, then third,
+and always stand below the title: when several are tied, the names shrink to fit.
 
 Classes are shown by year group, class letter and teacher, with the title in
 full: Sr, Sister, Ustadha and Mrs/Ms/Miss become Ustadha, every other title (Br,
