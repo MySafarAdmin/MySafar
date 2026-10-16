@@ -1,7 +1,7 @@
 # Safar Academy Enfield dashboards
 
 One page holds the school overview (one Summary page, with Classes and Record beside it) and a full class
-dashboard (Quran, Memo, Progress, Rewards, Settings) for every
+dashboard (Quran, Memo, Progress, Settings) for every
 classroom. The dashboard starts empty:
 classrooms and students are added by uploading a CSV on the overview.
 
@@ -55,7 +55,7 @@ Spellings are matched loosely ("al aqsa", "Medina"), and anything else is
 listed in the upload preview and left unchanged. A later upload with a House
 column updates each student's house; one without it leaves houses as they are.
 
-Each classroom's **Rewards** tab gives house tokens:
+House tokens are given from the menu on a student's name on the Quran tab:
 
 | Token | Points |
 | --- | --- |

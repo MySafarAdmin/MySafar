@@ -87,6 +87,7 @@ a:hover{color:var(--primary-hover)}
 .navt{position:absolute;opacity:0;pointer-events:none}
 .menu-btn{display:none}
 .navs{display:flex;flex-direction:column;gap:2px;padding:4px 10px 12px;flex:1;min-height:0;overflow-y:auto}
+.navs .j2jb{margin-top:auto}
 .navh{margin:14px 10px 4px;font-size:.8125rem;font-weight:700;color:var(--rail-mute)}
 .nav{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 12px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--rail-ink)}
 .nav:hover{background:var(--rail-hover);color:#fff}

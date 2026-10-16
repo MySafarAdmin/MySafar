@@ -89,7 +89,8 @@ that a navy top bar with the name and a floating dock at the bottom of the
 screen. The dashboard opens with a
 compact head on the canvas (`.head`: navy title, or on the overviews the
 greeting with the overview's name under it; Switch
-class on small screens, save status, the figures button, then pill tabs) above
+class on small screens, save status, the figures button (a bar chart drawn on
+one L-shaped axis so its corner is clean; not on the Students page), then pill tabs) above
 the white workspace card (`.ws`, 20px corners). The selected tab is a white pill
 with navy type and a soft shadow. The head is sticky on wide screens. Below
 960px the tabs wrap as pills and the selected one turns navy (a two-column grid below 380px) so every tab is
@@ -126,7 +127,8 @@ Memo page (the Day by day and student views only; a sheet left open on a wider
 screen falls back when the window narrows), no Presenter button and no help
 note on the Quran page. Desktop keeps all three.
 
-**Classes** is its own page in the rail, under Journey2Jannah, in place of the
+**Classes** is its own page in the rail, under Journey2Jannah for admins
+(teachers have Journey2Jannah at the foot of the menu, just above their name), in place of the
 old list of class names: searchable class cards (patterned banner, year tile,
 students, passes, merits and warnings), all on one scrolling page, with the CSV
 upload under them. A card opens that class with every tab, Settings included; the rail keeps
@@ -153,9 +155,7 @@ dot for its tone (red concern, green going well, amber warnings):
 - **Behaviour**: Warnings (Warning 1 or 2) and Missed breaks (on Miss break).
 
 A count opens the pop-up on its own tab. The pop-up's tabs are the same pairs,
-two to a row, with Quiet (classes with no passes or merits this month) as a
-seventh only when there are some; the overview shows those as one line under
-the pairs. Each tab lists the students with their class (which opens on the
+two to a row (the Quiet classes line and tab were removed). Each tab lists the students with their class (which opens on the
 Quran or Memo tab) and the figure: the average as a pastel score chip with
 how many scores it covers, days since a pass, what was passed this week, or
 the warning. Ten a page.
@@ -190,19 +190,21 @@ step's number fills navy once answered), and the chosen student in a soft grey
 panel on the right (class, house, Memo target, Qaidah level, latest level tests,
 Take back the latest). On phones the panel follows the steps.
 
-**Star of the week**: a star button beside Day by day / Full sheet on the Quran
+**Star of the week**: a star button beside the Full sheet icon on the Quran
 tab picks one student for the week holding the focused class day; a gold star
 sits by their name. Kept on the student as the Monday of each week (sw).
 
-**Class** tabs (a class opens on Quran). Teachers see Quran, Memo, Progress,
-Rewards and Settings, and so do admins (Record and Warnings were removed). All
+**Class** tabs (a class opens on Quran). Teachers see Quran, Memo, Progress
+and Settings, and so do admins (Record, Warnings and Rewards were removed; house
+tokens are in the menu on a student's name). All
 recording starts from the Quran tab.
 
 - **Quran** scores show as colour (pastel coral 0, peach, butter,
   pistachio, mint, sea green 5), with no key: the picker shows each number with
   its colour. Only the focused day also shows the number. Boxes are 40px in every class, so long classes scroll
   rather than shrink. A student's name opens a menu with Merits and − and + in
-  its top right, then Warning 1, Warning 2 and Miss break, and their house
+  its top right, then Warning 1, Warning 2 and Miss break (with the current
+  target, in a pale chip of its level colour, on the Warning line), and their house
   tokens with − and +. The house is not repeated there; it is in the row.
 - **Quran**: the day-by-day sheet. The focused class day sits in a soft navy
   lane between the student names and their houses, with up to three earlier
@@ -211,30 +213,33 @@ recording starts from the Quran tab.
   picker, or select it and type a digit, which moves down to the next student.
   The arrows (or Left and Right on a box) move one class day; the names and
   houses fade out, the columns slide one place left like the next column of a
-  page, and the names come back. Class days are the weekends from the first
-  class day, any day with a score, and any day chosen with the calendar icon.
+  page, and the names come back. Class days are Saturdays and Sundays only: the
+  weekends from the first class day, weekend days with a score, and any weekend
+  day chosen with the calendar icon. A weekday score is never shown as a column.
+  The space above the first box equals the gap between two boxes.
   The calendar icon opens a whole-year pop-up (twelve months, Monday first,
   days outside each month faded): class days are bold, days with scores carry
   a small sage dot, today is a filled navy circle and the day on show is
-  ringed. Days before the first class day can't be picked; picking a day jumps
+  ringed. Weekdays are shown, faded, for orientation only and can't be picked
+  (today keeps a thin ring when it is a weekday). Days before the first class day can't be picked; picking a day jumps
   the sheet there. Arrow keys move a day or a week, Page Up and Down a month.
-  The add-student icon opens a short form (name, house, optional Student ID)
-  and the student is saved with the class straight away. Full sheet shows the
-  whole table by class day.
+  Teachers have an add-student icon that opens a short form (name, house,
+  optional Student ID); admins add students on the Students page, so they
+  don't see it. The Full sheet icon (four corners) shows the whole table by
+  class day; pressed, it turns navy with inward corners and goes back. The score
+  picker's white pill has 7px of room around the boxes, with corners that
+  follow theirs.
 - **Memo profile** actions: Details (identifiers, Rename, Remove student) and
   History. Passes, fails and targets are set on the Record page.
-- **Memo**: the sheet, scrolling inside its frame.
+- **Memo**: student cards whose top is a pale tint of their current target's
+  level colour (grey for no data yet); the profile header matches. The Full
+  sheet icon shows the sheet, scrolling inside its frame.
 - **Progress**: Levels (position in the book in two columns, students by
-  level with empty levels named once in a line instead of zero rows),
-  Students (the table), Pass history (passes per week, the history and Add a
+  level with empty levels named once in a line instead of zero rows) and
+  Pass history (passes per week, the history and Add a
   past pass).
-- **Rewards**: Leaders and prize as one ranked list in two columns; with
-  Passes and This month each row carries its five prize dots and "Prize won",
-  and a line above names this month's winners in the order they won. House
-  points: token counts with + and − for each colour (outlined buttons with the
-  token colour in the +).
 - **Settings**: one column of rounded rows in the Memo card style: class
-  name, first class day, adding students, then reset and delete.
+  name, first class day, adding students (teachers only), then reset and delete.
 
 Long school-wide lists are paged with Previous and Next and a "1–10 of 61"
 count; class lists stay whole. Below 640px modules go full-bleed and tables
