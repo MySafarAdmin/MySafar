@@ -153,13 +153,11 @@ a:hover{color:var(--primary-hover)}
  @keyframes dkPop{0%{transform:scale(.7) rotate(-8deg)}60%{transform:scale(1.12) rotate(3deg)}100%{transform:none}}
  .dk:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
  /* Each item's own pastel, from the greeting chips and the Quran score colours */
- .dk.dk-progressk-home{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
- .dk.dk-progressk-classes{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
- .dk.dk-progressk-record{--dk-bg:#fbf0d6;--dk-ink:#664a0b}
- .dk.dk-progressk-quran{--dk-bg:#dff1e6;--dk-ink:#2f5a3b}
- .dk.dk-progressk-memo{--dk-bg:#fbf0d6;--dk-ink:#7a5608}
- .dk.dk-progress{--dk-bg:#ebe7fb;--dk-ink:#4c3d99}
- .dk.dk-rewards{--dk-bg:#fde8e1;--dk-ink:#9a3412}
+ .dk.dk-home{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
+ .dk.dk-classes{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
+ .dk.dk-record{--dk-bg:#fbf0d6;--dk-ink:#664a0b}
+ .dk.dk-quran{--dk-bg:#dff1e6;--dk-ink:#2f5a3b}
+ .dk.dk-memo{--dk-bg:#fbf0d6;--dk-ink:#7a5608}
  .dk.dk-more{--dk-bg:#e9eff6;--dk-ink:#003b6b}
  .navt:checked~.dock .dk.dk-more,.rail .dk.dk-more.on{color:var(--navy);font-weight:800}
  .navt:checked~.dock .dk.dk-more .dki{background:var(--navy);color:#fff}
@@ -1367,6 +1365,32 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .rtok .tdot{width:7px;height:7px;margin-right:5px}
 .rlast .rtok{display:flex;width:max-content;margin:3px 0 0 auto}
 @media (max-width:959.98px){.rlast .rtok{margin-left:0}}
+/* Quran full sheet on phones: a full-screen view over the dock, with the names and dates kept in view while it scrolls both ways. */
+.fsh,.sh .fs{display:none}
+@media (max-width:959.98px){
+ #vQ[data-v="his"]:not(.hide){position:fixed;inset:0;z-index:120;margin:0;border-radius:0;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left));display:flex;flex-direction:column;gap:8px;background:var(--surface);animation:fs-in .32s cubic-bezier(.16,1,.3,1) both}
+ #vQ[data-v="his"] .fsh{display:flex;align-items:center;gap:10px}
+ .fst{margin:0;flex:1 1 auto;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+ .fst b{font-size:1.0625rem;overflow-wrap:anywhere}.fst span{font-size:.8125rem;color:var(--mute)}
+ #vQ[data-v="his"] .qbar{margin:0;padding:0;flex-wrap:nowrap}
+ #vQ[data-v="his"] #qV,#vQ[data-v="his"] #qAdd{display:none}
+ #vQ[data-v="his"] .pane[data-pane="his"]{flex:1 1 auto;min-height:0;display:flex;margin:0 calc(-1 * max(12px,env(safe-area-inset-left))) 0 calc(-1 * max(12px,env(safe-area-inset-right)))}
+ #vQ[data-v="his"] .sheetwrap{flex:1 1 auto;max-height:none;border-radius:0;border-left:0;border-right:0;border-bottom:0;overscroll-behavior:contain;padding-bottom:env(safe-area-inset-bottom)}
+ #vQ .sh{font-size:.8125rem}
+ #vQ .sh th,#vQ .sh td{min-width:0;padding:5px 6px;text-align:center;vertical-align:middle}
+ #vQ .sh thead th{font-size:.6875rem;line-height:1.15;width:44px;white-space:normal}
+ #vQ .sh .t1{min-width:112px;max-width:132px;text-align:left;font-size:.8125rem;line-height:1.2}
+ #vQ .sh .fl,#vQ .sh .of{display:none}#vQ .sh .fs{display:inline}
+ #vQ .sh .nc{margin:0;min-width:26px;padding:2px 0;justify-content:center;text-align:center}
+}
+@media (max-width:959.98px) and (max-height:520px){
+ #vQ[data-v="his"]:not(.hide){display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto minmax(0,1fr);align-items:center;column-gap:12px}
+ #vQ[data-v="his"] .fsh{display:contents}
+ #vQ[data-v="his"] .fst{grid-area:1/1}#vQ[data-v="his"] .qbar{grid-area:1/2}#vQ[data-v="his"] #qFsX{grid-area:1/3}
+ #vQ[data-v="his"] .pane[data-pane="his"]{grid-area:2/1/3/4;align-self:stretch}
+}
+@keyframes fs-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#vQ[data-v="his"]:not(.hide){animation:none}}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1385,7 +1409,7 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
  <div class="me" id="me" hidden></div>
  </div>
  <label for="navt" class="dscrim" aria-hidden="true"></label>
- <nav class="dock" id="dock" aria-label="Shortcuts"><button type="button" class="dk dk-home" id="dH"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg></span><span>Home</span></button><button type="button" class="dk dk-classes" id="dL"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg></span><span>Classes</span></button><button type="button" class="dk dk-record" id="dR"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></span><span>Record</span></button><button type="button" class="dk dk-quran" id="dQ"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10.2 5 7.8 4.5 3.5 4.5v13c4.3 0 6.7.5 8.5 2 1.8-1.5 4.2-2 8.5-2v-13c-4.3 0-6.7.5-8.5 2z"/><path d="M12 6.5v13"/></svg></span><span>Quran</span></button><button type="button" class="dk dk-memo" id="dT"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".9" fill="currentColor"/></svg></span><span>Memo</span></button><button type="button" class="dk dk-progress" id="dD"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5h16"/><path d="m5 15 4.5-4.5 3 3L19 7"/><path d="M14.5 7H19v4.5"/></svg></span><span>Progress</span></button><button type="button" class="dk dk-rewards" id="dW"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3.6 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg></span><span>Rewards</span></button><label for="navt" class="dk dk-more" aria-hidden="true"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="18.5" cy="12" r="1.5" fill="currentColor"/></svg></span><span>More</span></label></nav>
+ <nav class="dock" id="dock" aria-label="Shortcuts"><button type="button" class="dk dk-home" id="dH"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg></span><span>Home</span></button><button type="button" class="dk dk-classes" id="dL"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg></span><span>Classes</span></button><button type="button" class="dk dk-record" id="dR"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg></span><span>Record</span></button><button type="button" class="dk dk-quran" id="dQ"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5C10.2 5 7.8 4.5 3.5 4.5v13c4.3 0 6.7.5 8.5 2 1.8-1.5 4.2-2 8.5-2v-13c-4.3 0-6.7.5-8.5 2z"/><path d="M12 6.5v13"/></svg></span><span>Quran</span></button><button type="button" class="dk dk-memo" id="dT"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r=".9" fill="currentColor"/></svg></span><span>Memo</span></button><label for="navt" class="dk dk-more" aria-hidden="true"><span class="dki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="18.5" cy="12" r="1.5" fill="currentColor"/></svg></span><span>More</span></label></nav>
 </div></header>
 <div class="work">
 <main><div class="content" id="main" tabindex="-1">
@@ -1412,6 +1436,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 <section id="vR" class="ws hide" aria-labelledby="ttl"><div class="recf" id="recF"></div></section>
 
 <section id="vQ" class="ws hide" role="tabpanel" aria-labelledby="tQ">
+ <div class="fsh qhis"><p class="fst"><b id="qFsC"></b><span>Quran sheet</span></p><button type="button" class="ibtn" id="qFsX" aria-label="Close the full sheet" title="Close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
  <div class="toolbar qbar">
   <div class="qnav qrec"><button type="button" class="ibtn" id="qPrev" aria-label="Previous class day"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
    <p class="qday" id="qDay" aria-live="polite"></p>
@@ -2117,10 +2142,13 @@ function qSheetDraw(){var days={},from=QP==="r"?dk(addDays(today0(),-42).getTime
  S.forEach(function(s){Object.keys(s.q).forEach(function(k){days[k]=1})});
  var D=Object.keys(days).filter(function(k){return k>=from}).sort();
  if(!S.length){$("qSheet").innerHTML='<div class="empty"><b>Nothing recorded yet</b></div>';return}
- var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th><th scope="col">Average, all days</th>'+D.map(function(k){return '<th scope="col">'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
- S.forEach(function(s){h+='<tr><th scope="row" class="t1">'+esc(s.name)+'</th><td><b>'+(qavg(s)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'/5'))+'</td>'}).join("")+'</tr>'});
+ var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th><th scope="col"><span class="fl">Average, all days</span><span class="fs">Avg</span></th>'+D.map(function(k){return '<th scope="col">'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
+ S.forEach(function(s){h+='<tr><th scope="row" class="t1">'+esc(s.name)+'</th><td><b>'+(qavg(s)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'<span class="of">/5</span>'))+'</td>'}).join("")+'</tr>'});
  h+='<tr><th scope="row" class="t1">Class average</th><td></td>'+D.map(function(k){return '<td><b>'+avg(S.filter(function(s){return s.q[k]!==undefined}).map(function(s){return s.q[k]}))+'</b></td>'}).join("")+'</tr>';
- $("qSheet").innerHTML=h+'</tbody></table>'}
+ $("qSheet").innerHTML=h+'</tbody></table>';$("qFsC").textContent=CID&&ST[CID]?ST[CID].name:""}
+$("qFsX").onclick=function(){view("Q","rec")};
+$("qV").addEventListener("click",function(){requestAnimationFrame(function(){var w=$("qSheet");if(VW.Q==="his"&&matchMedia("(max-width:959px)").matches)w.scrollLeft=w.scrollWidth})});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&VW.Q==="his"&&!$("vQ").classList.contains("hide")&&matchMedia("(max-width:959px)").matches&&!document.querySelector(".qpop:not([hidden]),dialog[open]"))view("Q","rec")});
 
 /* ---------- Class: Warnings ---------- */
 /* ---------- Class: Rewards ---------- */
@@ -2205,7 +2233,7 @@ function navL(){
 /* The phone dock (tokens.css): a teacher always has Home and their class pages; an admin has Home, Classes and
    Record, and the class pages while a class is open, with Classes first to get back. Class pages tapped from
    elsewhere open the class used last. Everything else is under More, the full menu. */
-var LASTC=null,DKC={dQ:"Q",dT:"T",dD:"D",dW:"H"};try{LASTC=localStorage.getItem("mysafar.lastClass")}catch(e){}
+var LASTC=null,DKC={dQ:"Q",dT:"T"};try{LASTC=localStorage.getItem("mysafar.lastClass")}catch(e){}
 function lastC(){return LASTC&&ST[LASTC]?LASTC:CIDS[0]}
 function dockSet(){var inC=PAGE==="C",cls=TEACHER||inC;
  $("dH").hidden=!TEACHER&&inC;$("dL").hidden=TEACHER;$("dR").hidden=TEACHER||inC;
