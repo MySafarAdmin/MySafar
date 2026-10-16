@@ -210,6 +210,10 @@ footer i.run{width:100%;transition:width linear}
 #ctl{position:fixed;z-index:8;right:2vw;bottom:3vh;display:flex;gap:.8vw;opacity:0;transition:opacity .4s}
 #ctl.on,#ctl:focus-within{opacity:1}
 #ctl button{font:inherit;font-size:2.2vh;font-weight:800;color:#fff;background:var(--navy);border:0;border-radius:99px;padding:1.1vh 1.6vw;cursor:pointer;box-shadow:0 .5vh 0 rgba(0,20,40,.3)}
+#ctl button.ico{display:grid;place-items:center;width:6vh;height:6vh;padding:0}
+#ctl .ico svg{width:3vh;height:3vh}
+#ctl .ico .fs-off,#ctl .ico.full .fs-on{display:none}#ctl .ico.full .fs-off{display:block}
+#ctl button[hidden]{display:none}
 #ctl button:focus-visible{outline:.4vh solid #ffd23f;outline-offset:.3vh}
 #off{position:fixed;z-index:9;inset:0;display:none;align-items:center;justify-content:center;text-align:center;background:var(--navy);font-size:4vh;font-weight:800;padding:5vw}
 @media (prefers-reduced-motion:reduce){
@@ -223,7 +227,7 @@ footer i.run{width:100%;transition:width linear}
 <header><div class="brand"><span class="badge"><img src="/logo.png" alt="" width="80" height="80"></span><h1 id="brand">Safar Academy<small>Enfield</small></h1></div><span class="mode" id="mode"></span><span class="spacer"></span><div class="dots" id="dots"></div><div class="clock" id="clock"></div></header>
 <footer><i id="prog"></i></footer>
 <div id="off"></div>
-<nav id="ctl" hidden><button type="button" id="fs">Full screen</button><button type="button" id="close">Close</button></nav>
+<nav id="ctl" hidden><button type="button" id="fs" class="ico" aria-label="Full screen" title="Full screen"><svg class="fs-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg><svg class="fs-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg></button><button type="button" id="close" hidden>Close</button></nav>
 <script>
 (function(){
 var SLIDE_MS=30000,DATA_MS=60000;
@@ -672,14 +676,17 @@ function load(){fetch(URL,{credentials:"same-origin",cache:"no-store"}).then(fun
   return r.ok?r.json():null}).then(function(d){if(d){var first=!data;data=d;$("off").style.display="none";
    if(PRESENT){$("brand").innerHTML=esc(d.class)+"<small>Safar Academy</small>";document.title=d.class+" · Presenter"}if(first)show()}}).catch(function(){/* keep showing the last data */})}
 clock();setInterval(clock,1000);load();setInterval(load,DATA_MS);
-/* The Presenter runs on a teacher's screen: Full screen and Close show while the mouse moves; Escape also closes. */
-if(PRESENT){var C=$("ctl"),CT=0;C.hidden=false;
+/* The full-screen icon shows while the mouse moves, on a TV and in the Presenter. The Presenter runs on a teacher's
+   screen, so it also has Close; Escape also closes. */
+(function(){var C=$("ctl"),CT=0,F=$("fs");C.hidden=false;
  function wake(){C.classList.add("on");clearTimeout(CT);CT=setTimeout(function(){C.classList.remove("on")},2500)}
+ document.addEventListener("mousemove",wake);document.addEventListener("touchstart",wake,{passive:true});if(PRESENT)wake();
+ F.hidden=!document.documentElement.requestFullscreen;
+ F.onclick=function(){if(document.fullscreenElement)document.exitFullscreen();else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen()};
+ document.addEventListener("fullscreenchange",function(){var on=!!document.fullscreenElement,t=on?"Exit full screen":"Full screen";F.classList.toggle("full",on);F.setAttribute("aria-label",t);F.title=t});
+ if(!PRESENT)return;
  function close(){location.href="/"+(data&&data.id?"#"+data.id:"")} // back to the class on the dashboard
- document.addEventListener("mousemove",wake);document.addEventListener("touchstart",wake,{passive:true});wake();
- $("fs").onclick=function(){if(document.fullscreenElement)document.exitFullscreen();else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen()};
- document.addEventListener("fullscreenchange",function(){$("fs").textContent=document.fullscreenElement?"Exit full screen":"Full screen"});
- $("close").onclick=close;document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.fullscreenElement)close()})}
+ $("close").hidden=false;$("close").onclick=close;document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.fullscreenElement)close()})})();
 /* Pick up new versions of this page, unless the network is down. */
 setInterval(function(){fetch(location.href,{cache:"no-store"}).then(function(r){if(r.ok)location.reload()}).catch(function(){})},6*3600*1000);
 })();
