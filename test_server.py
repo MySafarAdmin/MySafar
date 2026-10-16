@@ -397,6 +397,9 @@ class DashboardTests:
         for path in ("/admin/users", "/admin/history", "/admin/activity"):
             self.assertEqual(teacher.get(path).status_code, 403)
         self.assertEqual(json.loads(self.records()["yr4-b"]["json"])["name"], "Yr4-B")
+        # The Students page is for administrators: the account pages' menu links to it only for them.
+        self.assertNotIn(b'href="/#students"', teacher.get("/account").data)
+        self.assertIn(b'href="/#students"', self.client.get("/account").data)
 
     def test_admin_downloads_the_school_spreadsheet(self):
         from io import BytesIO
