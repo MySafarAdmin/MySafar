@@ -1287,12 +1287,21 @@ var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduc
   ["fontFamily","fontWeight","color","fontStyle"].forEach(function(k){c.style[k]=cs[k]});
   c.style.fontSize=parseFloat(cs.fontSize)*s+"px";c.style.lineHeight=b.height/lines*s+"px";c.style.width=(w+1)*s+"px";
   if(cs.letterSpacing!=="normal")c.style.letterSpacing=parseFloat(cs.letterSpacing)*s+"px";
-  var L=m.left+m.width/2-w*s/2,T=innerHeight/2-20-b.height*s/2;c.style.left=L+"px";c.style.top=T+"px";
-  h.style.opacity="0";document.body.appendChild(c);c.insertBefore(car,K[0]||null);c.getBoundingClientRect();c.style.opacity="1";
+  // Centred on the screen. Each line is its own centred row and an untyped letter takes no room, so the
+  // typed text grows from the middle; the rows are found from the full text first, so the wrap stays the same.
+  var L=innerWidth/2-w*s/2,T=innerHeight/2-b.height*s/2;c.style.left=L+"px";c.style.top=T+"px";
+  h.style.opacity="0";document.body.appendChild(c);
+  var rows=[],top=null,tp=K.map(function(e){return Math.round(e.getBoundingClientRect().top)});
+  K.forEach(function(e,k){if(!rows.length||tp[k]!==top&&!/^\s$/.test(e.textContent)){top=tp[k];rows.push(document.createElement("span"))}rows[rows.length-1].appendChild(e)});
+  rows.forEach(function(r){r.className="grow";c.appendChild(r)});
+  rows[0].insertBefore(car,K[0]||null);c.getBoundingClientRect();c.style.opacity="1";
   var step=Math.max(38,Math.min(70,1500/ch.length)),i=0;
-  (function type(){if(i<K.length){K[i].classList.add("on");if(!/\s/.test(ch[i]))c.insertBefore(car,K[i].nextSibling);i++;setTimeout(type,/[ ,]/.test(ch[i-1])?step*1.8:step);return}
-   setTimeout(function(){car.classList.add("off")},350);setTimeout(function(){move(c,s,x,b.top,L,T)},650)})()}
- function move(c,s,x,y,L,T){c.style.transition="transform .9s "+EASE;c.style.transform="translate("+(x-L)+"px,"+(y-T)+"px) scale("+(1/s)+")";
+  (function type(){if(i<K.length){K[i].classList.add("on");if(!/\s/.test(ch[i]))K[i].parentNode.insertBefore(car,K[i].nextSibling);i++;setTimeout(type,/[ ,]/.test(ch[i-1])?step*1.8:step);return}
+   setTimeout(function(){car.classList.add("off")},350);setTimeout(function(){move(c,s,x,b.top,L,T,rows)},650)})()}
+ // The rows slide from the middle to the left edge as the copy shrinks onto the heading, which is left-aligned.
+ function move(c,s,x,y,L,T,rows){var cw=c.getBoundingClientRect().width;
+  rows.forEach(function(r){var R=document.createRange();R.selectNodeContents(r);var off=(cw-R.getBoundingClientRect().width)/2;r.style.textAlign="left";r.style.transform="translateX("+off+"px)";r.getBoundingClientRect();r.style.transition="transform .9s "+EASE;r.style.transform="none"});
+  c.style.transition="transform .9s "+EASE;c.style.transform="translate("+(x-L)+"px,"+(y-T)+"px) scale("+(1/s)+")";
   setTimeout(function(){document.body.classList.add("enter");H.classList.remove("fresh")},500);
   setTimeout(function(){h.style.opacity="";c.remove()},920);
   setTimeout(function(){document.body.classList.remove("enter")},4200)}})();
