@@ -134,6 +134,11 @@ on and the sending address, and links to a preview of every email.
   same person within 15 minutes share one entry. An admin can restore any
   version, or bring back a deleted classroom (teachers then need to be ticked
   for it again).
+- **Spreadsheet** in the admin menu downloads every class's records as an Excel
+  workbook (`export.py`): a Summary sheet, then Students, Classes, Quran scores,
+  Memo passes and fails, Level tests, Rewards, Stars of the week, Warnings and
+  Staff, each with filters and a frozen header row. Only admins can open it,
+  and each download is listed in **Activity**.
 - Back up the database too: turn on scheduled backups in the Postgres service's
   **Backups** tab. Deleting the Postgres service or its volume deletes the live
   records. Redeploying or deleting the MySafar service does not.
