@@ -33,6 +33,7 @@ from mailer import Mailer
 ROOT = Path(__file__).resolve().parent
 CLASS_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
 DAY = re.compile(r"\d{4}-\d{2}-\d{2}")
+DETAILS = ("sid", "fid", "gender", "year", "sy", "ist", "dob")
 # Student IDs given by the school, like SE263; new students get the next one.
 STUDENT_NUMBER = re.compile(r"SE(\d+)", re.IGNORECASE)
 MAX_CLASSES = 500
@@ -85,9 +86,17 @@ def valid_state(state):
             return False
         if not isinstance(student.get("lx"), list) or not all(isinstance(x, str) for x in student["lx"]):
             return False
-        # Details from the CSV upload: Student ID, gender, Safar year group, school year group,
-        # Islamic Studies teacher.
-        if not all(isinstance(student.get(k, ""), str) for k in ("sid", "gender", "year", "sy", "ist")):
+        # Details from the CSV upload or the student's profile: Student ID, Family ID, gender, Safar year group,
+        # school year group, Islamic Studies teacher and date of birth.
+        if not all(isinstance(student.get(k, ""), str) for k in DETAILS):
+            return False
+        if student.get("dob", "") and not DAY.fullmatch(student["dob"]):
+            return False
+        # Details changed by hand on the profile ("ed"), which a later CSV upload leaves alone, and the earlier
+        # Student IDs and names it had ("xid", "xn"), so the upload still recognises the student.
+        if not isinstance(student.get("ed", []), list) or not all(k in DETAILS + ("name", "house") for k in student.get("ed", [])):
+            return False
+        if not all(isinstance(student.get(k, []), list) and all(isinstance(x, str) for x in student.get(k, [])) for k in ("xid", "xn")):
             return False
         # Qaidah level, set on the Record page: 0 until set, then 1 to QAIDAH_LEVELS.
         qaidah = student.get("qa", 0)

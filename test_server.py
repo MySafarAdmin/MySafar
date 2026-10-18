@@ -13,7 +13,7 @@ import tempfile
 import time
 import unittest
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
@@ -198,6 +198,17 @@ class DashboardTests:
         self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
         student["sid"], student["sy"] = "ST001", 4
         self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
+
+    def test_student_profile_details(self):
+        student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                   "ml": [], "q": {}, "sid": "SE012", "fid": "SP004", "dob": "2015-03-12", "ed": ["sid", "dob", "name"],
+                   "xid": ["SE011"], "xn": ["Aisha"]}
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        saved = json.loads(self.records()["yr3-a"]["json"])["S"][0]
+        self.assertEqual((saved["fid"], saved["dob"], saved["ed"], saved["xid"]), ("SP004", "2015-03-12", ["sid", "dob", "name"], ["SE011"]))
+        for bad in ({"dob": "12/03/2015"}, {"dob": 2015}, {"fid": 4}, {"ed": ["q"]}, {"ed": "sid"}, {"xid": [1]}, {"xn": "A"}):
+            self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, **bad)])).status_code, 400)
+        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, dob="")])).status_code, 200)
 
     def test_house_points(self):
         student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
@@ -417,7 +428,7 @@ class DashboardTests:
         from io import BytesIO
         from openpyxl import load_workbook
         t = int(datetime(2026, 10, 14, 17, 30).timestamp() * 1000)
-        student = {"name": "Musa Khan", "sid": "ST099", "house": "Madinah", "target": 12, "passes": 2, "merits": 1,
+        student = {"name": "Musa Khan", "sid": "ST099", "fid": "SP040", "dob": "2016-05-02", "house": "Madinah", "target": 12, "passes": 2, "merits": 1,
                    "warn": 2, "log": [t - 864e5, t], "lt": [10, 11], "lx": ["", ""], "ml": [t], "fl": [t], "qa": 3,
                    "q": {"2026-10-13": 4, "2026-10-14": 5}, "tg": [t], "tb": [t], "tr": [], "sw": ["2026-10-12"],
                    "tests": [{"d": "2026-10-14", "k": "m", "n": 11, "sc": 4, "ok": True, "tk": t}]}
@@ -445,7 +456,8 @@ class DashboardTests:
         self.assertEqual(rows["Level tests"][1][5:], ["L2 T2", 4, "Passed", "Yes"])
         self.assertEqual(sorted(r[5] for r in rows["Rewards"][1:]), ["Blue token", "Green token", "Merit"])
         self.assertEqual(book["Students"].freeze_panes, "A2")
-        self.assertEqual(book["Students"].auto_filter.ref, "A1:W2")
+        self.assertEqual(book["Students"].auto_filter.ref, "A1:Y2")
+        self.assertEqual((students["Family ID"], students["Date of birth"].date()), ("SP040", date(2016, 5, 2)))
         self.assertIn(["Admin@Example.com".lower(), "Administrator"], [r[1:3] for r in rows["Staff"][1:]])
         self.assertEqual(self.query("SELECT action FROM audit_log WHERE action = 'export.downloaded'"),
                          [{"action": "export.downloaded"}])

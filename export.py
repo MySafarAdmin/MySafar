@@ -34,8 +34,8 @@ bp = Blueprint("export", __name__)
 # Each sheet: its title, what it holds, and its columns (header, least width, number format).
 SHEETS = {
     "students": ("Students", "One row per student: their details, where they are and their totals.", [
-        ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None), ("Gender", 9, None),
-        ("Safar year", 10, None), ("School year", 11, None), ("Islamic Studies teacher", 22, None),
+        ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None), ("Family ID", 10, None),
+        ("Date of birth", 13, DAY), ("Gender", 9, None), ("Safar year", 10, None), ("School year", 11, None), ("Islamic Studies teacher", 22, None),
         ("House", 10, None), ("Memo target", 16, None), ("Memo passes", 9, "0"),
         ("Passes this month", 9, "0"), ("Last memo pass", 13, DAY), ("Memo fails", 9, "0"),
         ("Qaidah level", 9, "0"), ("Quran days scored", 9, "0"), ("Quran average", 9, "0.0"),
@@ -102,6 +102,11 @@ def day(text):
     return date.fromisoformat(text)
 
 
+def birth(text):
+    """A date of birth from the student's profile, or nothing when it isn't recorded."""
+    return day(text) if text else None
+
+
 class Sheet:
     """One worksheet: its columns (header, width hint, number format) and rows."""
 
@@ -143,7 +148,7 @@ def gather(db):
             points = sum(len(s.get(k, [])) * v for k, _, v in TOKENS)
             started = s.get("target", 1) > 1 or log or fails
             sheets["students"].add(
-                cname, sid, name, s.get("gender", ""), s.get("year", ""), s.get("sy", ""), s.get("ist", ""), house,
+                cname, sid, name, s.get("fid", ""), birth(s.get("dob", "")), s.get("gender", ""), s.get("year", ""), s.get("sy", ""), s.get("ist", ""), house,
                 target_label(s.get("target", 1), levels) if started else "No data", s.get("passes", 0),
                 sum(1 for t in log if t >= month), when(max(log)).date() if log else None, len(fails),
                 s.get("qa") or None, len(scores), round(sum(scores.values()) / len(scores), 2) if scores else None,
