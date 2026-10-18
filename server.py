@@ -24,6 +24,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 import auth
 import cleanup
+import set_houses
 import export
 import tv
 from db import DB_ERRORS, Database
@@ -32,6 +33,9 @@ from mailer import Mailer
 ROOT = Path(__file__).resolve().parent
 CLASS_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
 DAY = re.compile(r"\d{4}-\d{2}-\d{2}")
+DETAILS = ("sid", "fid", "gender", "year", "sy", "ist", "dob")
+# Student IDs given by the school, like SE263; new students get the next one.
+STUDENT_NUMBER = re.compile(r"SE(\d+)", re.IGNORECASE)
 MAX_CLASSES = 500
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 QAIDAH_LEVELS = 10  # keep in step with QAIDAH in src/page.html
@@ -82,9 +86,17 @@ def valid_state(state):
             return False
         if not isinstance(student.get("lx"), list) or not all(isinstance(x, str) for x in student["lx"]):
             return False
-        # Details from the CSV upload: Student ID, gender, Safar year group, school year group,
-        # Islamic Studies teacher.
-        if not all(isinstance(student.get(k, ""), str) for k in ("sid", "gender", "year", "sy", "ist")):
+        # Details from the CSV upload or the student's profile: Student ID, Family ID, gender, Safar year group,
+        # school year group, Islamic Studies teacher and date of birth.
+        if not all(isinstance(student.get(k, ""), str) for k in DETAILS):
+            return False
+        if student.get("dob", "") and not DAY.fullmatch(student["dob"]):
+            return False
+        # Details changed by hand on the profile ("ed"), which a later CSV upload leaves alone, and the earlier
+        # Student IDs and names it had ("xid", "xn"), so the upload still recognises the student.
+        if not isinstance(student.get("ed", []), list) or not all(k in DETAILS + ("name", "house", "class") for k in student.get("ed", [])):
+            return False
+        if not all(isinstance(student.get(k, []), list) and all(isinstance(x, str) for x in student.get(k, [])) for k in ("xid", "xn")):
             return False
         # Qaidah level, set on the Record page: 0 until set, then 1 to QAIDAH_LEVELS.
         qaidah = student.get("qa", 0)
@@ -207,6 +219,7 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(tv.bp)
     app.register_blueprint(cleanup.bp)
+    app.register_blueprint(set_houses.bp)
     app.register_blueprint(export.bp)
     pruned = {"at": 0}
 
@@ -365,6 +378,20 @@ def create_app(test_config=None):
                     totals[student["house"]] += sum(len(student.get(k, [])) * v for k, v in TOKEN_POINTS.items())
         return jsonify(totals)
 
+    @app.get("/api/last-sid")
+    def last_student_number():
+        """The highest SE Student ID in any classroom, so a new student gets the next one. Teachers only load
+        their own classrooms, so the browser can't work this out by itself."""
+        last = 0
+        with database.transaction() as db:
+            rows = db.execute("SELECT json FROM classrooms").fetchall()
+        for row in rows:
+            for student in json.loads(row["json"]).get("S", []):
+                match = STUDENT_NUMBER.fullmatch(str(student.get("sid", "")).strip())
+                if match:
+                    last = max(last, int(match[1]))
+        return jsonify(last=last)
+
     @app.put("/api/classes/<class_id>")
     def write_class(class_id):
         """Revision 0 creates a classroom; otherwise it must match the stored revision."""
@@ -389,6 +416,12 @@ def create_app(test_config=None):
                 cursor = db.execute("INSERT INTO classrooms VALUES (?, ?, 1) ON CONFLICT (id) DO NOTHING",
                                     (class_id, encoded))
             else:
+                # Only admins add or remove students; a teacher's save must keep the class's students.
+                if not is_admin():
+                    current = db.execute("SELECT json FROM classrooms WHERE id = ? AND revision = ?",
+                                         (class_id, document["revision"])).fetchone()
+                    if current and len(json.loads(current["json"]).get("S", [])) != len(state["S"]):
+                        return jsonify(error="Only an admin can add or remove students."), 403
                 cursor = db.execute("UPDATE classrooms SET json = ?, revision = revision + 1 WHERE id = ? AND revision = ?",
                                     (encoded, class_id, document["revision"]))
             if cursor.rowcount:
