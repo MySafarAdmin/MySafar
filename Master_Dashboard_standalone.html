@@ -1765,7 +1765,7 @@ function refill(el,html){var a=document.activeElement,key=null;
  el.innerHTML=html;
  if(key){var n=el.querySelector(key);if(n)n.focus()}}
 var DMODE="";
-function details(s){return [["Student ID",s.sid],["Family ID",s.fid],["Date of birth",dobText(s.dob)],["Year group",s.sy],["Gender",s.gender],["House",s.house],["Islamic Studies",s.ist],["Qaidah",s.qa?"Level "+s.qa:""]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
+function details(s){return [["Student ID",s.sid],["Family ID",s.fid],["Date of birth",dobText(s.dob)],["Year group",s.sy],["Gender",s.gender],["House",s.house],["Arabic and Islamic Studies Class",s.ist],["Qaidah",s.qa?"Level "+s.qa:""]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
 /* Details, history, rename and remove from a student's Memo profile. */
 document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]");if(!bt||!bt.closest("#drwB"))return;var a=bt.dataset.a,i=+bt.dataset.i,s=S[i],c=CID;if(!s)return;
  var nm=fn(s);
@@ -2446,7 +2446,7 @@ $("drwB").addEventListener("submit",function(e){if(e.target.id!=="suF")return;e.
    or correct. A detail changed here is remembered in s.ed, and a later CSV upload leaves it as it is (its preview
    lists any the file disagrees with). A changed Student ID or name is kept in s.xid or s.xn, so the upload still
    recognises the student. Students with the same Family ID are listed as their family. */
-var SPF=[["name","Name"],["sid","Student ID"],["fid","Family ID"],["dob","Date of birth"],["gender","Gender"],["sy","Year group"],["house","House"],["ist","Islamic Studies class"]];
+var SPF=[["name","Name"],["sid","Student ID"],["fid","Family ID"],["dob","Date of birth"],["gender","Gender"],["sy","Year group"],["house","House"],["ist","Arabic and Islamic Studies Class"]];
 function yrs(a,b){var L=[];for(var n=a;n<=b;n++)L.push("Year "+n);return L}
 function opts(L,v,none){var A=L.slice();if(v&&A.indexOf(v)<0)A.unshift(v);return '<option value="">'+none+'</option>'+A.map(function(x){return '<option'+(x===v?' selected':'')+'>'+esc(x)+'</option>'}).join("")}
 function isoDay(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
@@ -2457,14 +2457,15 @@ var SPS=null;
 function stuProfile(c,s){SPS={c:c,s:s};var fam=family(s),a=ageOn(s.dob),sub=[cname(ST[c].name)];if(a>=0&&a!==null)sub.push("Age "+a);if(s.house)sub.push(s.house);
  drawer(s.name,'<form class="addf spf" id="spF" novalidate><p class="cap">'+esc(sub.join(" · "))+'. Only the name is needed; every other detail can be left blank.</p>'
   +'<label>Name<input id="spname" maxlength="60" autocomplete="off" required value="'+esc(s.name)+'"></label>'
-  +'<label>Class<select id="spcls">'+CIDS.map(function(k){return '<option value="'+esc(k)+'"'+(k===c?' selected':'')+'>'+esc(cname(ST[k].name))+'</option>'}).join("")+'</select></label>'
+  +'<label>Quran and Memorisation Class<select id="spcls">'+CIDS.map(function(k){return '<option value="'+esc(k)+'"'+(k===c?' selected':'')+'>'+esc(cname(ST[k].name))+'</option>'}).join("")+'</select></label>'
+  +'<label>Arabic and Islamic Studies Class<input id="spist" maxlength="80" autocomplete="off" value="'+esc(s.ist||"")+'"></label>'
   +'<div class="pf2"><label>Student ID<input id="spsid" maxlength="40" autocomplete="off" placeholder="SE…" value="'+esc(s.sid||"")+'"></label>'
   +'<label>Family ID<input id="spfid" maxlength="40" autocomplete="off" placeholder="SP…" value="'+esc(s.fid||"")+'"></label>'
   +'<div class="spdob"><label>Date of birth<input id="spdob" type="date" max="'+isoDay(new Date())+'" value="'+esc(s.dob||"")+'"></label><button type="button" class="lk" id="spdobX"'+(s.dob?'':' hidden')+'>Clear date of birth</button></div>'
   +'<label>Gender<select id="spgender">'+opts(["Female","Male"],s.gender||"","Not recorded")+'</select></label>'
   +'<label>Year group<select id="spsy">'+opts(["Reception"].concat(yrs(1,13)),s.sy||"","Not recorded")+'</select></label>'
   +'<label>House<select id="sphouse">'+opts(HOUSES,s.house||"","Not set yet")+'</select></label>'
-  +'<label>Islamic Studies class<input id="spist" maxlength="80" autocomplete="off" value="'+esc(s.ist||"")+'"></label></div>'
+  +'</div>'
   +'<div class="spfam"><b>Family</b>'+(fam.length?'<ul>'+fam.map(function(o){return '<li><button type="button" class="lk" data-sp="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(o.s)+'">'+esc(o.s.name)+'</button> <span class="cap">'+esc(cname(ST[o.c].name))+(o.s.house?' · '+esc(o.s.house):'')+'</span></li>'}).join("")+'</ul>':'<span class="cap">'+(s.fid?'No one else has Family ID '+esc(s.fid)+'.':'Add a Family ID to see their brothers and sisters here.')+'</span>')+'</div>'
   +'<p class="cap">Details you change here stay as you set them when a CSV is uploaded again; its preview lists any the file disagrees with. A student moves class with all of their records.</p>'
   +'<div class="acts"><p class="naerr" id="spE" role="alert"></p><button type="submit" class="btn p">Save changes</button></div></form>');
@@ -2662,7 +2663,7 @@ function planCSV(){var M=CSV.M,F=["name","year"].concat(["sid","fid","dob","gend
   claimed.push(hit);
   // A detail changed by hand on the profile stays as it is.
   F.forEach(function(k){if(o[k]!==""&&(hit.ed||[]).indexOf(k)>=0&&nkey(hit[k])!==nkey(o[k]))kept.push(hit.name+": "+(SPF.filter(function(x){return x[0]===k})[0]||COLS.filter(function(x){return x[0]===k})[0])[1]+" stays "+((k==="dob"?dobText(hit[k],1):hit[k])||"not recorded")+" (the file says "+(k==="dob"?dobText(o[k],1):o[k])+")")});
-  if(from!==g.cid&&(hit.ed||[]).indexOf("class")>=0)kept.push(hit.name+": Class stays "+cname(ST[from].name)+" (the file says "+o.teacher+")");
+  if(from!==g.cid&&(hit.ed||[]).indexOf("class")>=0)kept.push(hit.name+": Quran and Memorisation Class stays "+cname(ST[from].name)+" (the file says "+o.teacher+")");
   else if(from!==g.cid){g.move.push({o:o,s:hit,from:from});return}
   if(F.some(function(k){return o[k]!==""&&(hit[k]||"")!==o[k]&&(hit.ed||[]).indexOf(k)<0}))g.update.push({o:o,s:hit});else g.same++});
  var gone=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){if(claimed.indexOf(s)<0)gone.push(s.name+" ("+cname(ST[c].name)+")")})});
