@@ -2452,12 +2452,12 @@ function dobText(dob,bare){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(dob||"");if(!m
 function family(s){var k=nkey(s.fid),L=[];if(!k)return L;CIDS.forEach(function(c){ST[c].S.forEach(function(o){if(o!==s&&nkey(o.fid)===k)L.push({s:o,c:c})})});return L}
 var SPS=null;
 function stuProfile(c,s){SPS={c:c,s:s};var fam=family(s),a=ageOn(s.dob),sub=[cname(ST[c].name)];if(a>=0&&a!==null)sub.push("Age "+a);if(s.house)sub.push(s.house);
- drawer(s.name,'<form class="addf spf" id="spF" novalidate><p class="cap">'+esc(sub.join(" · "))+'</p>'
+ drawer(s.name,'<form class="addf spf" id="spF" novalidate><p class="cap">'+esc(sub.join(" · "))+'. Only the name is needed; every other detail can be left blank.</p>'
   +'<label>Name<input id="spname" maxlength="60" autocomplete="off" required value="'+esc(s.name)+'"></label>'
   +'<label>Class<select id="spcls">'+CIDS.map(function(k){return '<option value="'+esc(k)+'"'+(k===c?' selected':'')+'>'+esc(cname(ST[k].name))+'</option>'}).join("")+'</select></label>'
   +'<div class="pf2"><label>Student ID<input id="spsid" maxlength="40" autocomplete="off" placeholder="SE…" value="'+esc(s.sid||"")+'"></label>'
   +'<label>Family ID<input id="spfid" maxlength="40" autocomplete="off" placeholder="SP…" value="'+esc(s.fid||"")+'"></label>'
-  +'<div class="spdob"><label>Date of birth (optional)<input id="spdob" type="date" max="'+isoDay(new Date())+'" value="'+esc(s.dob||"")+'"></label><button type="button" class="lk" id="spdobX"'+(s.dob?'':' hidden')+'>Clear date of birth</button></div>'
+  +'<div class="spdob"><label>Date of birth<input id="spdob" type="date" max="'+isoDay(new Date())+'" value="'+esc(s.dob||"")+'"></label><button type="button" class="lk" id="spdobX"'+(s.dob?'':' hidden')+'>Clear date of birth</button></div>'
   +'<label>Gender<select id="spgender">'+opts(["Female","Male"],s.gender||"","Not recorded")+'</select></label>'
   +'<label>School year group<select id="spsy">'+opts(["Reception"].concat(yrs(1,13)),s.sy||"","Not recorded")+'</select></label>'
   +'<label>Safar year group<select id="spyear">'+opts(yrs(1,10),s.year||"","Not recorded")+'</select></label>'
