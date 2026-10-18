@@ -1057,6 +1057,21 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .stul td.lead b{font-weight:700}
 .stul .hn{font-weight:500}
 .stul td.act{width:1%;white-space:nowrap;text-align:right}
+/* A row opens the student's profile; the name is its button, for the keyboard. */
+.stul tbody tr{cursor:pointer;transition:background-color .15s ease}
+.stul tbody tr:hover{background:var(--surface-2)}
+.spo{font:inherit;color:inherit;background:none;border:0;padding:4px 0;text-align:left;cursor:pointer;min-height:32px;overflow-wrap:anywhere}
+.spo:hover b{text-decoration:underline;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-underline-offset:.2em}
+/* The profile, in the drawer: details two to a row, then the family. */
+.spf .pf2{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px}
+.spf .pf2 input,.spf .pf2 select{min-width:0;width:100%}
+.spf .acts{position:sticky;bottom:-32px;margin:0 -4px -16px;padding:12px 4px 16px;background:linear-gradient(rgba(255,255,255,0),var(--surface) 30%)}
+.spf .acts{align-items:center;gap:12px}.spf .acts .naerr{flex:1;font-size:.875rem}
+.spdob{display:flex;flex-direction:column;gap:4px}.spdob .lk{align-self:flex-start;font-size:.8125rem;min-height:24px}.spdob .lk[hidden]{display:none}
+.spfam{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);font-size:.875rem}
+.spfam ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+.spfam .cap{font-size:.8125rem}
+@media (max-width:420px){.spf .pf2{grid-template-columns:1fr}}
 .srm{background:none;border-color:transparent;color:var(--mute);padding:6px 8px}
 .srm .ic{width:18px;height:18px}
 .srm span{display:none}
@@ -1070,7 +1085,7 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
  .tbl.stackable.stul td::before{display:none}
  .tbl.stackable.stul td.lead{flex:1 1 calc(100% - 52px);font-size:1rem;color:var(--ink)}
  .tbl.stackable.stul td.act{flex:none;width:44px;justify-content:center;order:0}
- .tbl.stackable.stul td.sy{display:none}
+ .tbl.stackable.stul td.sy,.tbl.stackable.stul td.fi{display:none}
  .tbl.stackable.stul td.sm{order:1}
  .tbl.stackable.stul td.sm~td.sm::before{display:inline;content:"·";margin:0 7px;color:var(--mute)}
  .stul td.sm .lk{min-height:0;font-size:.8125rem}
