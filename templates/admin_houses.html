@@ -28,6 +28,6 @@
   </form>
 </div>
 {% else %}
-<p class="sub">Every listed student already has their house.</p>
+<p class="sub">{{ "Every listed student already has their house." if not missing and not unmatched else "No house would change. Check the names above that don't match." }}</p>
 {% endif %}
 {% endblock %}
