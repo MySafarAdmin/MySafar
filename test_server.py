@@ -686,44 +686,36 @@ class DashboardTests:
         record = self.records()["yr3-a"]
         self.assertEqual((json.loads(record["json"])["name"], record["revision"]), ("Yr3-A", 1))
 
-    def test_clear_test_data_removes_records_from_monday_12_october(self):
-        ms = lambda *args: int(datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000)  # noqa: E731
-        old, new = ms(2026, 10, 9, 10), ms(2026, 10, 12, 0, 30)
-        before = self.tv_student("Amina", sid="7", target=3, passes=2, merits=1, warn=1, log=[old - 1, old], lt=[1, 2],
-                                 lx=["", ""], ml=[old], fl=[], q={"2026-10-09": 4}, tb=[old], qa=2, sw=["2026-10-05"],
-                                 tests=[{"d": "2026-10-09", "k": "q", "n": 2, "sc": 4, "ok": True, "pq": 1, "tk": old}])
-        self.write(state=dict(self.state, S=[before]))
-        with self.app.config["DB"].transaction() as tx:
-            tx.execute("UPDATE classroom_history SET saved_at = ?", (old // 1000,))
-        after = json.loads(json.dumps(before))
-        after.update(target=5, passes=4, merits=3, warn=3, log=before["log"] + [new, new + 1], lt=[1, 2, 3, 4],
-                     lx=["", "", "", ""], ml=[old, new, new], fl=[new], q={"2026-10-09": 4, "2026-10-13": 2}, tb=[old, new],
-                     tg=[new], qa=3, sw=["2026-10-05", "2026-10-12"],
-                     tests=before["tests"] + [{"d": "2026-10-13", "k": "q", "n": 3, "sc": 5, "ok": True, "pq": 2, "tk": new}])
-        added = self.tv_student("Bilal", merits=1, ml=[new], warn=2)
-        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[after, added])).status_code, 200)
+    def test_clear_removes_every_progress_record(self):
+        t = 1760000000000
+        tests = [{"d": "2026-10-13", "k": "m", "n": 3, "sc": 4, "ok": True, "tk": t},
+                 {"d": "2026-10-13", "k": "m", "n": 4, "sc": 1, "ok": False},
+                 {"d": "2026-10-13", "k": "q", "n": 2, "sc": 5, "ok": True, "pq": 1, "tk": t}]
+        amina = self.tv_student("Amina", target=4, passes=3, merits=2, warn=1, log=[t, t + 1], lt=[2, 3], lx=["", ""],
+                                ml=[t, t], fl=[t], q={"2026-10-13": 4}, tb=[t, t], qa=2, sw=["2026-10-12"], tests=tests)
+        self.write(state=dict(self.state, S=[amina, self.tv_student("Bilal")]))
         page = self.client.get("/admin/clear-test-data").get_data(as_text=True)
-        self.assertIn("Monday 12 October 2026", page)
         self.assertIn("Yr3-A", page)
-        self.assertEqual(self.client.get("/admin/clear-test-data/backup.json").get_json()["classrooms"]["yr3-a"]["revision"], 2)
+        self.assertEqual(self.client.get("/admin/clear-test-data/backup.json").get_json()["classrooms"]["yr3-a"]["revision"], 1)
         self.assertIn("Type CLEAR", self.form(self.client, "/admin/clear-test-data", "/admin/clear-test-data",
                                               confirm="no").get_data(as_text=True))
-        self.assertEqual(self.records()["yr3-a"]["revision"], 2)
+        self.assertEqual(self.records()["yr3-a"]["revision"], 1)
         done = self.form(self.client, "/admin/clear-test-data", "/admin/clear-test-data", confirm="clear")
         self.assertIn("Cleared 1 class", done.get_data(as_text=True))
         record = self.records()["yr3-a"]
-        amina, bilal = json.loads(record["json"])["S"]
-        self.assertEqual(record["revision"], 3)
-        self.assertEqual({k: amina.get(k) for k in before}, before)
-        self.assertEqual(amina["tg"], [])
-        self.assertEqual((bilal["merits"], bilal["ml"], bilal["warn"]), (0, [], 0))
-        self.assertTrue(valid_state(json.loads(record["json"])))
-        # The version from just before the clear can be restored from Class history.
-        saved = [json.loads(r["json"]) for r in self.query("SELECT json FROM classroom_history ORDER BY id")]
-        self.assertEqual(saved[-2]["S"][0]["passes"], 4)
-        self.assertIn("Nothing is recorded", self.client.get("/admin/clear-test-data").get_data(as_text=True))
-        teacher = self.sign_in("t@example.com", "teacher-password-1") if self.add_user("t@example.com") else None
-        self.assertEqual(teacher.get("/admin/clear-test-data").status_code, 403)
+        state = json.loads(record["json"])
+        cleared = state["S"][0]
+        self.assertEqual(record["revision"], 2)
+        self.assertTrue(valid_state(state))
+        for key, empty in (("passes", 0), ("log", []), ("lt", []), ("lx", []), ("sw", []), ("tests", []), ("merits", 0),
+                           ("ml", []), ("warn", 0), ("fl", []), ("q", {}), ("tb", []), ("tg", []), ("tr", [])):
+            self.assertEqual(cleared[key], empty, key)
+        self.assertEqual((cleared["name"], cleared["target"], cleared["qa"]), ("Amina", 1, 0))
+        self.assertEqual(self.client.get("/api/houses").get_json(), {"Makkah": 0, "Al-Aqsa": 0, "Madinah": 0})
+        self.assertEqual(json.loads(self.query("SELECT json FROM classroom_history ORDER BY id")[-2]["json"])["S"][0]["passes"], 3)
+        self.assertIn("no progress records", self.client.get("/admin/clear-test-data").get_data(as_text=True))
+        self.add_user("t@example.com")
+        self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").get("/admin/clear-test-data").status_code, 403)
 
     def test_set_houses_matches_by_name_and_fills_in_ids_and_family(self):
         # On the list: Aayat Nm SE0001 SP457 Makkah, Musa Un SE0065, Adam Or SE0060 in Yr3-A and SE0265 in Yr3-B.
