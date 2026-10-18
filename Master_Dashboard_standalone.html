@@ -1428,17 +1428,16 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
  .sfg{grid-template-columns:1fr}
  .stbar .tools{margin-left:0;width:100%}.stbar .tools .btn{width:100%}
  /* Two lines a student: the name with its bin, then class, Student ID and house in small type. */
- .tbl.stackable.stul tr{display:flex;flex-wrap:wrap;align-items:center;gap:2px 0;padding:10px 4px 10px 14px}
- .tbl.stackable.stul td{width:auto;padding:0;gap:0;display:inline-flex;font-size:.8125rem;color:var(--ink-2)}
- .tbl.stackable.stul td::before{display:none}
- .tbl.stackable.stul td.lead{flex:1 1 calc(100% - 52px);font-size:1rem;color:var(--ink)}
- .tbl.stackable.stul td.act{flex:none;width:44px;justify-content:center;order:0}
- .tbl.stackable.stul td.sy,.tbl.stackable.stul td.fi{display:none}
- .tbl.stackable.stul td.sm{order:1}
- .tbl.stackable.stul td.sm~td.sm::before{display:inline;content:"·";margin:0 7px;color:var(--mute)}
+ /* A card per student: the name with its bin, then each detail under a small label, two to a row. */
+ .tbl.stackable.stul tr{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;align-items:start;padding:12px 14px 14px}
+ .tbl.stackable.stul td{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:auto;padding:0;font-size:.875rem;color:var(--ink);min-width:0;overflow-wrap:break-word}
+ .tbl.stackable.stul td::before{display:block;content:attr(data-label);font-size:.6875rem;font-weight:650;letter-spacing:.02em;text-transform:uppercase;color:var(--mute)}
+ .tbl.stackable.stul td.lead{grid-column:1/-1;font-size:1.0625rem;padding-right:44px;min-height:32px;justify-content:center}
+ .tbl.stackable.stul td.lead::before,.tbl.stackable.stul td.act::before{display:none}
+ .tbl.stackable.stul td.act{position:absolute;top:6px;right:4px}
  .stul td.sm .lk{min-height:0;font-size:.8125rem}
  .stul .srm{min-height:44px;min-width:44px}
- .stul .pfx{display:inline;color:var(--mute);font-weight:650;white-space:pre}
+
 }
 
 /* Full sheet: an icon that toggles the class's whole sheet; pressed, it shows the "shrink" corners. */
