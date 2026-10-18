@@ -710,9 +710,7 @@ class DashboardTests:
         for key, empty in (("passes", 0), ("log", []), ("lt", []), ("lx", []), ("sw", []), ("tests", []), ("merits", 0),
                            ("ml", []), ("warn", 0), ("fl", []), ("q", {}), ("tb", []), ("tg", []), ("tr", [])):
             self.assertEqual(cleared[key], empty, key)
-        # The student, their current target and Qaidah level stay.
-        for key in ("name", "target", "qa"):
-            self.assertEqual(cleared[key], amina[key])
+        self.assertEqual((cleared["name"], cleared["target"], cleared["qa"]), ("Amina", 1, 0))
         self.assertEqual(self.client.get("/api/houses").get_json(), {"Makkah": 0, "Al-Aqsa": 0, "Madinah": 0})
         self.assertEqual(json.loads(self.query("SELECT json FROM classroom_history ORDER BY id")[-2]["json"])["S"][0]["passes"], 3)
         self.assertIn("no progress records", self.client.get("/admin/clear-test-data").get_data(as_text=True))

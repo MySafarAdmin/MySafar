@@ -3,7 +3,7 @@
 Removes Quran scores, memo passes (with the pass count) and fails, level tests,
 merits, warnings and missed breaks, house tokens (so house points go to 0) and
 stars of the week. Students, their details and houses, classes, accounts and TV
-screens stay, and so do each student's current memo target and Qaidah level.
+screens stay. Every student goes back to the first memo target and no Qaidah level.
 
 An admin opens /admin/clear-test-data to see exactly what would go and download a
 backup of every class first; nothing changes until they confirm. The version of
@@ -20,7 +20,7 @@ import auth
 TOKENS = ("tg", "tb", "tr")
 KINDS = (("q", "Quran scores"), ("passes", "Memo passes"), ("fails", "Memo fails"), ("tests", "Level tests"),
          ("merits", "Merits"), ("warnings", "Warnings and missed breaks"), ("tokens", "House tokens"),
-         ("stars", "Stars of the week"))
+         ("stars", "Stars of the week"), ("targets", "Memo targets reset"), ("levels", "Qaidah levels reset"))
 
 bp = Blueprint("cleanup", __name__)
 
@@ -30,8 +30,8 @@ def clear_student(s):
     n = {"q": len(s.get("q", {})), "passes": max(s.get("passes", 0), len(s.get("log", []))), "fails": len(s.get("fl", [])),
          "tests": len(s.get("tests", [])), "merits": max(s.get("merits", 0), len(s.get("ml", []))),
          "warnings": 1 if s.get("warn") else 0, "tokens": sum(len(s.get(k, [])) for k in TOKENS),
-         "stars": len(s.get("sw", []))}
-    s.update(q={}, passes=0, log=[], lt=[], lx=[], hit=None, fl=[], tests=[], merits=0, ml=[], warn=0, sw=[],
+         "stars": len(s.get("sw", [])), "targets": 1 if s.get("target", 1) > 1 else 0, "levels": 1 if s.get("qa") else 0}
+    s.update(q={}, passes=0, log=[], lt=[], lx=[], hit=None, fl=[], tests=[], merits=0, ml=[], warn=0, sw=[], target=1, qa=0,
              **{k: [] for k in TOKENS})
     s.pop("mp", None)
     return n
