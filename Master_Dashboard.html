@@ -1375,8 +1375,14 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
    column of red buttons; on narrow screens it carries its word too. */
 #vU{margin-top:12px}
 .stbar #stuQ{flex:0 1 320px;width:100%;min-height:40px}
-.stbar select{min-height:40px;max-width:260px}
+.stbar select{min-height:40px;max-width:330px}
+.stbar .cap{flex:1 1 120px}
 .stbar .btn .ic{width:18px;height:18px}
+/* The extra filters: a quieter second row; a filter in use is outlined in navy. */
+.stbar{margin-bottom:10px}
+.stfil{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.stfil select{min-height:36px;max-width:240px;font-size:.875rem;padding-top:4px;padding-bottom:4px}
+.stfil select.on{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);color:var(--ink)}
 .stul td.lead b{font-weight:700}
 .stul .hn{font-weight:500}
 .stul td.act{width:1%;white-space:nowrap;text-align:right}
@@ -1401,6 +1407,7 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .srm:hover,.srm:focus-visible{background:var(--bad-soft);border-color:transparent;color:var(--bad-ink)}
 @media (max-width:640px){
  .stbar #stuQ,.stbar select{flex:1 1 100%;max-width:none}
+ .stfil select{flex:1 1 calc(50% - 4px);max-width:none}
  .stbar .tools{margin-left:0;width:100%}.stbar .tools .btn{width:100%}
  /* Two lines a student: the name with its bin, then class, Student ID and house in small type. */
  .tbl.stackable.stul tr{display:flex;flex-wrap:wrap;align-items:center;gap:2px 0;padding:10px 4px 10px 14px}
@@ -2396,19 +2403,36 @@ function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[
 /* Students (administrators only; teachers don't see it): every student on the dashboard in one list, with a
    search, a class filter, Add student into any class the viewer has, and Remove, which asks first. Every change
    is saved with the student's class straight away, as on the Quran tab. */
-var SQ="",SC="",SNEW=null,SPG=25,
+var SQ="",SC="",SF={sy:"",house:"",gender:"",ist:"",miss:""},SNEW=null,SPG=25,
  ADDIC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9.5" cy="8" r="3.5"/><path d="M3 20c.8-3.6 3.3-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4"/><path d="M18.5 13.5v6M15.5 16.5h6"/></svg>',
  BINIC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10.5 11v5.5M13.5 11v5.5"/></svg>';
 function stuAll(){var A=[];CIDS.forEach(function(c){if(SC&&c!==SC)return;ST[c].S.forEach(function(s){A.push({s:s,c:c})})});
- return A.sort(function(a,b){return a.s.name.localeCompare(b.s.name,undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
+ return A.sort(function(a,b){return a.s.name.trim().localeCompare(b.s.name.trim(),undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function stuPage(){if(!CIDS.length){$("stuW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>'+(TEACHER?'Ask an administrator to add you to your classrooms on Manage users.':'Students belong to a class, so upload a CSV on Classes to create the classrooms first.<button type="button" class="btn sm p" data-open="L">Go to Classes</button>')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';return}
  if(SC&&!ST[SC])SC="";
- if(!$("stuQ"))$("stuW").innerHTML='<div class="toolbar stbar"><input type="search" id="stuQ" placeholder="Find a student or ID…" aria-label="Find a student, Student ID or Family ID" autocomplete="off"><select id="stuC" aria-label="Class"></select><p class="cap" id="stuN"></p><div class="tools"><button type="button" class="btn p" id="stuA">'+ADDIC+'Add student</button></div></div><div id="stuL"></div>';
- var sel=$("stuC");sel.hidden=CIDS.length<2;sel.innerHTML='<option value="">All classes</option>'+CIDS.map(function(c){return '<option value="'+esc(c)+'"'+(c===SC?' selected':'')+'>'+esc(cname(ST[c].name))+'</option>'}).join("");
- stuRows()}
-function stuRows(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return !q||nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q});
- $("stuN").textContent=q?A.length+" of "+plural(all.length,"student")+" match":plural(all.length,"student")+(SC||CIDS.length<2?"":" in "+plural(CIDS.length,"class","classes"));
- if(!A.length){$("stuL").innerHTML='<div class="empty"><b>'+(q?'No student matches that search':'No students yet')+'</b>'+(q?'Check the spelling, or search by Student ID.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
+ if(!$("stuQ"))$("stuW").innerHTML='<div class="toolbar stbar"><input type="search" id="stuQ" placeholder="Find a student or ID…" aria-label="Find a student, Student ID or Family ID" autocomplete="off"><select id="stuC" aria-label="Quran and Memorisation Class"></select><p class="cap" id="stuN"></p><div class="tools"><button type="button" class="btn p" id="stuA">'+ADDIC+'Add student</button></div></div><div class="stfil" id="stuF"></div><div id="stuL"></div>';
+ var sel=$("stuC"),CS=CIDS.slice().sort(function(a,b){return cname(ST[a].name).localeCompare(cname(ST[b].name),undefined,{numeric:true,sensitivity:"base"})});sel.hidden=CIDS.length<2;sel.innerHTML='<option value="">All Quran and Memorisation classes</option>'+CS.map(function(c){return '<option value="'+esc(c)+'"'+(c===SC?' selected':'')+'>'+esc(cname(ST[c].name))+'</option>'}).join("");
+ stuFilters();stuRows()}
+/* More filters: year group, house, gender, Arabic and Islamic Studies class, and students missing a detail. Each lists
+   only what the students have, A to Z. Whatever is chosen, the list stays in name order. */
+var SFM=[["sid","Student ID"],["fid","Family ID"],["dob","date of birth"],["sy","year group"],["gender","gender"],["house","house"],["ist","Arabic and Islamic Studies Class"]];
+function yrKey(v){var m=/(\d+)/.exec(v||"");return /reception/i.test(v)?0:m?+m[1]:99}
+function stuFilters(){var all=[],V={sy:{},gender:{},ist:{}};CIDS.forEach(function(c){ST[c].S.forEach(function(s){all.push(s);["sy","gender","ist"].forEach(function(k){if(s[k])V[k][s[k]]=1})})});
+ function az(k){return Object.keys(V[k]).sort(function(a,b){return (k==="sy"?yrKey(a)-yrKey(b):0)||a.localeCompare(b,undefined,{numeric:true,sensitivity:"base"})})}
+ function sel(k,label,first,L,none){if(SF[k]&&SF[k]!=="-"&&L.every(function(x){return x[0]!==SF[k]}))SF[k]="";
+  return '<select data-sf="'+k+'" aria-label="'+label+'"'+(SF[k]?' class="on"':'')+'><option value="">'+first+'</option>'+L.map(function(x){return '<option value="'+esc(x[0])+'"'+(x[0]===SF[k]?' selected':'')+'>'+esc(x[1])+'</option>'}).join("")+(none?'<option value="-"'+(SF[k]==="-"?' selected':'')+'>'+none+'</option>':'')+'</select>'}
+ var on=SC||Object.keys(SF).some(function(k){return SF[k]});
+ $("stuF").innerHTML=sel("sy","Year group","All year groups",az("sy").map(function(v){return [v,v]}),"No year group")
+  +sel("house","House","All houses",HOUSES.map(function(v){return [v,v]}),"No house yet")
+  +sel("gender","Gender","All genders",az("gender").map(function(v){return [v,v]}),"No gender")
+  +sel("ist","Arabic and Islamic Studies Class","All Arabic and Islamic Studies classes",az("ist").map(function(v){return [v,cname(v)]}),"No Arabic and Islamic Studies class")
+  +sel("miss","Missing a detail","Missing a detail?",SFM.map(function(x){return [x[0],"No "+x[1]]}))
+  +(on?'<button type="button" class="btn sm" id="stuX">Clear filters</button>':'')}
+function sfOk(s){return ["sy","house","gender","ist"].every(function(k){var f=SF[k];return !f||(f==="-"?!s[k]:s[k]===f)})&&(!SF.miss||!s[SF.miss])}
+function stuRows(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return sfOk(o.s)}).filter(function(o){return !q||nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q});
+ var fon=q||Object.keys(SF).some(function(k){return SF[k]});
+ $("stuN").textContent=fon?A.length+" of "+plural(all.length,"student")+" match":plural(all.length,"student")+(SC||CIDS.length<2?"":" in "+plural(CIDS.length,"class","classes"));
+ if(!A.length){$("stuL").innerHTML='<div class="empty"><b>'+(fon?'No student matches':'No students yet')+'</b>'+(fon?'Check the spelling, or clear the filters.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
  var p=pager("stu",A.length,SPG);
  $("stuL").innerHTML='<div class="tablewrap"><table class="tbl stackable stul"><thead><tr><th scope="col">Student</th><th scope="col">Class</th><th scope="col">Year group</th><th scope="col">Student ID</th><th scope="col">Family ID</th><th scope="col">House</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>'
   +A.slice(p*SPG,(p+1)*SPG).map(function(o){var s=o.s;return '<tr data-c="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(s)+'"'+(s===SNEW?' class="snew"':'')+'><td class="lead"><button type="button" class="spo" aria-label="Open '+esc(s.name)+'\'s profile"><b>'+esc(s.name)+'</b></button></td>'
@@ -2494,8 +2518,10 @@ $("drwB").addEventListener("submit",function(e){if(e.target.id!=="spF")return;e.
  persist(c);if(c===CID||to===CID)render();closeDrawer();if($("stuL"))stuRows();
  toast(mv?s.name+" moved to "+cname(ST[to].name):n===1?"Detail saved for "+s.name:n+" details saved for "+s.name)});
 $("vU").addEventListener("input",function(e){if(e.target.id==="stuQ"){SQ=e.target.value;PG.stu=0;stuRows()}});
-$("vU").addEventListener("change",function(e){if(e.target.id==="stuC"){SC=e.target.value;PG.stu=0;stuRows()}});
+$("vU").addEventListener("change",function(e){if(e.target.id==="stuC"){SC=e.target.value;PG.stu=0;stuFilters();stuRows()}
+ else if(e.target.dataset.sf){SF[e.target.dataset.sf]=e.target.value;PG.stu=0;stuFilters();var f=$("stuF").querySelector('[data-sf="'+e.target.dataset.sf+'"]');if(f)f.focus();stuRows()}});
 $("vU").addEventListener("click",function(e){if(e.target.closest("#stuA,#stuA2")){stuAdd();return}
+ if(e.target.id==="stuX"){Object.keys(SF).forEach(function(k){SF[k]=""});SC="";PG.stu=0;stuPage();return}
  var b=e.target.closest(".srm"),r=e.target.closest(".stul tbody tr");
  if(!b&&r&&!e.target.closest("[data-open]")){var rs=ST[r.dataset.c]&&ST[r.dataset.c].S[+r.dataset.i];if(rs)stuProfile(r.dataset.c,rs);return}
  if(!b)return;var tr=b.closest("tr"),c=tr.dataset.c,s=ST[c]&&ST[c].S[+tr.dataset.i];if(!s)return;

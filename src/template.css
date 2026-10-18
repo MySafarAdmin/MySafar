@@ -1052,8 +1052,14 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
    column of red buttons; on narrow screens it carries its word too. */
 #vU{margin-top:12px}
 .stbar #stuQ{flex:0 1 320px;width:100%;min-height:40px}
-.stbar select{min-height:40px;max-width:260px}
+.stbar select{min-height:40px;max-width:330px}
+.stbar .cap{flex:1 1 120px}
 .stbar .btn .ic{width:18px;height:18px}
+/* The extra filters: a quieter second row; a filter in use is outlined in navy. */
+.stbar{margin-bottom:10px}
+.stfil{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.stfil select{min-height:36px;max-width:240px;font-size:.875rem;padding-top:4px;padding-bottom:4px}
+.stfil select.on{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);color:var(--ink)}
 .stul td.lead b{font-weight:700}
 .stul .hn{font-weight:500}
 .stul td.act{width:1%;white-space:nowrap;text-align:right}
@@ -1078,6 +1084,7 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .srm:hover,.srm:focus-visible{background:var(--bad-soft);border-color:transparent;color:var(--bad-ink)}
 @media (max-width:640px){
  .stbar #stuQ,.stbar select{flex:1 1 100%;max-width:none}
+ .stfil select{flex:1 1 calc(50% - 4px);max-width:none}
  .stbar .tools{margin-left:0;width:100%}.stbar .tools .btn{width:100%}
  /* Two lines a student: the name with its bin, then class, Student ID and house in small type. */
  .tbl.stackable.stul tr{display:flex;flex-wrap:wrap;align-items:center;gap:2px 0;padding:10px 4px 10px 14px}
