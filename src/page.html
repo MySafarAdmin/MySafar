@@ -96,7 +96,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
   <h2 class="seth">This class</h2>
   <div class="srow"><div class="sl"><b>Class name</b><span class="sub" id="sName"></span></div><button class="btn" id="ren" type="button">Rename</button></div>
   <div class="srow"><div class="sl"><b><label for="fcd">First class day</label></b><span class="sub">The Quran and Memo sheets start from this day.</span></div><input type="date" id="fcd"></div>
-  <div class="srow col" id="addRow"><div class="sl"><b><label for="bulk">Add students</label></b><span class="sub">Names, one per line. One student at a time is quicker from the add-student icon on the Quran tab.</span></div>
+  <div class="srow col" id="addRow"><div class="sl"><b><label for="bulk">Add students</label></b><span class="sub">Names, one per line. Each gets the next Student ID. One student at a time is quicker from the add-student icon on the Quran tab.</span></div>
    <textarea id="bulk" rows="3" autocomplete="off" placeholder="Aisha Khan&#10;Yusuf Ali"></textarea>
    <div class="sact"><button class="btn quiet" id="add" type="button">Add one student…</button><button class="btn" id="bulkA" type="button">Add these students</button></div></div>
   <h2 class="seth bad">Reset and delete</h2>
@@ -732,9 +732,9 @@ function addStudent(){if(!CID)return;
  drawer("Add a student",'<form class="addf" id="naF" novalidate><p class="cap">Adds a student to '+esc(cname(ST[CID].name))+'. They are saved with the class record straight away.</p>'
   +'<label>Name<input id="naN" maxlength="60" autocomplete="off" required></label>'
   +'<label>House<select id="naH"><option value="">Not set yet</option>'+HOUSES.map(function(h){return '<option>'+h+'</option>'}).join("")+'</select></label>'
-  +'<label>Student ID <span class="sub">(optional)</span><input id="naI" maxlength="40" autocomplete="off"></label>'
+  +'<label>Student ID<input id="naI" maxlength="40" autocomplete="off"></label>'
   +'<p class="naerr" id="naE" role="alert"></p><div class="acts"><button type="submit" class="btn p">Add student</button></div></form>');
- $("naN").focus()}
+ $("naN").focus();fillSid("naI")}
 $("qAdd").onclick=addStudent;
 $("drwB").addEventListener("submit",function(e){if(e.target.id!=="naF")return;e.preventDefault();
  var n=$("naN").value.replace(/\s+/g," ").trim(),h=$("naH").value,id=$("naI").value.trim(),err=$("naE");
@@ -758,6 +758,14 @@ var PHN=matchMedia("(max-width:959.98px)");function noSheet(){if(!PHN.matches)re
 function clearW(){var c=CID;if(!S.some(function(s){return s.warn})){toast("No warnings to clear",1);return}
  ask("Clear every warning in "+cname(ST[c].name)+"?","Clear warnings",function(){if(CID!==c)return;S.forEach(function(s){s.warn=0});save();render();toast("All warnings cleared")},null,1)}
 $("cw").onclick=clearW;
+/* Student IDs run SE001, SE002…, and a new student is offered the next one. The server sees every classroom
+   (teachers only load their own), so it has the last word; the standalone file goes by the classes on the page. */
+function sidNum(s){var m=/^SE(\d+)$/i.exec((s.sid||"").trim());return m?+m[1]:0}
+function sidFmt(n){var d=String(n);while(d.length<3)d="0"+d;return "SE"+d}
+function nextSid(cb){var n=0;CIDS.forEach(function(c){ST[c].S.forEach(function(s){n=Math.max(n,sidNum(s))})});
+ if(!window.RAILWAY){cb(n+1);return}
+ fetch("/api/last-sid",{credentials:"same-origin",cache:"no-store"}).then(function(r){return r.ok?r.json():{}}).then(function(j){cb(Math.max(n,+j.last||0)+1)},function(){cb(n+1)})}
+function fillSid(id){nextSid(function(n){var i=$(id);if(i&&!i.value&&document.activeElement!==i)i.value=sidFmt(n)})}
 function blank(n){return {name:n,target:1,passes:0,merits:0,hit:null,log:[],lt:[],lx:[],ml:[],fl:[],q:{},warn:0,tg:[],tb:[],tr:[]}}
 $("add").onclick=function(){addStudent()};
 $("rst").onclick=function(){var c=CID;ask("Reset all passes and merits for "+cname(ST[c].name)+"?","Reset scores",function(){if(CID!==c)return;S.forEach(function(s){s.passes=0;s.merits=0;s.ml=[];s.hit=null;s.log=[];s.lt=[];s.lx=[]});save();render();toast("All scores reset")},null,1)};
@@ -999,9 +1007,9 @@ function stuAdd(){var c0=SC||(LASTC&&ST[LASTC]?LASTC:CIDS[0]);if(!c0)return;
   +'<label>Name<input id="suN" maxlength="60" autocomplete="off" required></label>'
   +'<label>Class<select id="suC">'+CIDS.map(function(c){return '<option value="'+esc(c)+'"'+(c===c0?' selected':'')+'>'+esc(cname(ST[c].name))+'</option>'}).join("")+'</select></label>'
   +'<label>House<select id="suH"><option value="">Not set yet</option>'+HOUSES.map(function(h){return '<option>'+h+'</option>'}).join("")+'</select></label>'
-  +'<label>Student ID <span class="sub">(optional)</span><input id="suI" maxlength="40" autocomplete="off"></label>'
+  +'<label>Student ID<input id="suI" maxlength="40" autocomplete="off"></label>'
   +'<p class="naerr" id="suE" role="alert"></p><div class="acts"><button type="submit" class="btn p">Add student</button></div></form>');
- $("suN").focus()}
+ $("suN").focus();fillSid("suI")}
 $("drwB").addEventListener("submit",function(e){if(e.target.id!=="suF")return;e.preventDefault();
  var n=$("suN").value.replace(/\s+/g," ").trim(),c=$("suC").value,h=$("suH").value,id=$("suI").value.trim(),err=$("suE"),L=ST[c]&&ST[c].S,dup=null;
  if(!n){err.textContent="Enter the student's name.";$("suN").focus();return}
@@ -1043,8 +1051,8 @@ function houseHtml(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.sli
 $("ren").onclick=function(){var c=CID;if(!c)return;ask("Rename this class","Save name",function(v){if(!ST[c])return;ST[c].name=v;sortC();save();navL();head();toast("Class name saved")},"Class name",0,ST[c].name)};
 var f=$("fcd");
 f.onchange=function(){if(!f.value||!CID)return;FCD=f.value;ST[CID].fcd=FCD;save();head();render();toast("First class day set")};
-$("bulkA").onclick=function(){if(!CID)return;var n=$("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);$("bulk").focus();return}
- n.forEach(function(x){S.push(blank(x))});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added")};
+$("bulkA").onclick=function(){if(!CID)return;var c=CID,n=$("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);$("bulk").focus();return}
+ nextSid(function(k){if(CID!==c)return;n.forEach(function(x,i){var s=blank(x);s.sid=sidFmt(k+i);S.push(s)});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added, "+(n.length>1?sidFmt(k)+" to "+sidFmt(k+n.length-1):sidFmt(k)))})};
 $("nM").onclick=function(){go("M")};$("nL").onclick=function(){go("L")};$("nU").onclick=function(){go("U")};$("nR").onclick=function(){go("R")};if(TEACHER){$("nR").hidden=true;$("nU").hidden=true}$("home").onclick=function(e){e.preventDefault();go("M")};
 $("swc").onclick=switcher;
 $("dH").onclick=function(){go("M")};$("dL").onclick=function(){go("L")};$("dR").onclick=function(){go("R")};
