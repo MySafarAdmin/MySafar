@@ -35,6 +35,13 @@ def name_key(name):
     return re.sub(r"[^a-z0-9]", "", str(name or "").lower())
 
 
+def class_key(name):
+    """Yr3-A-QM-Br Faeez, "Yr3A Ustadh Faeez" and "Year 3 A" are all class 3a, so the class's name on the
+    dashboard needn't match the list's QM column letter for letter."""
+    m = re.search(r"\b(?:yr|year)\s*(\d+(?:\s*/\s*\d+)?)\s*-?\s*([a-z])(?![a-z])", str(name or ""), re.I)
+    return (re.sub(r"\s", "", m.group(1)) + m.group(2).lower()) if m else name_key(name)
+
+
 def wanted():
     """Rows of the file: {sid, name, cls, fid, house, sy, gender, ist}."""
     out = []
@@ -43,7 +50,7 @@ def wanted():
             house = row["House"].strip()
             assert house in HOUSES, house
             out.append({"sid": (row.get("MySafar ID") or row.get("Student ID") or "").strip(),
-                        "name": " ".join(row["MySafar Name"].split()), "cls": name_key(row.get("QM")),
+                        "name": " ".join(row["MySafar Name"].split()), "cls": class_key(row.get("QM")),
                         "fid": row["Family ID"].strip(), "house": house, "sy": " ".join(row.get("Year Group", "").split()),
                         "gender": row.get("Gender", "").strip(), "ist": " ".join(row.get("AI", "").split())})
     return out
@@ -81,8 +88,8 @@ def plan(db):
             n = name_key(s.get("name"))
             fits = [i for i in by_name.get(n, []) if i not in used]
             if len(fits) > 1:
-                # The same name in two classes: told apart by class, or else by Student ID.
-                fits = [i for i in fits if want[i]["cls"] == name_key(state.get("name"))] or \
+                # The same name in two classes (Adam Or): told apart by class, or else by Student ID.
+                fits = [i for i in fits if want[i]["cls"] == class_key(state.get("name"))] or \
                     [i for i in fits if sid_key(want[i]["sid"]) == sid_key(s.get("sid"))]
             if len(fits) != 1:
                 extra.append(s.get("name", "") + (f" ({s['sid']})" if s.get("sid") else ""))
