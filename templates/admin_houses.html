@@ -3,32 +3,32 @@
 {% block width %} narrow{% endblock %}
 {% block content %}
 <div class="band slim"><div class="band-top"><h1>Set houses</h1></div>
-<p class="lede">Gives every student on the school's house list their house, matched by Student ID. Anyone not on the list keeps their house. The version of each class from just before is kept in Class history.</p></div>
+<p class="lede">Gives every student on the school's list their house, Family ID and Student ID, matched by name. Anyone not on the list keeps their details. The version of each class from just before is kept in Class history.</p></div>
 {% if done is defined %}
-<div class="panel" role="status"><p><b>Set the house of {{ done }} {{ "student" if done == 1 else "students" }}.</b> Open dashboards need a reload to show it.</p></div>
+<div class="panel" role="status"><p><b>Updated {{ done }} {{ "student" if done == 1 else "students" }}.</b> Open dashboards need a reload to show it.</p></div>
 {% endif %}
 {% if error %}<div class="panel" role="alert"><p>{{ error }}</p></div>{% endif %}
 <p class="sub">After this: Makkah {{ counts["Makkah"] }}, Madinah {{ counts["Madinah"] }}, Al-Aqsa {{ counts["Al-Aqsa"] }} students.</p>
-{% if twice %}<p class="sub">Listed twice, so matched by Student ID and name together: {{ twice | join(", ") }}</p>{% endif %}
+{% if twice %}<p class="sub">Names on the list twice, told apart by Student ID: {{ twice | join(", ") }}</p>{% endif %}
 {% if missing %}<div class="panel" role="alert"><p><b>On the list but not found on the dashboard ({{ missing | length }}):</b> {{ missing | join(", ") }}</p></div>{% endif %}
 <div class="tablewrap"><table class="tbl stackable">
-<thead><tr><th scope="col">Class</th><th scope="col" class="n">Houses changing</th><th scope="col">On the dashboard but not on the list</th></tr></thead>
+<thead><tr><th scope="col">Class</th><th scope="col" class="n">Houses</th><th scope="col" class="n">Family IDs</th><th scope="col" class="n">Student IDs</th><th scope="col">On the dashboard but not on the list</th></tr></thead>
 <tbody>
 {% for c in classes %}
-<tr><td class="lead">{{ c.name }}</td><td data-label="Houses changing" class="n">{{ c.changes | length }}</td>
+<tr><td class="lead">{{ c.name }}</td><td data-label="Houses" class="n">{{ c.house }}</td><td data-label="Family IDs" class="n">{{ c.fid }}</td><td data-label="Student IDs" class="n">{{ c.sid }}</td>
 <td data-label="Not on the list">{{ c.extra | join(", ") or "None" }}</td></tr>
 {% endfor %}
 </tbody></table></div>
 {% if total %}
 <div class="mod line">
-  <h2>Set {{ total }} {{ "house" if total == 1 else "houses" }}</h2>
+  <h2>Make {{ total }} {{ "change" if total == 1 else "changes" }}</h2>
   <form method="post" action="/admin/set-houses" class="inline-form">
     <input type="hidden" name="csrf" value="{{ csrf }}">
     <label class="field">Type HOUSES to confirm<input name="confirm" autocomplete="off" required></label>
-    <button class="btn primary">Set houses</button>
+    <button class="btn primary">Update students</button>
   </form>
 </div>
 {% else %}
-<p class="sub">{{ "Every listed student already has their house." if not missing else "No house would change." }}</p>
+<p class="sub">{{ "Every listed student already has these details." if not missing else "No house would change." }}</p>
 {% endif %}
 {% endblock %}
