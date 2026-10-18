@@ -700,6 +700,30 @@ class DashboardTests:
         teacher = self.sign_in("t@example.com", "teacher-password-1") if self.add_user("t@example.com") else None
         self.assertEqual(teacher.get("/admin/clear-test-data").status_code, 403)
 
+    def test_set_houses_gives_listed_students_their_house(self):
+        state = dict(self.state, S=[self.tv_student("Aayat N", house="Al-Aqsa", tg=[1]), self.tv_student("Ishaaq Y"),
+                                    self.tv_student("Saima K", house="Makkah")])
+        self.write(name="Yr1-A-QM-Sr  Nasrin", state=state)
+        page = self.client.get("/admin/set-houses").get_data(as_text=True)
+        self.assertIn("Yr1-A-QM-Sr  Nasrin", page)
+        self.assertIn("Saima K", page)
+        self.assertIn("Type HOUSES", self.form(self.client, "/admin/set-houses", "/admin/set-houses",
+                                               confirm="no").get_data(as_text=True))
+        done = self.form(self.client, "/admin/set-houses", "/admin/set-houses", confirm="houses")
+        self.assertIn("Set the house of 2 students", done.get_data(as_text=True))
+        record = self.records()["yr3-a"]
+        saved = json.loads(record["json"])
+        self.assertEqual([(s["name"], s.get("house")) for s in saved["S"]],
+                         [("Aayat N", "Makkah"), ("Ishaaq Y", "Madinah"), ("Saima K", "Makkah")])
+        self.assertEqual(saved["S"][0]["tg"], [1])
+        self.assertEqual(record["revision"], 2)
+        self.assertTrue(valid_state(saved))
+        self.assertEqual(json.loads(self.query("SELECT json FROM classroom_history ORDER BY id")[-2]["json"])["S"][0]["house"],
+                         "Al-Aqsa")
+        self.assertIn("already has their house", self.client.get("/admin/set-houses").get_data(as_text=True))
+        teacher = self.sign_in("t@example.com", "teacher-password-1") if self.add_user("t@example.com") else None
+        self.assertEqual(teacher.get("/admin/set-houses").status_code, 403)
+
     def test_activity_is_recorded_and_pruned(self):
         self.sign_in("someone@example.com", "wrong password")
         self.write()
