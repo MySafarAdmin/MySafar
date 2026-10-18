@@ -33,6 +33,8 @@ from mailer import Mailer
 ROOT = Path(__file__).resolve().parent
 CLASS_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
 DAY = re.compile(r"\d{4}-\d{2}-\d{2}")
+# Student IDs given by the school, like SE263; new students get the next one.
+STUDENT_NUMBER = re.compile(r"SE(\d+)", re.IGNORECASE)
 MAX_CLASSES = 500
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 QAIDAH_LEVELS = 10  # keep in step with QAIDAH in src/page.html
@@ -366,6 +368,20 @@ def create_app(test_config=None):
                 if student.get("house") in totals:
                     totals[student["house"]] += sum(len(student.get(k, [])) * v for k, v in TOKEN_POINTS.items())
         return jsonify(totals)
+
+    @app.get("/api/last-sid")
+    def last_student_number():
+        """The highest SE Student ID in any classroom, so a new student gets the next one. Teachers only load
+        their own classrooms, so the browser can't work this out by itself."""
+        last = 0
+        with database.transaction() as db:
+            rows = db.execute("SELECT json FROM classrooms").fetchall()
+        for row in rows:
+            for student in json.loads(row["json"]).get("S", []):
+                match = STUDENT_NUMBER.fullmatch(str(student.get("sid", "")).strip())
+                if match:
+                    last = max(last, int(match[1]))
+        return jsonify(last=last)
 
     @app.put("/api/classes/<class_id>")
     def write_class(class_id):

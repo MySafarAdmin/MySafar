@@ -216,6 +216,18 @@ class DashboardTests:
         for bad in ({"house": "Hogwarts"}, {"house": None}, {"tg": "1"}, {"tb": [-1]}, {"tr": ["x"]}):
             self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, **bad)])).status_code, 400)
 
+    def test_last_student_number(self):
+        student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                   "ml": [], "q": {}}
+        self.assertEqual(self.client.get("/api/last-sid").get_json(), {"last": 0})
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, sid="SE263"), dict(student, name="B", sid="ST900")])).status_code, 200)
+        self.assertEqual(self.write("Yr4-B", class_id="yr4-b", state=dict(self.state, S=[dict(student, sid=" se99 ")])).status_code, 200)
+        self.assertEqual(self.client.get("/api/last-sid").get_json(), {"last": 263})
+        # Teachers get the whole school's number, though they only load their own classrooms.
+        self.add_user("t@example.com", classes=["yr4-b"])
+        self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").get("/api/last-sid").get_json(), {"last": 263})
+        self.assertEqual(self.app.test_client().get("/api/last-sid").status_code, 401)
+
     def test_write_validation_and_cross_origin_protection(self):
         self.assertEqual(self.write(headers={}).status_code, 403)
         self.assertEqual(self.write(headers=dict(self.headers, **{"Sec-Fetch-Site": "cross-site"})).status_code, 403)
