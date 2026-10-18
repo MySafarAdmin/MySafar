@@ -1,7 +1,6 @@
 """One-off: give every student the Student ID, Family ID and house on the school's list (data/houses.csv).
 
-Students are matched by their MySafar name (see plan). Adam Or is on the list twice; the one in Yr3-B had
-Musa Un's ID, SE0060, on the dashboard and gets SE0268.
+Students are matched by their MySafar name (see plan). Adam Or is on the list twice, in Yr3-A and Yr3-B.
 
 An admin opens /admin/set-houses to see, class by class, how many houses, Family IDs and Student IDs would
 change, which students on the dashboard aren't on the list and who on the list isn't on the dashboard;
@@ -20,9 +19,6 @@ import auth
 
 FILE = Path(__file__).with_name("data") / "houses.csv"
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
-
-# Student IDs to correct on the dashboard first: (ID it has now, name) -> the right ID.
-RENUMBER = {("SE60", "adamor"): "SE0268"}
 
 bp = Blueprint("set_houses", __name__)
 
@@ -44,7 +40,8 @@ def wanted():
         for row in csv.DictReader(f):
             house = row["House"].strip()
             assert house in HOUSES, house
-            out.append({"sid": row["Student ID"].strip(), "name": " ".join(row["MySafar Name"].split()),
+            out.append({"sid": (row.get("MySafar ID") or row.get("Student ID") or "").strip(),
+                        "name": " ".join(row["MySafar Name"].split()), "cls": name_key(row.get("QM")),
                         "fid": row["Family ID"].strip(), "house": house})
     return out
 
@@ -66,9 +63,9 @@ def plan(db):
     """([(class_id, revision, class name, new state, changes [(student's place in the class, field, old, new)], not on the list)],
     students on the list that match nobody on the dashboard, names listed more than once).
 
-    Students are matched by name, since some Student IDs on the dashboard differ from the list (Aayat Nm is
-    SE0001 on the dashboard, SE0005 on the list, and SE0001 is Suhaib Sr). A name listed twice is told apart
-    by Student ID. Each student then gets the list's Student ID, Family ID and house."""
+    Students are matched by name, so a Student ID that differs from the list shows up as a change rather than
+    giving the student someone else's details. A name listed twice is told apart by class, or else by
+    Student ID. Each student then gets the list's Student ID, Family ID and house."""
     want = wanted()
     by_name = {}
     for i, r in enumerate(want):
@@ -80,9 +77,10 @@ def plan(db):
         for j, s in enumerate(state.get("S", [])):
             n = name_key(s.get("name"))
             fits = [i for i in by_name.get(n, []) if i not in used]
-            if len(by_name.get(n, [])) > 1:
-                k = sid_key(RENUMBER.get((sid_key(s.get("sid")), n), s.get("sid")))
-                fits = [i for i in fits if sid_key(want[i]["sid"]) == k]
+            if len(fits) > 1:
+                # The same name in two classes: told apart by class, or else by Student ID.
+                fits = [i for i in fits if want[i]["cls"] == name_key(state.get("name"))] or \
+                    [i for i in fits if sid_key(want[i]["sid"]) == sid_key(s.get("sid"))]
             if len(fits) != 1:
                 extra.append(s.get("name", "") + (f" ({s['sid']})" if s.get("sid") else ""))
                 continue
@@ -99,6 +97,8 @@ def plan(db):
 def _page(**context):
     with current_app.config["DB"].transaction() as db:
         rows, missing, twice = plan(db)
+    ids = [f"{state['S'][j].get('name', '')}: {old or 'none'} to {new}" for _, _, _, state, ch, _ in rows
+           for j, field, old, new in ch if field == "sid"]
     classes = [{"name": n, "extra": ex, **{f: sum(1 for c in ch if c[1] == f) for f in ("house", "fid", "sid")}}
                for _, _, n, _, ch, ex in rows]
     counts = dict.fromkeys(HOUSES, 0)
@@ -106,7 +106,7 @@ def _page(**context):
         for s in state.get("S", []):
             if s.get("house") in counts:
                 counts[s["house"]] += 1
-    return auth.page("admin_houses.html", classes=classes, missing=missing, twice=twice, counts=counts,
+    return auth.page("admin_houses.html", ids=ids, classes=classes, missing=missing, twice=twice, counts=counts,
                      total=sum(len(ch) for _, _, _, _, ch, _ in rows), **context)
 
 

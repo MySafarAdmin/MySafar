@@ -10,6 +10,7 @@
 {% if error %}<div class="panel" role="alert"><p>{{ error }}</p></div>{% endif %}
 <p class="sub">After this: Makkah {{ counts["Makkah"] }}, Madinah {{ counts["Madinah"] }}, Al-Aqsa {{ counts["Al-Aqsa"] }} students.</p>
 {% if twice %}<p class="sub">Names on the list twice, told apart by Student ID: {{ twice | join(", ") }}</p>{% endif %}
+{% if ids %}<div class="panel" role="alert"><p><b>Student IDs that differ from the list and will change ({{ ids | length }}):</b> {{ ids | join(", ") }}</p></div>{% endif %}
 {% if missing %}<div class="panel" role="alert"><p><b>On the list but not found on the dashboard ({{ missing | length }}):</b> {{ missing | join(", ") }}</p></div>{% endif %}
 <div class="tablewrap"><table class="tbl stackable">
 <thead><tr><th scope="col">Class</th><th scope="col" class="n">Houses</th><th scope="col" class="n">Family IDs</th><th scope="col" class="n">Student IDs</th><th scope="col">On the dashboard but not on the list</th></tr></thead>
