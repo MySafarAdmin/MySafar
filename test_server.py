@@ -720,9 +720,20 @@ class DashboardTests:
         self.assertTrue(valid_state(saved))
         self.assertEqual(json.loads(self.query("SELECT json FROM classroom_history ORDER BY id")[-2]["json"])["S"][0]["house"],
                          "Al-Aqsa")
-        self.assertIn("already has their house", self.client.get("/admin/set-houses").get_data(as_text=True))
+        self.assertIn("No house would change", self.client.get("/admin/set-houses").get_data(as_text=True))
         teacher = self.sign_in("t@example.com", "teacher-password-1") if self.add_user("t@example.com") else None
         self.assertEqual(teacher.get("/admin/set-houses").status_code, 403)
+
+    def test_set_houses_matches_longer_initials_and_a_renamed_class(self):
+        state = dict(self.state, S=[self.tv_student("Aadam Za"), self.tv_student("Musa Un"), self.tv_student("Adam Or"),
+                                    self.tv_student("Saima K")])
+        self.write(name="Br Faeez 3A", state=state)
+        page = self.client.get("/admin/set-houses").get_data(as_text=True)
+        self.assertIn("Saima K", page)
+        self.assertNotIn("Yr3-A-QM-Br Faeez,", page)
+        self.form(self.client, "/admin/set-houses", "/admin/set-houses", confirm="houses")
+        saved = json.loads(self.records()["yr3-a"]["json"])
+        self.assertEqual([s.get("house", "") for s in saved["S"]], ["Al-Aqsa", "Al-Aqsa", "Makkah", ""])
 
     def test_activity_is_recorded_and_pruned(self):
         self.sign_in("someone@example.com", "wrong password")
