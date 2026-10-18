@@ -1055,11 +1055,24 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .stbar select{min-height:40px;max-width:330px}
 .stbar .cap{flex:1 1 120px}
 .stbar .btn .ic{width:18px;height:18px}
-/* The extra filters: a quieter second row; a filter in use is outlined in navy. */
-.stbar{margin-bottom:10px}
-.stfil{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
-.stfil select{min-height:36px;max-width:240px;font-size:.875rem;padding-top:4px;padding-bottom:4px}
-.stfil select.on{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);color:var(--ink)}
+/* Filters: one button that opens a small panel; filters in use show as chips under the search. */
+.sfw{position:relative}
+#stuFB{min-height:40px;gap:8px}#stuFB.on{border-color:var(--navy);color:var(--navy)}
+.sfn{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--navy);color:#fff;font-size:.75rem;font-weight:700}
+.sfn[hidden],.sfpop[hidden]{display:none}
+.sfpop{position:absolute;z-index:30;top:calc(100% + 8px);left:0;width:min(560px,calc(100vw - 32px));padding:16px;background:var(--surface);border:1px solid var(--line-2);border-radius:16px;box-shadow:0 12px 32px rgba(29,33,39,.14)}
+.sfg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sfg label{display:flex;flex-direction:column;gap:5px;font-size:.8125rem;font-weight:650;color:var(--ink-2)}
+.sfg select{min-height:38px;width:100%;min-width:0;font-size:.875rem}
+.sfg select.on{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy)}
+.sfa{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+.stchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-4px 0 12px}.stchips:empty{display:none}
+.sfc{display:inline-flex;align-items:center;gap:2px;padding:2px 2px 2px 10px;border-radius:999px;background:var(--navy-soft);color:var(--navy);font-size:.8125rem}
+.sfc b{font-weight:700}
+.sfc button{width:26px;height:26px;border:0;border-radius:50%;background:none;color:inherit;font-size:1rem;line-height:1;cursor:pointer}
+.sfc button:hover,.sfc button:focus-visible{background:rgba(0,59,107,.12)}
+.stchips .lk{font-size:.8125rem;margin-left:4px}
+.stul .pfx{display:none}
 .stul td.lead b{font-weight:700}
 .stul .hn{font-weight:500}
 .stul td.act{width:1%;white-space:nowrap;text-align:right}
@@ -1084,19 +1097,21 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .srm:hover,.srm:focus-visible{background:var(--bad-soft);border-color:transparent;color:var(--bad-ink)}
 @media (max-width:640px){
  .stbar #stuQ,.stbar select{flex:1 1 100%;max-width:none}
- .stfil select{flex:1 1 calc(50% - 4px);max-width:none}
+ .sfw{flex:1 1 100%}#stuFB{width:100%;justify-content:center}
+ .sfpop{position:fixed;left:16px;right:16px;top:auto;bottom:calc(84px + env(safe-area-inset-bottom));width:auto;max-height:70vh;overflow:auto}
+ .sfg{grid-template-columns:1fr}
  .stbar .tools{margin-left:0;width:100%}.stbar .tools .btn{width:100%}
  /* Two lines a student: the name with its bin, then class, Student ID and house in small type. */
- .tbl.stackable.stul tr{display:flex;flex-wrap:wrap;align-items:center;gap:2px 0;padding:10px 4px 10px 14px}
- .tbl.stackable.stul td{width:auto;padding:0;gap:0;display:inline-flex;font-size:.8125rem;color:var(--ink-2)}
- .tbl.stackable.stul td::before{display:none}
- .tbl.stackable.stul td.lead{flex:1 1 calc(100% - 52px);font-size:1rem;color:var(--ink)}
- .tbl.stackable.stul td.act{flex:none;width:44px;justify-content:center;order:0}
- .tbl.stackable.stul td.sy,.tbl.stackable.stul td.fi{display:none}
- .tbl.stackable.stul td.sm{order:1}
- .tbl.stackable.stul td.sm~td.sm::before{display:inline;content:"·";margin:0 7px;color:var(--mute)}
+ /* A card per student: the name with its bin, then each detail under a small label, two to a row. */
+ .tbl.stackable.stul tr{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;align-items:start;padding:12px 14px 14px}
+ .tbl.stackable.stul td{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:auto;padding:0;font-size:.875rem;color:var(--ink);min-width:0;overflow-wrap:break-word}
+ .tbl.stackable.stul td::before{display:block;content:attr(data-label);font-size:.6875rem;font-weight:650;letter-spacing:.02em;text-transform:uppercase;color:var(--mute)}
+ .tbl.stackable.stul td.lead{grid-column:1/-1;font-size:1.0625rem;padding-right:44px;min-height:32px;justify-content:center}
+ .tbl.stackable.stul td.lead::before,.tbl.stackable.stul td.act::before{display:none}
+ .tbl.stackable.stul td.act{position:absolute;top:6px;right:4px}
  .stul td.sm .lk{min-height:0;font-size:.8125rem}
  .stul .srm{min-height:44px;min-width:44px}
+
 }
 
 /* Full sheet: an icon that toggles the class's whole sheet; pressed, it shows the "shrink" corners. */
