@@ -686,7 +686,7 @@ class DashboardTests:
         record = self.records()["yr3-a"]
         self.assertEqual((json.loads(record["json"])["name"], record["revision"]), ("Yr3-A", 1))
 
-    def test_clear_removes_every_memo_pass_and_star_of_the_week(self):
+    def test_clear_removes_every_progress_record(self):
         t = 1760000000000
         tests = [{"d": "2026-10-13", "k": "m", "n": 3, "sc": 4, "ok": True, "tk": t},
                  {"d": "2026-10-13", "k": "m", "n": 4, "sc": 1, "ok": False},
@@ -707,13 +707,15 @@ class DashboardTests:
         cleared = state["S"][0]
         self.assertEqual(record["revision"], 2)
         self.assertTrue(valid_state(state))
-        self.assertEqual((cleared["passes"], cleared["log"], cleared["lt"], cleared["lx"], cleared["sw"]), (0, [], [], [], []))
-        self.assertEqual(cleared["tests"], tests[1:])
-        # Everything else stays.
-        for key in ("target", "merits", "warn", "ml", "fl", "q", "tb", "qa"):
+        for key, empty in (("passes", 0), ("log", []), ("lt", []), ("lx", []), ("sw", []), ("tests", []), ("merits", 0),
+                           ("ml", []), ("warn", 0), ("fl", []), ("q", {}), ("tb", []), ("tg", []), ("tr", [])):
+            self.assertEqual(cleared[key], empty, key)
+        # The student, their current target and Qaidah level stay.
+        for key in ("name", "target", "qa"):
             self.assertEqual(cleared[key], amina[key])
+        self.assertEqual(self.client.get("/api/houses").get_json(), {"Makkah": 0, "Al-Aqsa": 0, "Madinah": 0})
         self.assertEqual(json.loads(self.query("SELECT json FROM classroom_history ORDER BY id")[-2]["json"])["S"][0]["passes"], 3)
-        self.assertIn("no memo passes", self.client.get("/admin/clear-test-data").get_data(as_text=True))
+        self.assertIn("no progress records", self.client.get("/admin/clear-test-data").get_data(as_text=True))
         self.add_user("t@example.com")
         self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").get("/admin/clear-test-data").status_code, 403)
 
