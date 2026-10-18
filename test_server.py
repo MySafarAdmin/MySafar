@@ -269,6 +269,10 @@ class DashboardTests:
         for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 11}, {"tk": -1}, {"tk": "now"}):
             self.assertFalse(valid_state(dict(state, S=[dict(student, tests=[dict(test, **bad)])])))
         self.assertFalse(valid_state(dict(state, S=[dict(student, tests={})])))
+        # House points from the Record page keep what they were for, with the time their token was given.
+        self.assertTrue(valid_state(dict(state, S=[dict(student, tr=[1760400000000], hp=[{"t": 1760400000000, "r": "bk"}])])))
+        for bad in ({}, [{"t": 1760400000000}], [{"t": -1, "r": "bk"}], [{"t": "now", "r": "bk"}], [{"t": 1, "r": "xx"}]):
+            self.assertFalse(valid_state(dict(state, S=[dict(student, hp=bad)])))
         self.assertTrue(valid_state(dict(state, S=[dict(student, sw=["2026-10-12"])])))
         self.assertFalse(valid_state(dict(state, S=[dict(student, sw=["12 Oct"])])))
 
@@ -430,7 +434,8 @@ class DashboardTests:
         t = int(datetime(2026, 10, 14, 17, 30).timestamp() * 1000)
         student = {"name": "Musa Khan", "sid": "ST099", "fid": "SP040", "dob": "2016-05-02", "house": "Madinah", "target": 12, "passes": 2, "merits": 1,
                    "warn": 2, "log": [t - 864e5, t], "lt": [10, 11], "lx": ["", ""], "ml": [t], "fl": [t], "qa": 3,
-                   "q": {"2026-10-13": 4, "2026-10-14": 5}, "tg": [t], "tb": [t], "tr": [], "sw": ["2026-10-12"],
+                   "q": {"2026-10-13": 4, "2026-10-14": 5}, "tg": [t, t + 1], "tb": [t], "tr": [], "sw": ["2026-10-12"],
+                   "hp": [{"t": t + 1, "r": "hw"}],
                    "tests": [{"d": "2026-10-14", "k": "m", "n": 11, "sc": 4, "ok": True, "tk": t}]}
         self.write(state=dict(self.state, S=[student], L=[9, 9]), class_id="yr3-a")
         self.add_user("t@example.com", classes=["yr3-a"])
@@ -448,13 +453,14 @@ class DashboardTests:
         rows = {name: [[c.value for c in r] for r in book[name].iter_rows()] for name in book.sheetnames}
         students = dict(zip(rows["Students"][0], rows["Students"][1]))
         self.assertEqual((students["Student"], students["Memo target"], students["Memo passes"], students["Warning"],
-                          students["House points"], students["Quran average"]), ("Musa Khan", "L2 T3", 2, "Warning 2", 25, 4.5))
+                          students["House points"], students["Quran average"]), ("Musa Khan", "L2 T3", 2, "Warning 2", 30, 4.5))
         self.assertEqual(rows["Classes"][1][:3], ["Yr3-A", "T", 1])
         self.assertEqual([r[4] for r in rows["Quran scores"][1:]], [5, 4])
         self.assertEqual([(r[4], r[5]) for r in rows["Memo passes and fails"][1:]],
                          [("Pass", "L2 T2"), ("Not passed", None), ("Pass", "L2 T1")])
         self.assertEqual(rows["Level tests"][1][5:], ["L2 T2", 4, "Passed", "Yes"])
-        self.assertEqual(sorted(r[5] for r in rows["Rewards"][1:]), ["Blue token", "Green token", "Merit"])
+        self.assertEqual(sorted(r[5] for r in rows["Rewards"][1:]),
+                         ["Blue token", "Green token", "Green token: Additional class or homework", "Merit"])
         self.assertEqual(book["Students"].freeze_panes, "A2")
         self.assertEqual(book["Students"].auto_filter.ref, "A1:Y2")
         self.assertEqual((students["Family ID"], students["Date of birth"].date()), ("SP040", date(2016, 5, 2)))

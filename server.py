@@ -41,6 +41,8 @@ HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 QAIDAH_LEVELS = 10  # keep in step with QAIDAH in src/page.html
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
+# House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
+HOUSE_POINT_REASONS = {"bk": "tr", "lv": "tb", "hw": "tg", "ec": "tg", "cp": "tg"}
 # Reachable without signing in.
 PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
 # Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Figtree
@@ -123,6 +125,12 @@ def valid_state(state):
             tokens = student.get(key, [])
             if not isinstance(tokens, list) or not all(type(n) in (int, float) and n >= 0 for n in tokens):
                 return False
+        # House points from the Record page: when ("t", the time its token was given) and what for ("r").
+        given = student.get("hp", [])
+        if not isinstance(given, list) or not all(
+                isinstance(x, dict) and type(x.get("t")) in (int, float) and x["t"] >= 0 and x.get("r") in HOUSE_POINT_REASONS
+                for x in given):
+            return False
         if len(student["log"]) != len(student["lt"]) or len(student["log"]) != len(student["lx"]):
             return False
         # The Quran tab scores out of 5, starting at 0.
