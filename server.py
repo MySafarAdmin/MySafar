@@ -24,6 +24,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 import auth
 import cleanup
+import set_houses
 import export
 import tv
 from db import DB_ERRORS, Database
@@ -207,6 +208,7 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(tv.bp)
     app.register_blueprint(cleanup.bp)
+    app.register_blueprint(set_houses.bp)
     app.register_blueprint(export.bp)
     pruned = {"at": 0}
 
