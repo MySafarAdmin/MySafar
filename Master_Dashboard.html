@@ -473,7 +473,11 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .at.zero b{color:var(--mute)}.at.zero .an::before{background:var(--line-2)}
 @media (max-width:759.98px){.at{padding:9px 11px 10px}.at b{font-size:1.5rem}}
 /* The pop-up's tabs: the same pairs, two to a row. */
-.seg.aseg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-radius:calc(var(--r) + 3px);width:100%}
+.seg.aseg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-radius:calc(var(--r) + 3px);width:100%;row-gap:2px}
+/* The area each pair of tabs belongs to (Quran, Memorisation, Behaviour), as a heading above the pair. */
+.agl{grid-column:1/-1;padding:8px 10px 2px;font-size:.8125rem;font-weight:750;color:var(--ink-2)}
+.agl:first-of-type{padding-top:4px}
+.agl small{font-size:.75rem;font-weight:600;color:var(--mute)}
 .seg.aseg button{display:flex;align-items:center;gap:7px;border-radius:var(--r);text-align:left;padding:7px 10px;min-width:0}
 .seg.aseg .tn{margin-left:auto}
 .seg.aseg+.acap{margin:10px 0 12px}
@@ -2393,10 +2397,12 @@ function ovDraw(K){var B=$("drwB"),m=RP==="m",tm=m?"this month":"in total",h;if(
  else if(OVK==="rc")h='<p class="cap">Passes and merits per student, '+tm+'</p>'+rankList("rcP"+RP,classRows(RP),{limit:10,page:1,what:"classes",none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}});
  else{var mp=OVK==="mp";h='<p class="cap">Students, '+tm+'</p>'+rankList(OVK+"P"+RP,K.A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:mp?(m?mpc(o.s):o.s.passes):(m?mmc(o.s):o.s.merits)}}),{limit:10,page:1,what:"students",tone:mp?"sky":"gold",none:"No "+(mp?"passes":"merits")+" yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})}
  B.innerHTML='<div class="ovp">'+h+'</div>'}
-/* Attention: the complete lists, one group at a time, ten a page. Warnings, missed breaks and overdue students are
+/* Attention: the complete lists, one group at a time, ten a page. The tabs are in pairs under Quran, Memorisation
+   and Behaviour, as on the overview. Warnings, missed breaks and overdue students are
    grouped by class; the Quran averages and this week's passes are in order of the figure. */
 function attnHtml(K){var G=AGR,k=akOf(AKIND)?AKIND:"lo",x=akOf(k),a=K[k],size=10,h;
- h='<div class="seg aseg" id="aK" role="group" aria-label="Show">'+G.map(function(y){return '<button type="button" data-k="'+y[0]+'" aria-pressed="'+(k===y[0])+'"><span class="adot '+y[4]+'" aria-hidden="true"></span>'+y[1]+' <span class="tn">'+K[y[0]].length+'</span></button>'}).join("")+'</div>'
+ h='<div class="seg aseg" id="aK" role="group" aria-label="Show">'+AGP.map(function(g,i){return '<span class="agl" id="agl'+i+'">'+g[0]+(g[1]?' <small>'+g[1]+'</small>':'')+'</span>'
+   +G.slice(g[2],g[2]+2).map(function(y){return '<button type="button" data-k="'+y[0]+'" aria-pressed="'+(k===y[0])+'" aria-describedby="agl'+i+'"><span class="adot '+y[4]+'" aria-hidden="true"></span>'+y[1]+' <span class="tn">'+K[y[0]].length+'</span></button>'}).join("")}).join("")+'</div>'
   +'<p class="cap acap">'+x[3]+'</p>';
  if(!a.length)return h+'<p class="none">'+AGN[k]+'</p>';
  var p=pager("a"+k,a.length,size);

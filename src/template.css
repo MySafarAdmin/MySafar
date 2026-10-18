@@ -150,7 +150,11 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .at.zero b{color:var(--mute)}.at.zero .an::before{background:var(--line-2)}
 @media (max-width:759.98px){.at{padding:9px 11px 10px}.at b{font-size:1.5rem}}
 /* The pop-up's tabs: the same pairs, two to a row. */
-.seg.aseg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-radius:calc(var(--r) + 3px);width:100%}
+.seg.aseg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-radius:calc(var(--r) + 3px);width:100%;row-gap:2px}
+/* The area each pair of tabs belongs to (Quran, Memorisation, Behaviour), as a heading above the pair. */
+.agl{grid-column:1/-1;padding:8px 10px 2px;font-size:.8125rem;font-weight:750;color:var(--ink-2)}
+.agl:first-of-type{padding-top:4px}
+.agl small{font-size:.75rem;font-weight:600;color:var(--mute)}
 .seg.aseg button{display:flex;align-items:center;gap:7px;border-radius:var(--r);text-align:left;padding:7px 10px;min-width:0}
 .seg.aseg .tn{margin-left:auto}
 .seg.aseg+.acap{margin:10px 0 12px}
