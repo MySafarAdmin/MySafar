@@ -746,7 +746,10 @@ class DashboardTests:
         self.assertEqual([(s.get("sid"), s.get("fid", ""), s.get("house", "")) for s in a + b],
                          [("SE0001", "SP457", "Makkah"), ("SE0065", "SP290", "Al-Aqsa"), ("SE0060", "SP379", "Makkah"),
                           ("SE9999", "", "Madinah"), ("SE0265", "SP470", "Al-Aqsa")])
-        self.assertEqual((a[0]["xid"], sorted(a[0]["ed"]), a[0]["tg"]), (["SE0005"], ["fid", "house", "sid"], [1]))
+        self.assertEqual((a[0]["xid"], sorted(a[0]["ed"]), a[0]["tg"]),
+                         (["SE0005"], ["fid", "gender", "house", "ist", "sid", "sy"], [1]))
+        self.assertEqual((a[0]["sy"], a[0]["gender"], a[0]["ist"], b[0]["ist"]),
+                         ("Year 1", "Female", "Yr1-A-AI-Sr Nasrin", "Yr3-B-AI-Sr Nusrat"))
         self.assertEqual(records["yr3-a"]["revision"], 2)
         self.assertTrue(valid_state(json.loads(records["yr3-a"]["json"])))
         teacher = self.sign_in("t@example.com", "teacher-password-1") if self.add_user("t@example.com") else None

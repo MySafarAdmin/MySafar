@@ -1,11 +1,12 @@
-"""One-off: give every student the Student ID, Family ID and house on the school's list (data/houses.csv).
+"""One-off: give every student the Student ID, Family ID, house, year group, gender and Arabic and Islamic Studies
+class on the school's list (data/houses.csv).
 
 Students are matched by their MySafar name (see plan). Adam Or is on the list twice, in Yr3-A and Yr3-B.
 
-An admin opens /admin/set-houses to see, class by class, how many houses, Family IDs and Student IDs would
-change, which students on the dashboard aren't on the list and who on the list isn't on the dashboard;
-nothing changes until they confirm. Anyone not on the list keeps their details. The version of each class from just before is kept in
-Class history, so it can be restored from there. Remove this file once it has been used.
+An admin opens /admin/set-houses to see, class by class, how many of these details would change, which students
+on the dashboard aren't on the list and who on the list isn't on the dashboard; nothing changes until they confirm.
+Anyone not on the list keeps their details. The version of each class from just before is kept in Class history, so
+it can be restored from there. Remove this file once it has been used.
 """
 import csv
 import json
@@ -19,6 +20,7 @@ import auth
 
 FILE = Path(__file__).with_name("data") / "houses.csv"
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
+FIELDS = ("sid", "fid", "house", "sy", "gender", "ist")
 
 bp = Blueprint("set_houses", __name__)
 
@@ -34,7 +36,7 @@ def name_key(name):
 
 
 def wanted():
-    """Rows of the file: {sid, name, fid, house}."""
+    """Rows of the file: {sid, name, cls, fid, house, sy, gender, ist}."""
     out = []
     with FILE.open(newline="", encoding="utf-8-sig") as f:
         for row in csv.DictReader(f):
@@ -42,7 +44,8 @@ def wanted():
             assert house in HOUSES, house
             out.append({"sid": (row.get("MySafar ID") or row.get("Student ID") or "").strip(),
                         "name": " ".join(row["MySafar Name"].split()), "cls": name_key(row.get("QM")),
-                        "fid": row["Family ID"].strip(), "house": house})
+                        "fid": row["Family ID"].strip(), "house": house, "sy": " ".join(row.get("Year Group", "").split()),
+                        "gender": row.get("Gender", "").strip(), "ist": " ".join(row.get("AI", "").split())})
     return out
 
 
@@ -65,7 +68,7 @@ def plan(db):
 
     Students are matched by name, so a Student ID that differs from the list shows up as a change rather than
     giving the student someone else's details. A name listed twice is told apart by class, or else by
-    Student ID. Each student then gets the list's Student ID, Family ID and house."""
+    Student ID. Each student then gets the list's details (FIELDS)."""
     want = wanted()
     by_name = {}
     for i, r in enumerate(want):
@@ -86,7 +89,7 @@ def plan(db):
                 continue
             r = want[fits[0]]
             used.add(fits[0])
-            for field in ("sid", "fid", "house"):
+            for field in FIELDS:
                 if r[field]:
                     _set(s, field, r[field], changes, j)
         out.append((row["id"], row["revision"], state.get("name", row["id"]), state, changes, extra))
@@ -99,7 +102,7 @@ def _page(**context):
         rows, missing, twice = plan(db)
     ids = [f"{state['S'][j].get('name', '')}: {old or 'none'} to {new}" for _, _, _, state, ch, _ in rows
            for j, field, old, new in ch if field == "sid"]
-    classes = [{"name": n, "extra": ex, **{f: sum(1 for c in ch if c[1] == f) for f in ("house", "fid", "sid")}}
+    classes = [{"name": n, "extra": ex, **{f: sum(1 for c in ch if c[1] == f) for f in FIELDS}}
                for _, _, n, _, ch, ex in rows]
     counts = dict.fromkeys(HOUSES, 0)
     for _, _, _, state, _, _ in rows:
