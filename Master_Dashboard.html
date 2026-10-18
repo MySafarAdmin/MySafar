@@ -1390,6 +1390,7 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .spf .pf2 input,.spf .pf2 select{min-width:0;width:100%}
 .spf .acts{position:sticky;bottom:-32px;margin:0 -4px -16px;padding:12px 4px 16px;background:linear-gradient(rgba(255,255,255,0),var(--surface) 30%)}
 .spf .acts{align-items:center;gap:12px}.spf .acts .naerr{flex:1;font-size:.875rem}
+.spdob{display:flex;flex-direction:column;gap:4px}.spdob .lk{align-self:flex-start;font-size:.8125rem;min-height:24px}.spdob .lk[hidden]{display:none}
 .spfam{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);font-size:.875rem}
 .spfam ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
 .spfam .cap{font-size:.8125rem}
@@ -2453,34 +2454,41 @@ var SPS=null;
 function stuProfile(c,s){SPS={c:c,s:s};var fam=family(s),a=ageOn(s.dob),sub=[cname(ST[c].name)];if(a>=0&&a!==null)sub.push("Age "+a);if(s.house)sub.push(s.house);
  drawer(s.name,'<form class="addf spf" id="spF" novalidate><p class="cap">'+esc(sub.join(" · "))+'</p>'
   +'<label>Name<input id="spname" maxlength="60" autocomplete="off" required value="'+esc(s.name)+'"></label>'
+  +'<label>Class<select id="spcls">'+CIDS.map(function(k){return '<option value="'+esc(k)+'"'+(k===c?' selected':'')+'>'+esc(cname(ST[k].name))+'</option>'}).join("")+'</select></label>'
   +'<div class="pf2"><label>Student ID<input id="spsid" maxlength="40" autocomplete="off" placeholder="SE…" value="'+esc(s.sid||"")+'"></label>'
   +'<label>Family ID<input id="spfid" maxlength="40" autocomplete="off" placeholder="SP…" value="'+esc(s.fid||"")+'"></label>'
-  +'<label>Date of birth<input id="spdob" type="date" max="'+isoDay(new Date())+'" value="'+esc(s.dob||"")+'"></label>'
+  +'<div class="spdob"><label>Date of birth (optional)<input id="spdob" type="date" max="'+isoDay(new Date())+'" value="'+esc(s.dob||"")+'"></label><button type="button" class="lk" id="spdobX"'+(s.dob?'':' hidden')+'>Clear date of birth</button></div>'
   +'<label>Gender<select id="spgender">'+opts(["Female","Male"],s.gender||"","Not recorded")+'</select></label>'
   +'<label>School year group<select id="spsy">'+opts(["Reception"].concat(yrs(1,13)),s.sy||"","Not recorded")+'</select></label>'
   +'<label>Safar year group<select id="spyear">'+opts(yrs(1,10),s.year||"","Not recorded")+'</select></label>'
   +'<label>House<select id="sphouse">'+opts(HOUSES,s.house||"","Not set yet")+'</select></label>'
   +'<label>Islamic Studies class<input id="spist" maxlength="80" autocomplete="off" value="'+esc(s.ist||"")+'"></label></div>'
   +'<div class="spfam"><b>Family</b>'+(fam.length?'<ul>'+fam.map(function(o){return '<li><button type="button" class="lk" data-sp="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(o.s)+'">'+esc(o.s.name)+'</button> <span class="cap">'+esc(cname(ST[o.c].name))+(o.s.house?' · '+esc(o.s.house):'')+'</span></li>'}).join("")+'</ul>':'<span class="cap">'+(s.fid?'No one else has Family ID '+esc(s.fid)+'.':'Add a Family ID to see their brothers and sisters here.')+'</span>')+'</div>'
-  +'<p class="cap">Details you change here stay as you set them when a CSV is uploaded again; its preview lists any the file disagrees with. Moving class is done by the CSV upload on Classes.</p>'
+  +'<p class="cap">Details you change here stay as you set them when a CSV is uploaded again; its preview lists any the file disagrees with. A student moves class with all of their records.</p>'
   +'<div class="acts"><p class="naerr" id="spE" role="alert"></p><button type="submit" class="btn p">Save changes</button></div></form>');
  $("spname").focus()}
 function spSame(){return SPS&&ST[SPS.c]&&ST[SPS.c].S.indexOf(SPS.s)>=0}
-$("drwB").addEventListener("click",function(e){var b=e.target.closest("[data-sp]");if(!b)return;var c=b.dataset.sp,s=ST[c]&&ST[c].S[+b.dataset.i];if(s)stuProfile(c,s)});
+$("drwB").addEventListener("click",function(e){if(e.target.id==="spdobX"){$("spdob").value="";e.target.hidden=true;$("spdob").focus();return}var b=e.target.closest("[data-sp]");if(!b)return;var c=b.dataset.sp,s=ST[c]&&ST[c].S[+b.dataset.i];if(s)stuProfile(c,s)});
+$("drwB").addEventListener("input",function(e){if(e.target.id==="spdob"&&$("spdobX"))$("spdobX").hidden=!e.target.value});
 $("drwB").addEventListener("submit",function(e){if(e.target.id!=="spF")return;e.preventDefault();var err=$("spE");
  if(!spSame()){err.textContent="This student has been changed or removed elsewhere. Close this and open them again.";return}
- var c=SPS.c,s=SPS.s,v={},dup=null;SPF.forEach(function(f){v[f[0]]=$("sp"+f[0]).value.replace(/\s+/g," ").trim()});
+ var c=SPS.c,s=SPS.s,v={},dup=null,to=$("spcls").value;SPF.forEach(function(f){v[f[0]]=$("sp"+f[0]).value.replace(/\s+/g," ").trim()});
+ if(!ST[to]){err.textContent="That class no longer exists. Choose another.";$("spcls").focus();return}
  if(!v.name){err.textContent="Enter the student's name.";$("spname").focus();return}
- if(ST[c].S.some(function(o){return o!==s&&nkey(o.name)===nkey(v.name)})){err.textContent="There is already a student called "+v.name+" in "+cname(ST[c].name)+".";$("spname").focus();return}
+ if(ST[to].S.some(function(o){return o!==s&&nkey(o.name)===nkey(v.name)})){err.textContent="There is already a student called "+v.name+" in "+cname(ST[to].name)+".";$("spname").focus();return}
  if(v.sid)CIDS.forEach(function(k){ST[k].S.forEach(function(o){if(!dup&&o!==s&&o.sid&&nkey(o.sid)===nkey(v.sid))dup=[o,k]})});
  if(dup){err.textContent="Student ID "+v.sid+" already belongs to "+dup[0].name+" in "+cname(ST[dup[1]].name)+".";$("spsid").focus();return}
  if(v.dob&&(!/^\d{4}-\d{2}-\d{2}$/.test(v.dob)||v.dob>isoDay(new Date()))){err.textContent="Enter a date of birth that isn't in the future.";$("spdob").focus();return}
+ // A move takes the new class's Safar year, unless it is being set here too.
+ var mv=to!==c,yr=mv?safarYear(ST[to].name,v.ist):"";if(mv&&yr&&v.year===(s.year||""))v.year=yr;
  var n=0;SPF.forEach(function(f){var k=f[0],was=s[k]||"";if(v[k]===was)return;n++;
   if(k==="sid"&&was||k==="name"){var x=k==="sid"?"xid":"xn";s[x]=(s[x]||[]).filter(function(y){return nkey(y)!==nkey(was)}).concat([was]).slice(-10)}
   if(v[k]||k==="name")s[k]=v[k];else delete s[k];
   s.ed=(s.ed||[]).filter(function(y){return y!==k}).concat([k])});
- if(!n){closeDrawer();return}
- persist(c);if(c===CID)render();closeDrawer();if($("stuL"))stuRows();toast(n===1?"Detail saved for "+s.name:n+" details saved for "+s.name)});
+ if(mv){ST[c].S.splice(ST[c].S.indexOf(s),1);ST[to].S.push(s);s.ed=(s.ed||[]).filter(function(y){return y!=="class"}).concat(["class"]);persist(to)}
+ if(!n&&!mv){closeDrawer();return}
+ persist(c);if(c===CID||to===CID)render();closeDrawer();if($("stuL"))stuRows();
+ toast(mv?s.name+" moved to "+cname(ST[to].name):n===1?"Detail saved for "+s.name:n+" details saved for "+s.name)});
 $("vU").addEventListener("input",function(e){if(e.target.id==="stuQ"){SQ=e.target.value;PG.stu=0;stuRows()}});
 $("vU").addEventListener("change",function(e){if(e.target.id==="stuC"){SC=e.target.value;PG.stu=0;stuRows()}});
 $("vU").addEventListener("click",function(e){if(e.target.closest("#stuA,#stuA2")){stuAdd();return}
@@ -2652,7 +2660,8 @@ function planCSV(){var M=CSV.M,F=["name","year"].concat(["sid","fid","dob","gend
   claimed.push(hit);
   // A detail changed by hand on the profile stays as it is.
   F.forEach(function(k){if(o[k]!==""&&(hit.ed||[]).indexOf(k)>=0&&nkey(hit[k])!==nkey(o[k]))kept.push(hit.name+": "+SPF.filter(function(x){return x[0]===k})[0][1]+" stays "+((k==="dob"?dobText(hit[k],1):hit[k])||"not recorded")+" (the file says "+(k==="dob"?dobText(o[k],1):o[k])+")")});
-  if(from!==g.cid){g.move.push({o:o,s:hit,from:from});return}
+  if(from!==g.cid&&(hit.ed||[]).indexOf("class")>=0)kept.push(hit.name+": Class stays "+cname(ST[from].name)+" (the file says "+o.teacher+")");
+  else if(from!==g.cid){g.move.push({o:o,s:hit,from:from});return}
   if(F.some(function(k){return o[k]!==""&&(hit[k]||"")!==o[k]&&(hit.ed||[]).indexOf(k)<0}))g.update.push({o:o,s:hit});else g.same++});
  var gone=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){if(claimed.indexOf(s)<0)gone.push(s.name+" ("+cname(ST[c].name)+")")})});
  var groups=order.map(function(k){return G[k]}).sort(function(a,b){return a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:"base"})});

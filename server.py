@@ -94,7 +94,7 @@ def valid_state(state):
             return False
         # Details changed by hand on the profile ("ed"), which a later CSV upload leaves alone, and the earlier
         # Student IDs and names it had ("xid", "xn"), so the upload still recognises the student.
-        if not isinstance(student.get("ed", []), list) or not all(k in DETAILS + ("name", "house") for k in student.get("ed", [])):
+        if not isinstance(student.get("ed", []), list) or not all(k in DETAILS + ("name", "house", "class") for k in student.get("ed", [])):
             return False
         if not all(isinstance(student.get(k, []), list) and all(isinstance(x, str) for x in student.get(k, [])) for k in ("xid", "xn")):
             return False

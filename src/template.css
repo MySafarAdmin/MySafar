@@ -1067,6 +1067,7 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .spf .pf2 input,.spf .pf2 select{min-width:0;width:100%}
 .spf .acts{position:sticky;bottom:-32px;margin:0 -4px -16px;padding:12px 4px 16px;background:linear-gradient(rgba(255,255,255,0),var(--surface) 30%)}
 .spf .acts{align-items:center;gap:12px}.spf .acts .naerr{flex:1;font-size:.875rem}
+.spdob{display:flex;flex-direction:column;gap:4px}.spdob .lk{align-self:flex-start;font-size:.8125rem;min-height:24px}.spdob .lk[hidden]{display:none}
 .spfam{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);font-size:.875rem}
 .spfam ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
 .spfam .cap{font-size:.8125rem}

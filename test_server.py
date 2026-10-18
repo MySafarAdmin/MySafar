@@ -201,11 +201,11 @@ class DashboardTests:
 
     def test_student_profile_details(self):
         student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
-                   "ml": [], "q": {}, "sid": "SE012", "fid": "SP004", "dob": "2015-03-12", "ed": ["sid", "dob", "name"],
+                   "ml": [], "q": {}, "sid": "SE012", "fid": "SP004", "dob": "2015-03-12", "ed": ["sid", "dob", "name", "class"],
                    "xid": ["SE011"], "xn": ["Aisha"]}
         self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
         saved = json.loads(self.records()["yr3-a"]["json"])["S"][0]
-        self.assertEqual((saved["fid"], saved["dob"], saved["ed"], saved["xid"]), ("SP004", "2015-03-12", ["sid", "dob", "name"], ["SE011"]))
+        self.assertEqual((saved["fid"], saved["dob"], saved["ed"], saved["xid"]), ("SP004", "2015-03-12", ["sid", "dob", "name", "class"], ["SE011"]))
         for bad in ({"dob": "12/03/2015"}, {"dob": 2015}, {"fid": 4}, {"ed": ["q"]}, {"ed": "sid"}, {"xid": [1]}, {"xn": "A"}):
             self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, **bad)])).status_code, 400)
         self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, dob="")])).status_code, 200)
