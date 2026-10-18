@@ -725,28 +725,33 @@ class DashboardTests:
         teacher = self.sign_in("t@example.com", "teacher-password-1") if self.add_user("t@example.com") else None
         self.assertEqual(teacher.get("/admin/clear-test-data").status_code, 403)
 
-    def test_set_houses_matches_by_student_id(self):
-        # SE5 is SE0005 (Al-Aqsa); SE0060 is Musa Un (Makkah); Adam Or also had SE0060 and becomes SE0268 (Al-Aqsa).
-        state = dict(self.state, S=[self.tv_student("Aayat N", sid="SE5", house="Makkah", tg=[1]),
-                                    self.tv_student("Musa Un", sid="SE0060"), self.tv_student("Adam Or", sid="SE0060"),
-                                    self.tv_student("Saima K", sid="SE9999", house="Madinah"), self.tv_student("No Id")])
-        self.write(state=state)
+    def test_set_houses_matches_by_name_and_fills_in_ids_and_family(self):
+        # On the list: Aayat Nm SE0001 SP457 Makkah, Musa Un SE0065, Adam Or SE0060 in Yr3-A and SE0265 in Yr3-B.
+        yr3a = dict(self.state, S=[self.tv_student("Aayat Nm", sid="SE0005", house="Al-Aqsa", tg=[1]),
+                                   self.tv_student("Musa Un", sid="SE0065"), self.tv_student("Adam Or", sid="SE0060"),
+                                   self.tv_student("Saima K", sid="SE9999", house="Madinah")])
+        self.write(name="Yr3-A-QM-Br Faeez", state=yr3a)
+        self.write(name="Yr3-B-QM-Sr Sophia", class_id="yr3-b", state=dict(self.state, S=[self.tv_student("Adam Or", sid="SE0060")]))
         page = self.client.get("/admin/set-houses").get_data(as_text=True)
         self.assertIn("Saima K (SE9999)", page)
-        self.assertIn("SE0006 Amayah Fq", page)
+        self.assertIn("Aayat Nm: SE0005 to SE0001", page)
+        self.assertIn("Adam Or: SE0060 to SE0265", page)
+        self.assertIn("SE0002 Ishaaq Ya", page)
         self.assertIn("Type HOUSES", self.form(self.client, "/admin/set-houses", "/admin/set-houses",
                                                confirm="no").get_data(as_text=True))
         done = self.form(self.client, "/admin/set-houses", "/admin/set-houses", confirm="houses")
-        self.assertIn("Set the house of 4 students", done.get_data(as_text=True))
-        record = self.records()["yr3-a"]
-        saved = json.loads(record["json"])
-        self.assertEqual([s.get("house", "") for s in saved["S"]], ["Al-Aqsa", "Makkah", "Al-Aqsa", "Madinah", ""])
-        self.assertEqual(saved["S"][0]["tg"], [1])
-        self.assertEqual((saved["S"][2]["sid"], saved["S"][2]["xid"], saved["S"][1]["sid"]), ("SE0268", ["SE0060"], "SE0060"))
-        self.assertEqual(record["revision"], 2)
-        self.assertTrue(valid_state(saved))
-        self.assertEqual(json.loads(self.query("SELECT json FROM classroom_history ORDER BY id")[-2]["json"])["S"][0]["house"],
-                         "Makkah")
+        self.assertIn("Updated 4 students", done.get_data(as_text=True))
+        records = self.records()
+        a, b = (json.loads(records[k]["json"])["S"] for k in ("yr3-a", "yr3-b"))
+        self.assertEqual([(s.get("sid"), s.get("fid", ""), s.get("house", "")) for s in a + b],
+                         [("SE0001", "SP457", "Makkah"), ("SE0065", "SP290", "Al-Aqsa"), ("SE0060", "SP379", "Makkah"),
+                          ("SE9999", "", "Madinah"), ("SE0265", "SP470", "Al-Aqsa")])
+        self.assertEqual((a[0]["xid"], sorted(a[0]["ed"]), a[0]["tg"]),
+                         (["SE0005"], ["fid", "gender", "house", "ist", "sid", "sy"], [1]))
+        self.assertEqual((a[0]["sy"], a[0]["gender"], a[0]["ist"], b[0]["ist"]),
+                         ("Year 1", "Female", "Yr1-A-AI-Sr Nasrin", "Yr3-B-AI-Sr Nusrat"))
+        self.assertEqual(records["yr3-a"]["revision"], 2)
+        self.assertTrue(valid_state(json.loads(records["yr3-a"]["json"])))
         teacher = self.sign_in("t@example.com", "teacher-password-1") if self.add_user("t@example.com") else None
         self.assertEqual(teacher.get("/admin/set-houses").status_code, 403)
 
