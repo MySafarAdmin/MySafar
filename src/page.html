@@ -906,6 +906,9 @@ var AGR=[["lo","Struggling","Average 2 or less","Students whose Quran scores thi
  ["wr","Warnings","Warning 1 or 2","Students on Warning 1 or Warning 2","warn","Q"],
  ["mb","Missed breaks","On Miss break","Students on Miss break, the step after Warning 2","bad","Q"]],
  AGP=[["Quran","this month",0],["Memorisation","",2],["Behaviour","",4]],
+ AGI=['<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6c2.5-1.5 5.5-1.5 8-.5V19c-2.5-1-5.5-1-8 .5-2.5-1.5-5.5-1.5-8-.5z"/><path d="M12 6v13.5"/></svg>',
+  '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4h10v16l-5-3.5L7 20z"/></svg>',
+  '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/></svg>'],
  AGN={lo:"No student has a Quran average of 2 or less this month.",hi:"No student has a Quran average of 4 or more this month yet.",stale:"Every student has passed in the last 3 weeks.",
   adv:"No Memo passes yet this week.",wr:"No one is on Warning 1 or Warning 2.",mb:"No one is on Miss break."};
 function akOf(k){return AGR.filter(function(x){return x[0]===k})[0]}
@@ -953,10 +956,13 @@ function ovDraw(K){var B=$("drwB"),m=RP==="m",tm=m?"this month":"in total",h;if(
  else if(OVK==="rc")h='<p class="cap">Passes and merits per student, '+tm+'</p>'+rankList("rcP"+RP,classRows(RP),{limit:10,page:1,what:"classes",none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}});
  else{var mp=OVK==="mp";h='<p class="cap">Students, '+tm+'</p>'+rankList(OVK+"P"+RP,K.A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:mp?(m?mpc(o.s):o.s.passes):(m?mmc(o.s):o.s.merits)}}),{limit:10,page:1,what:"students",tone:mp?"sky":"gold",none:"No "+(mp?"passes":"merits")+" yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})}
  B.innerHTML='<div class="ovp">'+h+'</div>'}
-/* Attention: the complete lists, one group at a time, ten a page. Warnings, missed breaks and overdue students are
+/* Attention: the complete lists, one group at a time, ten a page. Tabs for Quran, Memorisation and Behaviour come
+   first (an area opens on its first list), then that area's two lists. Warnings, missed breaks and overdue students are
    grouped by class; the Quran averages and this week's passes are in order of the figure. */
 function attnHtml(K){var G=AGR,k=akOf(AKIND)?AKIND:"lo",x=akOf(k),a=K[k],size=10,h;
- h='<div class="seg aseg" id="aK" role="group" aria-label="Show">'+G.map(function(y){return '<button type="button" data-k="'+y[0]+'" aria-pressed="'+(k===y[0])+'"><span class="adot '+y[4]+'" aria-hidden="true"></span>'+y[1]+' <span class="tn">'+K[y[0]].length+'</span></button>'}).join("")+'</div>'
+ var gi=0;AGP.forEach(function(g,i){if(G[g[2]][0]===k||G[g[2]+1][0]===k)gi=i});
+ h='<div class="aK" id="aK"><div class="seg aarea" role="group" aria-label="Area">'+AGP.map(function(g,i){return '<button type="button" data-k="'+G[g[2]][0]+'" aria-pressed="'+(i===gi)+'">'+AGI[i]+g[0]+'</button>'}).join("")+'</div>'
+  +'<div class="seg aseg" role="group" aria-label="'+AGP[gi][0]+(AGP[gi][1]?' '+AGP[gi][1]:'')+'">'+G.slice(AGP[gi][2],AGP[gi][2]+2).map(function(y){return '<button type="button" data-k="'+y[0]+'" aria-pressed="'+(k===y[0])+'"><span class="adot '+y[4]+'" aria-hidden="true"></span>'+y[1]+' <span class="tn">'+K[y[0]].length+'</span></button>'}).join("")+'</div></div>'
   +'<p class="cap acap">'+x[3]+'</p>';
  if(!a.length)return h+'<p class="none">'+AGN[k]+'</p>';
  var p=pager("a"+k,a.length,size);
@@ -965,7 +971,7 @@ function attnHtml(K){var G=AGR,k=akOf(AKIND)?AKIND:"lo",x=akOf(k),a=K[k],size=10
  function val(o){if(k==="lo"||k==="hi")return '<span class="avg">'+chip(QC[Math.round(o.qm.v)],o.qm.v.toFixed(1)+"/5")+'<small>'+plural(o.qm.n,"score")+'</small></span>';
   if(k==="stale")return o.s.log.length?plural(o.d,"day"):'<span class="zero">No passes yet, '+plural(o.d,"day")+'</span>';
   if(k==="adv")return esc(o.wp.join(", "));return wl(o.s.warn)}
- return h+'<div class="tablewrap"><table class="tbl stackable"><thead><tr><th scope="col">Student</th><th scope="col">Class</th>'+(col?'<th scope="col">'+col+'</th>':'')+'</tr></thead><tbody>'
+ return h+'<div class="tablewrap"><table class="tbl stackable atbl"><thead><tr><th scope="col">Student</th><th scope="col">Class</th>'+(col?'<th scope="col">'+col+'</th>':'')+'</tr></thead><tbody>'
   +F.slice(p*size,(p+1)*size).map(function(o){return '<tr><td class="lead"><b>'+esc(o.s.name)+'</b></td><td data-label="Class">'+opener(o.c,esc(cname(ST[o.c].name)),x[5])+'</td>'+(col?'<td data-label="'+col+'">'+val(o)+'</td>':'')+'</tr>'}).join("")+'</tbody></table></div>'
   +pagerHtml("a"+k,a.length,size,"students")}
 /* Classes: the searchable directory, ten classes a page. */
