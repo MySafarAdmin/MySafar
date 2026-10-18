@@ -1817,10 +1817,14 @@ function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No s
   +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Qaidah</dt><dd>'+(s.qa?'Level '+s.qa:'No level yet')+'</dd></div></dl>'
   +'<section class="rlast"><div class="mod-h"><h3>Level tests</h3>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
   +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+t.sc+'/5, '+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
+/* Step 2 lists every student in one list, A to Z by name; a name shared by two students also shows the class. */
+function rAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s,i){A.push({s:s,c:c,i:i})})});
+ return A.sort(function(a,b){return a.s.name.trim().localeCompare(b.s.name.trim(),undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function recPage(){var o=rStu(),s=o&&o.s,h='';
  h+=rStep(1,'<p class="rl">Level test for</p>'+rSeg("rK",RK,[["q","Quran"],["m","Memo"]],"Level test for"),1);
  h+=rStep(2,'<label class="rl" for="rS">Student</label><select id="rS"><option value="">Choose a student</option>'
-  +CIDS.map(function(c){return '<optgroup label="'+esc(cname(ST[c].name))+'">'+ST[c].S.map(function(x,i){return '<option value="'+esc(c)+'|'+i+'"'+(RS===c+"|"+i?' selected':'')+'>'+esc(x.name)+'</option>'}).join("")+'</optgroup>'}).join("")+'</select>'
+  +rAll().map(function(o,k,A){var v=o.c+"|"+o.i,nm=o.s.name.trim().toLowerCase(),dup=(A[k-1]&&A[k-1].s.name.trim().toLowerCase()===nm)||(A[k+1]&&A[k+1].s.name.trim().toLowerCase()===nm);
+   return '<option value="'+esc(v)+'"'+(RS===v?' selected':'')+'>'+esc(o.s.name)+(dup?' ('+esc(cname(ST[o.c].name))+')':'')+'</option>'}).join("")+'</select>'
   +(s?'':'<p class="rnow">'+(CIDS.length?'Choose a student to record their level test.':'No classes yet.')+'</p>'),!!s);
  if(!s){refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  var b;
