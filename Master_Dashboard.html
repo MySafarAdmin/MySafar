@@ -1814,10 +1814,11 @@ function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No s
   +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Qaidah</dt><dd>'+(s.qa?'Level '+s.qa:'No level yet')+'</dd></div></dl>'
   +'<section class="rlast"><div class="mod-h"><h3>Level tests</h3>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
   +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+t.sc+'/5, '+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
+/* Step 2 lists every class (already A to Z) with its students A to Z by name; each option keeps the student's own index. */
 function recPage(){var o=rStu(),s=o&&o.s,h='';
  h+=rStep(1,'<p class="rl">Level test for</p>'+rSeg("rK",RK,[["q","Quran"],["m","Memo"]],"Level test for"),1);
  h+=rStep(2,'<label class="rl" for="rS">Student</label><select id="rS"><option value="">Choose a student</option>'
-  +CIDS.map(function(c){return '<optgroup label="'+esc(cname(ST[c].name))+'">'+ST[c].S.map(function(x,i){return '<option value="'+esc(c)+'|'+i+'"'+(RS===c+"|"+i?' selected':'')+'>'+esc(x.name)+'</option>'}).join("")+'</optgroup>'}).join("")+'</select>'
+  +CIDS.map(function(c){return '<optgroup label="'+esc(cname(ST[c].name))+'">'+ST[c].S.map(function(x,i){return {x:x,i:i}}).sort(function(a,b){return a.x.name.trim().localeCompare(b.x.name.trim(),undefined,{sensitivity:"base"})}).map(function(o){var x=o.x,i=o.i;return '<option value="'+esc(c)+'|'+i+'"'+(RS===c+"|"+i?' selected':'')+'>'+esc(x.name)+'</option>'}).join("")+'</optgroup>'}).join("")+'</select>'
   +(s?'':'<p class="rnow">'+(CIDS.length?'Choose a student to record their level test.':'No classes yet.')+'</p>'),!!s);
  if(!s){refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  var b;
