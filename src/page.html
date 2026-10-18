@@ -337,7 +337,7 @@ var EDD=false;
 function editor(i){var s=S[i];
  return '<div class="ed">'
   +'<div class="ed-a"><button class="btn sm" type="button" data-a="dd" data-i="'+i+'" aria-expanded="'+EDD+'" aria-controls="edd'+i+'">Details</button><button class="btn sm" type="button" data-a="dt" data-i="'+i+'">History</button></div>'
-  +'<div class="edd" id="edd'+i+'"'+(EDD?'':' hidden')+'><dl class="ddl">'+details(s)+'</dl><div class="ed-a"><button class="btn sm" type="button" data-a="rn" data-i="'+i+'">Rename</button><button class="btn sm danger" type="button" data-a="rm" data-i="'+i+'">Remove student</button></div></div></div>'}
+  +'<div class="edd" id="edd'+i+'"'+(EDD?'':' hidden')+'><dl class="ddl">'+details(s)+'</dl><div class="ed-a"><button class="btn sm" type="button" data-a="rn" data-i="'+i+'">Rename</button>'+(TEACHER?'':'<button class="btn sm danger" type="button" data-a="rm" data-i="'+i+'">Remove student</button>')+'</div></div></div>'}
 /* Replace a panel's content, keeping keyboard focus on the same control. */
 function refill(el,html){var a=document.activeElement,key=null;
  if(a&&el.contains(a))key=a.dataset.a?'[data-a="'+a.dataset.a+'"]':null;
@@ -350,7 +350,7 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
  var nm=fn(s);
  if(a==="dt"){student(i);return}
  if(a==="dd"){EDD=!EDD;var box=bt.closest(".ed");box.querySelector(".edd").hidden=!EDD;bt.setAttribute("aria-expanded",EDD);return}
- if(a==="rm"){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);if(DMODE==="mm")closeDrawer();save();render();toast(nm+" removed")},null,1);return}
+ if(a==="rm"&&!TEACHER){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);if(DMODE==="mm")closeDrawer();save();render();toast(nm+" removed")},null,1);return}
  if(a==="rn"){ask("Rename "+s.name,"Save name",function(v){if(!same(c,i,s))return;var nv=v||"Student";if(nv!==s.name){s.xn=(s.xn||[]).concat([s.name]).slice(-10);s.ed=(s.ed||[]).filter(function(y){return y!=="name"}).concat(["name"])}s.name=nv;save();render();toast("Name updated")},"Student name",0,s.name)}});
 
 /* ---------- Record page (admins) ----------
@@ -575,7 +575,7 @@ function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name),lt=v!==undefined&&qT
  return '<button type="button" class="qc'+(v===undefined?'':' has')+'" data-qi="'+i+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+(future?' disabled title="This class day hasn\'t happened yet"':'')+' aria-label="'+lab+(future?', not open yet':'. Change score')+'" aria-haspopup="'+!future+'"'+(v===undefined?'':' title="'+v+' out of 5"')+'>'+(v===undefined?(future?'':'<span aria-hidden="true">+</span>'):v)+'</button>'}
 /* dir is -1 or 1 when the focused day has just moved, so the columns slide; 0 redraws in place. */
 function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
- if(!S.length){B.innerHTML='<div class="empty"><b>No students yet</b>'+(TEACHER?'<button type="button" class="btn sm" id="qAdd2">Add a student</button>':addBtn())+'</div>';B.removeAttribute("style");return}
+ if(!S.length){B.innerHTML='<div class="empty"><b>No students yet</b>'+addBtn()+'</div>';B.removeAttribute("style");return}
  var D=qDays();if(D.indexOf(QF)<0)QF=qLatest(D);var f=D.indexOf(QF),today=dk(Date.now());
  var p=qDate(QF);$("qDay").innerHTML='<b>'+p.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})+'</b><small>'+p.toLocaleDateString("en-GB",{weekday:"long"})+(QF===today?', today':QF>today?', coming up':'')+'</small>';
  $("qPrev").disabled=f<=0;$("qNext").disabled=f>=D.length-1;var L=qLatest(D);$("qToday").hidden=QF===L;
@@ -785,9 +785,9 @@ function render(){
 /* Recording happens on the Quran tab: scores in the sheet, and warnings, merits, house points and the student's
    record (passes, target, fails, rename, remove) from the menu on a student's name. */
 var TEACHER=!!(window.ME&&ME.role!=="admin");
-/* Admins add and remove students on the Students page, so the class pages only have Add student for teachers. */
-function addBtn(){return TEACHER?'<button type="button" class="btn sm" data-ct="S">Add students in Settings</button>':'<button type="button" class="btn sm" data-open="U">Add students on the Students page</button>'}
-if(!TEACHER){$("qAdd").hidden=true;$("addRow").hidden=true}
+/* Only admins add and remove students, on the Students page; teachers can't (the server refuses it too). */
+function addBtn(){return TEACHER?'<span>An administrator adds students to your class.</span>':'<button type="button" class="btn sm" data-open="U">Add students on the Students page</button>'}
+$("qAdd").hidden=true;$("addRow").hidden=true
 /* Teachers have Journey2Jannah at the foot of the menu, just above their name. */
 if(TEACHER){(function(j){j.classList.add("j2jb");j.parentNode.appendChild(j)})(document.querySelector(".navs .j2j"))}
 var TABS=["Q","T","D","S"],CUR="Q";

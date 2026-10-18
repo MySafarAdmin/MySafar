@@ -416,6 +416,12 @@ def create_app(test_config=None):
                 cursor = db.execute("INSERT INTO classrooms VALUES (?, ?, 1) ON CONFLICT (id) DO NOTHING",
                                     (class_id, encoded))
             else:
+                # Only admins add or remove students; a teacher's save must keep the class's students.
+                if not is_admin():
+                    current = db.execute("SELECT json FROM classrooms WHERE id = ? AND revision = ?",
+                                         (class_id, document["revision"])).fetchone()
+                    if current and len(json.loads(current["json"]).get("S", [])) != len(state["S"]):
+                        return jsonify(error="Only an admin can add or remove students."), 403
                 cursor = db.execute("UPDATE classrooms SET json = ?, revision = revision + 1 WHERE id = ? AND revision = ?",
                                     (encoded, class_id, document["revision"]))
             if cursor.rowcount:

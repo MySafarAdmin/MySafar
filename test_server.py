@@ -468,19 +468,20 @@ class DashboardTests:
         self.assertEqual(export.target_label(10, [9]), "198 An-Naba")
         self.assertEqual(export.target_label(10 + len(export.JUZ_ITEMS), [9]), "Quran complete")
 
-    def test_teacher_adds_a_student_from_the_quran_tab(self):
-        self.write(class_id="yr3-a")
-        self.write("Yr4-B", class_id="yr4-b")
-        self.add_user("t@example.com", classes=["yr3-a"])
-        teacher = self.sign_in("t@example.com", "teacher-password-1")
+    def test_only_admins_add_or_remove_students(self):
         student = {"name": "Musa Khan", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
                    "ml": [], "fl": [], "q": {}, "tg": [], "tb": [], "tr": [], "house": "Madinah", "sid": "ST099"}
-        added = dict(self.state, S=[student])
-        self.assertEqual(self.write(state=added, revision=1, client=teacher).status_code, 200)
-        saved = json.loads(self.records(teacher)["yr3-a"]["json"])["S"]
-        self.assertEqual([(s["name"], s["house"], s["sid"]) for s in saved], [("Musa Khan", "Madinah", "ST099")])
-        self.assertEqual(self.write("Yr4-B", state=added, revision=1, class_id="yr4-b", client=teacher).status_code, 403)
-        self.assertEqual(json.loads(self.records()["yr4-b"]["json"])["S"], [])
+        self.write(class_id="yr3-a", state=dict(self.state, S=[student]))
+        self.add_user("t@example.com", classes=["yr3-a"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        other = dict(student, name="Aisha Ali", sid="ST100")
+        for students in ([student, other], []):
+            response = self.write(state=dict(self.state, S=students), revision=1, client=teacher)
+            self.assertEqual(response.status_code, 403)
+        self.assertEqual(len(json.loads(self.records(teacher)["yr3-a"]["json"])["S"]), 1)
+        # Teachers still record work for the students they have.
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1)]), revision=1, client=teacher).status_code, 200)
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1), other]), revision=2).status_code, 200)
 
     def test_invite_without_email(self):
         self.write()
