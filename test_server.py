@@ -726,7 +726,7 @@ class DashboardTests:
         self.assertEqual(teacher.get("/admin/clear-test-data").status_code, 403)
 
     def test_set_houses_matches_by_student_id(self):
-        # SE5 is SE0005 (Al-Aqsa); SE0060 is listed twice, for Musa Un (Makkah) and Adam Or (Al-Aqsa).
+        # SE5 is SE0005 (Al-Aqsa); SE0060 is Musa Un (Makkah); Adam Or also had SE0060 and becomes SE0268 (Al-Aqsa).
         state = dict(self.state, S=[self.tv_student("Aayat N", sid="SE5", house="Makkah", tg=[1]),
                                     self.tv_student("Musa Un", sid="SE0060"), self.tv_student("Adam Or", sid="SE0060"),
                                     self.tv_student("Saima K", sid="SE9999", house="Madinah"), self.tv_student("No Id")])
@@ -737,11 +737,12 @@ class DashboardTests:
         self.assertIn("Type HOUSES", self.form(self.client, "/admin/set-houses", "/admin/set-houses",
                                                confirm="no").get_data(as_text=True))
         done = self.form(self.client, "/admin/set-houses", "/admin/set-houses", confirm="houses")
-        self.assertIn("Set the house of 3 students", done.get_data(as_text=True))
+        self.assertIn("Set the house of 4 students", done.get_data(as_text=True))
         record = self.records()["yr3-a"]
         saved = json.loads(record["json"])
         self.assertEqual([s.get("house", "") for s in saved["S"]], ["Al-Aqsa", "Makkah", "Al-Aqsa", "Madinah", ""])
         self.assertEqual(saved["S"][0]["tg"], [1])
+        self.assertEqual((saved["S"][2]["sid"], saved["S"][2]["xid"], saved["S"][1]["sid"]), ("SE0268", ["SE0060"], "SE0060"))
         self.assertEqual(record["revision"], 2)
         self.assertTrue(valid_state(saved))
         self.assertEqual(json.loads(self.query("SELECT json FROM classroom_history ORDER BY id")[-2]["json"])["S"][0]["house"],

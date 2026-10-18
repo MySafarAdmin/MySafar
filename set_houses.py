@@ -2,7 +2,7 @@
 
 The list has each student's Student ID, their MySafar name and their house. Students are matched by Student
 ID, so SE0264 and SE264 are the same student. An ID listed twice is matched only together with the
-student's name.
+student's name. Adam Or in Yr3-B had Musa Un's ID, SE0060, and is given SE0268 first.
 
 An admin opens /admin/set-houses to see, class by class, whose house would change, which students on the
 dashboard aren't on the list and which IDs on the list aren't on the dashboard; nothing changes until they
@@ -22,6 +22,9 @@ import auth
 
 FILE = Path(__file__).with_name("data") / "houses.csv"
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
+
+# Student IDs to correct on the dashboard first: (ID it has now, name) -> the right ID.
+RENUMBER = {("SE60", "adamor"): "SE0268"}
 
 bp = Blueprint("set_houses", __name__)
 
@@ -59,6 +62,13 @@ def plan(db):
         state = json.loads(row["json"])
         changes, extra = [], []
         for s in state.get("S", []):
+            fix = RENUMBER.get((sid_key(s.get("sid")), name_key(s.get("name")))) if s.get("sid") else None
+            if fix:
+                # As a change on the student's profile: the old ID is remembered so a CSV upload still finds them.
+                changes.append((s.get("name", ""), "Student ID " + s["sid"], fix))
+                s["xid"] = [x for x in s.get("xid", []) if sid_key(x) != sid_key(s["sid"])][-9:] + [s["sid"]]
+                s["sid"] = fix
+                s["ed"] = [x for x in s.get("ed", []) if x != "sid"] + ["sid"]
             k = sid_key(s.get("sid")) if s.get("sid") else ""
             hit = by_both.get((k, name_key(s.get("name")))) if k in twice else by_id.get(k)
             if not k or not hit:
