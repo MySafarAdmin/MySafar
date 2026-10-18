@@ -1,18 +1,19 @@
-"""One-off: give every student the house worked out for them in October 2026.
+"""One-off: give every student the house on the school's house list (data/houses.csv).
 
-data/houses.csv lists each student's name, their Quran and Memorisation class and their house. Siblings
-share a house, and each class is split between the three houses as evenly as possible.
+The list has each student's Student ID, their MySafar name and their house. Students are matched by Student
+ID, so SE0264 and SE264 are the same student. An ID listed twice is matched only together with the
+student's name.
 
-An admin opens /admin/set-houses to see, class by class, whose house would change and which names on
-either side don't match; nothing changes until they confirm. Students are matched by name within their
-class, ignoring spaces and punctuation and allowing a longer surname initial, so anyone on the dashboard but not in the file keeps the house they have. The version of each
-class from just before is kept in Class history, so it can be restored from there. Remove this file
-once it has been used.
+An admin opens /admin/set-houses to see, class by class, whose house would change, which students on the
+dashboard aren't on the list and which IDs on the list aren't on the dashboard; nothing changes until they
+confirm. Anyone not on the list keeps their house. The version of each class from just before is kept in
+Class history, so it can be restored from there. Remove this file once it has been used.
 """
 import csv
 import json
 import re
 import time
+from collections import Counter
 from pathlib import Path
 
 from flask import Blueprint, current_app, g, request
@@ -25,100 +26,63 @@ HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 bp = Blueprint("set_houses", __name__)
 
 
-def _key(text):
-    # Letters and digits only, so "Yr4-A-QM- Sr Thanisha" matches "Yr4-A-QM-Sr Thanisha".
-    return re.sub(r"[^a-z0-9]", "", str(text or "").lower())
+def sid_key(sid):
+    """SE0264 and se264 are the same ID."""
+    m = re.fullmatch(r"\s*([A-Za-z]*)\s*0*(\d+)\s*", str(sid or ""))
+    return (m.group(1).upper() + m.group(2)) if m else str(sid or "").strip().upper()
+
+
+def name_key(name):
+    return re.sub(r"[^a-z0-9]", "", str(name or "").lower())
 
 
 def wanted():
-    """{class key: {student key: (name, house)}} from the file, and {class key: class name}."""
-    out, names = {}, {}
+    """[(id key, Student ID, name, house)] from the file."""
+    out = []
     with FILE.open(newline="", encoding="utf-8-sig") as f:
         for row in csv.DictReader(f):
             house = row["House"].strip()
             assert house in HOUSES, house
-            name = " ".join(row["Student Name"].split())
-            cls = " ".join(row["Current Teacher [Quran and Memorisation]"].split())
-            names[_key(cls)] = cls
-            out.setdefault(_key(cls), {})[_key(name)] = (name, house)
-    return out, names
-
-
-def _words(text):
-    return re.findall(r"[a-z0-9]+", str(text or "").lower())
-
-
-def pair(students, listed):
-    """{student index: list key}. The same name first; then a student whose first name is in the listed name and
-    whose surname starts the same way ("Aadam Za" is "Aadam Z", "Musa Un" is "Md Musa U"), when only one fits."""
-    hits, used = {}, set()
-    for i, s in enumerate(students):
-        k = _key(s.get("name"))
-        if k in listed and k not in used:
-            hits[i] = k
-            used.add(k)
-    for i, s in enumerate(students):
-        w = _words(s.get("name"))
-        if i in hits or len(w) < 2:
-            continue
-        fits = [k for k, (n, _) in listed.items() if k not in used and w[0] in _words(n)[:-1]
-                and (w[-1].startswith(_words(n)[-1]) or _words(n)[-1].startswith(w[-1]))]
-        if len(fits) == 1:
-            hits[i] = fits[0]
-            used.add(fits[0])
-    return hits
+            out.append((sid_key(row["Student ID"]), row["Student ID"].strip(), " ".join(row["MySafar Name"].split()), house))
+    return out
 
 
 def plan(db):
-    """[(class_id, revision, name, new state, changes [(student, old, new)], not on the dashboard, not in the file)]
-    for every class, plus the file's classes that match no class on the dashboard. A class is found by its name,
-    or else by which class on the list holds most of its students."""
-    (want, names), out, seen = wanted(), [], set()
-    rows = [(r["id"], r["revision"], json.loads(r["json"])) for r in
-            db.execute("SELECT id, json, revision FROM classrooms ORDER BY id").fetchall()]
-    chosen = {}
-    for class_id, _, state in rows:
-        if _key(state.get("name", class_id)) in want:
-            chosen[class_id] = _key(state.get("name", class_id))
-    for class_id, _, state in rows:
-        students = state.get("S", [])
-        if class_id in chosen or not students:
-            continue
-        best = max(((len(pair(students, v)), c) for c, v in want.items() if c not in chosen.values()), default=(0, None))
-        if best[0] * 2 >= len(students):
-            chosen[class_id] = best[1]
-    for class_id, revision, state in rows:
-        if class_id not in chosen:
-            continue
-        listed = want[chosen[class_id]]
-        seen.add(chosen[class_id])
-        students = state.get("S", [])
-        hits = pair(students, listed)
+    """([(class_id, revision, class name, new state, changes [(student, old, new)], not on the list)],
+    IDs on the list that match nobody on the dashboard, IDs listed more than once)."""
+    want = wanted()
+    twice = {k for k, n in Counter(k for k, _, _, _ in want).items() if n > 1}
+    by_id = {k: (sid, name, house) for k, sid, name, house in want if k not in twice}
+    by_both = {(k, name_key(name)): (sid, name, house) for k, sid, name, house in want if k in twice}
+    used, out = set(), []
+    for row in db.execute("SELECT id, json, revision FROM classrooms ORDER BY id").fetchall():
+        state = json.loads(row["json"])
         changes, extra = [], []
-        for i, s in enumerate(students):
-            if i not in hits:
-                extra.append(s.get("name", ""))
+        for s in state.get("S", []):
+            k = sid_key(s.get("sid")) if s.get("sid") else ""
+            hit = by_both.get((k, name_key(s.get("name")))) if k in twice else by_id.get(k)
+            if not k or not hit:
+                extra.append(s.get("name", "") + (f" ({s['sid']})" if s.get("sid") else ""))
                 continue
-            house = listed[hits[i]][1]
-            if s.get("house", "") != house:
-                changes.append((s.get("name", ""), s.get("house", ""), house))
-                s["house"] = house
-        missing = [n for k, (n, _) in listed.items() if k not in hits.values()]
-        out.append((class_id, revision, state.get("name", class_id), state, changes, missing, extra))
-    unmatched = sorted(names[c] for c in want if c not in seen)
-    return out, unmatched
+            used.add((k, name_key(hit[1])))
+            if s.get("house", "") != hit[2]:
+                changes.append((s.get("name", ""), s.get("house", ""), hit[2]))
+                s["house"] = hit[2]
+        out.append((row["id"], row["revision"], state.get("name", row["id"]), state, changes, extra))
+    missing = [f"{sid} {name}" for k, sid, name, _ in want if (k, name_key(name)) not in used]
+    return out, missing, sorted({sid for k, sid, _, _ in want if k in twice})
 
 
 def _page(**context):
     with current_app.config["DB"].transaction() as db:
-        rows, unmatched = plan(db)
-    classes = [{"name": n, "changes": ch, "missing": mi, "extra": ex} for _, _, n, _, ch, mi, ex in rows]
-    counts = {h: 0 for h in HOUSES}
-    for _, _, _, state, _, _, _ in rows:
+        rows, missing, twice = plan(db)
+    classes = [{"name": n, "changes": ch, "extra": ex} for _, _, n, _, ch, ex in rows]
+    counts = dict.fromkeys(HOUSES, 0)
+    for _, _, _, state, _, _ in rows:
         for s in state.get("S", []):
             if s.get("house") in counts:
                 counts[s["house"]] += 1
-    return auth.page("admin_houses.html", classes=classes, missing=sum(len(c["missing"]) for c in classes), unmatched=unmatched, counts=counts,
+    return auth.page("admin_houses.html", classes=classes, missing=missing, twice=twice, counts=counts,
                      total=sum(len(c["changes"]) for c in classes), **context)
 
 
@@ -137,7 +101,7 @@ def apply():
     t = int(time.time())
     with current_app.config["DB"].transaction() as db:
         done = 0
-        for class_id, revision, _, state, changes, _, _ in plan(db)[0]:
+        for class_id, revision, _, state, changes, _ in plan(db)[0]:
             if not changes:
                 continue
             current = db.execute("SELECT json FROM classrooms WHERE id = ?", (class_id,)).fetchone()["json"]
