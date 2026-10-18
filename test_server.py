@@ -731,7 +731,7 @@ class DashboardTests:
                                    self.tv_student("Musa Un", sid="SE0065"), self.tv_student("Adam Or", sid="SE0060"),
                                    self.tv_student("Saima K", sid="SE9999", house="Madinah")])
         self.write(name="Yr3-A-QM-Br Faeez", state=yr3a)
-        self.write(name="Yr3-B-QM-Sr Sophia", class_id="yr3-b", state=dict(self.state, S=[self.tv_student("Adam Or", sid="SE0060")]))
+        self.write(name="Yr3B Ustadha Sophia", class_id="yr3-b", state=dict(self.state, S=[self.tv_student("Adam Or", sid="SE0060")]))
         page = self.client.get("/admin/set-houses").get_data(as_text=True)
         self.assertIn("Saima K (SE9999)", page)
         self.assertIn("Aayat Nm: SE0005 to SE0001", page)
