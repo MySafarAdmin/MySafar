@@ -971,7 +971,7 @@ function attnHtml(K){var G=AGR,k=akOf(AKIND)?AKIND:"lo",x=akOf(k),a=K[k],size=10
  function val(o){if(k==="lo"||k==="hi")return '<span class="avg">'+chip(QC[Math.round(o.qm.v)],o.qm.v.toFixed(1)+"/5")+'<small>'+plural(o.qm.n,"score")+'</small></span>';
   if(k==="stale")return o.s.log.length?plural(o.d,"day"):'<span class="zero">No passes yet, '+plural(o.d,"day")+'</span>';
   if(k==="adv")return esc(o.wp.join(", "));return wl(o.s.warn)}
- return h+'<div class="tablewrap"><table class="tbl stackable"><thead><tr><th scope="col">Student</th><th scope="col">Class</th>'+(col?'<th scope="col">'+col+'</th>':'')+'</tr></thead><tbody>'
+ return h+'<div class="tablewrap"><table class="tbl stackable atbl"><thead><tr><th scope="col">Student</th><th scope="col">Class</th>'+(col?'<th scope="col">'+col+'</th>':'')+'</tr></thead><tbody>'
   +F.slice(p*size,(p+1)*size).map(function(o){return '<tr><td class="lead"><b>'+esc(o.s.name)+'</b></td><td data-label="Class">'+opener(o.c,esc(cname(ST[o.c].name)),x[5])+'</td>'+(col?'<td data-label="'+col+'">'+val(o)+'</td>':'')+'</tr>'}).join("")+'</tbody></table></div>'
   +pagerHtml("a"+k,a.length,size,"students")}
 /* Classes: the searchable directory, ten classes a page. */
