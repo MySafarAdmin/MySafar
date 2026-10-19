@@ -1467,6 +1467,35 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .fsb[aria-pressed="true"]{background:var(--navy-soft);color:var(--navy);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--navy) 30%,transparent)}
 /* Phones: no Full sheet (Quran or Memo), no Presenter, and no help note on the Quran page. */
 @media (max-width:959.98px){#qV,#tV,#pres,#vQ .qbar .help{display:none!important}}
+/* Record: House points. Five choices, each with its coin and points; the coin colours match the Quran name menu. */
+.rhp{display:flex;flex-direction:column;gap:8px;max-width:560px}
+.rhp button{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;width:100%;min-height:52px;padding:10px 14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);font:inherit;color:var(--ink);text-align:left;cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease,background-color .15s ease}
+.rhp button:hover:not(:disabled){border-color:color-mix(in srgb,var(--navy) 40%,var(--line))}
+.rhp button[aria-pressed="true"]{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);background:color-mix(in srgb,var(--navy) 4%,var(--surface))}
+.rhp button:disabled{cursor:not-allowed;background:var(--bg);color:var(--mute)}
+.rhp .hpn{font-weight:700;min-width:0}
+.rhp .hpn small{display:block;margin-top:2px;font-weight:500;font-size:.8125rem;color:var(--mute)}
+.hcoin{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:.75rem;font-weight:700;white-space:nowrap}
+.hcoin .tdot{width:7px;height:7px;margin-right:5px}
+.hcoin.g{background:color-mix(in srgb,var(--tok-g) 10%,var(--surface));color:var(--tok-g-ink)}
+.hcoin.b{background:color-mix(in srgb,var(--tok-b) 10%,var(--surface));color:var(--tok-b-ink)}
+.hcoin.r{background:color-mix(in srgb,var(--tok-r) 10%,var(--surface));color:var(--tok-r-ink)}
+.rhp .hv{font-weight:800;font-size:1.0625rem;min-width:3.6em;text-align:right;font-variant-numeric:tabular-nums}
+.rhp .hv span{font-weight:600;font-size:.8125rem;color:var(--mute)}
+.rhp button:disabled .hcoin,.rhp button:disabled .hv{opacity:.55}
+.rtok.g{background:color-mix(in srgb,var(--tok-g) 10%,var(--surface));color:var(--tok-g-ink)}
+.rtok.r{background:color-mix(in srgb,var(--tok-r) 10%,var(--surface));color:var(--tok-r-ink)}
+.rcoins{display:flex;gap:10px;font-variant-numeric:tabular-nums}
+.rcoins>span{display:inline-flex;align-items:center}
+.rcoins .tdot{margin-right:4px}
+@media (max-width:479.98px){.rhp button{grid-template-columns:minmax(0,1fr) auto;row-gap:6px}.rhp .hcoin{grid-row:2;justify-self:start}.rhp .hv{grid-row:1/3;grid-column:2}}
+.rhl{list-style:none;margin:8px 0 0;padding:0}
+.rhl li{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:2px 10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.rhl li:first-child{border-top:0}
+.rhl b{font-weight:700;font-size:.9375rem;min-width:0}
+.rhl .d{grid-row:2;color:var(--mute);font-size:.8125rem}
+.rhl .rtok{grid-row:1/3;grid-column:2;margin:0}
+.rhl .btn{grid-row:1/3;grid-column:3;padding-inline:10px}
 </style></head><body>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1625,7 +1654,7 @@ function fix(a,old){var mv=old&&old.join()!==LEVELS.join();a.forEach(function(s)
  if(!s.q)s.q={};if(!s.log){s.log=[];s.hit=null;s.target=1}
  if(!s.lt||s.lt.length!==s.log.length){s.lt=s.log.map(function(_,k){return Math.max(1,s.target-(s.log.length-k))})}
  if(!s.lx||s.lx.length!==s.log.length){var o=s.lx||[];s.lx=s.log.map(function(_,k){return o[k]||""})}
- if(!s.ml)s.ml=[];if(!s.fl)s.fl=[];TOK.forEach(function(k){if(!s[k[0]])s[k[0]]=[]});s.passes=s.passes||0;s.merits=s.merits||0;s.qa=s.qa||0;if(!s.tests)s.tests=[];if(!s.sw)s.sw=[];s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
+ if(!s.ml)s.ml=[];if(!s.fl)s.fl=[];TOK.forEach(function(k){if(!s[k[0]])s[k[0]]=[]});s.passes=s.passes||0;s.merits=s.merits||0;s.qa=s.qa||0;if(!s.tests)s.tests=[];if(!s.hp)s.hp=[];if(!s.sw)s.sw=[];s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
 /* Houses and their tokens. Each token is [field, css class, name, points]; the field holds the times it was given.
    Keep the points in step with TOKEN_POINTS in server.py. */
 var HOUSES=["Makkah","Al-Aqsa","Madinah"],TOK=[["tg","g","Green",5],["tb","b","Blue",20],["tr","r","Red",50]];
@@ -1823,15 +1852,32 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    only the Record page can change it. A Memo pass moves the student past that target; a Quran pass sets their
    Qaidah level. Every pass gives the student a blue token. Each test is kept on the student as {d: day, k: "q" or
    "m", n: level or target, sc: score, ok: passed, pq: the Qaidah level before a Quran pass, tk: when the pass's blue
-   token was given}. */
-var QAIDAH=10,RK="m",RS="",RM="",RX=0,RSC=-1;
+   token was given}.
+   House points are the third choice in step 1: the admin picks the student and what the points are for, and the
+   points and coin follow from HPR. Each is kept on the student as {t: when its token was given, r: what for} in
+   s.hp, with the token itself in s.tg, s.tb or s.tr like the ones from the Quran name menu. A level passed on this
+   page already gives its blue coin, so the level choice is closed for a student who passed one today. */
+var QAIDAH=10,RK="m",RS="",RM="",RX=0,RSC=-1,RH="";
+var HPR=[["bk","Book completion","tr"],["lv","Qaidah or Memorisation level completion","tb"],["hw","Additional class or homework","tg"],
+ ["ec","Extra Curricular Award","tg"],["cp","Exceptional Class Participation","tg"]];
+function hpr(r){return HPR.filter(function(x){return x[0]===r})[0]}
+function htk(r){var c=hpr(r)[2];return TOK.filter(function(k){return k[0]===c})[0]}
+function hpCoin(r){var k=htk(r);return '<span class="hcoin '+k[1]+'"><span class="tdot '+k[1]+'" aria-hidden="true"></span>1 '+k[2].toLowerCase()+' coin</span>'}
+/* Today's passed level test, which gave its blue coin already. */
+function lvToday(s){var d=dk(Date.now());return (s.tests||[]).some(function(t){return t.ok&&t.tk&&t.d===d})}
 function qTest(s,d){var T=s.tests||[];for(var k=T.length-1;k>=0;k--)if(T[k].d===d)return T[k];return null}
 function tLab(t){return (t.k==="q"?"Qaidah Level "+t.n:bl(t.n))}
 function rStu(){var p=RS.split("|"),c=p[0],i=+p[1];return ST[c]&&ST[c].S[i]?{c:c,i:i,s:ST[c].S[i]}:null}
 function rSeg(id,cur,o,lab){return '<div class="seg" id="'+id+'" role="group" aria-label="'+lab+'">'+o.map(function(x){return '<button type="button" data-v="'+x[0]+'" aria-pressed="'+(cur===x[0])+'">'+x[1]+'</button>'}).join("")+'</div>'}
 function rStep(n,body,done){return '<div class="rstep'+(done?' done':'')+'"><span class="rn" aria-hidden="true">'+n+'</span><div>'+body+'</div></div>'}
 /* The chosen student beside the steps: where they are now and their latest level tests. */
-function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No student chosen</h2><p>Choose a student in step 2 to see their Memo target, Qaidah level and past level tests here.</p></aside>';
+function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No student chosen</h2><p>Choose a student in step 2 to see '+(RK==="h"?'their house points':'their Memo target, Qaidah level and past level tests')+' here.</p></aside>';
+ if(RK==="h"){var H=(s.hp||[]).slice().reverse();
+  return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
+   +'<dl class="rfacts"><div><dt>House points</dt><dd>'+hp(s)+'</dd></div><div><dt>Coins</dt><dd class="rcoins">'+TOK.map(function(k){return '<span title="'+k[2]+' coins"><span class="tdot '+k[1]+'" aria-hidden="true"></span>'+(s[k[0]]||[]).length+'<span class="sr-only"> '+k[2].toLowerCase()+'</span></span>'}).join("")+'</dd></div></dl>'
+   +'<section class="rlast"><div class="mod-h"><h3>Given on this page</h3></div>'
+   +(H.length?'<ul class="rhl">'+H.map(function(x){var k=htk(x.r);return '<li><b>'+esc(hpr(x.r)[1])+'</b><span class="d">'+ds(x.t)+'</span><span class="rtok '+k[1]+'"><span class="tdot '+k[1]+'" aria-hidden="true"></span>+'+k[3]+'</span><button type="button" class="btn sm quiet" data-r="hx" data-t="'+x.t+'" aria-label="Undo '+esc(hpr(x.r)[1])+' on '+ds(x.t)+'">Undo</button></li>'}).join("")+'</ul>':'<p class="none">No house points given here yet.</p>')
+   +'<p class="cap">The total also counts coins from passed level tests and the Quran tab.</p></section></aside>'}
  var T=(s.tests||[]).slice().reverse().slice(0,5);
  return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
   +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Qaidah</dt><dd>'+(s.qa?'Level '+s.qa:'No level yet')+'</dd></div></dl>'
@@ -1842,14 +1888,20 @@ function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No s
 function rAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s,i){A.push({s:s,c:c,i:i})})});
  return A.sort(function(a,b){return a.s.name.trim().localeCompare(b.s.name.trim(),undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function recPage(){var o=rStu(),s=o&&o.s,h='';
- h+=rStep(1,'<p class="rl">Level test for</p>'+rSeg("rK",RK,[["q","Quran"],["m","Memo"]],"Level test for"),1);
+ h+=rStep(1,'<p class="rl">Record</p>'+rSeg("rK",RK,[["q","Quran test"],["m","Memo test"],["h","House points"]],"Record"),1);
  h+=rStep(2,'<label class="rl" for="rS">Student</label><select id="rS"><option value="">Choose a student</option>'
   +(function(A){var n={},key=function(o){return o.s.name.trim().toLowerCase()+"|"+o.t};
    A.forEach(function(o){var cn=ST[o.c].name;o.t=cteach(cn)||cname(cn);n[key(o)]=(n[key(o)]||0)+1});
    return A.map(function(o){var v=o.c+"|"+o.i;return '<option value="'+esc(v)+'"'+(RS===v?' selected':'')+'>'+esc(o.s.name)+' ('+esc(n[key(o)]>1?cname(ST[o.c].name):o.t)+')</option>'}).join("")})(rAll())+'</select>'
-  +(s?'':'<p class="rnow">'+(CIDS.length?'Choose a student to record their level test.':'No classes yet.')+'</p>'),!!s);
+  +(s?'':'<p class="rnow">'+(CIDS.length?(RK==="h"?'Choose a student to give house points.':'Choose a student to record their level test.'):'No classes yet.')+'</p>'),!!s);
  if(!s){refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  var b;
+ if(RK==="h"){var lt=lvToday(s),c=RH&&hpr(RH),k=c&&htk(RH);if(RH==="lv"&&lt)RH="",c=k=null;
+  h+=rStep(3,'<p class="rl" id="rHl">What for</p><div class="rhp" role="group" aria-labelledby="rHl">'+HPR.map(function(x){var off=x[0]==="lv"&&lt,t=htk(x[0]);
+   return '<button type="button" data-h="'+x[0]+'" aria-pressed="'+(RH===x[0])+'"'+(off?' disabled':'')+'><span class="hpn">'+esc(x[1])+(x[0]==="lv"?'<small>'+(off?'Already given by today\'s level test':'A level test passed on this page gives this by itself')+'</small>':'')+'</span>'+hpCoin(x[0])+'<b class="hv">'+t[3]+'<span> points</span></b></button>'}).join("")+'</div>',!!RH);
+  h+=rStep(4,'<p class="rl">Give</p><div class="racts"><button type="button" class="btn primary" data-r="h"'+(c?'':' disabled')+'>'+(c?'Give '+k[3]+' house points':'Give house points')+'</button></div>'
+   +'<p class="cap">'+(c?esc(fn(s))+' gets 1 '+k[2].toLowerCase()+' coin, '+k[3]+' points '+(s.house?'for '+esc(s.house):'(no house set yet, so no house total changes)')+'.':'Choose what the points are for first.')+'</p>',0);
+  refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  if(RK==="q"){if(!RX)RX=Math.min((s.qa||0)+1,QAIDAH);
   b='<label class="rl" for="rQ">Qaidah level tested</label><select id="rQ">'+Array.apply(null,{length:QAIDAH}).map(function(_,l){return '<option value="'+(l+1)+'"'+(RX===l+1?' selected':'')+'>Level '+(l+1)+'</option>'}).join("")+'</select>'}
  else{if(!RX)RX=Math.min(Math.max(s.target,1),NB-1);var m=RM||(RX>BL?"is":"lt");
@@ -1865,7 +1917,11 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
   +'<p class="cap rtokn"><span class="tdot b" aria-hidden="true"></span>A pass gives '+esc(fn(s))+' a blue token, '+TOK[1][3]+' house points.</p>',RSC>=0);
  refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o))}
 function rDone(o,msg){persist(o.c);if(o.c===CID)render();recPage();toast(msg)}
-function recAct(k){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d=dk(now);if(!s.tests)s.tests=[];
+function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d=dk(now);if(!s.tests)s.tests=[];
+ if(k==="h"){if(!RH||(RH==="lv"&&lvToday(s)))return;var c=htk(RH);if(!s.hp)s.hp=[];s[c[0]].push(now);s.hp.push({t:now,r:RH});var why=hpr(RH)[1];RH="";
+  rDone(o,nm+": +"+c[3]+" house points, "+why.toLowerCase()+(s.house?", for "+s.house:""));return}
+ if(k==="hx"){var j0=-1;(s.hp||[]).forEach(function(y,j){if(y.t===arg)j0=j});if(j0<0)return;var x=s.hp.splice(j0,1)[0];var c2=htk(x.r),j2=s[c2[0]].lastIndexOf(x.t);if(j2>=0)s[c2[0]].splice(j2,1);
+  rDone(o,c2[3]+" house points taken back from "+nm);return}
  if(k==="u"){var t=s.tests.pop();if(!t)return;var prev=qTest(s,t.d);if(prev)s.q[t.d]=prev.sc;else delete s.q[t.d];
   if(t.k==="q"&&t.ok)s.qa=t.pq||0;
   if(t.k==="m"&&t.ok&&s.log.length){var lab=s.lx.pop(),was=s.lt.pop();s.log.pop();s.passes=Math.max(0,s.passes-1);if(!lab)s.target=was;s.hit=s.log.length?s.log[s.log.length-1]:null}
@@ -1882,12 +1938,13 @@ function recAct(k){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d
  s.tests.push(t);s.q[d]=RSC;RSC=-1;RX=0;
  rDone(o,nm+(ok?" passed ":" did not pass ")+tLab(t)+" with "+t.sc+"/5"+(ok?" and got a blue token":""))}
 $("recF").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
- var g=b.closest(".seg");if(g&&g.id==="rK"){RK=b.dataset.v;RM="";RX=0;recPage();return}
+ var g=b.closest(".seg");if(g&&g.id==="rK"){RK=b.dataset.v;RM="";RX=0;RH="";recPage();return}
  if(g&&g.id==="rM"){RM=b.dataset.v;if(RM==="is"&&RX<=BL)RX=BL+1;if(RM==="lt"&&RX>BL)RX=1;recPage();return}
  if(b.dataset.sc){RSC=+b.dataset.sc;recPage();return}
- if(b.dataset.r)recAct(b.dataset.r)});
+ if(b.dataset.h){RH=RH===b.dataset.h?"":b.dataset.h;recPage();var n=$("recF").querySelector('[data-h="'+b.dataset.h+'"]');if(n)n.focus();return}
+ if(b.dataset.r)recAct(b.dataset.r,+b.dataset.t)});
 $("recF").addEventListener("change",function(e){var t=e.target;
- if(t.id==="rS"){RS=t.value;RM="";RX=0;RSC=-1}else if(t.id==="rL")RX=LVS[+t.value]+1;else if(t.id==="rT"||t.id==="rI"||t.id==="rQ")RX=+t.value;else return;
+ if(t.id==="rS"){RS=t.value;RM="";RX=0;RSC=-1;RH=""}else if(t.id==="rL")RX=LVS[+t.value]+1;else if(t.id==="rT"||t.id==="rI"||t.id==="rQ")RX=+t.value;else return;
  recPage();var n=$(t.id);if(n)n.focus()});
 
 /* ---------- Class: Progress ---------- */
@@ -2190,7 +2247,7 @@ function qMenuAct(k){var i=QMN,s=S[i];if(!s)return;var nm=fn(s);
  if(k[0]==="w"){var v=+k[1];if(s.warn===v){s.warn=0;toast(nm+": warning removed")}else{s.warn=v;toast(nm+": "+WL[v]+" given")}save();render();return}
  var f=k.slice(1,3),tk=TOK.filter(function(x){return x[0]===f})[0];if(!tk)return;
  if(k[3]==="+"){s[f].push(Date.now());toast(nm+": "+tk[2].toLowerCase()+" token, +"+tk[3]+" points"+(s.house?" for "+s.house:""))}
- else{if(!s[f].length){toast(nm+" has no "+tk[2].toLowerCase()+" tokens",1);return}s[f].pop();toast(nm+": "+tk[2].toLowerCase()+" token taken back")}
+ else{if(!s[f].length){toast(nm+" has no "+tk[2].toLowerCase()+" tokens",1);return}var gone=s[f].pop();if(s.hp)s.hp=s.hp.filter(function(x){return x.t!==gone});toast(nm+": "+tk[2].toLowerCase()+" token taken back")}
  save();render()}
 $("qB").addEventListener("click",function(e){var mk=e.target.closest(".qmenu [data-mk]");if(mk){qMenuAct(mk.dataset.mk);return}
  var n=e.target.closest(".qnb");if(n){var i=+n.dataset.ni;if(QMN===i)qMenuClose(1);else{qPopClose();qMenu(i)}}});
@@ -2303,7 +2360,7 @@ function dockSet(){var inC=PAGE==="C",cls=TEACHER||inC;
 function cur(b,on){if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")}
 /* The overviews open with a greeting, as Journey2Jannah does, then say which overview this is. */
 function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("band").classList.toggle("greet",on);if(!on)return;
- if(PAGE==="R"){el.innerHTML='<span class="hsub">End-of-level tests for Quran and Memo</span>';return}
+ if(PAGE==="R"){el.innerHTML='<span class="hsub">End-of-level tests and house points</span>';return}
  var who=window.ME&&ME.name&&ME.name!=="Administrator"?" "+ME.name:"",c=TEACHER&&CIDS.length?lastC():"";
  $("ttl").textContent="Assalāmu ʿalaykum"+who+"!";
  /* On a phone a teacher mostly opens the app to enter the day's Quran scores, so one large button under the

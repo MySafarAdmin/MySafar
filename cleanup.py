@@ -31,7 +31,7 @@ def clear_student(s):
          "tests": len(s.get("tests", [])), "merits": max(s.get("merits", 0), len(s.get("ml", []))),
          "warnings": 1 if s.get("warn") else 0, "tokens": sum(len(s.get(k, [])) for k in TOKENS),
          "stars": len(s.get("sw", [])), "targets": 1 if s.get("target", 1) > 1 else 0, "levels": 1 if s.get("qa") else 0}
-    s.update(q={}, passes=0, log=[], lt=[], lx=[], hit=None, fl=[], tests=[], merits=0, ml=[], warn=0, sw=[], target=1, qa=0,
+    s.update(q={}, passes=0, log=[], lt=[], lx=[], hit=None, fl=[], tests=[], hp=[], merits=0, ml=[], warn=0, sw=[], target=1, qa=0,
              **{k: [] for k in TOKENS})
     s.pop("mp", None)
     return n
