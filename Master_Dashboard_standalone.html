@@ -1745,6 +1745,12 @@ function wl(l){return '<span class="wl wl'+l+'">'+WL[l]+'</span>'}
 function mmc(s){var m=ms0();return (s.ml||[]).filter(function(t){return t>=m}).length}
 function sumOf(L,f){return L.reduce(function(t,s){return t+f(s)},0)}
 function fn(s){return s.name.split(" ")[0]}
+/* Short names for the Quran tab: the first name alone, or with the first letter of the surname when two
+   students share a first name, or the full name when that still clashes. */
+function shortNames(L){var w=L.map(function(s){return s.name.trim().split(/\s+/)}),
+ f=w.map(function(a){return a[0]}),c={};f.forEach(function(x){x=x.toLowerCase();c[x]=(c[x]||0)+1});
+ var t=w.map(function(a,i){return c[f[i].toLowerCase()]>1&&a[1]?a[0]+" "+a[1].charAt(0):a[0]}),d={};t.forEach(function(x){x=x.toLowerCase();d[x]=(d[x]||0)+1});
+ return w.map(function(a,i){var n=c[f[i].toLowerCase()]>1&&d[t[i].toLowerCase()]>1?a.join(" "):t[i];return n||L[i].name})}
 function ds(t){return new Date(t).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}
 function dm(t){return new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}
 function dk(t){var d=new Date(t);return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
@@ -2123,7 +2129,7 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  var ln=B.querySelector(".qlane");ln.style.transform="translateX("+(G.x(0)+G.w/2)+"px)";ln.style.height=(S.length*rh+pad/2)+"px";
  names.style.transform="translateX("+(G.x(-1)+G.w)+"px)";names.style.width=G.nameW+"px";
  houses.style.transform="translateX("+(G.x(0)+G.w)+"px)";houses.style.width=G.houseW+"px";
- names.innerHTML=S.map(function(s,i){return '<span class="qn"><button type="button" class="qnb" data-ni="'+i+'" aria-haspopup="true" aria-expanded="'+(QMN===i)+'"><b>'+esc(s.name)+'</b>'+(qStarOf(s)?'<span class="qsw" title="Star of the week"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg><span class="sr-only">, star of the week</span></span>':'')+(s.warn?'<span class="qwd wl'+s.warn+'" title="'+WL[s.warn]+'"><span class="sr-only">, '+WL[s.warn]+'</span></span>':'')+'<svg class="qcar" viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span>'}).join("");
+ var SN=shortNames(S);names.innerHTML=S.map(function(s,i){return '<span class="qn"><button type="button" class="qnb" data-ni="'+i+'" aria-haspopup="true" aria-expanded="'+(QMN===i)+'" title="'+esc(s.name)+'"><b>'+esc(SN[i])+'</b>'+(qStarOf(s)?'<span class="qsw" title="Star of the week"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg><span class="sr-only">, star of the week</span></span>':'')+(s.warn?'<span class="qwd wl'+s.warn+'" title="'+WL[s.warn]+'"><span class="sr-only">, '+WL[s.warn]+'</span></span>':'')+'<svg class="qcar" viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span>'}).join("");
  houses.innerHTML=S.map(function(s){return '<span class="qn">'+(s.house?'<span class="qhs '+esc(s.house)+'"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">No house</span>')+'</span>'}).join("");
  var fh=H.querySelectorAll(".qfh");fh[0].style.cssText=names.style.cssText;fh[1].style.cssText=houses.style.cssText;
  /* Columns from one beyond each edge, so new ones slide in from outside and old ones slide out. */
@@ -2273,7 +2279,7 @@ function qSheetDraw(){var days={},from=QP==="r"?dk(addDays(today0(),-42).getTime
  var D=Object.keys(days).filter(function(k){return k>=from&&wkend(k)}).sort();
  if(!S.length){$("qSheet").innerHTML='<div class="empty"><b>Nothing recorded yet</b></div>';return}
  var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th><th scope="col">Average, all days</th>'+D.map(function(k){return '<th scope="col">'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
- S.forEach(function(s){h+='<tr><th scope="row" class="t1">'+esc(s.name)+'</th><td><b>'+(qavg(s)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'/5'))+'</td>'}).join("")+'</tr>'});
+ var SN=shortNames(S);S.forEach(function(s,i){h+='<tr><th scope="row" class="t1" title="'+esc(s.name)+'">'+esc(SN[i])+'</th><td><b>'+(qavg(s)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'/5'))+'</td>'}).join("")+'</tr>'});
  h+='<tr><th scope="row" class="t1">Class average</th><td></td>'+D.map(function(k){return '<td><b>'+avg(S.filter(function(s){return s.q[k]!==undefined}).map(function(s){return s.q[k]}))+'</b></td>'}).join("")+'</tr>';
  $("qSheet").innerHTML=h+'</tbody></table>'}
 /* Phones have no Full sheet (Quran or Memo): fall back to the day-by-day and student views. */
