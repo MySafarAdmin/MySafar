@@ -870,6 +870,8 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 #toast::before{content:"";width:8px;height:8px;border-radius:50%;background:#4ade80;flex:none}
 #toast.info::before{background:#93c5fd}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+/* Animate UI-style toast: it arrives with a little scale and blur and leaves the same way. */
+@media (prefers-reduced-motion:no-preference){#toast{filter:blur(4px);transform:translate(-50%,16px) scale(.94);transition:opacity .22s ease,transform .38s cubic-bezier(.22,1,.36,1),filter .3s ease}#toast.on{filter:none;transform:translate(-50%,0)}}
 
 @media (max-width:959.98px){
  :root{--topbar:52px}
@@ -991,7 +993,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .qpop button:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(29,33,39,.12)}
 .qpop button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink)}
 .qpop .qclr{--c:var(--surface-2);padding:0 10px;font-weight:600;border-color:var(--line-2)}
-@keyframes qpIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes qpIn{from{opacity:0;transform:scale(.94);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
 .addf{display:flex;flex-direction:column;gap:14px}
 .addf label{display:flex;flex-direction:column;gap:6px;font-size:.875rem;font-weight:650;color:var(--ink-2)}
 .addf .acts{display:flex;justify-content:flex-end}
@@ -1493,6 +1495,36 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .rhl .d{grid-row:2;color:var(--mute);font-size:.8125rem}
 .rhl .rtok{grid-row:1/3;grid-column:2;margin:0}
 .rhl .btn{grid-row:1/3;grid-column:3;padding-inline:10px}
+
+/* ---------- Animate UI layer ----------
+   A closing layer's copy plays its way out and takes no clicks. One highlight follows the pointer along the side menu
+   and the class tabs (it hides over the current item, which has its own pill). Icon buttons answer a press, and
+   their icons move a little on hover, each in its own way. All of it is off under reduced motion. */
+.mo-ghost{pointer-events:none!important}
+.mhl{position:absolute;left:0;top:0;z-index:0;pointer-events:none;opacity:0}
+.mhl.go{transition:transform .34s cubic-bezier(.22,1,.36,1),width .34s cubic-bezier(.22,1,.36,1),height .34s cubic-bezier(.22,1,.36,1),opacity .2s ease}
+#nav>.mhl{border-radius:var(--r);background:var(--rail-hover)}
+#sub>.mhl{border-radius:999px;background:rgba(28,34,48,.06)}
+#nav.has-h .nav:not([aria-current="page"]):hover,#sub.has-h button:not([aria-selected="true"]):hover{background:none}
+#sub.has-h button:not([aria-selected="true"]):hover{transform:none}
+.dg{display:inline-block}
+@media (prefers-reduced-motion:no-preference){
+ .ibtn:not(:disabled):active{transform:scale(.9)}
+ .ibtn .ic{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+ @media (hover:hover){
+  #qStar:hover .ic{animation:ic-star .6s cubic-bezier(.22,1,.36,1)}
+  #qCal:hover .ic{animation:ic-bob .5s cubic-bezier(.22,1,.36,1)}
+  .fsb:hover .ic{transform:scale(1.14)}
+  #qPrev:not(:disabled):hover .ic{transform:translateX(-2px)}
+  #qNext:not(:disabled):hover .ic{transform:translateX(2px)}
+  #figP>summary:hover .ic path:last-child{animation:ic-bars .55s cubic-bezier(.22,1,.36,1);transform-origin:50% 16px}
+  .qnb:hover .ic,.qnb:hover svg{transition:transform .25s cubic-bezier(.22,1,.36,1);transform:translateY(1px)}
+ }
+}
+@keyframes ic-star{40%{transform:rotate(-14deg) scale(1.12)}75%{transform:rotate(6deg) scale(1.04)}}
+@keyframes ic-bob{40%{transform:translateY(-3px)}70%{transform:translateY(1px)}}
+@keyframes ic-bars{from{transform:scaleY(.2)}}
+@media (prefers-reduced-motion:reduce){.mhl{display:none}#nav.has-h .nav:not([aria-current="page"]):hover{background:var(--rail-hover)}#sub.has-h button:not([aria-selected="true"]):hover{background:rgba(28,34,48,.06)}}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1796,18 +1828,37 @@ function rankList(key,items,o){o=o||{};var a=ranked(items),lim=o.limit||10,mx=a.
  return h}
 
 /* ---------- Drawer, dialog and toast ---------- */
-var tt;function toast(m,info){var e=$("toast");e.textContent=m;e.className="on"+(info?" info":"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},3200)}
+/* Layers come and go the way Animate UI's dialogs, sheets and popovers do: in with a soft spring, a little scale and
+   blur, out with a quicker fade the same way. A closing layer leaves an inert copy (.mo-ghost) that plays the way out,
+   so the real one is hidden at once and nothing that reads it has to wait. Off under reduced motion. */
+var FXRM=null;try{FXRM=matchMedia("(prefers-reduced-motion: reduce)")}catch(e){}
+var FXS="cubic-bezier(.22,1,.36,1)",FX={
+ sheet:[".dpanel",[{opacity:0,transform:"translateX(56px)",filter:"blur(6px)"},{opacity:1,transform:"none",filter:"blur(0)"}],440],
+ dialog:[".card",[{opacity:0,transform:"translateY(-14px) scale(.92)",filter:"blur(8px)"},{opacity:1,transform:"none",filter:"blur(0)"}],380],
+ cal:[".ycard",[{opacity:0,transform:"translateY(-10px) scale(.95)",filter:"blur(8px)"},{opacity:1,transform:"none",filter:"blur(0)"}],400],
+ pop:[null,[{opacity:0,transform:"scale(.94)",filter:"blur(4px)"},{opacity:1,transform:"none",filter:"blur(0)"}],240]};
+function fxOn(){return !(FXRM&&FXRM.matches)&&!!document.body.animate&&!document.body.classList.contains("enter")}
+function fxIn(el,k){if(!el||!fxOn())return;var f=FX[k],c=f[0]?el.querySelector(f[0]):el;
+ if(f[0])el.animate([{opacity:0},{opacity:1}],{duration:260,easing:"ease-out"});if(c)c.animate(f[1],{duration:f[2],easing:FXS})}
+function fxOut(el,k,hide){if(!el||!fxOn()){hide();return}var f=FX[k],g=el.cloneNode(true);
+ g.removeAttribute("id");Array.prototype.forEach.call(g.querySelectorAll("[id],[aria-live]"),function(x){x.removeAttribute("id");x.removeAttribute("aria-live")});
+ g.classList.add("mo-ghost");g.setAttribute("aria-hidden","true");g.inert=true;el.parentNode.insertBefore(g,el.nextSibling);hide();
+ var c=f[0]?g.querySelector(f[0]):g,o={duration:Math.round(f[2]*.5),easing:"cubic-bezier(.4,0,1,1)",fill:"forwards"},a;
+ if(f[0])a=g.animate([{opacity:1},{opacity:0}],o);if(c){var b=c.animate(f[1].slice().reverse(),o);a=a||b}
+ a.onfinish=a.oncancel=function(){g.remove()}}
+/* Only notes and errors show; plain "done" confirmations were removed at the school's request. */
+var tt;function toast(m,info){if(!info)return;var e=$("toast");e.textContent=m;e.className="on"+(info?" info":"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},3200)}
 var DF=null;
-function drawer(title,html){DMODE="";$("drwT").textContent=title;$("drwB").innerHTML=html;if($("drw").hidden)DF=document.activeElement;$("drw").hidden=false;$("drwB").scrollTop=0;$("drwX").focus()}
-function closeDrawer(){var mm=DMODE==="mm";DMODE="";if(mm){MS=-1;MD="";mMark()}if($("drw").hidden)return;$("drw").hidden=true;$("drwB").innerHTML="";if(DF&&document.contains(DF))DF.focus();DF=null}
+function drawer(title,html){DMODE="";$("drwT").textContent=title;$("drwB").innerHTML=html;var was=$("drw").hidden;if(was)DF=document.activeElement;$("drw").hidden=false;$("drwB").scrollTop=0;$("drwX").focus();if(was)fxIn($("drw"),"sheet")}
+function closeDrawer(){var mm=DMODE==="mm";DMODE="";if(mm){MS=-1;MD="";mMark()}if($("drw").hidden)return;fxOut($("drw"),"sheet",function(){$("drw").hidden=true;$("drwB").innerHTML=""});if(DF&&document.contains(DF))DF.focus();DF=null}
 $("drwX").onclick=closeDrawer;
 $("drw").addEventListener("click",function(e){if(e.target===this)closeDrawer()});
 var AK=null,AF=null;
 /* A confirm or text-entry dialog. val prefills the text box. */
 function ask(msg,ok,cb,inp,danger,val){$("dlgT").textContent=msg;var i=$("dlgI"),y=$("dlgY");
  i.classList.toggle("hide",!inp);i.value=val||"";i.placeholder=inp||"";y.textContent=ok;y.className="btn "+(danger?"x solid":"p");AK=cb;AF=document.activeElement;
- $("dlg").classList.remove("hide");(inp?i:y).focus();if(inp&&val)i.select()}
-function closeAsk(){$("dlg").classList.add("hide");AK=null;if(AF&&document.contains(AF))AF.focus();AF=null}
+ var was=$("dlg").classList.contains("hide");$("dlg").classList.remove("hide");(inp?i:y).focus();if(inp&&val)i.select();if(was)fxIn($("dlg"),"dialog")}
+function closeAsk(){if(!$("dlg").classList.contains("hide"))fxOut($("dlg"),"dialog",function(){$("dlg").classList.add("hide")});AK=null;if(AF&&document.contains(AF))AF.focus();AF=null}
 $("dlgN").onclick=closeAsk;
 $("dlgY").onclick=function(){var cb=AK,i=$("dlgI"),v=i.value.trim();if(!i.classList.contains("hide")&&!v){i.focus();return}closeAsk();if(cb)cb(v)};
 $("dlgI").addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();$("dlgY").click()}});
@@ -2061,8 +2112,13 @@ function mMark(){Array.prototype.forEach.call($("mL").querySelectorAll("[data-mi
 function memo(){if(MS>=S.length)MS=-1;
  mList();if(DMODE==="mm"){if(S[MS]){$("drwT").textContent=S[MS].name;mDraw(0)}else closeDrawer()}}
 /* The figures behind the icon in the top right close on a click elsewhere or Escape. */
-document.addEventListener("click",function(e){var f=$("figP");if(f.open&&!f.contains(e.target))f.open=false});
-document.addEventListener("keydown",function(e){var f=$("figP");if(e.key==="Escape"&&f.open){f.open=false;f.querySelector("summary").focus()}});
+/* The figures pop over from the icon and fold back into it before the panel closes. */
+function figClose(){var f=$("figP"),x=f.querySelector(".figs");if(!f.open||f.dataset.out)return;if(!fxOn()||!x){f.open=false;return}
+ f.dataset.out=1;x.animate(FX.pop[1].slice().reverse(),{duration:130,easing:"cubic-bezier(.4,0,1,1)",fill:"forwards"}).onfinish=function(){f.open=false;delete f.dataset.out;x.getAnimations().forEach(function(a){a.cancel()})}}
+$("figP").addEventListener("toggle",function(){if(this.open)fxIn(this.querySelector(".figs"),"pop")});
+$("figP").querySelector("summary").addEventListener("click",function(e){if($("figP").open){e.preventDefault();figClose()}});
+document.addEventListener("click",function(e){var f=$("figP");if(f.open&&!f.contains(e.target))figClose()});
+document.addEventListener("keydown",function(e){var f=$("figP");if(e.key==="Escape"&&f.open){figClose();f.querySelector("summary").focus()}});
 $("mL").addEventListener("click",function(e){var b=e.target.closest("[data-mi]");if(b)mOpen(+b.dataset.mi)});
 $("drwB").addEventListener("click",function(e){if(DMODE!=="mm")return;
  var nv=e.target.closest("[data-mnav]");if(nv){var p=MM.split("-"),n=+nv.dataset.mnav,k=mKey(new Date(+p[0],+p[1]-1+n,1));if(k>mKey(today0())||k<mFirst())return;MM=k;MD="";mDraw(n,'[data-mnav="'+n+'"]');return}
@@ -2158,8 +2214,8 @@ var YC=0,YCF=null,YCD="";
 /* Class days are Saturdays and Sundays only: weekdays show on the calendar for orientation but can't be picked. */
 function wkend(k){return qDate(k).getDay()%6===0}
 function toWkend(k,dir){var t=qDate(k);while(t.getDay()%6)t=addDays(t,dir||1);return dk(t.getTime())}
-function ycOpen(){YCF=document.activeElement;YCD=toWkend(QF||dk(Date.now()),-1);YC=+YCD.slice(0,4);ycDraw();$("yc").classList.remove("hide");ycFocus()}
-function ycClose(back){if($("yc").classList.contains("hide"))return;$("yc").classList.add("hide");$("ycG").innerHTML="";if(back!==0&&YCF&&document.contains(YCF))YCF.focus();YCF=null}
+function ycOpen(){YCF=document.activeElement;YCD=toWkend(QF||dk(Date.now()),-1);YC=+YCD.slice(0,4);ycDraw();$("yc").classList.remove("hide");ycFocus();fxIn($("yc"),"cal")}
+function ycClose(back){if($("yc").classList.contains("hide"))return;fxOut($("yc"),"cal",function(){$("yc").classList.add("hide");$("ycG").innerHTML=""});if(back!==0&&YCF&&document.contains(YCF))YCF.focus();YCF=null}
 function ycDraw(){var D={},sc={},now=dk(Date.now()),MO=["January","February","March","April","May","June","July","August","September","October","November","December"],h="";
  qDays().forEach(function(k){D[k]=1});S.forEach(function(s){Object.keys(s.q).forEach(function(k){sc[k]=1})});
  $("ycY").textContent=YC;$("ycP").disabled=YC<=+FCD.slice(0,4);$("ycN").disabled=YC>=new Date().getFullYear()+1;
@@ -2187,7 +2243,7 @@ $("ycG").addEventListener("keydown",function(e){var b=e.target.closest("button[d
 var QP_=null;
 /* While the picker is open, the rest of that student's row (house and the other days) steps aside so the
    picker sits in the row instead of covering another day's score. */
-function qPopClose(back){var p=document.querySelector(".qpop");if(p)p.remove();Array.prototype.forEach.call(document.querySelectorAll("#qB .qhid"),function(e){e.classList.remove("qhid")});if(QP_)QP_.removeAttribute("aria-expanded");if(back&&QP_&&document.contains(QP_))QP_.focus();QP_=null}
+function qPopClose(back){var p=document.querySelector(".qpop:not(.mo-ghost)");if(p)fxOut(p,"pop",function(){p.remove()});Array.prototype.forEach.call(document.querySelectorAll("#qB .qhid"),function(e){e.classList.remove("qhid")});if(QP_)QP_.removeAttribute("aria-expanded");if(back&&QP_&&document.contains(QP_))QP_.focus();QP_=null}
 function qPop(btn){qPopClose();var s=S[+btn.dataset.qi];if(!s)return;var cur=s.q[QF],B=$("qB");QP_=btn;
  var p=document.createElement("div");p.className="qpop";p.setAttribute("role","group");p.setAttribute("aria-label","Score for "+s.name);
  p.innerHTML=[0,1,2,3,4,5].map(function(k){return '<button type="button" style="--c:'+QC[k]+'" data-qv="'+k+'" aria-pressed="'+(cur===k)+'">'+k+'</button>'}).join("")+(cur===undefined?'':'<button type="button" class="qclr" data-qv="x">Clear</button>');
@@ -2205,11 +2261,11 @@ $("qB").addEventListener("click",function(e){var a=e.target.closest("#qAdd2");if
  var v=e.target.closest(".qpop [data-qv]");if(v){var i=+QP_.dataset.qi;qPopClose();qSet(i,v.dataset.qv==="x"?"x":+v.dataset.qv,1);return}
  var b=e.target.closest(".qcol.on [data-qi]");if(b&&b.dataset.lock){toast(TEACHER?"That's a level test score, so only an admin can change it.":"That's a level test score. Change it on the Record page.",1);return}if(b&&!b.disabled){if(QP_===b){qPopClose(1);return}qPop(b)}});
 $("qB").addEventListener("keydown",function(e){
- if(e.target.closest(".qpop")){var bs=Array.prototype.slice.call(document.querySelectorAll(".qpop button")),j=bs.indexOf(e.target);
+ if(e.target.closest(".qpop")){var bs=Array.prototype.slice.call(document.querySelectorAll(".qpop:not(.mo-ghost) button")),j=bs.indexOf(e.target);
   if(e.key==="Escape"){e.preventDefault();e.stopPropagation();qPopClose(1)}
   else if(e.key==="ArrowRight"||e.key==="ArrowLeft"){e.preventDefault();bs[(j+(e.key==="ArrowRight"?1:-1)+bs.length)%bs.length].focus()}
   else if(/^[0-5]$/.test(e.key)){e.preventDefault();var i=+QP_.dataset.qi;qPopClose();qSet(i,+e.key,1)}
-  else if(e.key==="Tab")trap(e,document.querySelector(".qpop"));return}
+  else if(e.key==="Tab")trap(e,document.querySelector(".qpop:not(.mo-ghost)"));return}
  var b=e.target.closest(".qcol.on [data-qi]");if(!b)return;var i=+b.dataset.qi,go=null;
  if(e.key==="ArrowDown")go=i+1;else if(e.key==="ArrowUp")go=i-1;
  else if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();qStep(e.key==="ArrowRight"?1:-1);
@@ -2233,9 +2289,9 @@ $("qStar").onclick=qStarPick;
 $("drwB").addEventListener("click",function(e){var b=e.target.closest("[data-star]");if(b)qStarSet(+b.dataset.star)});
 /* The menu on a student's name: warnings and house points, so teachers can give both from the Quran tab. */
 var QMN=-1;
-function qMenuClose(back){var m=$("qB").querySelector(".qmenu");if(m)m.remove();var b=$("qB").querySelector('.qnb[data-ni="'+QMN+'"]');if(b){b.setAttribute("aria-expanded","false");if(back)b.focus()}QMN=-1}
+function qMenuClose(back){var m=$("qB").querySelector(".qmenu:not(.mo-ghost)");if(m)fxOut(m,"pop",function(){m.remove()});var b=$("qB").querySelector('.qnb[data-ni="'+QMN+'"]');if(b){b.setAttribute("aria-expanded","false");if(back)b.focus()}QMN=-1}
 function qMenu(i,keep){var B=$("qB"),s=S[i],b=B.querySelector('.qnb[data-ni="'+i+'"]');if(!s||!b){qMenuClose();return}
- var act=document.activeElement,af=keep&&act&&act.closest&&act.closest(".qmenu")?act.dataset.mk:null,old=B.querySelector(".qmenu");if(old)old.remove();
+ var act=document.activeElement,af=keep&&act&&act.closest&&act.closest(".qmenu")?act.dataset.mk:null,old=B.querySelector(".qmenu:not(.mo-ghost)");if(old)old.remove();
  if(!keep&&QMN>=0&&QMN!==i)qMenuClose();QMN=i;b.setAttribute("aria-expanded","true");var w=s.warn||0;
  var m=document.createElement("div");m.className="qmenu";m.setAttribute("role","dialog");m.setAttribute("aria-label",s.name);
  m.innerHTML='<div class="qmh"><b>'+esc(s.name)+'</b><div class="qmm" role="group" aria-label="Merits for '+esc(s.name)+'"><span class="qmml">Merits</span><b>'+s.merits+'</b><button type="button" class="tk minus" data-mk="m-" aria-label="Take back a merit from '+esc(s.name)+'">−</button><button type="button" class="tk add m" data-mk="m+" aria-label="Give '+esc(s.name)+' a merit">+</button></div></div>'
@@ -2865,14 +2921,17 @@ function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";docume
      is new to a list fades in; class cards do the same when the search filters them, and rise in a short
      stagger the first time the Classes page is drawn;
    - on Record, a step or the student's panel that appears fades in, and a newly saved level test is highlighted;
-   - segmented controls get a thumb, and the side menu a marker, that slide to the choice.
+   - segmented controls get a thumb, and the side menu a marker, that slide to the choice;
+   - from Animate UI: counts (Needs attention, figures, house points) count up the first time they are seen and,
+     when they change, only the digits that changed slide in (up for more, down for fewer); and with a mouse, one
+     soft highlight follows the pointer along the side menu and the class tabs, fading in and out at the ends.
    It only moves things (Web Animations), never holds anything back, so every control works at once. Off under
    reduced motion, and while the sign-in arrival plays (it has its own). */
 var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduce)")}catch(e){}
  var EZ="cubic-bezier(.2,.8,.2,1)",BAR=".tr>i,.wkb>i,.lvb>i,.db>i,.hbar>i",GRP=".rank,.wk,.lvc,.dist,.houses,.hbig",ROW=".rank>li,.houses>.house,.ccards>.ccard",
   LEN={},POS={},SEEN={},SEG={},CARDS={},AP=null,busy=false,still=false,GK=null,T=0;
  function busyNow(){return document.documentElement.classList.contains("fresh")||document.body.classList.contains("enter")}
- function shown(el){return !!(el.offsetWidth||el.offsetHeight)}
+ function shown(el){return !!(el.offsetWidth||el.offsetHeight)&&!el.closest(".mo-ghost")}
  function home(el){var c=el.closest("[id]");return c?c.id:""}
  function gkey(g){if(GK&&GK.has(g))return GK.get(g);var h=home(g),all=h?$(h).querySelectorAll(GRP+",.ccards"):[],k=h+"#"+Array.prototype.indexOf.call(all,g);if(GK)GK.set(g,k);return k}
  // A row's identity: its house, the class a card opens, the student's or class's name (with the class it opens, so
@@ -2938,9 +2997,34 @@ var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduc
   if(!m){m=document.createElement("span");m.className="navi";m.setAttribute("aria-hidden","true");nav.insertBefore(m,nav.firstChild);nav.classList.add("has-i")}
   var pos=[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join();if(!on.hasAttribute("data-i"))on.setAttribute("data-i","");m.style.opacity="1";if(m.dataset.p===pos)return;
   if(m.dataset.p&&!still)m.classList.add("go");else m.classList.remove("go");place(m,pos);m.dataset.p=pos}
- function pass(){still=!!(RM&&RM.matches);busy=still||busyNow();GK=typeof Map==="function"?new Map():null;thumbs();rail();if(!still){bars();rows();appear()}GK=null}
+ var NUM={},NSEL=[[".at>b",function(e){return "a|"+e.parentNode.dataset.list}],
+  [".fig>b",function(e){var l=e.nextElementSibling;return "f|"+home(e)+"|"+(l?l.textContent:"")}],
+  [".house>.pts",function(e){var g=e.closest(GRP);return "h|"+(g?gkey(g):home(e))+"|"+e.parentNode.classList[1]}]];
+ // Nothing counts while the greeting holds the page hidden (html.fresh); it counts as the overview comes in.
+ function nums(){var L=[];if(document.documentElement.classList.contains("fresh"))return;
+  NSEL.forEach(function(x){document.querySelectorAll(x[0]).forEach(function(e){var t=e.textContent;if(e.dataset.cnt||!/^\d{1,6}$/.test(t)||e.dataset.nv===t||!shown(e)||e.closest("details:not([open])"))return;L.push([e,x[1](e),+t,t])})});
+  L.forEach(function(x){var e=x[0],k=x[1],v=x[2],was=NUM[k];NUM[k]=v;e.dataset.nv=x[3];if(still)return;
+   // Counting up also plays while the sign-in arrival brings the overview in; a change only slides afterwards.
+   if(was===undefined){if(v>1)count(e,v)}else if(was!==v&&!busy)slide(e,String(was),x[3],v>was?1:-1)})}
+ // Counting up writes the text node itself, which the watcher above ignores, so it costs no redraws.
+ function count(e,v){var t=e.firstChild,t0=0,d=Math.min(900,420+v*12);if(!t||t.nodeType!==3)return;
+  function step(now){if(!t0)t0=now;var p=Math.min(1,(now-t0)/d);if(!e.isConnected)return;t.nodeValue=String(Math.round(v*(1-Math.pow(1-p,3))));if(p<1)requestAnimationFrame(step);else delete e.dataset.cnt}
+  e.dataset.cnt=1;t.nodeValue="0";requestAnimationFrame(step)}
+ function slide(e,a,b,dir){while(a.length<b.length)a=" "+a;a=a.slice(a.length-b.length);var h="",D=[];
+  for(var i=0;i<b.length;i++)h+=b[i]===a[i]?b[i]:'<span class="dg">'+b[i]+'</span>';e.innerHTML=h;
+  e.querySelectorAll(".dg").forEach(function(g,j){g.animate([{transform:"translateY("+(dir*.55)+"em)",opacity:0,filter:"blur(3px)"},{transform:"none",opacity:1,filter:"blur(0)"}],{duration:420,easing:"cubic-bezier(.22,1,.36,1)",delay:j*40,fill:"backwards"})})}
+ // One highlight per group that follows the pointer from item to item (Animate UI's motion highlight).
+ function hover(box,item){if(!box)return;var m=null,on=false;
+  box.addEventListener("pointerover",function(e){if(e.pointerType!=="mouse"||(RM&&RM.matches))return;var it=e.target.closest(item);if(!it||!box.contains(it))return;
+   if(!m){m=document.createElement("span");m.className="mhl";m.setAttribute("aria-hidden","true");box.insertBefore(m,box.firstChild);box.classList.add("has-h")}
+   var pos=[it.offsetLeft,it.offsetTop,it.offsetWidth,it.offsetHeight].join();
+   if(!on){m.classList.remove("go");place(m,pos);m.getBoundingClientRect();m.classList.add("go");on=true}else place(m,pos);
+   m.style.opacity=it.matches('[aria-current="page"],[aria-selected="true"]')?"0":"1"});
+  box.addEventListener("pointerleave",function(){if(m){m.style.opacity="0";on=false}})}
+ hover($("nav"),".nav");hover($("sub"),"button");
+ function pass(){still=!!(RM&&RM.matches);busy=still||busyNow();GK=typeof Map==="function"?new Map():null;thumbs();rail();if(!still){bars();rows();appear();nums()}GK=null}
  var obs=new MutationObserver(function(){pass();obs.takeRecords()});
- obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","aria-pressed","aria-current"]});
+ obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","aria-pressed","aria-current","open"]});
  // A new window size moves everything: markers jump to their new places and nothing slides from the old layout.
  window.addEventListener("resize",function(){clearTimeout(T);T=setTimeout(function(){document.querySelectorAll(".segi,.navi").forEach(function(m){m.classList.remove("go");m.dataset.p=""});POS={};pass();obs.takeRecords()},80)});
  // The menu re-measures its marker when it changes size (the phone's More card, a pane that briefly widens the page).

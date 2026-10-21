@@ -352,6 +352,31 @@ controls have a sliding thumb (.segi) and the side menu a sliding marker
 (.navi). Class cards lift on hover, sink when pressed and show a navy ring for the
 keyboard. Off under reduced motion and during the sign-in arrival.
 
+**Animate UI layer** (2026-10-21). The user asked for `npx @animate-ui/cli@latest
+animate all`. That command only swaps the primitives of shadcn/ui React
+components (it needs a components.json), and this site is Flask templates with
+plain HTML, so it can't run here. Its `audit` command does run. Animate UI's
+effects are rebuilt in-house instead:
+- Layers come and go like its dialogs, sheets and popovers. They come in with a
+  soft spring (cubic-bezier(.22,1,.36,1)), a little scale or slide, and blur.
+  They leave with a quicker fade the same way. This covers the side drawer (pop-ups),
+  the ask dialog, the year calendar, the figures popover, the name menu, the
+  score picker and the toast. A closing layer leaves an inert copy
+  (.mo-ghost, page.html fxIn/fxOut) that plays the way out, so the real one is
+  hidden at once.
+- Counts in Needs attention, the figures and house points count up the first
+  time they are seen, including as the overview comes in after the greeting.
+  When a count changes, only the digits that changed slide in (up for more,
+  down for fewer), like its sliding number.
+- With a mouse, one soft highlight follows the pointer along the side menu
+  and the class tabs, fading in and out at the ends. It hides over the current
+  item, which has its own pill. This is its motion highlight.
+- Icon buttons shrink a little when pressed, and their icons move on hover:
+  the star wiggles, the calendar bobs, the figures bars grow, the arrows nudge
+  and the Full sheet corners spread.
+All of this is off under reduced motion. Nothing changes layout, so daily work
+still fits 1280x720.
+
 **Sign-in layout**: on a computer the white sign-in card is on the left and the
 navy welcome panel on the right.
 
