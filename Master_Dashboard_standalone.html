@@ -1849,7 +1849,8 @@ function fxOut(el,k,hide){if(!el||!fxOn()){hide();return}var f=FX[k],g=el.cloneN
  var c=f[0]?g.querySelector(f[0]):g,o={duration:Math.round(f[2]*.5),easing:"cubic-bezier(.4,0,1,1)",fill:"forwards"},a;
  if(f[0])a=g.animate([{opacity:1},{opacity:0}],o);if(c){var b=c.animate(f[1].slice().reverse(),o);a=a||b}
  a.onfinish=a.oncancel=function(){g.remove()}}
-var tt;function toast(m,info){var e=$("toast");e.textContent=m;e.className="on"+(info?" info":"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},3200)}
+/* Only notes and errors show; plain "done" confirmations were removed at the school's request. */
+var tt;function toast(m,info){if(!info)return;var e=$("toast");e.textContent=m;e.className="on"+(info?" info":"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},3200)}
 var DF=null;
 function drawer(title,html){DMODE="";$("drwT").textContent=title;$("drwB").innerHTML=html;var was=$("drw").hidden;if(was)DF=document.activeElement;$("drw").hidden=false;$("drwB").scrollTop=0;$("drwX").focus();if(was)fxIn($("drw"),"sheet")}
 function closeDrawer(){var mm=DMODE==="mm";DMODE="";if(mm){MS=-1;MD="";mMark()}if($("drw").hidden)return;fxOut($("drw"),"sheet",function(){$("drw").hidden=true;$("drwB").innerHTML=""});if(DF&&document.contains(DF))DF.focus();DF=null}
