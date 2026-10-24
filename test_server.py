@@ -266,7 +266,10 @@ class DashboardTests:
         self.assertTrue(valid_state(dict(state, S=[dict(student, tests=[test, dict(test, k="q", n=3, ok=False, pq=2)])])))
         # A pass keeps the time its blue token was given, so taking the test back takes the token back too.
         self.assertTrue(valid_state(dict(state, S=[dict(student, tb=[1760400000000], tests=[dict(test, tk=1760400000000)])])))
-        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 15}, {"tk": -1}, {"tk": "now"}):
+        # A surah chosen by item number on the Record page is kept as written, with no token.
+        self.assertTrue(valid_state(dict(state, S=[dict(student, tests=[dict(test, x="212. Surah Al-Mulk")])])))
+        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 15}, {"tk": -1}, {"tk": "now"},
+                    {"x": 212}, {"x": "x" * 81}):
             self.assertFalse(valid_state(dict(state, S=[dict(student, tests=[dict(test, **bad)])])))
         self.assertFalse(valid_state(dict(state, S=[dict(student, tests={})])))
         # House points from the Record page keep what they were for, with the time their token was given.
