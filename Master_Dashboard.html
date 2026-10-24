@@ -1913,7 +1913,8 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    page already gives its blue coin, so the level choice is closed for a student who passed one today. */
 var QAIDAH=14,RK="m",RS="",RM="",RX=0,RSC=-1,RH="";
 var HPR=[["bk","Book completion","tr"],["lv","Qaidah or Memorisation level completion","tb"],["hw","Additional class or homework","tg"],
- ["ec","Extra Curricular Award","tg"],["cp","Exceptional Class Participation","tg"]];
+ ["ec","Extra Curricular Award","tg"],["cp","Exceptional Class Participation","tg"],
+ ["mr","Merit","tg"]];
 function hpr(r){return HPR.filter(function(x){return x[0]===r})[0]}
 function htk(r){var c=hpr(r)[2];return TOK.filter(function(k){return k[0]===c})[0]}
 function hpCoin(r){var k=htk(r);return '<span class="hcoin '+k[1]+'"><span class="tdot '+k[1]+'" aria-hidden="true"></span>1 '+k[2].toLowerCase()+' coin</span>'}
