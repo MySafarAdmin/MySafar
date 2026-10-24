@@ -224,8 +224,11 @@ class DashboardTests:
         self.assertEqual(teacher.get("/api/houses").get_json()["Makkah"], 80)
         self.assertEqual(list(self.records(teacher)), ["yr4-b"])
         self.assertEqual(self.app.test_client().get("/api/houses").status_code, 401)
-        for bad in ({"house": "Hogwarts"}, {"house": None}, {"tg": "1"}, {"tb": [-1]}, {"tr": ["x"]}):
-            self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, **bad)])).status_code, 400)
+        # Every House points choice on the Record page saves, Merit included; anything else is refused.
+        for revision, r in enumerate(("bk", "lv", "hw", "ec", "cp", "mr"), start=1):
+            self.assertEqual(self.write(revision=revision, state=dict(self.state, S=[dict(student, hp=[{"t": 1, "r": r}])])).status_code, 200, r)
+        for bad in ({"house": "Hogwarts"}, {"house": None}, {"tg": "1"}, {"tb": [-1]}, {"tr": ["x"]}, {"hp": [{"t": 1, "r": "zz"}]}):
+            self.assertEqual(self.write(revision=7, state=dict(self.state, S=[dict(student, **bad)])).status_code, 400)
 
     def test_last_student_number(self):
         student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],

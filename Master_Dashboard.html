@@ -1910,10 +1910,13 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    House points are the third choice in step 1: the admin picks the student and what the points are for, and the
    points and coin follow from HPR. Each is kept on the student as {t: when its token was given, r: what for} in
    s.hp, with the token itself in s.tg, s.tb or s.tr like the ones from the Quran name menu. A level passed on this
-   page already gives its blue coin, so the level choice is closed for a student who passed one today. */
+   page already gives its blue coin, so the level choice is closed for a student who passed one today. A Merit also
+   counts as one of the student's merits on the Quran tab (s.merits and s.ml, at the same time as its token), and its
+   Undo takes that merit back too. */
 var QAIDAH=14,RK="m",RS="",RM="",RX=0,RSC=-1,RH="";
 var HPR=[["bk","Book completion","tr"],["lv","Qaidah or Memorisation level completion","tb"],["hw","Additional class or homework","tg"],
- ["ec","Extra Curricular Award","tg"],["cp","Exceptional Class Participation","tg"]];
+ ["ec","Extra Curricular Award","tg"],["cp","Exceptional Class Participation","tg"],
+ ["mr","Merit","tg"]];
 function hpr(r){return HPR.filter(function(x){return x[0]===r})[0]}
 function htk(r){var c=hpr(r)[2];return TOK.filter(function(k){return k[0]===c})[0]}
 function hpCoin(r){var k=htk(r);return '<span class="hcoin '+k[1]+'"><span class="tdot '+k[1]+'" aria-hidden="true"></span>1 '+k[2].toLowerCase()+' coin</span>'}
@@ -1972,9 +1975,10 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
  refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o))}
 function rDone(o,msg){persist(o.c);if(o.c===CID)render();recPage();toast(msg)}
 function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d=dk(now);if(!s.tests)s.tests=[];
- if(k==="h"){if(!RH||(RH==="lv"&&lvToday(s)))return;var c=htk(RH);if(!s.hp)s.hp=[];s[c[0]].push(now);s.hp.push({t:now,r:RH});var why=hpr(RH)[1];RH="";
+ if(k==="h"){if(!RH||(RH==="lv"&&lvToday(s)))return;var c=htk(RH);if(!s.hp)s.hp=[];s[c[0]].push(now);s.hp.push({t:now,r:RH});if(RH==="mr"){s.merits++;s.ml.push(now)}var why=hpr(RH)[1];RH="";
   rDone(o,nm+": +"+c[3]+" house points, "+why.toLowerCase()+(s.house?", for "+s.house:""));return}
  if(k==="hx"){var j0=-1;(s.hp||[]).forEach(function(y,j){if(y.t===arg)j0=j});if(j0<0)return;var x=s.hp.splice(j0,1)[0];var c2=htk(x.r),j2=s[c2[0]].lastIndexOf(x.t);if(j2>=0)s[c2[0]].splice(j2,1);
+  if(x.r==="mr"){var j3=s.ml.lastIndexOf(x.t);if(j3>=0){s.ml.splice(j3,1);s.merits=Math.max(0,s.merits-1)}}
   rDone(o,c2[3]+" house points taken back from "+nm);return}
  if(k==="u"){var t=s.tests.pop();if(!t)return;var prev=qTest(s,t.d);if(prev)s.q[t.d]=prev.sc;else delete s.q[t.d];
   if(t.k==="q"&&t.ok)s.qa=t.pq||0;

@@ -42,7 +42,7 @@ QAIDAH_LEVELS = 14  # keep in step with QAIDAH in src/page.html
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
-HOUSE_POINT_REASONS = {"bk": "tr", "lv": "tb", "hw": "tg", "ec": "tg", "cp": "tg"}
+HOUSE_POINT_REASONS = {"bk": "tr", "lv": "tb", "hw": "tg", "ec": "tg", "cp": "tg", "mr": "tg"}
 # Reachable without signing in.
 PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
 # Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Figtree
