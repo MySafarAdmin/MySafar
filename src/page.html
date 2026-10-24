@@ -390,7 +390,7 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    points and coin follow from HPR. Each is kept on the student as {t: when its token was given, r: what for} in
    s.hp, with the token itself in s.tg, s.tb or s.tr like the ones from the Quran name menu. A level passed on this
    page already gives its blue coin, so the level choice is closed for a student who passed one today. */
-var QAIDAH=10,RK="m",RS="",RM="",RX=0,RSC=-1,RH="";
+var QAIDAH=14,RK="m",RS="",RM="",RX=0,RSC=-1,RH="";
 var HPR=[["bk","Book completion","tr"],["lv","Qaidah or Memorisation level completion","tb"],["hw","Additional class or homework","tg"],
  ["ec","Extra Curricular Award","tg"],["cp","Exceptional Class Participation","tg"]];
 function hpr(r){return HPR.filter(function(x){return x[0]===r})[0]}

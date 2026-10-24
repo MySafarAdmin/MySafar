@@ -161,7 +161,7 @@ how many scores it covers, days since a pass, what was passed this week, or
 the warning. Ten a page.
 
 **Record** (main navigation, admins only): level tests in four numbered steps,
-Quran (Qaidah level) or Memo (target as level and target, or item number and
+Quran (Qaidah level 1 to 14) or Memo (target as level and target, or item number and
 Surah), the student, the level, then a 0 to 5 score on the pastel scale and
 Passed or Not passed, with the student's latest tests and Take back the latest
 below. Every pass, Quran or Memo, gives the student a blue token (20 house

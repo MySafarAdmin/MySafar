@@ -259,14 +259,14 @@ class DashboardTests:
                    "ml": [], "fl": [], "q": {}}
         state = dict(self.state, L=[9, 9, 9, 9, 10, 10, 10, 12, 15, 14])
         self.assertTrue(valid_state(dict(state, S=[student])))
-        self.assertTrue(valid_state(dict(state, S=[dict(student, qa=10)])))
-        for bad in (-1, 11, "3", 2.5):
+        self.assertTrue(valid_state(dict(state, S=[dict(student, qa=14)])))
+        for bad in (-1, 15, "3", 2.5):
             self.assertFalse(valid_state(dict(state, S=[dict(student, qa=bad)])))
         test = {"d": "2026-10-14", "k": "m", "n": 12, "sc": 4, "ok": True}
         self.assertTrue(valid_state(dict(state, S=[dict(student, tests=[test, dict(test, k="q", n=3, ok=False, pq=2)])])))
         # A pass keeps the time its blue token was given, so taking the test back takes the token back too.
         self.assertTrue(valid_state(dict(state, S=[dict(student, tb=[1760400000000], tests=[dict(test, tk=1760400000000)])])))
-        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 11}, {"tk": -1}, {"tk": "now"}):
+        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 15}, {"tk": -1}, {"tk": "now"}):
             self.assertFalse(valid_state(dict(state, S=[dict(student, tests=[dict(test, **bad)])])))
         self.assertFalse(valid_state(dict(state, S=[dict(student, tests={})])))
         # House points from the Record page keep what they were for, with the time their token was given.

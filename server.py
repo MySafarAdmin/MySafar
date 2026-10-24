@@ -38,7 +38,7 @@ DETAILS = ("sid", "fid", "gender", "year", "sy", "ist", "dob")
 STUDENT_NUMBER = re.compile(r"SE(\d+)", re.IGNORECASE)
 MAX_CLASSES = 500
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
-QAIDAH_LEVELS = 10  # keep in step with QAIDAH in src/page.html
+QAIDAH_LEVELS = 14  # keep in step with QAIDAH in src/page.html
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
