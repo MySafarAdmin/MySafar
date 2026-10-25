@@ -433,6 +433,9 @@ class DashboardTests:
         # The Students page is for administrators: the account pages' menu links to it only for them.
         self.assertNotIn(b'href="/#students"', teacher.get("/account").data)
         self.assertIn(b'href="/#students"', self.client.get("/account").data)
+        # So is Rankings (classes by Memo passes).
+        self.assertNotIn(b'href="/#rankings"', teacher.get("/account").data)
+        self.assertIn(b'href="/#rankings"', self.client.get("/account").data)
 
     def test_admin_downloads_the_school_spreadsheet(self):
         from io import BytesIO
