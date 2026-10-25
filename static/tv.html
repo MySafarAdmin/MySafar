@@ -574,6 +574,11 @@ function podium(steps,unit,empty,fmt){if(!steps.length)return '<div class="empty
 function ord(n){var t=n%100,u=n%10;return n+(t>10&&t<14?"th":u===1?"st":u===2?"nd":u===3?"rd":"th")}
 /* Bands on one board, each with its heading on the left and everyone on it in boxes of one size: first place for
    memorisation passes (everyone tied on the most), then everyone who finished a book this month. */
+/* The TV's first slide: first place for Qaidah levels passed, then the book passes, on the same board. */
+function qaidahBands(){var B=[],q=(data.qaidah||[]).filter(function(s){return s.place===1})[0];
+ if(q)B.push({cls:"m1",head:"1st",sub:plural(q.n,"level"),who:q.who});
+ if(data.books&&data.books.length)B.push({cls:"bk",head:"Books",sub:data.books.length+" finished",who:data.books});
+ return B}
 function memoBands(){var B=[],m=(data.memo||[]).filter(function(s){return s.place===1})[0];
  if(m)B.push({cls:"m1",head:"1st",sub:plural(m.n,"pass"),who:m.who});
  if(data.books&&data.books.length)B.push({cls:"bk",head:"Books",sub:data.books.length+" finished",who:data.books});
@@ -621,13 +626,9 @@ function fitNames(el){[].forEach.call(el.querySelectorAll(".pc.cls .pn"),functio
  while(f>2.4&&n.scrollWidth>n.clientWidth+1){f-=.2;n.style.fontSize=f+"vh"}})}
 /* id, world, which window it belongs to, title, subtitle, and what it shows. */
 var SLIDES=[
- {id:"memo",world:"hira",kind:"memo",title:"Memorisation and book passes",sub:function(){return "Most memorisation passes in "+month()+", and every book finished"},ranks:memoBands,empty:"No memorisation or book passes yet this month."},
- {id:"qaidah",world:"madinah",kind:"qaidah",title:"Qaidah level passes",sub:function(){return "Most levels passed in "+month()},steps:function(){return data.qaidah},unit:"level",empty:"No Qaidah levels passed yet this month."},
- {id:"qaidah-primary",world:"thawr",kind:"qaidah",title:"Top Class for Qaidah",stage:"(Primary Years)",sub:function(){return "Years 2 to 6, in "+month()},steps:function(){return data.classes.qaidah.primary},unit:"level pass",empty:"No primary Qaidah levels passed yet."},
+ {id:"qaidah",world:"madinah",kind:"qaidah",title:"Qaidah level and book passes",sub:function(){return "Most Qaidah levels passed in "+month()+", and every book finished"},ranks:qaidahBands,empty:"No Qaidah level or book passes yet this month."},
  {id:"memo-primary",world:"aqsa",kind:"memo",title:"Top Class for Memorisation",stage:"(Primary Years)",sub:function(){return "Years 2 to 6, in "+month()},steps:function(){return data.classes.memo.primary},unit:"pass",empty:"No primary memorisation passes yet."},
- {id:"qaidah-secondary",world:"ark",kind:"qaidah",title:"Top Class for Qaidah",stage:"(Secondary Years)",sub:function(){return "Years 7 to 10, in "+month()},steps:function(){return data.classes.qaidah.secondary},unit:"level pass",empty:"No secondary Qaidah levels passed yet."},
  {id:"memo-secondary",world:"makkah",kind:"memo",title:"Top Class for Memorisation",stage:"(Secondary Years)",sub:function(){return "Years 7 to 10, in "+month()},steps:function(){return data.classes.memo.secondary},unit:"pass",empty:"No secondary memorisation passes yet."},
- {id:"stars",world:"moon",kind:"all",title:"Stars of the week",sub:function(){return "One from every class"+(data.stars.length?", "+data.stars[0].label.replace("Week","week"):"")},list:function(){return data.stars},empty:"No stars of the week last week.",one:1},
  {id:"houses",world:"festival",kind:"all",title:"House points",sub:function(){return "The house leaderboard"},board:schoolHouses,unit:"point"}];
 /* A class's Presenter: this month's tops in the class. */
 var PSLIDES=[
