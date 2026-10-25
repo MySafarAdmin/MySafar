@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Historical house points{% endblock %}
+{% block width %} narrow{% endblock %}
+{% block content %}
+<div class="band slim"><div class="band-top"><h1>Historical house points</h1><div class="acts"><a class="btn" href="/#house-points">See the House points page</a></div></div>
+<p class="lede">Points given to a whole house rather than a student, such as points from before the dashboard counted them. They count in each house's total on the dashboard and the TV, and show on the House points page as "Historical points".</p></div>
+{% if notice %}<div class="panel" role="status"><p>{{ notice }}</p></div>{% endif %}
+{% if error %}<div class="panel" role="alert"><p>{{ error }}</p></div>{% endif %}
+<p class="sub">{% for h in houses %}{{ h }} {{ sums[h] }}{{ "," if not loop.last else "" }} {% endfor %}points from here.</p>
+<div class="mod line">
+  <h2>Add points</h2>
+  <form method="post" action="/admin/house-points" class="inline-form">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <label class="field">House<select name="house" required><option value="">Choose…</option>{% for h in houses %}<option>{{ h }}</option>{% endfor %}</select></label>
+    {% for k, name, pts in coins %}<label class="field">{{ name }} coins ({{ pts }} each)<input name="{{ k }}" inputmode="numeric" pattern="[0-9]*" placeholder="0" autocomplete="off"></label>{% endfor %}
+    <label class="field">Note<input name="note" maxlength="120" placeholder="For example, Autumn term before the dashboard…" autocomplete="off"></label>
+    <button class="btn primary">Add points</button>
+  </form>
+</div>
+<h2>Added</h2>
+<div class="tablewrap"><table class="tbl stackable">
+<thead><tr><th scope="col">House</th><th scope="col">Coins</th><th scope="col" class="n">Points</th><th scope="col">Note</th><th scope="col">Added</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead>
+<tbody>
+{% for r in rows %}
+<tr><td class="lead">{{ r.house }}</td><td data-label="Coins">{{ r.n }} {{ r.colour|lower }}</td><td data-label="Points" class="n"><b>{{ r.points }}</b></td><td data-label="Note">{{ r.note }}</td>
+<td data-label="Added">{{ r.added }}{% if r.given_by %} <span class="sub">by {{ r.given_by }}</span>{% endif %}</td>
+<td><details class="confirm"><summary class="btn sm danger">Remove<span class="sr-only"> {{ r.n }} {{ r.colour|lower }} for {{ r.house }}</span></summary>
+<form method="post" action="/admin/house-points/{{ r.id }}/delete"><p>This takes {{ r.points }} points away from {{ r.house }}.</p><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn sm danger solid">Yes, remove</button></form></details></td></tr>
+{% else %}
+<tr><td colspan="6" class="sub">None added yet.</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% endblock %}

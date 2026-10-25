@@ -159,6 +159,12 @@
       var totals = await api("/api/houses");
       var before = JSON.stringify(window.HOUSE_TOTALS);
       window.HOUSE_TOTALS = totals;
+      // Admins also get the points added by hand for a whole house, for the House points page.
+      if (window.ME && ME.role === "admin") {
+        var extra = await api("/api/house-extra"), had = JSON.stringify(window.HOUSE_EXTRA || null);
+        window.HOUSE_EXTRA = extra;
+        if (had !== JSON.stringify(extra)) before = "";
+      }
       if (before !== JSON.stringify(totals) && !CID) master();
     } catch (error) { /* The totals refresh with the next poll. */ }
   }

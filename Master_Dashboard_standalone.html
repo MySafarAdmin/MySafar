@@ -1989,7 +1989,7 @@ function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No s
    +'<dl class="rfacts"><div><dt>House points</dt><dd>'+hp(s)+'</dd></div><div><dt>Coins</dt><dd class="rcoins">'+TOK.map(function(k){return '<span title="'+k[2]+' coins"><span class="tdot '+k[1]+'" aria-hidden="true"></span>'+(s[k[0]]||[]).length+'<span class="sr-only"> '+k[2].toLowerCase()+'</span></span>'}).join("")+'</dd></div></dl>'
    +'<section class="rlast"><div class="mod-h"><h3>Given on this page</h3></div>'
    +(H.length?'<ul class="rhl">'+H.map(function(x){var k=htk(x.r);return '<li><b>'+esc(hpr(x.r)[1])+'</b><span class="d">'+ds(x.t)+'</span><span class="rtok '+k[1]+'"><span class="tdot '+k[1]+'" aria-hidden="true"></span>+'+k[3]+'</span><button type="button" class="btn sm quiet" data-r="hx" data-t="'+x.t+'" aria-label="Undo '+esc(hpr(x.r)[1])+' on '+ds(x.t)+'">Undo</button></li>'}).join("")+'</ul>':'<p class="none">No house points given here yet.</p>')
-   +'<p class="cap">The total also counts coins from passed level tests and the Quran tab.</p></section></aside>'}
+   +'<p class="cap">The total also counts coins from passed level tests.</p></section></aside>'}
  var T=(s.tests||[]).slice().reverse().slice(0,5);
  return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
   +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Qaidah</dt><dd>'+(s.qa?'Level '+s.qa:'No level yet')+'</dd></div></dl>'
@@ -2361,8 +2361,7 @@ function qMenu(i,keep){var B=$("qB"),s=S[i],b=B.querySelector('.qnb[data-ni="'+i
  if(!keep&&QMN>=0&&QMN!==i)qMenuClose();QMN=i;b.setAttribute("aria-expanded","true");var w=s.warn||0;
  var m=document.createElement("div");m.className="qmenu";m.setAttribute("role","dialog");m.setAttribute("aria-label",s.name);
  m.innerHTML='<div class="qmh"><b>'+esc(s.name)+'</b><div class="qmm" role="group" aria-label="Merits for '+esc(s.name)+'"><span class="qmml">Merits</span><b>'+s.merits+'</b><button type="button" class="tk minus" data-mk="m-" aria-label="Take back a merit from '+esc(s.name)+'">−</button><button type="button" class="tk add m" data-mk="m+" aria-label="Give '+esc(s.name)+' a merit">+</button></div></div>'
-  +'<p class="qml">Warning<span>Current target <b class="qmtg"'+(nod(s)?'':' style="--lc:'+lc(s.target)+'"')+'>'+esc(ct(s))+'</b></span></p><div class="qmw" role="group" aria-label="Warning for '+esc(s.name)+'">'+[1,2,3].map(function(l){return '<button type="button" class="wb'+l+'" data-mk="w'+l+'" aria-pressed="'+(w===l)+'">'+WL[l]+'</button>'}).join("")+'</div>'
-  +'<p class="qml">House points<span>'+hp(s)+' points</span></p><div class="qmt">'+TOK.map(function(k){return '<div class="qmtr"><span class="tdot '+k[1]+'"></span><span class="qmtn">'+k[2]+' <small>'+k[3]+'</small></span><b>'+s[k[0]].length+'</b><button type="button" class="tk minus" data-mk="t'+k[0]+'-" aria-label="Take back a '+k[2].toLowerCase()+' token from '+esc(s.name)+'">−</button><button type="button" class="tk add '+k[1]+'" data-mk="t'+k[0]+'+" aria-label="Give '+esc(s.name)+' a '+k[2].toLowerCase()+' token, '+k[3]+' points">+</button></div>'}).join("")+'</div>';
+  +'<p class="qml">Warning<span>Current target <b class="qmtg"'+(nod(s)?'':' style="--lc:'+lc(s.target)+'"')+'>'+esc(ct(s))+'</b></span></p><div class="qmw" role="group" aria-label="Warning for '+esc(s.name)+'">'+[1,2,3].map(function(l){return '<button type="button" class="wb'+l+'" data-mk="w'+l+'" aria-pressed="'+(w===l)+'">'+WL[l]+'</button>'}).join("")+'</div>';
  B.appendChild(m);var r=b.getBoundingClientRect(),br=B.getBoundingClientRect(),top=r.bottom-br.top+6;
  if(r.bottom+m.offsetHeight+12>window.innerHeight&&r.top-m.offsetHeight-6>0)top=r.top-br.top-m.offsetHeight-6;
  m.style.top=top+"px";m.style.left=Math.max(0,Math.min(r.left-br.left,B.clientWidth-m.offsetWidth))+"px";
@@ -2370,10 +2369,7 @@ function qMenu(i,keep){var B=$("qB"),s=S[i],b=B.querySelector('.qnb[data-ni="'+i
 function qMenuAct(k){var i=QMN,s=S[i];if(!s)return;var nm=fn(s);
  if(k[0]==="m"){if(k[1]==="+"){s.merits++;s.ml.push(Date.now());toast("Merit added for "+nm)}else if(s.merits>0){s.merits--;s.ml.pop();toast("Merit taken back for "+nm)}else{toast(nm+" has no merits to take back",1);return}save();render();return}
  if(k[0]==="w"){var v=+k[1];if(s.warn===v){s.warn=0;toast(nm+": warning removed")}else{s.warn=v;toast(nm+": "+WL[v]+" given")}save();render();return}
- var f=k.slice(1,3),tk=TOK.filter(function(x){return x[0]===f})[0];if(!tk)return;
- if(k[3]==="+"){s[f].push(Date.now());toast(nm+": "+tk[2].toLowerCase()+" token, +"+tk[3]+" points"+(s.house?" for "+s.house:""))}
- else{if(!s[f].length){toast(nm+" has no "+tk[2].toLowerCase()+" tokens",1);return}var gone=s[f].pop();if(s.hp)s.hp=s.hp.filter(function(x){return x.t!==gone});toast(nm+": "+tk[2].toLowerCase()+" token taken back")}
- save();render()}
+ }
 $("qB").addEventListener("click",function(e){var mk=e.target.closest(".qmenu [data-mk]");if(mk){qMenuAct(mk.dataset.mk);return}
  var n=e.target.closest(".qnb");if(n){var i=+n.dataset.ni;if(QMN===i)qMenuClose(1);else{qPopClose();qMenu(i)}}});
 document.addEventListener("click",function(e){if(QMN>=0&&!e.target.closest(".qmenu")&&!e.target.closest(".qnb"))qMenuClose()});
@@ -2805,28 +2801,33 @@ function houseHtml(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.sli
    page's entry in s.hp with the same time, or a passed level test whose blue coin has that time (t.tk), and
    otherwise it was given from the student's name menu on the Quran tab. Awards go to the student's house as it is
    set now, as the totals do. The page breaks them down by student, class, AI class, family, gender, year group or
-   what they were for, after the period, house, what-for and search filters; a row opens every award behind it. */
+   what they were for, after the period, house, what-for and search filters; a row opens every award behind it.
+   Points an admin added by hand for a whole house (/admin/house-points, in HOUSE_EXTRA from railway-storage.js) are
+   awards too, with no class or student: "Historical points". */
 var HB="st",HPF={p:"all",h:"",r:"",q:""},HPSZ=10,HPX=[];
 var HBY=[["st","Students","Student"],["c","Classes","QM class"],["ist","AI classes","AI class"],["fid","Families","Family"],["gender","Gender","Gender"],["sy","Year groups","Year group"],["r","What for","What for"],["all","Every award",""]];
 var HPP=[["all","All time"],["d","Today"],["w","This week"],["m","This month"],["lm","Last month"],["30","Last 30 days"]];
-function hrLab(r){if(r==="lt")return "Level test passed (Record)";if(r.charAt(0)==="q"&&r.length===2){var k=TOK.filter(function(x){return x[1]===r.charAt(1)})[0];return "Quran tab, "+(k?k[2].toLowerCase():"")+" coin"}
+function hrLab(r){if(r==="hx")return "Historical points (added by hand)";if(r==="lt")return "Level test passed (Record)";if(r.charAt(0)==="q"&&r.length===2){var k=TOK.filter(function(x){return x[1]===r.charAt(1)})[0];return "Quran tab, "+(k?k[2].toLowerCase():"")+" coin"}
  var x=hpr(r);return x?x[1]:r}
-function hrKeys(){return HPR.map(function(x){return x[0]}).concat(["lt"],TOK.map(function(k){return "q"+k[1]}))}
+function hrKeys(){return HPR.map(function(x){return x[0]}).concat(["lt","hx"],TOK.map(function(k){return "q"+k[1]}))}
 /* Every coin in the school as {s, c, t, k: its TOK entry, r: what for}. */
 function hpAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){var W={};
   (s.hp||[]).forEach(function(x){var h=hpr(x.r),f=h?h[2]:"";(W[f+"|"+x.t]=W[f+"|"+x.t]||[]).push(x.r)});
   (s.tests||[]).forEach(function(t){if(t.ok&&t.tk)(W["tb|"+t.tk]=W["tb|"+t.tk]||[]).push("lt")});
   TOK.forEach(function(k){(s[k[0]]||[]).forEach(function(t){var w=W[k[0]+"|"+t];A.push({s:s,c:c,t:t,k:k,r:w&&w.length?w.shift():"q"+k[1]})})})})});
+ var P={};(window.HOUSE_EXTRA||[]).forEach(function(e){var k=TOK.filter(function(x){return x[0]===e.coin})[0],h=P[e.house]=P[e.house]||{name:"Historical points",house:e.house};
+  if(k)for(var n=0;n<e.n;n++)A.push({s:h,c:"",t:e.given_at,k:k,r:"hx",note:e.note})});
  return A}
+function ocn(o){return o.c?cname(ST[o.c].name):"Added by hand"}
 function hpFrom(p){var n=new Date(),y=n.getFullYear(),m=n.getMonth();
  return p==="d"?[new Date(y,m,n.getDate()).getTime(),Infinity]:p==="w"?[wk0(+n),Infinity]:p==="m"?[ms0(),Infinity]:p==="lm"?[new Date(y,m-1,1).getTime(),ms0()]:p==="30"?[+n-30*864e5,Infinity]:null}
-function hpQ(o,q){return nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q||nkey(cname(ST[o.c].name)).indexOf(q)>=0}
+function hpQ(o,q){return nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q||nkey(ocn(o)).indexOf(q)>=0}
 /* The awards the filters keep; the house cards ignore the house filter so all three can be compared. */
 function hpPick(anyHouse){var w=hpFrom(HPF.p),q=nkey(HPF.q);return hpAll().filter(function(o){
  return (!w||o.t>=w[0]&&o.t<w[1])&&(!HPF.r||o.r===HPF.r)&&(anyHouse||!HPF.h||(o.s.house||"-")===HPF.h)&&(!q||hpQ(o,q))})}
 function hpWhen(t){if(!(t>1e11))return "Date not recorded";var d=new Date(t);return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})+", "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
-function hpGroup(o){var s=o.s;switch(HB){
- case "st":return [o.c+"|"+ST[o.c].S.indexOf(s),s.name];case "c":return [o.c,cname(ST[o.c].name)];
+function hpGroup(o){var s=o.s;if(!o.c&&HB!=="r")return ["~"+(HB==="st"?s.house:""),HB==="st"?"Historical points, "+s.house:"Historical points"];switch(HB){
+ case "st":return [o.c+"|"+ST[o.c].S.indexOf(s),s.name];case "c":return [o.c,ocn(o)];
  case "ist":return [s.ist||"",s.ist?cname(s.ist):"No AI class"];case "fid":var f=String(s.fid||"").trim();return [f.toUpperCase(),f||"No Family ID"];
  case "gender":return [s.gender||"",s.gender||"Gender not recorded"];case "sy":return [s.sy||"",s.sy||"Year group not recorded"];
  default:return [o.r,hrLab(o.r)]}}
@@ -2855,7 +2856,7 @@ function hpRows(){var L=hpPick(0),G={},O=[],cols=HPF.h?[]:HOUSES.slice(),fon=HPF
  if(HB==="all"){HPX=L.slice().sort(function(a,b){return b.t-a.t});var p=pager("hpg",HPX.length,HPSZ);
   $("hpL").innerHTML=hpList(HPX.slice(p*HPSZ,(p+1)*HPSZ),1)+pagerHtml("hpg",HPX.length,HPSZ,"awards");return}
  L.forEach(function(o){var g=hpGroup(o),x=G[g[0]];if(!x){x=G[g[0]]={k:g[0],name:g[1],o:o,L:[],h:{},st:[]};O.push(x)}x.L.push(o);
-  var h=HOUSES.indexOf(o.s.house)<0?"-":o.s.house;x.h[h]=(x.h[h]||0)+o.k[3];if(x.st.indexOf(o.s)<0)x.st.push(o.s)});
+  var h=HOUSES.indexOf(o.s.house)<0?"-":o.s.house;x.h[h]=(x.h[h]||0)+o.k[3];if(o.c&&x.st.indexOf(o.s)<0)x.st.push(o.s)});
  O.forEach(function(x){x.v=hpSum(x.L)});O.sort(function(a,b){return b.v-a.v||a.name.localeCompare(b.name)});HPX=O;
  var p=pager("hpg",O.length,HPSZ),st=HB==="st",by=HBY.filter(function(x){return x[0]===HB})[0],what=by[1].toLowerCase(),h;
  h='<div class="tablewrap"><table class="tbl stackable hpt"><thead><tr><th scope="col">'+by[2]+'</th>'
@@ -2863,7 +2864,7 @@ function hpRows(){var L=hpPick(0),G={},O=[],cols=HPF.h?[]:HOUSES.slice(),fon=HPF
   +'<th scope="col" class="n">Points</th><th scope="col"><span class="sr-only">Details</span></th></tr></thead><tbody>'
   +O.slice(p*HPSZ,(p+1)*HPSZ).map(function(x,i){var s=x.o.s,sub=HB==="fid"&&x.k?x.st.map(function(y){return y.name}).join(", "):"";
    return '<tr><td class="lead"><b>'+esc(x.name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</td>'
-    +(st?'<td data-label="Class">'+esc(cname(ST[x.o.c].name))+'</td><td data-label="House">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">Not set</span>')+'</td>'
+    +(st?'<td data-label="Class">'+esc(ocn(x.o))+'</td><td data-label="House">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">Not set</span>')+'</td>'
       +TOK.map(function(k){var n=x.L.filter(function(o){return o.k===k}).length;return '<td data-label="'+k[2]+' coins" class="n'+(n?'':' zero')+'">'+n+'</td>'}).join("")
      :'<td data-label="Students" class="n">'+x.st.length+'</td>'+cols.map(function(c){var v=x.h[c]||0;return '<td data-label="'+(c==="-"?"No house":c)+'" class="n'+(v?'':' zero')+'">'+v+'</td>'}).join(""))
     +'<td data-label="Points" class="n tot">'+x.v+'</td><td class="act"><button type="button" class="btn sm quiet" data-hx="'+(p*HPSZ+i)+'" aria-label="See where '+esc(x.name)+'\'s '+x.v+' points came from">See awards</button></td></tr>'}).join("")
@@ -2871,11 +2872,11 @@ function hpRows(){var L=hpPick(0),G={},O=[],cols=HPF.h?[]:HOUSES.slice(),fon=HPF
  $("hpL").innerHTML=h}
 /* Awards newest first: when, who (with their class and house), what for and the coin. */
 function hpList(L,who){return '<ul class="hpl">'+L.map(function(o){var s=o.s;
-  return '<li><span class="d">'+hpWhen(o.t)+'</span>'+(who?'<b class="w">'+esc(s.name)+'<small>'+esc(cname(ST[o.c].name))+(s.house?' · <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):' · No house')+'</small></b>':'')
-   +'<span class="x">'+esc(hrLab(o.r))+'</span><span class="rtok '+o.k[1]+'"><span class="tdot '+o.k[1]+'" aria-hidden="true"></span>+'+o.k[3]+'</span></li>'}).join("")+'</ul>'}
+  return '<li><span class="d">'+hpWhen(o.t)+'</span>'+(who?'<b class="w">'+esc(s.name)+'<small>'+esc(ocn(o))+(s.house?' · <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):' · No house')+'</small></b>':'')
+   +'<span class="x">'+esc(hrLab(o.r))+(o.note?' · '+esc(o.note):'')+'</span><span class="rtok '+o.k[1]+'"><span class="tdot '+o.k[1]+'" aria-hidden="true"></span>+'+o.k[3]+'</span></li>'}).join("")+'</ul>'}
 function hpOpen(x){var L=x.L.slice().sort(function(a,b){return b.t-a.t}),R={};L.forEach(function(o){var r=R[o.r]=R[o.r]||{n:0,v:0};r.n++;r.v+=o.k[3]});
  var K=Object.keys(R).sort(function(a,b){return R[b].v-R[a].v}),one=HB==="st",max=200;
- drawer(x.name,'<div class="hpd"><p class="cap">'+(one?esc(cname(ST[x.o.c].name))+(x.o.s.house?', '+esc(x.o.s.house):', no house yet')+'. ':plural(x.st.length,"student")+'. ')+plural(L.length,"award")+', '+x.v+' points'+(HPF.p!=="all"?', '+HPP.filter(function(p){return p[0]===HPF.p})[0][1].toLowerCase():'')+'.</p>'
+ drawer(x.name,'<div class="hpd"><p class="cap">'+(one?esc(ocn(x.o))+(x.o.s.house?', '+esc(x.o.s.house):', no house yet')+'. ':plural(x.st.length,"student")+'. ')+plural(L.length,"award")+', '+x.v+' points'+(HPF.p!=="all"?', '+HPP.filter(function(p){return p[0]===HPF.p})[0][1].toLowerCase():'')+'.</p>'
   +'<table class="tbl hpw"><thead><tr><th scope="col">What for</th><th scope="col" class="n">Awards</th><th scope="col" class="n">Points</th></tr></thead><tbody>'+K.map(function(r){return '<tr><td>'+esc(hrLab(r))+'</td><td class="n">'+R[r].n+'</td><td class="n">'+R[r].v+'</td></tr>'}).join("")+'</tbody></table>'
   +'<h3>Every award</h3>'+hpList(L.slice(0,max),!one)+(L.length>max?'<p class="cap">The latest '+max+' of '+L.length+'. Choose a shorter period to see the rest.</p>':'')+'</div>')}
 $("vH").addEventListener("input",function(e){if(e.target.id==="hpQ"){HPF.q=e.target.value;PG.hpg=0;hpRows()}});

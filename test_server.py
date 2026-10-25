@@ -66,6 +66,9 @@ class DashboardTests:
         # The first admin chooses their own password at first sign-in; tested separately.
         with self.app.config["DB"].transaction() as tx:
             tx.execute("UPDATE users SET must_change = 0")
+            # The historical house points the migration adds; test_historical_house_points checks them.
+            self.seeded = [dict(r) for r in tx.execute("SELECT house, coin, n FROM house_points ORDER BY id").fetchall()]
+            tx.execute("DELETE FROM house_points")
         self.client = self.sign_in(*ADMIN)
         self.headers = {"X-Dashboard-Request": "1"}
 
@@ -725,6 +728,54 @@ class DashboardTests:
         self.assertIn("no progress records", self.client.get("/admin/clear-test-data").get_data(as_text=True))
         self.add_user("t@example.com")
         self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").get("/admin/clear-test-data").status_code, 403)
+
+    def test_historical_house_points(self):
+        points = {"tg": 5, "tb": 20, "tr": 50}
+        seeded = {}
+        for r in self.seeded:
+            seeded[r["house"]] = seeded.get(r["house"], 0) + r["n"] * points[r["coin"]]
+        self.assertEqual(seeded, {"Al-Aqsa": 130, "Madinah": 220, "Makkah": 240})
+        self.write(state=dict(self.state, S=[self.tv_student("Amina", house="Makkah", tg=[1, 2])]))
+        self.assertIn("None added yet", self.client.get("/admin/house-points").get_data(as_text=True))
+        bad = self.form(self.client, "/admin/house-points", "/admin/house-points", house="Makkah", tg="x")
+        self.assertEqual(bad.status_code, 400)
+        done = self.form(self.client, "/admin/house-points", "/admin/house-points", house="Makkah", tr="1", tg="4", note="Before")
+        self.assertIn("Added to Makkah", done.get_data(as_text=True))
+        self.assertEqual(self.client.get("/api/houses").get_json(), {"Makkah": 80, "Al-Aqsa": 0, "Madinah": 0})
+        extra = self.client.get("/api/house-extra").get_json()
+        self.assertEqual(sorted((e["coin"], e["n"], e["note"]) for e in extra), [("tg", 4, "Before"), ("tr", 1, "Before")])
+        self.assertTrue(all(e["given_at"] > 1e12 for e in extra))
+        self.assertEqual(tv.summary(self.query("SELECT id, json FROM classrooms"), extra={"Makkah": 70})["houses"][0],
+                         {"house": "Makkah", "points": 80})
+        page = self.client.get("/admin/house-points")
+        self.client.post(f"/admin/house-points/{extra[0]['id']}/delete", data={"csrf": csrf_of(page)})
+        self.assertEqual(len(self.client.get("/api/house-extra").get_json()), 1)
+        self.add_user("t@example.com")
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        self.assertEqual(teacher.get("/admin/house-points").status_code, 403)
+        self.assertEqual(teacher.get("/api/house-extra").status_code, 403)
+
+    def test_remove_quran_tab_coins_lists_them_first(self):
+        t = 1760000000000
+        amina = self.tv_student("Amina", house="Makkah", tg=[t, t + 1], tb=[t + 2, t + 3], tr=[t + 4],
+                                hp=[{"t": t, "r": "hw"}, {"t": t + 4, "r": "bk"}],
+                                tests=[{"d": "2026-10-13", "k": "m", "n": 3, "sc": 4, "ok": True, "tk": t + 2}])
+        self.write(state=dict(self.state, S=[amina, self.tv_student("Bilal", house="Madinah", tr=[t])]))
+        page = self.client.get("/admin/remove-quran-coins").get_data(as_text=True)
+        self.assertIn("Amina", page)
+        self.assertIn("Bilal", page)
+        self.assertEqual(self.records()["yr3-a"]["revision"], 1)
+        self.assertIn("Type DELETE", self.form(self.client, "/admin/remove-quran-coins", "/admin/remove-quran-coins",
+                                               confirm="no").get_data(as_text=True))
+        done = self.form(self.client, "/admin/remove-quran-coins", "/admin/remove-quran-coins", confirm="delete")
+        self.assertIn("Removed 3 coins", done.get_data(as_text=True))
+        state = json.loads(self.records()["yr3-a"]["json"])
+        self.assertTrue(valid_state(state))
+        a, b = state["S"]
+        self.assertEqual((a["tg"], a["tb"], a["tr"], b["tr"]), ([t], [t + 2], [t + 4], []))
+        self.assertIn("No student has house points from the Quran tab", self.client.get("/admin/remove-quran-coins").get_data(as_text=True))
+        self.add_user("t@example.com")
+        self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").get("/admin/remove-quran-coins").status_code, 403)
 
     def test_set_houses_matches_by_name_and_fills_in_ids_and_family(self):
         # On the list: Aayat Nm SE0001 SP457 Makkah, Musa Un SE0065, Adam Or SE0060 in Yr3-A and SE0265 in Yr3-B.
