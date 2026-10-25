@@ -876,6 +876,44 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .tsl>*{margin:0!important}
 @media (min-width:1100px){.tsum.school .tsl{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .tsr .rk4.mine .hb{padding:0;border:0;background:none;box-shadow:none}
+@media (min-width:1200px){.tsr .rk4.mine.c4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* Passes per week in the ranked lists' style: the week and its bar on one line, the count at the end. */
+.rank.wkr li{grid-template-columns:minmax(0,1fr) auto;padding:2px 0;border-bottom:0}
+.rank.wkr .n{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:center;gap:10px}
+.tsr .rk4.mine .rank.wkr .n b{white-space:nowrap;font-size:.875rem;font-weight:600;color:var(--ink-2)}
+.rank.wkr .tr{margin-top:0;height:8px}
+.rank.wkr .tr i{background:color-mix(in srgb,var(--sky) 45%,#fff)}
+.rank.wkr .now .tr i{background:var(--navy)}
+.tsr .rk4.mine .rank.wkr li.now .n b{color:var(--navy);font-weight:750}
+.tsr .rk4.mine .rank.wkr .v{font-size:.9375rem;min-width:2ch}
+.rank.wkr .v.zero{color:var(--mute);font-weight:500}
+/* Primary Years and Secondary Years side by side, each on a pastel panel: highlights, then top classes and most passes. */
+.tss{border-top:1px solid var(--line);padding-top:16px}
+.tss>.mod-h h2{font-family:var(--font-display);font-weight:800;font-size:1.375rem}
+.stg2{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1000px){.stg2{grid-template-columns:1fr 1fr}}
+.stg{border-radius:var(--r-lg);padding:18px 20px 14px;background:var(--sage-soft);border:1px solid color-mix(in srgb,var(--sage) 18%,transparent)}
+.stg.s{background:var(--gold-soft);border-color:color-mix(in srgb,var(--gold) 22%,transparent)}
+.stg-h{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
+.stg-h h3{margin:0;font-size:1.125rem;font-weight:800;color:var(--sage-ink)}
+.stg-h .cap{display:block;margin-top:1px}
+@media (max-width:480px){.stg-h{flex-wrap:wrap;gap:10px}}
+.stg.s .stg-h h3{color:var(--gold-ink)}
+.shl{display:flex;align-items:center;gap:10px;text-align:left}
+.shl b{font-size:2rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.shl b.zero{color:var(--mute)}
+.shl span{font-size:.875rem;font-weight:650;color:var(--ink-2);line-height:1.25}
+.shl small{display:block;font-size:.75rem;font-weight:500;color:var(--mute)}
+.stg-l{display:grid;gap:12px 24px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:560px){.stg-l{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:28px}}
+.stg-l h3{margin:0 0 4px;font-size:1rem;font-weight:750}
+.stg-l .rank li{min-height:52px;padding:6px 0;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;border-bottom-color:color-mix(in srgb,var(--ink) 8%,transparent)}
+.stg-l .rk{width:26px;height:26px;font-size:.75rem}
+.stg-l .rank .n b{display:block;font-size:.9375rem;line-height:1.25}
+.stg-l .rank .n small{font-size:.75rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stg-l .rank .tr{display:none}
+.stg-l .rank .v{font-size:1.0625rem}
+.stg .none{margin:4px 0 8px}
 
 /* Year calendar pop-up: twelve months at once, in the dashboard's quiet style. */
 .ycal{position:fixed;inset:0;z-index:95;background:rgba(29,33,39,.45);display:grid;place-items:center;padding:16px;overscroll-behavior:contain}
@@ -982,7 +1020,7 @@ body.enter .head-top>:not(h1),body.enter .hello,body.enter .head .tabs{animation
 body.enter .head-top>:not(h1){animation-delay:.4s}body.enter .hello{animation-delay:.5s}body.enter .head .tabs{animation-delay:.58s}
 body.enter .ws{animation:e-rise 1s cubic-bezier(.16,1,.3,1) .66s both}
 body.enter .tsum>*,body.enter .ccards>*{animation:e-rise .9s cubic-bezier(.16,1,.3,1) both}
-body.enter .tsum>:nth-child(1){animation-delay:.8s}body.enter .tsum>:nth-child(2){animation-delay:.98s}body.enter .tsum>:nth-child(3){animation-delay:1.14s}
+body.enter .tsum>:nth-child(1){animation-delay:.8s}body.enter .tsum>:nth-child(2){animation-delay:.98s}body.enter .tsum>:nth-child(3){animation-delay:1.14s}body.enter .tsum>:nth-child(4){animation-delay:1.28s}
 body.enter .ccards>:nth-child(n){animation-delay:.85s}body.enter .ccards>:nth-child(n+3){animation-delay:.95s}body.enter .ccards>:nth-child(n+6){animation-delay:1.05s}body.enter .ccards>:nth-child(n+9){animation-delay:1.15s}
 body.enter .rank>li,body.enter .houses>.house{animation:e-rise .7s cubic-bezier(.16,1,.3,1) both}
 body.enter .rank>li:nth-child(1),body.enter .houses>.house:nth-child(1){animation-delay:.95s}body.enter .rank>li:nth-child(2),body.enter .houses>.house:nth-child(2){animation-delay:1.02s}

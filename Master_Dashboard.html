@@ -1199,6 +1199,44 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .tsl>*{margin:0!important}
 @media (min-width:1100px){.tsum.school .tsl{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .tsr .rk4.mine .hb{padding:0;border:0;background:none;box-shadow:none}
+@media (min-width:1200px){.tsr .rk4.mine.c4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* Passes per week in the ranked lists' style: the week and its bar on one line, the count at the end. */
+.rank.wkr li{grid-template-columns:minmax(0,1fr) auto;padding:2px 0;border-bottom:0}
+.rank.wkr .n{display:grid;grid-template-columns:72px minmax(0,1fr);align-items:center;gap:10px}
+.tsr .rk4.mine .rank.wkr .n b{white-space:nowrap;font-size:.875rem;font-weight:600;color:var(--ink-2)}
+.rank.wkr .tr{margin-top:0;height:8px}
+.rank.wkr .tr i{background:color-mix(in srgb,var(--sky) 45%,#fff)}
+.rank.wkr .now .tr i{background:var(--navy)}
+.tsr .rk4.mine .rank.wkr li.now .n b{color:var(--navy);font-weight:750}
+.tsr .rk4.mine .rank.wkr .v{font-size:.9375rem;min-width:2ch}
+.rank.wkr .v.zero{color:var(--mute);font-weight:500}
+/* Primary Years and Secondary Years side by side, each on a pastel panel: highlights, then top classes and most passes. */
+.tss{border-top:1px solid var(--line);padding-top:16px}
+.tss>.mod-h h2{font-family:var(--font-display);font-weight:800;font-size:1.375rem}
+.stg2{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1000px){.stg2{grid-template-columns:1fr 1fr}}
+.stg{border-radius:var(--r-lg);padding:18px 20px 14px;background:var(--sage-soft);border:1px solid color-mix(in srgb,var(--sage) 18%,transparent)}
+.stg.s{background:var(--gold-soft);border-color:color-mix(in srgb,var(--gold) 22%,transparent)}
+.stg-h{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
+.stg-h h3{margin:0;font-size:1.125rem;font-weight:800;color:var(--sage-ink)}
+.stg-h .cap{display:block;margin-top:1px}
+@media (max-width:480px){.stg-h{flex-wrap:wrap;gap:10px}}
+.stg.s .stg-h h3{color:var(--gold-ink)}
+.shl{display:flex;align-items:center;gap:10px;text-align:left}
+.shl b{font-size:2rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.shl b.zero{color:var(--mute)}
+.shl span{font-size:.875rem;font-weight:650;color:var(--ink-2);line-height:1.25}
+.shl small{display:block;font-size:.75rem;font-weight:500;color:var(--mute)}
+.stg-l{display:grid;gap:12px 24px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:560px){.stg-l{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);column-gap:28px}}
+.stg-l h3{margin:0 0 4px;font-size:1rem;font-weight:750}
+.stg-l .rank li{min-height:52px;padding:6px 0;grid-template-columns:28px minmax(0,1fr) auto;gap:8px;border-bottom-color:color-mix(in srgb,var(--ink) 8%,transparent)}
+.stg-l .rk{width:26px;height:26px;font-size:.75rem}
+.stg-l .rank .n b{display:block;font-size:.9375rem;line-height:1.25}
+.stg-l .rank .n small{font-size:.75rem;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stg-l .rank .tr{display:none}
+.stg-l .rank .v{font-size:1.0625rem}
+.stg .none{margin:4px 0 8px}
 
 /* Year calendar pop-up: twelve months at once, in the dashboard's quiet style. */
 .ycal{position:fixed;inset:0;z-index:95;background:rgba(29,33,39,.45);display:grid;place-items:center;padding:16px;overscroll-behavior:contain}
@@ -1305,7 +1343,7 @@ body.enter .head-top>:not(h1),body.enter .hello,body.enter .head .tabs{animation
 body.enter .head-top>:not(h1){animation-delay:.4s}body.enter .hello{animation-delay:.5s}body.enter .head .tabs{animation-delay:.58s}
 body.enter .ws{animation:e-rise 1s cubic-bezier(.16,1,.3,1) .66s both}
 body.enter .tsum>*,body.enter .ccards>*{animation:e-rise .9s cubic-bezier(.16,1,.3,1) both}
-body.enter .tsum>:nth-child(1){animation-delay:.8s}body.enter .tsum>:nth-child(2){animation-delay:.98s}body.enter .tsum>:nth-child(3){animation-delay:1.14s}
+body.enter .tsum>:nth-child(1){animation-delay:.8s}body.enter .tsum>:nth-child(2){animation-delay:.98s}body.enter .tsum>:nth-child(3){animation-delay:1.14s}body.enter .tsum>:nth-child(4){animation-delay:1.28s}
 body.enter .ccards>:nth-child(n){animation-delay:.85s}body.enter .ccards>:nth-child(n+3){animation-delay:.95s}body.enter .ccards>:nth-child(n+6){animation-delay:1.05s}body.enter .ccards>:nth-child(n+9){animation-delay:1.15s}
 body.enter .rank>li,body.enter .houses>.house{animation:e-rise .7s cubic-bezier(.16,1,.3,1) both}
 body.enter .rank>li:nth-child(1),body.enter .houses>.house:nth-child(1){animation-delay:.95s}body.enter .rank>li:nth-child(2),body.enter .houses>.house:nth-child(2){animation-delay:1.02s}
@@ -1837,13 +1875,6 @@ function addDays(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n
 function today0(){var n=new Date();return new Date(n.getFullYear(),n.getMonth(),n.getDate())}
 
 /* ---------- Visualisations ---------- */
-/* Students by level as columns, each as tall as its count, so 47 and 3 look as different as they are.
-   Counted from each student's current target; students with no data yet get their own column. */
-function levelCounts(L){var c=LEVELS.map(function(){return 0}),juz=0,none=0;
- L.forEach(function(s){if(nod(s)){none++;return}if(s.target>BL)juz++;else c[lv(s.target)]++});return {c:c,juz:juz,none:none}}
-function levelCols(L){var k=levelCounts(L),rows=LEVELS.map(function(_,l){return ["L"+(l+1),k.c[l],LC[l%LC.length]]}).concat([["Juz",k.juz,BC]]);if(k.none)rows.push(["No data",k.none,"#c3ccd8"]);
- var mx=Math.max(1,Math.max.apply(null,rows.map(function(r){return r[1]})));
- return '<div class="lvc" role="img" aria-label="Students at each level: '+rows.map(function(r){return r[0]+" "+r[1]}).join(", ")+'">'+rows.map(function(r){return '<span class="lvi'+(r[1]?'':' z')+'"><b>'+r[1]+'</b><span class="lvb"><i style="height:'+(r[1]/mx*100)+'%;background:'+r[2]+'"></i></span><small>'+r[0]+'</small></span>'}).join("")+'</div>'}
 /* Students by level as bars, with the count and the class size as the denominator. Empty levels are named once below. */
 function distHtml(L){var k=levelCounts(L),rows=LEVELS.map(function(_,l){return ["L"+(l+1),k.c[l],LC[l%LC.length]]}).concat([["Juz",k.juz,BC]]);if(k.none)rows.push(["No data",k.none,"var(--line-2)"]);
  var mx=Math.max(1,Math.max.apply(null,rows.map(function(r){return r[1]})));
@@ -1855,6 +1886,11 @@ function weeks(ts,n){var w0=new Date(wk0(Date.now())),W=[];for(var k=n-1;k>=0;k-
 function weekChart(ts){var W=weeks(ts,8),mx=Math.max(1,Math.max.apply(null,W.map(function(w){return w.n})));
  return '<div class="wk" role="img" aria-label="Passes per week, last 8 weeks: '+W.map(function(w,i){return (i===7?"this week":"week of "+dm(w.t))+" "+w.n}).join(", ")+'">'+W.map(function(w,i){
   return '<div class="wkc'+(i===7?' now':'')+'"><b>'+w.n+'</b><span class="wkb"><i style="height:'+(w.n/mx*100)+'%"></i></span><small>'+(i===7?'This week':dm(w.t))+'</small></div>'}).join("")+'</div>'}
+/* Passes per week as rows in the ranked lists' style: the week, a bar as long as its count, then the count. Oldest
+   first, so this week, in navy, is last. */
+function weekRows(ts){var W=weeks(ts,8),mx=Math.max(1,Math.max.apply(null,W.map(function(w){return w.n})));
+ return '<ol class="rank wkr" aria-label="Passes per week, last 8 weeks: '+W.map(function(w,i){return (i===7?"this week":"week of "+dm(w.t))+" "+w.n}).join(", ")+'">'+W.map(function(w,i){
+  return '<li'+(i===7?' class="now"':'')+'><div class="n"><b>'+(i===7?'This week':dm(w.t))+'</b><div class="tr"><i style="width:'+(w.n/mx*100)+'%"></i></div></div><span class="v'+(w.n?'':' zero')+'">'+w.n+'</span></li>'}).join("")+'</ol>'}
 function allLogs(L){var a=[];L.forEach(function(s){a=a.concat(s.log)});return a}
 
 /* ---------- Ranked lists ---------- */
@@ -2583,27 +2619,43 @@ function master(){if(PAGE==="L"){dirTab();return}if(PAGE==="U"){stuPage();return
 function summary(K){var A=K.A,all=K.all;
  if(!A.length){$("mst").innerHTML='<div class="empty"><b>No students yet</b>Upload a CSV in Classes, or open a class and add students in its Settings.</div>';return}
  tSummary(K,!TEACHER)}
-/* The overview, the same for a teacher's classes and for the whole school: the rankings (with house points) first
-   and largest, then the graphs, then attention. The school overview adds the top classes and the latest passes
-   beside attention. */
-function tSummary(K,school){var all=K.all,E=school?latest(K.A,3):[];
- $("mst").innerHTML='<div class="tsum'+(school?' school':'')+'"><div class="tsa">'+attnBox(K)+'</div><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K)+'</section>'
-  +'<div class="tsg"><div class="grp"><div class="mod-h"><h2>Passes per week</h2><span class="cap">'+(school?'Whole school, last 8 weeks':'Last 8 weeks')+'</span></div>'+weekChart(allLogs(all))+'</div>'
-  +'<div class="grp lvwrap"><div class="mod-h"><h2>Students by level</h2><span class="cap">Current target'+(school?', all '+plural(all.length,"student"):'')+'</span></div>'+levelCols(all)+'</div></div>'
-  +(school?'<div class="tsl"><div class="grp topc"><div class="mod-h">'+ovT("rc","Top classes")+'</div>'
-    +rankList("topc",classRows("m"),{limit:3,noMore:1,none:"No passes or merits yet this month.",fmt:function(v){return v.toFixed(1)}})+'<p class="cap">This month, passes and merits per student</p></div>'
-    +'<div class="grp"><div class="mod-h"><h2>Latest passes</h2></div>'+(E.length?'<ul class="feed">'+E.map(function(e){return '<li><span class="d">'+ds(e.t)+'</span><b>'+esc(e.s.name)+'<small>'+esc(cname(ST[e.c].name))+'</small></b><span class="x">'+esc(e.x)+'</span></li>'}).join("")+'</ul>':'<p class="none">No passes yet.</p>')+'</div></div>':'')
-  +'</div>';
+/* The overview, the same for a teacher's classes and for the whole school: attention first, then the rankings (with
+   house points and passes per week). The school overview splits passes into Primary Years and Secondary Years
+   below: each has its highlights, its top classes and its students with the most passes this month. */
+function tSummary(K,school){
+ $("mst").innerHTML='<div class="tsum'+(school?' school':'')+'"><div class="tsa">'+attnBox(K)+'</div><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K,school)+'</section>'
+  +(school?stagesHtml(K):'')+'</div>';
  $("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
+/* A first name and the first letter of the surname: Yusuf Dh reads Yusuf D. */
+function shortNm(n){var w=n.trim().split(/\s+/);return w.length>1?w[0]+" "+w[w.length-1].charAt(0):w[0]}
+/* A section title that opens the Rankings page on one stage. */
+function rkT(g,t){return '<h3><button type="button" class="ovt" data-rkg="'+g+'">'+t+'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></h3>'}
+/* Primary Years and Secondary Years side by side, staged as the Rankings page and the TV stage them (cStage). Memo
+   passes this month: the total and how many students passed, then the top classes and the students with the most
+   passes. Ties share a place. */
+function stagesHtml(K){var by={p:[],s:[]},none=0;CIDS.forEach(function(c){var g=cStage(c);if(by[g])by[g].push(c);else none++});
+ function panel(g){var C=by[g],A=K.A.filter(function(o){return C.indexOf(o.c)>=0}),nm=g==="p"?"Primary Years":"Secondary Years";
+  var h='<div class="stg '+g+'">';
+  if(!C.length)return h+'<div class="stg-h"><div><h3>'+nm+'</h3></div></div><p class="none">No '+nm+' classes. A class counts when its name or its students say '+(g==="p"?'Year 1 to 6':'Year 7 or above')+'.</p></div>';
+  var n=sumOf(A.map(function(o){return o.s}),mpc),act=A.filter(function(o){return mpc(o.s)}).length;
+  h+='<div class="stg-h"><div><h3>'+nm+'</h3></div><div class="shl"><b'+(n?'':' class="zero"')+'>'+n+'</b><span>'+(n===1?'pass':'passes')+'<small>'+act+' of '+plural(A.length,"student")+' passed</small></span></div></div>'
+   +'<div class="stg-l"><div class="grp">'+rkT(g,"Top classes")+rankList("tc"+g,C.map(function(c){return {name:cname(ST[c].name),open:c,tab:"T",v:sumOf(ST[c].S,mpc)}}),{limit:3,noMore:1,none:"No Memo passes yet this month."})+'</div>'
+   +'<div class="grp"><h3><button type="button" class="ovt" data-mt="mp'+g+'">Most passes<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></h3>'
+   +rankList("mp"+g,A.map(function(o){return {name:shortNm(o.s.name),open:o.c,tab:"T",sub:esc(cname(ST[o.c].name)),v:mpc(o.s)}}),{limit:3,noMore:1,tone:"sky",none:"No passes yet this month."})+'</div></div>';
+  return h+'</div>'}
+ return '<section class="tss"><div class="mod-h"><h2>Primary and Secondary</h2><span class="cap">Memo passes this month</span></div><div class="stg2">'+panel("p")+panel("s")+'</div>'
+  +(none?'<p class="rank-note">'+plural(none,"class","classes")+' with no year group in the name or on the students '+(none===1?'is':'are')+' left out here.</p>':'')+'</section>'}
+document.addEventListener("click",function(e){var b=e.target.closest("[data-rkg]");if(!b)return;RKF.g=b.dataset.rkg;RKF.p="m";if($("rkG")){setSeg("rkG",RKF.g);$("rkP").value="m"}go("K")});
 /* The pop-ups behind the overview's section titles: the full lists that used to be tabs of their own. */
 var OVK="";
-var OVN={A:"Needs attention",H:"House points",mp:"Most passes",mm:"Most merits",rc:"Class ranking"};
+var OVN={A:"Needs attention",H:"House points",mp:"Most passes",mpp:"Most passes, Primary Years",mps:"Most passes, Secondary Years",mm:"Most merits",rc:"Class ranking"};
 function ov(k){OVK=k;drawer(OVN[k],"");DMODE="ov";ovDraw(school())}
 function ovDraw(K){var B=$("drwB"),m=RP==="m",tm=m?"this month":"in total",h;if(DMODE!=="ov")return;
  if(OVK==="A")h=attnHtml(K);
  else if(OVK==="H")h=houseHtml(K);
  else if(OVK==="rc")h='<p class="cap">Passes and merits per student, '+tm+'</p>'+rankList("rcP"+RP,classRows(RP),{limit:10,page:1,what:"classes",none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}});
- else{var mp=OVK==="mp";h='<p class="cap">Students, '+tm+'</p>'+rankList(OVK+"P"+RP,K.A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:mp?(m?mpc(o.s):o.s.passes):(m?mmc(o.s):o.s.merits)}}),{limit:10,page:1,what:"students",tone:mp?"sky":"gold",none:"No "+(mp?"passes":"merits")+" yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})}
+ else{var mp=OVK!=="mm",g=OVK.charAt(2),L=g?K.A.filter(function(o){return cStage(o.c)===g}):K.A;if(g){m=true;tm="this month"}
+  h='<p class="cap">'+(g?(g==="p"?"Primary":"Secondary")+' Years students':'Students')+', '+tm+'</p>'+rankList(OVK+"P"+(g?"m":RP),L.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:mp?(m?mpc(o.s):o.s.passes):(m?mmc(o.s):o.s.merits)}}),{limit:10,page:1,what:"students",tone:mp?"sky":"gold",none:"No "+(mp?"passes":"merits")+" yet "+tm+".",zeroNote:function(z){return plural(z,"student")+" with none yet "+tm+"."}})}
  B.innerHTML='<div class="ovp">'+h+'</div>'}
 /* Attention: the complete lists, one group at a time, ten a page. Tabs for Quran, Memorisation and Behaviour come
    first (an area opens on its first list), then that area's two lists. Warnings, missed breaks and overdue students are
@@ -2784,13 +2836,14 @@ $("vU").addEventListener("click",function(e){if(e.target.closest("#stuA,#stuA2")
   function done(){var i=ST[c]?ST[c].S.indexOf(s):-1;if(i<0){toast("That student has already changed. Try again.",1);stuRows();return}
    ST[c].S.splice(i,1);persist(c);stuRows();toast(s.name+" removed from "+cname(ST[c].name));if($("stuQ"))$("stuQ").focus()}
   if(QM.matches||!tr.animate||!document.contains(tr))done();else tr.animate([{opacity:1},{opacity:0,transform:"translateX(12px)"}],{duration:220,easing:"ease",fill:"forwards"}).onfinish=done},null,1)});
-/* The overview's rankings: house points and the top three students for passes and for merits. Each title opens
-   the full list. */
-function rankHtml(K){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
+/* The overview's rankings: house points, the top three students for passes (teachers; the school overview has them
+   by stage) and for merits, and passes per week. Each title opens the full list. */
+function rankHtml(K,school){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
  var h='<div class="toolbar"><div class="seg" id="rP" role="group" aria-label="Period"><button type="button" data-p="m" aria-pressed="'+m+'">This month</button><button type="button" data-p="a" aria-pressed="'+!m+'">All time</button></div><p class="cap">'+(m?'Since the 1st of this month':'Every pass and merit recorded: '+plural(sumOf(K.all,function(s){return s.passes}),"pass","passes")+' and '+plural(sumOf(K.all,function(s){return s.merits}),"merit")+' in total')+'</p></div>';
- h+='<div class="rk4 mine">'+houseBoard(K.all)
-  +'<div class="grp"><div class="mod-h">'+ovT("mp","Most passes")+'</div><p class="cap">Students, '+tm+'</p>'+rankList("mp"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:m?mpc(o.s):o.s.passes}}),{limit:3,noMore:1,tone:"sky",none:"No passes yet "+tm+"."})+'</div>'
-  +'<div class="grp"><div class="mod-h">'+ovT("mm","Most merits")+'</div><p class="cap">Students, '+tm+'</p>'+rankList("mm"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:m?mmc(o.s):o.s.merits}}),{limit:3,noMore:1,tone:"gold",none:"No merits yet "+tm+"."})+'</div></div>';
+ h+='<div class="rk4 mine'+(school?'':' c4')+'">'+houseBoard(K.all)
+  +(school?'':'<div class="grp"><div class="mod-h">'+ovT("mp","Most passes")+'</div><p class="cap">Students, '+tm+'</p>'+rankList("mp"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:m?mpc(o.s):o.s.passes}}),{limit:3,noMore:1,tone:"sky",none:"No passes yet "+tm+"."})+'</div>')
+  +'<div class="grp"><div class="mod-h">'+ovT("mm","Most merits")+'</div><p class="cap">Students, '+tm+'</p>'+rankList("mm"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:m?mmc(o.s):o.s.merits}}),{limit:3,noMore:1,tone:"gold",none:"No merits yet "+tm+"."})+'</div>'
+  +'<div class="grp"><div class="mod-h"><h2>Passes per week</h2></div><p class="cap">'+(school?'Whole school, last 8 weeks':'Last 8 weeks')+'</p>'+weekRows(allLogs(K.all))+'</div></div>';
  return h}
 function houseHtml(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null,mx=Math.max.apply(null,O.map(function(y){return T[y]||0}))||1;
  var tok={},stu={},none=0;HOUSES.forEach(function(h){tok[h]=TOK.map(function(){return 0});stu[h]=0});
