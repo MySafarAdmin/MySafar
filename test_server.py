@@ -273,7 +273,7 @@ class DashboardTests:
         self.assertTrue(valid_state(dict(state, S=[dict(student, tb=[1760400000000], tests=[dict(test, tk=1760400000000)])])))
         # A surah chosen by item number on the Record page is kept as written, with no token.
         self.assertTrue(valid_state(dict(state, S=[dict(student, tests=[dict(test, x="212. Surah Al-Mulk")])])))
-        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 15}, {"tk": -1}, {"tk": "now"},
+        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 21}, {"tk": -1}, {"tk": "now"},
                     {"x": 212}, {"x": "x" * 81}):
             self.assertFalse(valid_state(dict(state, S=[dict(student, tests=[dict(test, **bad)])])))
         self.assertFalse(valid_state(dict(state, S=[dict(student, tests={})])))
