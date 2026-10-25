@@ -28,6 +28,7 @@ import set_houses
 import export
 import house_extra
 import quran_coins
+import memo_import
 import tv
 from db import DB_ERRORS, Database
 from mailer import Mailer
@@ -234,6 +235,7 @@ def create_app(test_config=None):
     app.register_blueprint(export.bp)
     app.register_blueprint(house_extra.bp)
     app.register_blueprint(quran_coins.bp)
+    app.register_blueprint(memo_import.bp)
     pruned = {"at": 0}
 
     def wants_json():

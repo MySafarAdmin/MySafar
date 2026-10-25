@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Import memorisation passes{% endblock %}
+{% block width %} narrow{% endblock %}
+{% macro table(list, why) %}
+<div class="tablewrap"><table class="tbl stackable">
+<thead><tr><th scope="col">Row</th><th scope="col">Date</th><th scope="col">Student</th><th scope="col">Target</th><th scope="col">Class</th>{% if why %}<th scope="col">Why</th>{% endif %}</tr></thead>
+<tbody>
+{% for r in list %}
+<tr><td class="n">{{ r.n }}</td><td data-label="Date">{{ r.day }}</td><td class="lead">{{ r.name }}</td><td data-label="Target">{{ r.label }}</td><td data-label="Class">{{ r.cls or "–" }}</td>
+{% if why %}<td data-label="Why">{% if r.status == "missing" %}No student on the site has this name{% elif r.status == "choose" %}Two students share this name, choose one below{% elif r.status == "repeat" %}The same target is higher up the sheet{% else %}{{ r.note }}{% endif %}</td>{% endif %}</tr>
+{% endfor %}
+</tbody></table></div>
+{% endmacro %}
+{% block content %}
+<div class="band slim"><div class="band-top"><h1>Import memorisation passes</h1><div class="acts"><a class="btn" href="/admin/clear-test-data/backup.json">Download a backup</a></div></div>
+<p class="lede">Makes the school's sheet the whole memorisation record. First every student's memo passes, fails and Memo level tests already on the site are cleared; the blue coins from passed Memo level tests stay. Then each pass on the sheet is added on its own date, as the Memo profile's Add pass does, with no tokens or house points, and each student's target becomes the one after the latest target they passed on the sheet. Students not on the sheet keep their target. The version of each class from just before is kept in Class history.</p></div>
+{% if done is defined %}
+<div class="panel" role="status"><p><b>Imported the sheet into {{ done }} {{ "class" if done == 1 else "classes" }}.</b> Open dashboards need a reload to show it. Using this page again would clear and import again, so any pass recorded after now would be lost.</p></div>
+{% endif %}
+{% if error %}<div class="panel" role="alert"><p>{{ error }}</p></div>{% endif %}
+<div class="panel" role="alert"><p><b>This clears first:</b> {{ removed.passes }} {{ "pass" if removed.passes == 1 else "passes" }}, {{ removed.fails }} {{ "fail" if removed.fails == 1 else "fails" }} and {{ removed.tests }} Memo level {{ "test" if removed.tests == 1 else "tests" }} already on the site, from {{ removed.students }} {{ "student" if removed.students == 1 else "students" }}.</p></div>
+<p class="sub">{{ total }} rows on the sheet: {{ counts.add }} passes and {{ counts.fail }} {{ "fail" if counts.fail == 1 else "fails" }} to add for {{ students }} students,
+{{ counts.repeat }} repeated on the sheet, {{ counts.missing + counts.choose + counts.bad }} that don't match.</p>
+{% if problems %}<h2>Don't match ({{ problems|length }})</h2>{{ table(problems, 1) }}{% endif %}
+{% if noted %}<h2>Added, worth a look ({{ noted|length }})</h2>{{ table(noted, 1) }}{% endif %}
+{% if skipped %}<h2>Left out ({{ skipped|length }})</h2>{{ table(skipped, 1) }}{% endif %}
+{% if adding %}<details class="mod line"><summary>Every row to add ({{ adding|length }})</summary>{{ table(adding, 0) }}</details>{% endif %}
+{% if adding or choices or removed.students %}
+<div class="mod line">
+  <h2>Clear and add {{ adding|length }} {{ "row" if adding|length == 1 else "rows" }}</h2>
+  <form method="post" action="/admin/import-memo-passes" class="inline-form">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    {% for key, c in choices %}
+    <label class="field">{{ c.name }} on the sheet is<select name="pick-{{ key }}"><option value="">Neither, leave their rows out</option>
+    {% for v, label in c.options %}<option value="{{ v }}"{% if c.pick == v %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+    {% endfor %}
+    <label class="field">Type IMPORT to confirm<input name="confirm" autocomplete="off" required></label>
+    <button class="btn danger solid">Clear and import</button>
+  </form>
+</div>
+{% else %}
+<p class="sub">Nothing left to add.</p>
+{% endif %}
+{% endblock %}
