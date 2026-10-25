@@ -15,6 +15,7 @@
   <button class="nav dkx" id="nS" type="button" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Class settings</button>
   <button class="nav" id="nM" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>Overview</button>
   <button class="nav" id="nR" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>Record</button>
+  <button class="nav" id="nH" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5v10z"/><path d="M14 3.2A8.5 8.5 0 0 1 20.8 10H14z"/></svg>House points</button>
   <a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer" title="Registers, homework and classroom learning"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></svg><span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
   <button class="nav" id="nL" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>Classes</button>
   <button class="nav" id="nU" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11.2v4.3c1.5 1.5 3.4 2.2 5.5 2.2s4-.7 5.5-2.2v-4.3"/><path d="M21.5 9v5"/></svg>Students</button>
@@ -49,6 +50,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
  </details></section>
 <section id="vU" class="ws hide" aria-labelledby="ttl"><div id="stuW"></div></section>
 <section id="vR" class="ws hide" aria-labelledby="ttl"><div class="recf" id="recF"></div></section>
+<section id="vH" class="ws hide" aria-labelledby="ttl"><div id="hpW"></div></section>
 
 <section id="vQ" class="ws hide" role="tabpanel" aria-labelledby="tQ">
  <div class="toolbar qbar">
@@ -210,9 +212,9 @@ function changed(c){navL();
  if(CID&&!ST[CID]){go("M");toast("That classroom was deleted",1);return}
  var h=fromHash(HASH);if(h){HASH="";go(h[0],h[1]);return}
  if(CID){if(c===undefined||c===CID)setClass(CID)}else if(PAGE==="R")recPage();else master()}
-/* #classes, #record, a class's id, or #tab-Q (and T, D, H, S) for a page of the class used last: the admin and
+/* #classes, #students, #house-points, #record, a class's id, or #tab-Q (and T, D, H, S) for a page of the class used last: the admin and
    account pages link to these from their own dock. */
-function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];if(h==="students")return ["U"];if(h==="record")return [TEACHER?"M":"R"];
+function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];if(h==="students")return ["U"];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="record")return [TEACHER?"M":"R"];
  var m=/^tab-([QTDHS])$/.exec(h);if(m){var c=lastC();return c?[c,m[1]]:CIDS.length||LOADED?["L"]:null}return ST[h]?[h]:null}
 function setSt(t,s){var e=document.getElementById("st");if(e){e.textContent=t;e.setAttribute("data-s",s||(/couldn|can't|not saved|signed out|could not/i.test(t)?"bad":/saving|loading/i.test(t)?"busy":"ok"))}}
 function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
@@ -907,7 +909,7 @@ if(PHN.addEventListener)PHN.addEventListener("change",noSheet);else PHN.addListe
 /* ---------- Navigation ---------- */
 /* The rail has no list of classes: Classes opens the class cards, and stays marked while a class is open. */
 function navL(){
- $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");if(PAGE==="M")hello();$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false");$("nL").setAttribute("aria-current",PAGE==="L"||PAGE==="C"?"page":"false");$("nU").setAttribute("aria-current",PAGE==="U"?"page":"false");dockSet()}
+ $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");if(PAGE==="M")hello();$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false");$("nL").setAttribute("aria-current",PAGE==="L"||PAGE==="C"?"page":"false");$("nU").setAttribute("aria-current",PAGE==="U"?"page":"false");$("nH").setAttribute("aria-current",PAGE==="H"?"page":"false");dockSet()}
 /* The phone dock (tokens.css): a teacher always has Home and their class pages; an admin has Home, Classes and
    Record, and the class pages while a class is open, with Classes first to get back. Class pages tapped from
    elsewhere open the class used last. Everything else is under More, the full menu. */
@@ -940,19 +942,20 @@ function cname(n){n=String(n||"");if(CNM.hasOwnProperty(n))return CNM[n];var g=/
  if(g){l=/^\s*-?\s*([A-Z])\b/.exec(n.slice(g.index+g[0].length));y="Yr"+g[1].replace(/\s+/g,"")+(l?l[1]:"")}else if(/\breception\b/i.test(n))y="Reception";
  return CNM[n]=[y,cteach(n)].filter(Boolean).join(" ")||n}
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
- $("ttl").textContent=n?cname(n.name):PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
+ $("ttl").textContent=n?cname(n.name):PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):PAGE==="H"?"House points":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  // The Presenter (the TV's scenes for one class) is served by the Railway server, in this tab.
  $("pres").hidden=!n||!window.RAILWAY;if(n)$("pres").href="/presenter/"+encodeURIComponent(CID);
- document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+"MySafar"}
+ document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+"MySafar"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
-function go(c,keepTab){if((c==="R"||c==="U")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U";PAGE=R?"R":M?"M":L?"L":U?"U":"C";closeDrawer();$("figP").hidden=U;if(U)$("figP").open=false;
- $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("vL").classList.toggle("hide",!L);$("vU").classList.toggle("hide",!U);$("sub").classList.toggle("hide",M||R||L||U);
- if(U){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();stuPage()}
+function go(c,keepTab){if((c==="R"||c==="U"||c==="H")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":"C";closeDrawer();$("figP").hidden=U||H;if(U||H)$("figP").open=false;
+ $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("vL").classList.toggle("hide",!L);$("vU").classList.toggle("hide",!U);$("vH").classList.toggle("hide",!H);$("sub").classList.toggle("hide",M||R||L||U||H);
+ if(H){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();hpPage()}
+ else if(U){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();stuPage()}
  else if(L){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();dirTab()}
  else if(R){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();recPage()}
  else if(M){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master()}
  else{setClass(c);tab(keepTab||"Q")}
- try{history.replaceState(null,"",M||R?location.pathname+location.search:L?"#classes":U?"#students":"#"+c)}catch(e){}
+ try{history.replaceState(null,"",M||R?location.pathname+location.search:L?"#classes":U?"#students":H?"#house-points":"#"+c)}catch(e){}
  $("navt").checked=false;navL();window.scrollTo(0,0)}
 function switcher(){drawer("Switch class",'<input type="search" id="swQ" class="dsearch" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><ul class="swl" id="swL">'+CIDS.map(function(c){return '<li data-q="'+esc(nkey(ST[c].name+" "+cname(ST[c].name)))+'"><button type="button" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+'>'+esc(cname(ST[c].name))+'<small>'+plural(ST[c].S.length,"student")+'</small></button></li>'}).join("")+'</ul>');
  $("swQ").addEventListener("input",function(){var q=nkey(this.value);Array.prototype.forEach.call($("swL").children,function(li){li.hidden=!!q&&li.dataset.q.indexOf(q)<0})})}
@@ -1006,7 +1009,7 @@ function houseBoard(all){var T=window.HOUSE_TOTALS||houseTotals(all),V=HOUSES.ma
  return '<div class="mod gold hb"><div class="mod-h">'+ovT("H","House points")+'</div><div class="houses">'+O.map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+(h===lead?' <span class="pill lead">Leading</span>':'')+'</span><span class="pts">'+v+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div></div>'}).join("")+'</div><p class="cap">Whole school, all time</p></div>'}
 function classRows(per){return CIDS.map(function(c){var L=ST[c].S,n=L.length,p=per==="m"?sumOf(L,mpc):sumOf(L,function(s){return s.passes}),m=per==="m"?sumOf(L,mmc):sumOf(L,function(s){return s.merits});
  return {name:cname(ST[c].name),open:c,v:n?Math.round((p+m)/n*10)/10:0,sub:plural(p,"pass","passes")+", "+plural(m,"merit")+", "+plural(n,"student")}})}
-function master(){if(PAGE==="L"){dirTab();return}if(PAGE==="U"){stuPage();return}var K=school(),A=K.A,all=K.all,adm=!(window.ME&&ME.role!=="admin");
+function master(){if(PAGE==="L"){dirTab();return}if(PAGE==="U"){stuPage();return}if(PAGE==="H"){hpPage();return}var K=school(),A=K.A,all=K.all,adm=!(window.ME&&ME.role!=="admin");
  $("figs").innerHTML=CIDS.length?fig(A.length,A.length===1?"Student":"Students")+fig(CIDS.length,CIDS.length===1?"Class":"Classes")+fig(sumOf(all,mpc),"Passes this month")+fig(sumOf(all,mmc),"Merits this month")+fig(K.wr.length+K.mb.length,"With a warning",K.wr.length+K.mb.length?"alert":"")+fig(K.stale.length,"Overdue a pass",K.stale.length?"alert":""):"";
  if(!CIDS.length){$("mst").innerHTML=LOADED?'<div class="empty"><b>'+(adm?'No classrooms yet':'No classrooms have been given to you yet')+'</b>'+(adm?'Upload a CSV of your students to create them.<button type="button" class="btn sm p" data-open="L">Upload students</button>':'Ask an administrator to add you to your classrooms on Manage users.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div>';
   return}
@@ -1235,13 +1238,97 @@ function houseHtml(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.sli
   +CIDS.slice(p*size,(p+1)*size).map(function(c){var t=houseTotals(ST[c].S);return '<tr><td class="lead">'+opener(c,esc(cname(ST[c].name)),"Q")+'</td>'+HOUSES.map(function(x){return '<td data-label="'+x+'" class="n'+(t[x]?'':' zero')+'">'+t[x]+'</td>'}).join("")+'</tr>'}).join("")+'</tbody></table></div>'+pagerHtml("hc",CIDS.length,size,"classes")+'</div></div>';
  return h}
 
+/* ---------- House points page (admins) ----------
+   Where the house points come from. Every coin is one award: a time in s.tg, s.tb or s.tr. Its reason is the Record
+   page's entry in s.hp with the same time, or a passed level test whose blue coin has that time (t.tk), and
+   otherwise it was given from the student's name menu on the Quran tab. Awards go to the student's house as it is
+   set now, as the totals do. The page breaks them down by student, class, AI class, family, gender, year group or
+   what they were for, after the period, house, what-for and search filters; a row opens every award behind it. */
+var HB="st",HPF={p:"all",h:"",r:"",q:""},HPSZ=10,HPX=[];
+var HBY=[["st","Students","Student"],["c","Classes","QM class"],["ist","AI classes","AI class"],["fid","Families","Family"],["gender","Gender","Gender"],["sy","Year groups","Year group"],["r","What for","What for"],["all","Every award",""]];
+var HPP=[["all","All time"],["d","Today"],["w","This week"],["m","This month"],["lm","Last month"],["30","Last 30 days"]];
+function hrLab(r){if(r==="lt")return "Level test passed (Record)";if(r.charAt(0)==="q"&&r.length===2){var k=TOK.filter(function(x){return x[1]===r.charAt(1)})[0];return "Quran tab, "+(k?k[2].toLowerCase():"")+" coin"}
+ var x=hpr(r);return x?x[1]:r}
+function hrKeys(){return HPR.map(function(x){return x[0]}).concat(["lt"],TOK.map(function(k){return "q"+k[1]}))}
+/* Every coin in the school as {s, c, t, k: its TOK entry, r: what for}. */
+function hpAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){var W={};
+  (s.hp||[]).forEach(function(x){var h=hpr(x.r),f=h?h[2]:"";(W[f+"|"+x.t]=W[f+"|"+x.t]||[]).push(x.r)});
+  (s.tests||[]).forEach(function(t){if(t.ok&&t.tk)(W["tb|"+t.tk]=W["tb|"+t.tk]||[]).push("lt")});
+  TOK.forEach(function(k){(s[k[0]]||[]).forEach(function(t){var w=W[k[0]+"|"+t];A.push({s:s,c:c,t:t,k:k,r:w&&w.length?w.shift():"q"+k[1]})})})})});
+ return A}
+function hpFrom(p){var n=new Date(),y=n.getFullYear(),m=n.getMonth();
+ return p==="d"?[new Date(y,m,n.getDate()).getTime(),Infinity]:p==="w"?[wk0(+n),Infinity]:p==="m"?[ms0(),Infinity]:p==="lm"?[new Date(y,m-1,1).getTime(),ms0()]:p==="30"?[+n-30*864e5,Infinity]:null}
+function hpQ(o,q){return nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q||nkey(cname(ST[o.c].name)).indexOf(q)>=0}
+/* The awards the filters keep; the house cards ignore the house filter so all three can be compared. */
+function hpPick(anyHouse){var w=hpFrom(HPF.p),q=nkey(HPF.q);return hpAll().filter(function(o){
+ return (!w||o.t>=w[0]&&o.t<w[1])&&(!HPF.r||o.r===HPF.r)&&(anyHouse||!HPF.h||(o.s.house||"-")===HPF.h)&&(!q||hpQ(o,q))})}
+function hpWhen(t){if(!(t>1e11))return "Date not recorded";var d=new Date(t);return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})+", "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
+function hpGroup(o){var s=o.s;switch(HB){
+ case "st":return [o.c+"|"+ST[o.c].S.indexOf(s),s.name];case "c":return [o.c,cname(ST[o.c].name)];
+ case "ist":return [s.ist||"",s.ist?cname(s.ist):"No AI class"];case "fid":var f=String(s.fid||"").trim();return [f.toUpperCase(),f||"No Family ID"];
+ case "gender":return [s.gender||"",s.gender||"Gender not recorded"];case "sy":return [s.sy||"",s.sy||"Year group not recorded"];
+ default:return [o.r,hrLab(o.r)]}}
+function hpSum(L){return L.reduce(function(t,o){return t+o.k[3]},0)}
+function hpPage(){if(!CIDS.length){$("hpW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>House points are given to students, so upload a CSV on Classes first.<button type="button" class="btn sm p" data-open="L">Go to Classes</button></div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';return}
+ if(!$("hpQ"))$("hpW").innerHTML='<div id="hpH"></div><div class="hpby"><div class="seg" id="hpB" role="group" aria-label="Break down by">'+HBY.map(function(x){return '<button type="button" data-k="'+x[0]+'" aria-pressed="'+(HB===x[0])+'">'+x[1]+'</button>'}).join("")+'</div></div>'
+  +'<div class="toolbar hpbar"><input type="search" id="hpQ" placeholder="Find a student, class or ID…" aria-label="Find a student, class, Student ID or Family ID" autocomplete="off">'
+  +'<label class="hpf">Period<select id="hpP">'+HPP.map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>'}).join("")+'</select></label>'
+  +'<label class="hpf">House<select id="hpHs"><option value="">All houses</option>'+HOUSES.map(function(h){return '<option>'+h+'</option>'}).join("")+'<option value="-">No house</option></select></label>'
+  +'<label class="hpf">What for<select id="hpR"><option value="">Everything</option>'+hrKeys().map(function(r){return '<option value="'+r+'">'+esc(hrLab(r))+'</option>'}).join("")+'</select></label>'
+  +'<p class="cap" id="hpN"></p></div><div id="hpL"></div>';
+ $("hpQ").value=HPF.q;$("hpP").value=HPF.p;$("hpHs").value=HPF.h;$("hpR").value=HPF.r;hpRows()}
+/* The three houses for what the filters keep, each with where most of its points came from. */
+function hpHouses(L){var T={},R={},none=0;HOUSES.forEach(function(h){T[h]=0;R[h]={}});
+ L.forEach(function(o){var h=o.s.house;if(T[h]===undefined){none+=o.k[3];return}T[h]+=o.k[3];R[h][o.r]=(R[h][o.r]||0)+o.k[3]});
+ var mx=Math.max.apply(null,HOUSES.map(function(h){return T[h]}))||1;
+ return '<div class="hbig hpcards">'+HOUSES.map(function(h){var top=Object.keys(R[h]).sort(function(a,b){return R[h][b]-R[h][a]}).slice(0,3);
+   return '<button type="button" class="hcol '+h+'" data-hh="'+h+'" aria-pressed="'+(HPF.h===h)+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+'</span><b>'+T[h]+'</b><small>points</small><span class="hbar" aria-hidden="true"><i style="width:'+(T[h]/mx*100)+'%"></i></span>'
+    +'<span class="hpsrc">'+(top.length?top.map(function(r){return '<span><span class="hpr">'+esc(hrLab(r))+'</span><b>'+R[h][r]+'</b></span>'}).join(""):'<span class="zero">Nothing in this period</span>')+'</span></button>'}).join("")+'</div>'
+  +(none?'<p class="cap">'+none+' more points went to students with no house yet, so they count for no house.</p>':'')}
+function hpRows(){var L=hpPick(0),G={},O=[],cols=HPF.h?[]:HOUSES.slice(),fon=HPF.p!=="all"||HPF.h||HPF.r||HPF.q;
+ $("hpH").innerHTML=hpHouses(hpPick(1));
+ if(!HPF.h&&L.some(function(o){return HOUSES.indexOf(o.s.house)<0}))cols.push("-");
+ $("hpN").textContent=plural(L.length,"award")+", "+hpSum(L)+" points"+(fon?" match":"");
+ if(!L.length){HPX=[];$("hpL").innerHTML='<div class="empty"><b>'+(fon?'No house points match':'No house points yet')+'</b>'+(fon?'Try a longer period, or clear the search and filters.':'They are given on the Record page and from a student\'s name on the Quran tab.')+'</div>';return}
+ if(HB==="all"){HPX=L.slice().sort(function(a,b){return b.t-a.t});var p=pager("hpg",HPX.length,HPSZ);
+  $("hpL").innerHTML=hpList(HPX.slice(p*HPSZ,(p+1)*HPSZ),1)+pagerHtml("hpg",HPX.length,HPSZ,"awards");return}
+ L.forEach(function(o){var g=hpGroup(o),x=G[g[0]];if(!x){x=G[g[0]]={k:g[0],name:g[1],o:o,L:[],h:{},st:[]};O.push(x)}x.L.push(o);
+  var h=HOUSES.indexOf(o.s.house)<0?"-":o.s.house;x.h[h]=(x.h[h]||0)+o.k[3];if(x.st.indexOf(o.s)<0)x.st.push(o.s)});
+ O.forEach(function(x){x.v=hpSum(x.L)});O.sort(function(a,b){return b.v-a.v||a.name.localeCompare(b.name)});HPX=O;
+ var p=pager("hpg",O.length,HPSZ),st=HB==="st",by=HBY.filter(function(x){return x[0]===HB})[0],what=by[1].toLowerCase(),h;
+ h='<div class="tablewrap"><table class="tbl stackable hpt"><thead><tr><th scope="col">'+by[2]+'</th>'
+  +(st?'<th scope="col">Class</th><th scope="col">House</th>'+TOK.map(function(k){return '<th scope="col" class="n"><span class="tdot '+k[1]+'"></span>'+k[2]+'</th>'}).join(""):'<th scope="col" class="n">Students</th>'+cols.map(function(c){return '<th scope="col" class="n">'+(c==="-"?"No house":c)+'</th>'}).join(""))
+  +'<th scope="col" class="n">Points</th><th scope="col"><span class="sr-only">Details</span></th></tr></thead><tbody>'
+  +O.slice(p*HPSZ,(p+1)*HPSZ).map(function(x,i){var s=x.o.s,sub=HB==="fid"&&x.k?x.st.map(function(y){return y.name}).join(", "):"";
+   return '<tr><td class="lead"><b>'+esc(x.name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</td>'
+    +(st?'<td data-label="Class">'+esc(cname(ST[x.o.c].name))+'</td><td data-label="House">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">Not set</span>')+'</td>'
+      +TOK.map(function(k){var n=x.L.filter(function(o){return o.k===k}).length;return '<td data-label="'+k[2]+' coins" class="n'+(n?'':' zero')+'">'+n+'</td>'}).join("")
+     :'<td data-label="Students" class="n">'+x.st.length+'</td>'+cols.map(function(c){var v=x.h[c]||0;return '<td data-label="'+(c==="-"?"No house":c)+'" class="n'+(v?'':' zero')+'">'+v+'</td>'}).join(""))
+    +'<td data-label="Points" class="n tot">'+x.v+'</td><td class="act"><button type="button" class="btn sm quiet" data-hx="'+(p*HPSZ+i)+'" aria-label="See where '+esc(x.name)+'\'s '+x.v+' points came from">See awards</button></td></tr>'}).join("")
+  +'</tbody></table></div>'+pagerHtml("hpg",O.length,HPSZ,what);
+ $("hpL").innerHTML=h}
+/* Awards newest first: when, who (with their class and house), what for and the coin. */
+function hpList(L,who){return '<ul class="hpl">'+L.map(function(o){var s=o.s;
+  return '<li><span class="d">'+hpWhen(o.t)+'</span>'+(who?'<b class="w">'+esc(s.name)+'<small>'+esc(cname(ST[o.c].name))+(s.house?' · <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):' · No house')+'</small></b>':'')
+   +'<span class="x">'+esc(hrLab(o.r))+'</span><span class="rtok '+o.k[1]+'"><span class="tdot '+o.k[1]+'" aria-hidden="true"></span>+'+o.k[3]+'</span></li>'}).join("")+'</ul>'}
+function hpOpen(x){var L=x.L.slice().sort(function(a,b){return b.t-a.t}),R={};L.forEach(function(o){var r=R[o.r]=R[o.r]||{n:0,v:0};r.n++;r.v+=o.k[3]});
+ var K=Object.keys(R).sort(function(a,b){return R[b].v-R[a].v}),one=HB==="st",max=200;
+ drawer(x.name,'<div class="hpd"><p class="cap">'+(one?esc(cname(ST[x.o.c].name))+(x.o.s.house?', '+esc(x.o.s.house):', no house yet')+'. ':plural(x.st.length,"student")+'. ')+plural(L.length,"award")+', '+x.v+' points'+(HPF.p!=="all"?', '+HPP.filter(function(p){return p[0]===HPF.p})[0][1].toLowerCase():'')+'.</p>'
+  +'<table class="tbl hpw"><thead><tr><th scope="col">What for</th><th scope="col" class="n">Awards</th><th scope="col" class="n">Points</th></tr></thead><tbody>'+K.map(function(r){return '<tr><td>'+esc(hrLab(r))+'</td><td class="n">'+R[r].n+'</td><td class="n">'+R[r].v+'</td></tr>'}).join("")+'</tbody></table>'
+  +'<h3>Every award</h3>'+hpList(L.slice(0,max),!one)+(L.length>max?'<p class="cap">The latest '+max+' of '+L.length+'. Choose a shorter period to see the rest.</p>':'')+'</div>')}
+$("vH").addEventListener("input",function(e){if(e.target.id==="hpQ"){HPF.q=e.target.value;PG.hpg=0;hpRows()}});
+$("vH").addEventListener("change",function(e){var k={hpP:"p",hpHs:"h",hpR:"r"}[e.target.id];if(!k)return;HPF[k]=e.target.value;PG.hpg=0;hpRows()});
+$("vH").addEventListener("click",function(e){var b=e.target.closest("#hpB button,[data-hh],[data-hx]");if(!b)return;
+ if(b.dataset.k){HB=b.dataset.k;PG.hpg=0;setSeg("hpB",HB);hpRows();return}
+ if(b.dataset.hh){HPF.h=HPF.h===b.dataset.hh?"":b.dataset.hh;$("hpHs").value=HPF.h;PG.hpg=0;hpRows();var f=document.querySelector('[data-hh="'+b.dataset.hh+'"]');if(f)f.focus();return}
+ var x=HPX[+b.dataset.hx];if(x)hpOpen(x)});
 (function(){
 $("ren").onclick=function(){var c=CID;if(!c)return;ask("Rename this class","Save name",function(v){if(!ST[c])return;ST[c].name=v;sortC();save();navL();head();toast("Class name saved")},"Class name",0,ST[c].name)};
 var f=$("fcd");
 f.onchange=function(){if(!f.value||!CID)return;FCD=f.value;ST[CID].fcd=FCD;save();head();render();toast("First class day set")};
 $("bulkA").onclick=function(){if(!CID)return;var c=CID,n=$("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);$("bulk").focus();return}
  nextSid(function(k){if(CID!==c)return;n.forEach(function(x,i){var s=blank(x);s.sid=sidFmt(k+i);S.push(s)});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added, "+(n.length>1?sidFmt(k)+" to "+sidFmt(k+n.length-1):sidFmt(k)))})};
-$("nM").onclick=function(){go("M")};$("nL").onclick=function(){go("L")};$("nU").onclick=function(){go("U")};$("nR").onclick=function(){go("R")};if(TEACHER){$("nR").hidden=true;$("nU").hidden=true}$("home").onclick=function(e){e.preventDefault();go("M")};
+$("nM").onclick=function(){go("M")};$("nL").onclick=function(){go("L")};$("nU").onclick=function(){go("U")};$("nR").onclick=function(){go("R")};$("nH").onclick=function(){go("H")};if(TEACHER){$("nR").hidden=true;$("nU").hidden=true;$("nH").hidden=true}$("home").onclick=function(e){e.preventDefault();go("M")};
 $("swc").onclick=switcher;
 $("dH").onclick=function(){go("M")};$("dL").onclick=function(){go("L")};$("dR").onclick=function(){go("R")};
 Object.keys(DKC).forEach(function(id){$(id).onclick=function(){var k=DKC[id];if(PAGE==="C"){tab(k);window.scrollTo(0,0);return}var c=lastC();if(c)go(c,k);else go("L")}});
