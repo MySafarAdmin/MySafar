@@ -64,26 +64,25 @@ the Presenter and the dashboard (the stored name is unchanged, so Rename and the
 CSV upload still use it). On the top-class podiums the teacher's name is the big
 line and "Yr3A" sits under it.
 
-- **Memorisation and book passes** is one board: first place for memorisation
-  passes (everyone tied on the most this month), then everyone who finished a
-  book this month, in boxes of the same size. If it doesn't all fit, it stays on
-  first place for a while, moves on to the books, and reaches the bottom 29
-  seconds in.
-- **Podiums** (the top three totals this month; ties share a step): Qaidah
-  levels passed (Quran level tests on the Record page), and the top classes for
-  Qaidah and for memorisation, titled "(Primary Years)" (Years 2 to 6; a
-  Year 1 or Reception class counts as primary) and "(Secondary Years)" (Years 7
-  to 10, and any later year). A class's stage comes from its name (`Yr7-...`),
-  otherwise from most of its students' Safar or school year groups.
-- **Stars of the week**: one page with each class's star for last week. A star
-  is the teacher's pick on the Quran tab, otherwise the student with the most
-  passes and merits that week.
-- **House points** comes last: a podium of all three houses with their rank,
-  points and a black silhouette logo (the Kaaba for Makkah, Masjid an-Nabawi
-  for Madinah, the Dome of the Rock for Al-Aqsa), at a festival.
+The TV plays four slides:
+
+1. **Qaidah level and book passes**, one board: first place for Qaidah levels
+   passed this month (Quran level tests on the Record page, everyone tied on
+   the most), then everyone who finished a book this month, in boxes of the
+   same size. If it doesn't all fit, it stays on first place for a while, moves
+   on to the books, and reaches the bottom 29 seconds in.
+2. **Top Class for Memorisation (Primary Years)**: a podium of the class
+   teachers whose classes passed the most memorisation this month (Years 2 to
+   6; a Year 1 or Reception class counts as primary). Ties share a step.
+3. **Top Class for Memorisation (Secondary Years)**: the same for Years 7 to 10
+   and any later year. A class's stage comes from its name (`Yr7-...`),
+   otherwise from most of its students' Safar or school year groups.
+4. **House points**: a podium of all three houses with their rank, points and
+   a black silhouette logo (the Kaaba for Makkah, Masjid an-Nabawi for Madinah,
+   the Dome of the Rock for Al-Aqsa), at a festival.
 
 Empty slides are skipped. **Settings** on each TV sets a daily time for
-Qaidah slides only and one for Memo slides only (London time; a window can run
+the Qaidah slide only and one for the Memo slides only (London time; a window can run
 past midnight). Outside those times the TV plays every slide.
 
 Students are shown by first name and surname initial (`Aisha K.`) with their
