@@ -4,6 +4,8 @@ The SQLite tests always run. The same tests run against PostgreSQL when
 TEST_DATABASE_URL is set; each test uses its own temporary schema, which is
 dropped afterwards, so existing tables in that database are never touched.
 """
+import html
+import io
 import json
 import os
 import re
@@ -818,13 +820,13 @@ class DashboardTests:
         self.assertEqual(teacher.get("/admin/set-houses").status_code, 403)
 
     def test_import_memo_passes_clears_then_adds_the_sheet(self):
-        sheet = Path(self.temp.name) / "passes.csv"
-        sheet.write_text("Date,Name,Target\n12/09/2026 10:36:25,Aayat Nm,L1 Target 2\n13/09/2026 10:00:00,Aayat Nm,L1 Target 2\n"
+        sheet = ("Date,Name,Target\n12/09/2026 10:36:25,Aayat Nm,L1 Target 2\n13/09/2026 10:00:00,Aayat Nm,L1 Target 2\n"
                          "20/09/2026 10:00:00,aayat nm,212. Surah Al-Mulk\n21/09/2026 10:00:00,Aayat Nm,Qalam page 2\n"
                          "26/09/2026 10:00:00,Aayat Nm,Fail\n27/09/2026 10:00:00,Aayat Nm,L1 Target 1\n"
                          "27/09/2026 10:00:00,Musa Un,L1 Target 3\n27/09/2026 10:00:00,Nobody Here,L1 Target 1\n"
                          "27/09/2026 10:00:00,Musa Un,L9 Target 1\n28/09/2026 10:00:00,Adam Or,L1 Target 5\n"
                          "25/10/2026 10:00:00,Musa Un,L1 Target 2\n")
+        url = "/admin/import-memo-passes"
         had = datetime(2026, 9, 1, 12, tzinfo=auth.LONDON).timestamp() * 1000
         quran_test = {"d": "2026-09-06", "k": "q", "n": 2, "sc": 3, "ok": True, "pq": 1}
         tests = [{"d": "2026-09-05", "k": "m", "n": 1, "sc": 4, "ok": True, "tk": had}, quran_test]
@@ -833,28 +835,34 @@ class DashboardTests:
                                              self.tv_student("Musa Un"),
                                              self.tv_student("Adam Or", sid="SE0060", target=4, passes=1, log=[had], lt=[3], lx=[""])]))
         self.write(name="Yr3-B", class_id="yr3-b", state=dict(self.state, S=[self.tv_student("Adam Or", sid="SE0265")]))
-        with patch("memo_import.FILE", sheet):
-            page = self.client.get("/admin/import-memo-passes").get_data(as_text=True)
-            for text in ("No student on the site has this name", "Two students share this name", "not on the class&#39;s list",
-                         "The same target is higher up the sheet", "Earlier in the book", "213. Surah-Al Qalam, page 2",
-                         "Adam Or in Yr3-B (SE0265)", "2 passes, 1 fail and 1 Memo level test already on the site, from 2 students"):
-                self.assertIn(text, page)
-            self.assertIn("Type IMPORT", self.form(self.client, "/admin/import-memo-passes", "/admin/import-memo-passes",
-                                                   confirm="no").get_data(as_text=True))
-            for _ in range(2):  # a second go clears and adds the same again
-                done = self.form(self.client, "/admin/import-memo-passes", "/admin/import-memo-passes", confirm="import",
-                                 **{"pick-adamor": "yr3-b|0"}).get_data(as_text=True)
-                self.assertIn("Imported the sheet into 2 classes", done)
-                records = self.records()
-                a, musa, other = json.loads(records["yr3-a"]["json"])["S"]
-                self.assertTrue(valid_state(json.loads(records["yr3-a"]["json"])))
-                self.assertEqual((a["lt"], a["lx"], a["passes"], a["target"], len(a["fl"])),
-                                 ([2, 3, 3, 1], ["", "212. Surah Al-Mulk", "213. Surah-Al Qalam, page 2", ""], 4, 2, 1))
-                self.assertEqual(a["log"][0], datetime(2026, 9, 12, 10, 36, 25, tzinfo=auth.LONDON).timestamp() * 1000)
-                # The Memo level test goes; its blue coin stays as a level completion.
-                self.assertEqual((a["tests"], a["tb"], a["hp"]), ([quran_test], [had], [{"t": had, "r": "lv"}]))
-                self.assertEqual((musa["lt"], musa["target"], musa.get("tg", [])), ([3, 2], 3, []))
-                self.assertEqual((other["log"], other["passes"], other["target"]), ([], 0, 4))
+        self.assertIn("CSV of memorisation passes", self.client.get(url).get_data(as_text=True))
+        self.assertIn("needs columns called Date, Name and Target",
+                      self.form(self.client, url, url, csv=(io.BytesIO(b"Day,Who\n1,2\n"), "x.csv")).get_data(as_text=True))
+        self.assertIn("isn&#39;t a date", self.form(self.client, url, url, csv=(io.BytesIO(b"Date,Name,Target\nsoon,A,B\n"),
+                                                                                   "x.csv")).get_data(as_text=True))
+        page = self.form(self.client, url, url, csv=(io.BytesIO(sheet.encode()), "passes.csv")).get_data(as_text=True)
+        for text in ("No student on the site has this name", "Two students share this name", "not on the class&#39;s list",
+                     "The same target is higher up the sheet", "Earlier in the book", "213. Surah-Al Qalam, page 2",
+                     "Adam Or in Yr3-B (SE0265)", "2 passes, 1 fail and 1 Memo level test already on the site, from 2 students"):
+            self.assertIn(text, page)
+        # The page sends the sheet back with the confirmation.
+        sent = re.search(r'<textarea name="sheet" hidden>(.*?)</textarea>', page, re.S).group(1)
+        self.assertEqual(html.unescape(sent), sheet)
+        self.assertIn("Type IMPORT", self.form(self.client, url, url, sheet=sheet, confirm="no").get_data(as_text=True))
+        self.assertIn("Choose the CSV", self.form(self.client, url, url, confirm="import").get_data(as_text=True))
+        for _ in range(2):  # a second go clears and adds the same again
+            done = self.form(self.client, url, url, sheet=sheet, confirm="import", **{"pick-adamor": "yr3-b|0"}).get_data(as_text=True)
+            self.assertIn("Imported the CSV into 2 classes", done)
+            records = self.records()
+            a, musa, other = json.loads(records["yr3-a"]["json"])["S"]
+            self.assertTrue(valid_state(json.loads(records["yr3-a"]["json"])))
+            self.assertEqual((a["lt"], a["lx"], a["passes"], a["target"], len(a["fl"])),
+                             ([2, 3, 3, 1], ["", "212. Surah Al-Mulk", "213. Surah-Al Qalam, page 2", ""], 4, 2, 1))
+            self.assertEqual(a["log"][0], datetime(2026, 9, 12, 10, 36, 25, tzinfo=auth.LONDON).timestamp() * 1000)
+            # The Memo level test goes; its blue coin stays as a level completion.
+            self.assertEqual((a["tests"], a["tb"], a["hp"]), ([quran_test], [had], [{"t": had, "r": "lv"}]))
+            self.assertEqual((musa["lt"], musa["target"], musa.get("tg", [])), ([3, 2], 3, []))
+            self.assertEqual((other["log"], other["passes"], other["target"]), ([], 0, 4))
         b = json.loads(records["yr3-b"]["json"])["S"][0]
         self.assertEqual((b["lt"], b["target"]), ([5], 6))
         self.assertEqual(records["yr3-a"]["revision"], 3)

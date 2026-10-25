@@ -13,11 +13,17 @@
 {% endmacro %}
 {% block content %}
 <div class="band slim"><div class="band-top"><h1>Import memorisation passes</h1><div class="acts"><a class="btn" href="/admin/clear-test-data/backup.json">Download a backup</a></div></div>
-<p class="lede">Makes the school's sheet the whole memorisation record. First every student's memo passes, fails and Memo level tests already on the site are cleared; the blue coins from passed Memo level tests stay. Then each pass on the sheet is added on its own date, as the Memo profile's Add pass does, with no tokens or house points, and each student's target becomes the one after the latest target they passed on the sheet. Students not on the sheet keep their target. The version of each class from just before is kept in Class history.</p></div>
+<p class="lede">Makes a CSV of memorisation passes (columns Date, Name and Target) the whole memorisation record. First every student's memo passes, fails and Memo level tests already on the site are cleared; the blue coins from passed Memo level tests stay. Then each pass on the CSV is added on its own date, as the Memo profile's Add pass does, with no tokens or house points, and each student's target becomes the one after the latest target they passed on the sheet. Students not on the sheet keep their target. The version of each class from just before is kept in Class history.</p></div>
 {% if done is defined %}
-<div class="panel" role="status"><p><b>Imported the sheet into {{ done }} {{ "class" if done == 1 else "classes" }}.</b> Open dashboards need a reload to show it. Using this page again would clear and import again, so any pass recorded after now would be lost.</p></div>
+<div class="panel" role="status"><p><b>Imported the CSV into {{ done }} {{ "class" if done == 1 else "classes" }}.</b> Open dashboards need a reload to show it. Importing another CSV clears first again, so any pass recorded after now would be lost.</p></div>
 {% endif %}
 {% if error %}<div class="panel" role="alert"><p>{{ error }}</p></div>{% endif %}
+<form method="post" action="/admin/import-memo-passes" enctype="multipart/form-data" class="inline-form">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  <label class="field">{{ "Choose another CSV" if sheet else "CSV of memorisation passes" }}<input type="file" name="csv" accept=".csv,text/csv" required></label>
+  <button class="btn{{ '' if sheet else ' primary' }}">Check this CSV</button>
+</form>
+{% if sheet %}
 <div class="panel" role="alert"><p><b>This clears first:</b> {{ removed.passes }} {{ "pass" if removed.passes == 1 else "passes" }}, {{ removed.fails }} {{ "fail" if removed.fails == 1 else "fails" }} and {{ removed.tests }} Memo level {{ "test" if removed.tests == 1 else "tests" }} already on the site, from {{ removed.students }} {{ "student" if removed.students == 1 else "students" }}.</p></div>
 <p class="sub">{{ total }} rows on the sheet: {{ counts.add }} passes and {{ counts.fail }} {{ "fail" if counts.fail == 1 else "fails" }} to add for {{ students }} students,
 {{ counts.repeat }} repeated on the sheet, {{ counts.missing + counts.choose + counts.bad }} that don't match.</p>
@@ -30,6 +36,7 @@
   <h2>Clear and add {{ adding|length }} {{ "row" if adding|length == 1 else "rows" }}</h2>
   <form method="post" action="/admin/import-memo-passes" class="inline-form">
     <input type="hidden" name="csrf" value="{{ csrf }}">
+    <textarea name="sheet" hidden>{{ sheet }}</textarea>
     {% for key, c in choices %}
     <label class="field">{{ c.name }} on the sheet is<select name="pick-{{ key }}"><option value="">Neither, leave their rows out</option>
     {% for v, label in c.options %}<option value="{{ v }}"{% if c.pick == v %} selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
@@ -39,6 +46,7 @@
   </form>
 </div>
 {% else %}
-<p class="sub">Nothing left to add.</p>
+<p class="sub">Nothing to add.</p>
+{% endif %}
 {% endif %}
 {% endblock %}
