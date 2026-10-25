@@ -107,12 +107,13 @@ def valid_state(state):
         qaidah = student.get("qa", 0)
         if type(qaidah) is not int or not 0 <= qaidah <= QAIDAH_LEVELS:
             return False
-        # Level tests from the Record page: day, Quran ("q") or Memo ("m"), level or target, 0 to 5 score, passed,
-        # for a pass, when its blue token was given, and for a surah chosen by item number, the surah as written.
+        # Level tests from the Record page: day, Quran ("q") or Memo ("m"), level or target, 0 to 5 score (none for one
+        # imported from a sheet without scores), passed, for a pass, when its blue token was given, and for a surah
+        # chosen by item number, the surah as written.
         tests = student.get("tests", [])
         if not isinstance(tests, list) or not all(
                 isinstance(x, dict) and isinstance(x.get("d"), str) and DAY.fullmatch(x["d"]) and x.get("k") in ("q", "m")
-                and type(x.get("n")) is int and x["n"] >= 1 and type(x.get("sc")) is int and 0 <= x["sc"] <= 5
+                and type(x.get("n")) is int and x["n"] >= 1 and type(x.get("sc", 0)) is int and 0 <= x.get("sc", 0) <= 5
                 and type(x.get("ok")) is bool and type(x.get("pq", 0)) is int and 0 <= x.get("pq", 0) <= QAIDAH_LEVELS
                 and type(x.get("tk", 0)) in (int, float) and x.get("tk", 0) >= 0
                 and isinstance(x.get("x", ""), str) and len(x.get("x", "")) <= 80

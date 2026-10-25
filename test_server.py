@@ -820,36 +820,38 @@ class DashboardTests:
         self.assertEqual(teacher.get("/admin/set-houses").status_code, 403)
 
     def test_import_memo_passes_clears_then_adds_the_sheet(self):
-        sheet = ("Date,Name,Target\n12/09/2026 10:36:25,Aayat Nm,L1 Target 2\n13/09/2026 10:00:00,Aayat Nm,L1 Target 2\n"
-                         "20/09/2026 10:00:00,aayat nm,212. Surah Al-Mulk\n21/09/2026 10:00:00,Aayat Nm,Qalam page 2\n"
-                         "26/09/2026 10:00:00,Aayat Nm,Fail\n27/09/2026 10:00:00,Aayat Nm,L1 Target 1\n"
-                         "27/09/2026 10:00:00,Musa Un,L1 Target 3\n27/09/2026 10:00:00,Nobody Here,L1 Target 1\n"
-                         "27/09/2026 10:00:00,Musa Un,L9 Target 1\n28/09/2026 10:00:00,Adam Or,L1 Target 5\n"
-                         "25/10/2026 10:00:00,Musa Un,L1 Target 2\n")
+        sheet = ("Date,Student ID,Name,Target\n12/09/2026 10:36:25,SE0001,,L1 Target 2\n13/09/2026 10:00:00,se1,,L1 Target 2\n"
+                 "20/09/2026 10:00:00,SE0001,,212. Surah Al-Mulk\n21/09/2026 10:00:00,SE0001,,Qalam page 2\n"
+                 "26/09/2026 10:00:00,SE0001,,Fail\n27/09/2026 10:00:00,SE0001,,L1 Target 1\n"
+                 "27/09/2026 10:00:00,,Musa Un,L1 Target 3\n27/09/2026 10:00:00,SE9999,Nobody Here,L1 Target 1\n"
+                 "27/09/2026 10:00:00,,Musa Un,L9 Target 1\n28/09/2026 10:00:00,,Adam Or,L1 Target 5\n"
+                 "25/10/2026 10:00:00,,Musa Un,L1 Target 2\n")
         url = "/admin/import-memo-passes"
         had = datetime(2026, 9, 1, 12, tzinfo=auth.LONDON).timestamp() * 1000
         quran_test = {"d": "2026-09-06", "k": "q", "n": 2, "sc": 3, "ok": True, "pq": 1}
         tests = [{"d": "2026-09-05", "k": "m", "n": 1, "sc": 4, "ok": True, "tk": had}, quran_test]
-        self.write(state=dict(self.state, S=[self.tv_student("Aayat Nm", target=2, passes=1, log=[had], lt=[1], lx=[""], fl=[had],
-                                                             tests=tests, tb=[had]),
+        self.write(state=dict(self.state, S=[self.tv_student("Aayat Nm", sid="SE0001", target=2, passes=1, log=[had], lt=[1], lx=[""],
+                                                             fl=[had], tests=tests, tb=[had]),
                                              self.tv_student("Musa Un"),
                                              self.tv_student("Adam Or", sid="SE0060", target=4, passes=1, log=[had], lt=[3], lx=[""])]))
         self.write(name="Yr3-B", class_id="yr3-b", state=dict(self.state, S=[self.tv_student("Adam Or", sid="SE0265")]))
-        self.assertIn("CSV of memorisation passes", self.client.get(url).get_data(as_text=True))
-        self.assertIn("needs columns called Date, Name and Target",
+        hub = self.client.get("/admin/import").get_data(as_text=True)
+        for text in ("New students", "/#upload-students", "Memorisation passes", "Qaidah/Tajwid level passes", "Choose CSV file"):
+            self.assertIn(text, hub)
+        self.assertIn("needs columns called Date, Student ID and Target",
                       self.form(self.client, url, url, csv=(io.BytesIO(b"Day,Who\n1,2\n"), "x.csv")).get_data(as_text=True))
-        self.assertIn("isn&#39;t a date", self.form(self.client, url, url, csv=(io.BytesIO(b"Date,Name,Target\nsoon,A,B\n"),
+        self.assertIn("isn&#39;t a date", self.form(self.client, url, url, csv=(io.BytesIO(b"Date,Student ID,Target\nsoon,A,B\n"),
                                                                                    "x.csv")).get_data(as_text=True))
         page = self.form(self.client, url, url, csv=(io.BytesIO(sheet.encode()), "passes.csv")).get_data(as_text=True)
-        for text in ("No student on the site has this name", "Two students share this name", "not on the class&#39;s list",
+        for text in ("No student on the site has this Student ID", "Two students share this name", "Not on the class&#39;s list",
                      "The same target is higher up the sheet", "Earlier in the book", "213. Surah-Al Qalam, page 2",
-                     "Adam Or in Yr3-B (SE0265)", "2 passes, 1 fail and 1 Memo level test already on the site, from 2 students"):
+                     "Adam Or in Yr3-B (SE0265)", "2 passes, 1 fail and 1 Memo level test"):
             self.assertIn(text, page)
         # The page sends the sheet back with the confirmation.
         sent = re.search(r'<textarea name="sheet" hidden>(.*?)</textarea>', page, re.S).group(1)
         self.assertEqual(html.unescape(sent), sheet)
         self.assertIn("Type IMPORT", self.form(self.client, url, url, sheet=sheet, confirm="no").get_data(as_text=True))
-        self.assertIn("Choose the CSV", self.form(self.client, url, url, confirm="import").get_data(as_text=True))
+        self.assertIn("Choose a CSV file first", self.form(self.client, url, url, confirm="import").get_data(as_text=True))
         for _ in range(2):  # a second go clears and adds the same again
             done = self.form(self.client, url, url, sheet=sheet, confirm="import", **{"pick-adamor": "yr3-b|0"}).get_data(as_text=True)
             self.assertIn("Imported the CSV into 2 classes", done)
@@ -866,6 +868,31 @@ class DashboardTests:
         b = json.loads(records["yr3-b"]["json"])["S"][0]
         self.assertEqual((b["lt"], b["target"]), ([5], 6))
         self.assertEqual(records["yr3-a"]["revision"], 3)
+
+    def test_import_qaidah_passes_clears_then_adds_level_tests(self):
+        sheet = ("Date,Student ID,Level,Score\n01/10/2026,SE0001,Level 1,\n08/10/2026,SE0001,Qaidah 3,4\n08/10/2026,se1,3,\n"
+                 "15/10/2026,SE0001,Fail,\n10/10/2026,SE0001,Level 2,\n20/10/2026,SE0001,Level 20,\n")
+        url = "/admin/import-qaidah-passes"
+        memo_test = {"d": "2026-09-05", "k": "m", "n": 1, "sc": 4, "ok": True, "tk": 5}
+        self.write(state=dict(self.state, S=[self.tv_student("Aayat Nm", sid="SE0001", qa=2, tb=[5, 6], tests=[
+            memo_test, {"d": "2026-09-06", "k": "q", "n": 2, "sc": 3, "ok": True, "pq": 1, "tk": 6}]),
+                                             self.tv_student("Musa Un", qa=5)]))
+        page = self.form(self.client, url, url, csv=(io.BytesIO(sheet.encode()), "levels.csv")).get_data(as_text=True)
+        for text in ("1 Quran level test already on the site", "Not a level from 1 to 14", "The same level is higher up the sheet",
+                     "Lower than a level they had already passed", "Qaidah Level 3"):
+            self.assertIn(text, page)
+        done = self.form(self.client, url, url, sheet=sheet, confirm="import").get_data(as_text=True)
+        self.assertIn("Imported the CSV into 1 class", done)
+        state = json.loads(self.records()["yr3-a"]["json"])
+        self.assertTrue(valid_state(state))
+        a, musa = state["S"]
+        self.assertEqual(a["tests"], [memo_test,
+                                      {"d": "2026-10-01", "k": "q", "n": 1, "ok": True, "pq": 0},
+                                      {"d": "2026-10-08", "k": "q", "n": 3, "ok": True, "pq": 1, "sc": 4},
+                                      {"d": "2026-10-10", "k": "q", "n": 2, "ok": True, "pq": 3},
+                                      {"d": "2026-10-15", "k": "q", "n": 3, "ok": False}])
+        # The Qaidah level is the latest level passed; the cleared test's blue coin stays.
+        self.assertEqual((a["qa"], a["tb"], a["hp"], musa["qa"]), (2, [5, 6], [{"t": 6, "r": "lv"}], 5))
 
     def test_activity_is_recorded_and_pruned(self):
         self.sign_in("someone@example.com", "wrong password")

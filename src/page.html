@@ -435,7 +435,7 @@ function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No s
  return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
   +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Qaidah</dt><dd>'+(s.qa?'Level '+s.qa:'No level yet')+'</dd></div></dl>'
   +'<section class="rlast"><div class="mod-h"><h3>Level tests</h3>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
-  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+t.sc+'/5, '+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
+  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+(t.sc==null?'':t.sc+'/5, ')+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
 /* Step 2 lists every student in one list, A to Z by name, each with their teacher in brackets ("Adam Or (Ustadh Faeez)");
    if two students with the same name share a teacher too, the year and class letter are added. */
 function rAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s,i){A.push({s:s,c:c,i:i})})});
@@ -476,7 +476,7 @@ function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now
   rDone(o,nm+": +"+c[3]+" house points, "+why.toLowerCase()+(s.house?", for "+s.house:""));return}
  if(k==="hx"){var j0=-1;(s.hp||[]).forEach(function(y,j){if(y.t===arg)j0=j});if(j0<0)return;var x=s.hp.splice(j0,1)[0];var c2=htk(x.r),j2=s[c2[0]].lastIndexOf(x.t);if(j2>=0)s[c2[0]].splice(j2,1);
   rDone(o,c2[3]+" house points taken back from "+nm);return}
- if(k==="u"){var t=s.tests.pop();if(!t)return;var prev=qTest(s,t.d);if(prev)s.q[t.d]=prev.sc;else delete s.q[t.d];
+ if(k==="u"){var t=s.tests.pop();if(!t)return;var prev=qTest(s,t.d);if(prev&&prev.sc!=null)s.q[t.d]=prev.sc;else if(t.sc!=null)delete s.q[t.d];
   if(t.k==="q"&&t.ok)s.qa=t.pq||0;
   if(t.k==="m"&&t.ok&&s.log.length){var lab=s.lx.pop(),was=s.lt.pop();s.log.pop();s.passes=Math.max(0,s.passes-1);if(!lab)s.target=was;s.hit=s.log.length?s.log[s.log.length-1]:null}
   if(t.k==="m"&&!t.ok)s.fl.pop();

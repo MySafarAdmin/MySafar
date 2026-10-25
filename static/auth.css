@@ -174,3 +174,19 @@ details.tvset .field{margin:0}
 fieldset.hold{border:0;margin:0;padding:0;min-width:0}
 fieldset.hold:disabled .btn{opacity:1;cursor:default}
 fieldset.hold:disabled input{opacity:1;-webkit-text-fill-color:currentColor}
+
+/* Import: a CSV picker that reads as a button. The file input fills the button, unseen; once a file is chosen
+   (the required input turns valid) the label says so, without a script. */
+.pickrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 0}
+.filepick{position:relative;overflow:hidden}
+.filepick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.filepick .fp-some{display:none}
+.filepick:has(input:valid){border-color:var(--primary);color:var(--primary-ink);background:var(--primary-soft)}
+.filepick:has(input:valid) .fp-none{display:none}
+.filepick:has(input:valid) .fp-some{display:inline}
+.filepick:has(input:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.mod h3{margin:20px 0 8px;font-size:1rem}
+.mod details.rows{margin-top:16px}
+.mod form.confirm{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
+.mod .panel{box-shadow:none;border:1px solid var(--line);margin:14px 0 0}
+.mod .panel p{margin:0}
