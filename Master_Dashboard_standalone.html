@@ -1822,7 +1822,9 @@ function changed(c){navL();
  if(CID){if(c===undefined||c===CID)setClass(CID)}else if(PAGE==="R")recPage();else master()}
 /* #classes, #students, #house-points, #rankings, #record, a class's id, or #tab-Q (and T, D, H, S) for a page of the class used last: the admin and
    account pages link to these from their own dock. */
-function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];if(h==="students")return ["U"];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="rankings")return [TEACHER?"M":"K"];if(h==="record")return [TEACHER?"M":"R"];
+function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];
+ /* From the Import page: Classes with "Upload students from a CSV file" open. */
+ if(h==="upload-students"&&!TEACHER){setTimeout(function(){var u=$("up");if(u){u.open=true;u.scrollIntoView({block:"start"})}},0);return ["L"]}if(h==="students")return ["U"];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="rankings")return [TEACHER?"M":"K"];if(h==="record")return [TEACHER?"M":"R"];
  var m=/^tab-([QTDHS])$/.exec(h);if(m){var c=lastC();return c?[c,m[1]]:CIDS.length||LOADED?["L"]:null}return ST[h]?[h]:null}
 function setSt(t,s){var e=document.getElementById("st");if(e){e.textContent=t;e.setAttribute("data-s",s||(/couldn|can't|not saved|signed out|could not/i.test(t)?"bad":/saving|loading/i.test(t)?"busy":"ok"))}}
 function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
@@ -2003,7 +2005,7 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    numbered surahs in SUR, written exactly as the school writes them. A pass chosen there is only logged as a pass, with
    no token or house points. A book target moves the student on as usual; a surah is kept as the pass's label (s.lx and
    the test's x) and leaves the target where it is. Fail can only be recorded as Not passed. */
-var QAIDAH=14,RK="m",RS="",RM="",RX=0,RI="",RSC=-1,RH="";
+var QAIDAH=20,RK="m",RS="",RM="",RX=0,RI="",RSC=-1,RH="";
 var SUR=["197. Surah An-Naba'","198. Surah An-Nazi'aat","199. Surah Abasa","200. Surah At-Takwir","201. Surah Al-Infitaar",
  "202. Surah Al-Mutaffifin","203. Surah Al-Inshiqaq","204. Surah Al-Burooj","205. Surah At-Tariq","206. Surah Al-A'la",
  "207. Surah Al-Ghaashiyah","208. Surah Al-Fajr","209. Surah Al-Balad","210. Surah Ash-Shams","211. Surah Al-Lail",
@@ -2039,7 +2041,7 @@ function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No s
  return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
   +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Qaidah</dt><dd>'+(s.qa?'Level '+s.qa:'No level yet')+'</dd></div></dl>'
   +'<section class="rlast"><div class="mod-h"><h3>Level tests</h3>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
-  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+t.sc+'/5, '+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
+  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+(t.sc==null?'':t.sc+'/5, ')+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
 /* Step 2 lists every student in one list, A to Z by name, each with their teacher in brackets ("Adam Or (Ustadh Faeez)");
    if two students with the same name share a teacher too, the year and class letter are added. */
 function rAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s,i){A.push({s:s,c:c,i:i})})});
@@ -2080,7 +2082,7 @@ function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now
   rDone(o,nm+": +"+c[3]+" house points, "+why.toLowerCase()+(s.house?", for "+s.house:""));return}
  if(k==="hx"){var j0=-1;(s.hp||[]).forEach(function(y,j){if(y.t===arg)j0=j});if(j0<0)return;var x=s.hp.splice(j0,1)[0];var c2=htk(x.r),j2=s[c2[0]].lastIndexOf(x.t);if(j2>=0)s[c2[0]].splice(j2,1);
   rDone(o,c2[3]+" house points taken back from "+nm);return}
- if(k==="u"){var t=s.tests.pop();if(!t)return;var prev=qTest(s,t.d);if(prev)s.q[t.d]=prev.sc;else delete s.q[t.d];
+ if(k==="u"){var t=s.tests.pop();if(!t)return;var prev=qTest(s,t.d);if(prev&&prev.sc!=null)s.q[t.d]=prev.sc;else if(t.sc!=null)delete s.q[t.d];
   if(t.k==="q"&&t.ok)s.qa=t.pq||0;
   if(t.k==="m"&&t.ok&&s.log.length){var lab=s.lx.pop(),was=s.lt.pop();s.log.pop();s.passes=Math.max(0,s.passes-1);if(!lab)s.target=was;s.hit=s.log.length?s.log[s.log.length-1]:null}
   if(t.k==="m"&&!t.ok)s.fl.pop();

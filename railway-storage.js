@@ -45,7 +45,7 @@
     adminNav.appendChild(heading);
     [["Manage users", "/admin/users", "users"], ["Class history", "/admin/history", "history"],
      ["Activity", "/admin/activity", "activity"], ["TV screens", "/admin/tv", "tv"],
-     ["Spreadsheet", "/admin/export", "sheet"], ["Import", "/admin/import-memo-passes", "upload"]].forEach(function (l) {
+     ["Spreadsheet", "/admin/export", "sheet"], ["Import", "/admin/import", "upload"]].forEach(function (l) {
       var a = document.createElement("a");
       a.className = "nav"; a.href = l[1];
       a.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[l[2]] + "</svg>";
