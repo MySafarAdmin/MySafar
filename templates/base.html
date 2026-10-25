@@ -27,7 +27,8 @@
     {% if user.role == "admin" %}<a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>{% endif %}
     <a class="nav" href="/#classes">{{ icon("grid") }}Classes</a>
     {% if user.role == "admin" %}<a class="nav" href="/#students">{{ icon("students") }}Students</a>
-    <a class="nav" href="/#house-points">{{ icon("pie") }}House points</a>{% endif %}
+    <a class="nav" href="/#house-points">{{ icon("pie") }}House points</a>
+    <a class="nav" href="/#rankings">{{ icon("trophy") }}Rankings</a>{% endif %}
     {% if user.role == "admin" %}
     <div class="navh" id="adminh">Administration</div>
     <a class="nav" href="/admin/users"{{ ' aria-current="page"'|safe if here == "/admin/users" }}>{{ icon("users") }}Manage users</a>

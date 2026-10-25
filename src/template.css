@@ -1240,3 +1240,9 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 @media (max-width:959.98px){.hpbar .cap{text-align:left;flex-basis:100%}.hpf{flex:1 1 150px}.hpf select{flex:1;max-width:none;min-width:0}.hpbar #hpQ{flex-basis:100%}}
 @media (max-width:640px){.hpcards .hcol{display:grid;padding:12px 16px}.hpcards .hcol .hpsrc{grid-column:1/-1;margin-top:6px}.hpt td.lead small{white-space:normal}.hpt td.act{text-align:left}.hpt td.act .btn{width:100%}}
 @media (prefers-reduced-motion:reduce){.hpcards .hcol{transition:none}}
+/* Rankings page: the list kept to a readable width. */
+#vK{margin-top:12px}
+.rkp{max-width:860px}
+.rkbar{gap:8px 14px;margin-bottom:6px}
+.rkbar .cap{flex:1 1 160px;text-align:right}
+@media (max-width:640px){.rkbar .seg{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.rkbar .seg button{padding:6px 4px;font-size:.8125rem;white-space:nowrap}.rkbar .cap{text-align:left}}
