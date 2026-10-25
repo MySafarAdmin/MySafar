@@ -1023,6 +1023,8 @@ function tSummary(K,school){
  $("mst").innerHTML='<div class="tsum'+(school?' school':'')+'"><div class="tsa">'+attnBox(K)+'</div><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K,school)+'</section>'
   +(school?stagesHtml(K):'')+'</div>';
  $("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
+/* A first name and the first letter of the surname: Yusuf Dh reads Yusuf D. */
+function shortNm(n){var w=n.trim().split(/\s+/);return w.length>1?w[0]+" "+w[w.length-1].charAt(0):w[0]}
 /* A section title that opens the Rankings page on one stage. */
 function rkT(g,t){return '<h3><button type="button" class="ovt" data-rkg="'+g+'">'+t+'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></h3>'}
 /* Primary Years and Secondary Years side by side, staged as the Rankings page and the TV stage them (cStage). Memo
@@ -1034,9 +1036,9 @@ function stagesHtml(K){var by={p:[],s:[]},none=0;CIDS.forEach(function(c){var g=
   if(!C.length)return h+'<div class="stg-h"><div><h3>'+nm+'</h3><span class="cap">'+yrs+'</span></div></div><p class="none">No '+nm+' classes. A class counts when its name or its students say '+(g==="p"?'Year 1 to 6':'Year 7 or above')+'.</p></div>';
   var n=sumOf(A.map(function(o){return o.s}),mpc),act=A.filter(function(o){return mpc(o.s)}).length;
   h+='<div class="stg-h"><div><h3>'+nm+'</h3><span class="cap">'+yrs+'</span></div><div class="shl"><b'+(n?'':' class="zero"')+'>'+n+'</b><span>'+(n===1?'pass':'passes')+'<small>'+act+' of '+plural(A.length,"student")+' passed</small></span></div></div>'
-   +'<div class="stg-l"><div class="grp">'+rkT(g,"Top classes")+rankList("tc"+g,C.map(function(c){return {name:cname(ST[c].name),open:c,tab:"T",sub:plural(ST[c].S.length,"student"),v:sumOf(ST[c].S,mpc)}}),{limit:3,noMore:1,none:"No Memo passes yet this month."})+'</div>'
+   +'<div class="stg-l"><div class="grp">'+rkT(g,"Top classes")+rankList("tc"+g,C.map(function(c){return {name:cname(ST[c].name),open:c,tab:"T",v:sumOf(ST[c].S,mpc)}}),{limit:3,noMore:1,none:"No Memo passes yet this month."})+'</div>'
    +'<div class="grp"><h3><button type="button" class="ovt" data-mt="mp'+g+'">Most passes<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></h3>'
-   +rankList("mp"+g,A.map(function(o){return {name:o.s.name,open:o.c,tab:"T",sub:esc(cname(ST[o.c].name)),v:mpc(o.s)}}),{limit:3,noMore:1,tone:"sky",none:"No passes yet this month."})+'</div></div>';
+   +rankList("mp"+g,A.map(function(o){return {name:shortNm(o.s.name),open:o.c,tab:"T",sub:esc(cname(ST[o.c].name)),v:mpc(o.s)}}),{limit:3,noMore:1,tone:"sky",none:"No passes yet this month."})+'</div></div>';
   return h+'</div>'}
  return '<section class="tss"><div class="mod-h"><h2>Primary and Secondary</h2><span class="cap">Memo passes this month</span></div><div class="stg2">'+panel("p")+panel("s")+'</div>'
   +(none?'<p class="rank-note">'+plural(none,"class","classes")+' with no year group in the name or on the students '+(none===1?'is':'are')+' left out here.</p>':'')+'</section>'}
