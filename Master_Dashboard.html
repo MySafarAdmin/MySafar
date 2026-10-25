@@ -1812,9 +1812,10 @@ function onC(hex){return lumC(hex)>.18?"#13243a":"#fff"}
 function chip(bg,txt){var t=onC(bg),L=lumC(bg),cr=t==="#fff"?1.05/(L+.05):(L+.05)/(lumC("#13243a")+.05),b=bg;
  if(cr<4.5){var h=bg.replace("#",""),k=.8;b="#"+[0,2,4].map(function(i){return ("0"+Math.round(parseInt(h.substr(i,2),16)*k).toString(16)).slice(-2)}).join("");t="#fff"}
  return '<span class="nc" style="background:'+b+';color:'+t+'">'+txt+'</span>'}
-/* Competition ranking (1, 1, 3) of the students with a value above zero; zero is "not yet", never ranked. */
+/* Dense ranking (1, 1, 2) of the students with a value above zero: ties share a place and the next value takes the next
+   place. Zero is "not yet", never ranked. */
 function rank(k){var a=S.filter(function(s){return s[k]>0}).sort(function(x,y){return y[k]-x[k]||x.name.localeCompare(y.name)});var r=0,prev=null;
- return a.map(function(s,i){if(s[k]!==prev){r=i+1;prev=s[k]}return {s:s,r:r}})}
+ return a.map(function(s){if(s[k]!==prev){r++;prev=s[k]}return {s:s,r:r}})}
 function tied(L,o){return L.filter(function(x){return x.r===o.r}).length>1}
 function rkHtml(r,tie){return '<span class="rk'+(r<4?' r'+r:'')+'"'+(tie?' title="Joint '+r+'"':'')+'>'+(tie?'='+r:r)+'</span>'}
 var WL=["","Warning 1","Warning 2","Miss break"];
@@ -1857,9 +1858,9 @@ function weekChart(ts){var W=weeks(ts,8),mx=Math.max(1,Math.max.apply(null,W.map
 function allLogs(L){var a=[];L.forEach(function(s){a=a.concat(s.log)});return a}
 
 /* ---------- Ranked lists ---------- */
-/* Competition ranking (1, 1, 3) of the items with a value above zero; zero is "not yet", never ranked. */
+/* Dense ranking (1, 1, 2) of the items with a value above zero, as rank() does; zero is "not yet", never ranked. */
 function ranked(items){var a=items.filter(function(o){return o.v>0}).sort(function(x,y){return y.v-x.v||x.name.localeCompare(y.name)}),r=0,p=null;
- a.forEach(function(o,i){if(o.v!==p){r=i+1;p=o.v}o.r=r});return a}
+ a.forEach(function(o){if(o.v!==p){r++;p=o.v}o.r=r});return a}
 var EXP={},PG={};
 /* The page of a paged list, kept in range as the list changes. */
 function pager(key,n,size){var last=Math.max(0,Math.ceil(n/size)-1),p=Math.min(Math.max(PG[key]||0,0),last);PG[key]=p;return p}
