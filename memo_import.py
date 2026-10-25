@@ -1,17 +1,18 @@
 """One-off admin page: add the school's sheet of memorisation passes (data/memo_passes.csv) to the students.
 
 The sheet has a Date (dd/mm/yyyy hh:mm:ss, London time), a Name (the MySafar name) and a Target, written as the
-Record page's "Item number and Surah" list writes it: "L1 Target 1", "212. Surah Al-Mulk" or "Fail". Each pass is
-added as the Memo profile's "Add pass" adds one: a dated pass in s.log, s.lt and s.lx, with no token or house points.
-The target becomes the one after the latest book target passed on the sheet (a few students go back in the book on
-it), but never goes back from the target the student already has on the site. A surah pass keeps its label in s.lx
-and leaves the target where it is, as on the Record page; a few surahs written by hand on the sheet are read as the
-nearest item on the list (WRITTEN). A Fail is added to s.fl.
+Record page's "Item number and Surah" list writes it: "L1 Target 1", "212. Surah Al-Mulk" or "Fail". First every
+student's memo passes, fails and Memo level tests already on the site are cleared, as the sheet is the whole record (a
+passed Memo level test's blue coin stays, as a level completion). Each pass is then added as the Memo profile's "Add pass" adds one: a
+dated pass in s.log, s.lt and s.lx, with no token or house points. The target becomes the one after the latest book
+target passed on the sheet (a few students go back in the book on it); a student not on the sheet keeps theirs. A
+surah pass keeps its label in s.lx and leaves the target where it is, as on the Record page; a few surahs written by
+hand on the sheet are read as the nearest item on the list (WRITTEN). A Fail is added to s.fl.
 
-A pass the student already has for the same target, on the site or higher up the sheet, is left out, so the page
-can be used again without adding anything twice. An admin opens /admin/import-memo-passes to see which rows match,
-which don't and which need a choice (a name two students share); nothing changes until they type IMPORT. The version
-of each class from just before is kept in Class history. Remove this file and the CSV once it has been used.
+The same target twice for a student on the sheet is added once. Using the page again gives the same result, as it
+clears first. An admin opens /admin/import-memo-passes to see what would be cleared, which rows match, which don't
+and which need a choice (a name two students share); nothing changes until they type IMPORT. The version of each
+class from just before is kept in Class history. Remove this file and the CSV once it has been used.
 """
 import csv
 import json
@@ -71,22 +72,46 @@ def read_target(text, levels):
     return None, "not an item on the school's list"
 
 
-def plan(db, picks=None):
-    """([(class_id, revision, class name, new state, rows added)], report rows, choices for shared names).
+def clear(s):
+    """Takes away the student's memo passes, fails and Memo level tests, and returns how many of each went.
 
-    Each report row is the sheet row with "status" (add, fail, have, repeat, missing, choose, bad), "cls", "label"
-    and "note". picks maps a shared name's key to the chosen "class_id|place in the class"."""
+    A passed Memo level test's blue coin stays, kept in s.hp as a level completion so the House points page still
+    traces it. The target is left for the sheet to set."""
+    tests = [t for t in s.get("tests", []) if t.get("k") == "m"]
+    gone = (len(s.get("log", [])), len(s.get("fl", [])), len(tests))
+    for t in tests:
+        if t.get("tk"):
+            s["hp"] = s.get("hp", []) + [{"t": t["tk"], "r": "lv"}]
+    s["tests"] = [t for t in s.get("tests", []) if t.get("k") != "m"]
+    s.update(log=[], lt=[], lx=[], fl=[], passes=0, hit=None)
+    return gone
+
+
+def plan(db, picks=None):
+    """([(class_id, revision, class name, new state, number of changes)], report rows, choices for shared names, removed).
+
+    Every student's memo passes, fails and Memo level tests are cleared first (clear), so the sheet becomes the
+    whole record; removed counts them as {passes, fails, tests, students}. Each report row is the sheet row with
+    "status" (add, fail, repeat, missing, choose, bad), "cls", "label" and "note". picks maps a shared name's key to
+    the chosen "class_id|place in the class"."""
     picks = picks or {}
     classes, found = [], {}
+    removed = dict.fromkeys(("passes", "fails", "tests", "students"), 0)
     for row in db.execute("SELECT id, json, revision FROM classrooms ORDER BY id").fetchall():
         state = json.loads(row["json"])
         classes.append([row["id"], row["revision"], state.get("name", row["id"]), state, 0])
         for j, s in enumerate(state.get("S", [])):
             for name in {s.get("name", "")} | set(s.get("xn", [])):
                 found.setdefault(name_key(name), []).append((len(classes) - 1, j))
+            gone = clear(s)
+            if any(gone):
+                classes[-1][4] += 1
+                removed["students"] += 1
+                for k, n in zip(("passes", "fails", "tests"), gone):
+                    removed[k] += n
     for key in found:
         found[key] = list(dict.fromkeys(found[key]))
-    report, choices, top, latest = [], {}, {}, {}
+    report, choices, latest = [], {}, {}
     for r in rows():
         key = name_key(r["name"])
         who = found.get(key, [])
@@ -101,16 +126,13 @@ def plan(db, picks=None):
             r["status"] = "choose" if key in choices else "missing"
             continue
         c, j = who[0]
-        cls, s = classes[c], classes[c][3]["S"][who[0][1]]
+        cls, s = classes[c], classes[c][3]["S"][j]
         r["cls"] = cls[2]
         kind, value = read_target(r["target"], cls[3].get("L") or [])
         if kind is None:
             r.update(status="bad", note=value)
             continue
         if kind == "fail":
-            if any(abs(t - r["t"]) < 1000 for t in s.setdefault("fl", [])):
-                r["status"] = "have"
-                continue
             s["fl"] = sorted(s["fl"] + [r["t"]])
             r["status"] = "fail"
             cls[4] += 1
@@ -119,38 +141,36 @@ def plan(db, picks=None):
         r["label"] = value if kind == "surah" else r["target"]
         if r["label"] != r["target"]:
             r["note"] = f"Written as \"{r['target']}\" on the sheet"
-        same = [k for k in range(len(s.get("log", []))) if (s["lx"][k] == lx if lx else not s["lx"][k] and s["lt"][k] == lt)]
-        if same:
-            r["status"] = "repeat" if any(s["log"][k] in top.get((c, j), ()) for k in same) else "have"
+        if any(s["lx"][k] == lx if lx else not s["lx"][k] and s["lt"][k] == lt for k in range(len(s["log"]))):
+            r["status"] = "repeat"
             continue
         if kind == "book" and lt < max([s["lt"][k] for k in range(len(s["log"])) if not s["lx"][k]] or [0]):
             r["note"] = "Earlier in the book than a target they had already passed"
         merged = sorted(zip(s["log"] + [r["t"]], s["lt"] + [lt], s["lx"] + [lx]), key=lambda x: (x[0], x[1]))
         s["log"], s["lt"], s["lx"] = (list(x) for x in zip(*merged))
-        s["passes"] = s.get("passes", 0) + 1
+        s["passes"] += 1
         s["hit"] = s["log"][-1]
-        top.setdefault((c, j), set()).add(r["t"])
-        if kind == "book" and r["t"] >= latest.setdefault((c, j), [0, s.get("target", 1)])[0]:
-            # The one after the latest book target passed on the sheet, but never back from the target they had on the site.
-            latest[(c, j)][0] = r["t"]
-            s["target"] = max(latest[(c, j)][1], min(lt + 1, sum(cls[3]["L"]) + cls[3].get("Q", 0) + 1))
+        if kind == "book" and r["t"] >= latest.get((c, j), 0):
+            # The one after the latest book target passed on the sheet.
+            latest[(c, j)] = r["t"]
+            s["target"] = min(lt + 1, sum(cls[3]["L"]) + cls[3].get("Q", 0) + 1)
         cls[4] += 1
-    return [tuple(c) for c in classes if c[4]], report, list(choices.items())
+    return [tuple(c) for c in classes if c[4]], report, list(choices.items()), removed
 
 
-ORDER = ("missing", "choose", "bad", "repeat", "have", "fail", "add")
+ORDER = ("missing", "choose", "bad", "repeat", "fail", "add")
 
 
 def _page(picks=None, **context):
     with current_app.config["DB"].transaction() as db:
-        changed, report, choices = plan(db, picks)
+        _, report, choices, removed = plan(db, picks)
     counts = {k: sum(1 for r in report if r["status"] == k) for k in ORDER}
     problems = [r for r in report if r["status"] in ("missing", "choose", "bad")]
-    skipped = [r for r in report if r["status"] in ("repeat", "have")]
+    skipped = [r for r in report if r["status"] == "repeat"]
     noted = [r for r in report if r["status"] in ("add", "fail") and r["note"]]
     adding = [r for r in report if r["status"] in ("add", "fail")]
     return auth.page("admin_memo_import.html", counts=counts, total=len(report), problems=problems, skipped=skipped,
-                     noted=noted, adding=adding, choices=choices, students=len({(r["cls"], r["name"]) for r in adding}),
+                     noted=noted, adding=adding, choices=choices, removed=removed, students=len({(r["cls"], r["name"]) for r in adding}),
                      **context)
 
 
@@ -174,7 +194,7 @@ def apply():
     t = int(time.time())
     done = 0
     with current_app.config["DB"].transaction() as db:
-        for class_id, revision, _, state, added in plan(db, picks)[0]:
+        for class_id, revision, _, state, changed in plan(db, picks)[0]:
             current = db.execute("SELECT json FROM classrooms WHERE id = ?", (class_id,)).fetchone()["json"]
             encoded = json.dumps(state, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
             # Keep the version from just before in Class history, then the one with the passes.
@@ -183,6 +203,6 @@ def apply():
             db.execute("UPDATE classrooms SET json = ?, revision = ? WHERE id = ?", (encoded, revision + 1, class_id))
             db.execute("INSERT INTO classroom_history (class_id, revision, json, saved_by, saved_at) VALUES (?, ?, ?, ?, ?)",
                        (class_id, revision + 1, encoded, g.user["id"], t))
-            auth.audit(db, "class.memo_passes_imported", class_id, {"rows": added})
-            done += added
+            auth.audit(db, "class.memo_passes_imported", class_id, {"changes": changed})
+            done += 1
     return _page(picks, done=done)
