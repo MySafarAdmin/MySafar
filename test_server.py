@@ -264,8 +264,8 @@ class DashboardTests:
                    "ml": [], "fl": [], "q": {}}
         state = dict(self.state, L=[9, 9, 9, 9, 10, 10, 10, 12, 15, 14])
         self.assertTrue(valid_state(dict(state, S=[student])))
-        self.assertTrue(valid_state(dict(state, S=[dict(student, qa=14)])))
-        for bad in (-1, 15, "3", 2.5):
+        self.assertTrue(valid_state(dict(state, S=[dict(student, qa=20)])))
+        for bad in (-1, 21, "3", 2.5):
             self.assertFalse(valid_state(dict(state, S=[dict(student, qa=bad)])))
         test = {"d": "2026-10-14", "k": "m", "n": 12, "sc": 4, "ok": True}
         self.assertTrue(valid_state(dict(state, S=[dict(student, tests=[test, dict(test, k="q", n=3, ok=False, pq=2)])])))
@@ -871,14 +871,14 @@ class DashboardTests:
 
     def test_import_qaidah_passes_clears_then_adds_level_tests(self):
         sheet = ("Date,Student ID,Level,Score\n01/10/2026,SE0001,Level 1,\n08/10/2026,SE0001,Qaidah 3,4\n08/10/2026,se1,3,\n"
-                 "15/10/2026,SE0001,Fail,\n10/10/2026,SE0001,Level 2,\n20/10/2026,SE0001,Level 20,\n")
+                 "15/10/2026,SE0001,Fail,\n10/10/2026,SE0001,Level 2,\n20/10/2026,SE0001,Level 21,\n")
         url = "/admin/import-qaidah-passes"
         memo_test = {"d": "2026-09-05", "k": "m", "n": 1, "sc": 4, "ok": True, "tk": 5}
         self.write(state=dict(self.state, S=[self.tv_student("Aayat Nm", sid="SE0001", qa=2, tb=[5, 6], tests=[
             memo_test, {"d": "2026-09-06", "k": "q", "n": 2, "sc": 3, "ok": True, "pq": 1, "tk": 6}]),
                                              self.tv_student("Musa Un", qa=5)]))
         page = self.form(self.client, url, url, csv=(io.BytesIO(sheet.encode()), "levels.csv")).get_data(as_text=True)
-        for text in ("1 Quran level test already on the site", "Not a level from 1 to 14", "The same level is higher up the sheet",
+        for text in ("1 Quran level test already on the site", "Not a level from 1 to 20", "The same level is higher up the sheet",
                      "Lower than a level they had already passed", "Qaidah Level 3"):
             self.assertIn(text, page)
         done = self.form(self.client, url, url, sheet=sheet, confirm="import").get_data(as_text=True)

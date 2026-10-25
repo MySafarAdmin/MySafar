@@ -35,7 +35,7 @@ from flask import Blueprint, current_app, g, request
 import auth
 from set_houses import name_key, sid_key
 
-QAIDAH_LEVELS = 14  # keep in step with QAIDAH in src/page.html and QAIDAH_LEVELS in server.py
+QAIDAH_LEVELS = 20  # keep in step with QAIDAH in src/page.html and QAIDAH_LEVELS in server.py
 SURAHS = ("197. Surah An-Naba'", "198. Surah An-Nazi'aat", "199. Surah Abasa", "200. Surah At-Takwir",
           "201. Surah Al-Infitaar", "202. Surah Al-Mutaffifin", "203. Surah Al-Inshiqaq", "204. Surah Al-Burooj",
           "205. Surah At-Tariq", "206. Surah Al-A'la", "207. Surah Al-Ghaashiyah", "208. Surah Al-Fajr",
