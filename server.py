@@ -26,6 +26,8 @@ import auth
 import cleanup
 import set_houses
 import export
+import house_extra
+import quran_coins
 import tv
 from db import DB_ERRORS, Database
 from mailer import Mailer
@@ -230,6 +232,8 @@ def create_app(test_config=None):
     app.register_blueprint(cleanup.bp)
     app.register_blueprint(set_houses.bp)
     app.register_blueprint(export.bp)
+    app.register_blueprint(house_extra.bp)
+    app.register_blueprint(quran_coins.bp)
     pruned = {"at": 0}
 
     def wants_json():
@@ -378,9 +382,10 @@ def create_app(test_config=None):
     @app.get("/api/houses")
     def house_totals():
         """Whole-school house points. Only totals, so teachers can see them too."""
-        totals = dict.fromkeys(HOUSES, 0)
         with database.transaction() as db:
             rows = db.execute("SELECT json FROM classrooms").fetchall()
+            # Points added by hand for a whole house count too.
+            totals = house_extra.totals(db)
         for row in rows:
             for student in json.loads(row["json"]).get("S", []):
                 if student.get("house") in totals:

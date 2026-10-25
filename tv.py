@@ -16,6 +16,7 @@ from pathlib import Path
 from flask import Blueprint, Response, abort, current_app, g, jsonify, request
 
 import auth
+import house_extra
 
 ROOT = Path(__file__).resolve().parent
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
@@ -164,14 +165,15 @@ def week_star(students, week):
     return star or None
 
 
-def summary(rows, now=None, teachers=()):
-    """Everything the TV shows, worked out from the classroom records."""
+def summary(rows, now=None, teachers=(), extra=None):
+    """Everything the TV shows, worked out from the classroom records. extra: house points added by hand for a whole
+    house (house_extra.py), which count in the house totals."""
     now = now or datetime.now(auth.LONDON)
     month, month_key, today_key, _ = period(now)
     # The TV shows one star per class on one page: each class's star for last week (the last full week).
     day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     last_week = day - timedelta(days=day.weekday() + 7)
-    houses = dict.fromkeys(HOUSES, 0)
+    houses = {h: (extra or {}).get(h, 0) for h in HOUSES}
     books, stars, memo, qaidah = [], [], [], []
     # Every teacher named in the classrooms (Quran and Islamic Studies) as well as those with an account.
     # A title from a classroom name wins; teachers known only by their account are Ustadh unless the name says otherwise.
@@ -304,10 +306,11 @@ def focus(settings, now=None):
 def data(settings=None):
     with auth.db().transaction() as tx:
         rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
+        extra = house_extra.totals(tx)
         # Teachers' names drift through the scenes; summary() adds everyone named in the classrooms.
         teachers = [r["name"] for r in tx.execute(
             "SELECT name FROM users WHERE role = 'teacher' AND disabled = 0 ORDER BY name").fetchall()]
-    result = summary(rows, teachers=teachers)
+    result = summary(rows, teachers=teachers, extra=extra)
     result["focus"] = focus(settings or {})
     return jsonify(result)
 

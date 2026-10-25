@@ -117,7 +117,27 @@ def _m4_tv_settings(db, postgres):
     db.execute("ALTER TABLE tv_screens ADD COLUMN settings TEXT")
 
 
-MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings]
+def _m5_house_points(db, postgres):
+    t = _types(postgres)
+    # House points added by hand for a whole house, not a student (see house_extra.py): n coins of one colour.
+    db.execute(f"""CREATE TABLE house_points (
+        id {t['id']},
+        house TEXT NOT NULL,
+        coin TEXT NOT NULL,
+        n INTEGER NOT NULL,
+        note TEXT NOT NULL,
+        given_by {t['ref']} REFERENCES users (id) ON DELETE SET NULL,
+        given_at BIGINT NOT NULL)""")
+    # The school's points from before the dashboard counted them, as the school gave them on 25 October 2026.
+    note, at = "Historical points from before the dashboard", 1792922400000  # milliseconds
+    for house, coins in (("Al-Aqsa", (("tb", 4), ("tg", 10))), ("Madinah", (("tb", 7), ("tg", 16))),
+                         ("Makkah", (("tr", 1), ("tb", 6), ("tg", 14)))):
+        for coin, n in coins:
+            db.execute("INSERT INTO house_points (house, coin, n, note, given_at) VALUES (%s, %s, %s, %s, %s)" if postgres else
+                       "INSERT INTO house_points (house, coin, n, note, given_at) VALUES (?, ?, ?, ?, ?)", (house, coin, n, note, at))
+
+
+MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points]
 
 
 class Database:
