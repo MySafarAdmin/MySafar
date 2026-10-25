@@ -729,6 +729,13 @@ class DashboardTests:
         self.add_user("t@example.com")
         self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").get("/admin/clear-test-data").status_code, 403)
 
+    def test_image_copies_every_module(self):
+        # The Dockerfile names each file it copies; a module left out stops the live site from starting.
+        copied = set(re.search(r"^COPY (server\.py .*) \./$", Path("Dockerfile").read_text(), re.M).group(1).split())
+        local = {p.name for p in Path(".").glob("*.py") if not p.name.startswith("test_")}
+        imported = {m + ".py" for m in re.findall(r"^import (\w+)$", Path("server.py").read_text() + Path("tv.py").read_text(), re.M)}
+        self.assertEqual((imported & local) - copied, set())
+
     def test_historical_house_points(self):
         points = {"tg": 5, "tb": 20, "tr": 50}
         seeded = {}
