@@ -894,7 +894,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 @media (min-width:1000px){.stg2{grid-template-columns:1fr 1fr}}
 .stg{border-radius:var(--r-lg);padding:18px 20px 14px;background:var(--sage-soft);border:1px solid color-mix(in srgb,var(--sage) 18%,transparent)}
 .stg.s{background:var(--gold-soft);border-color:color-mix(in srgb,var(--gold) 22%,transparent)}
-.stg-h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.stg-h{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
 .stg-h h3{margin:0;font-size:1.125rem;font-weight:800;color:var(--sage-ink)}
 .stg-h .cap{display:block;margin-top:1px}
 @media (max-width:480px){.stg-h{flex-wrap:wrap;gap:10px}}

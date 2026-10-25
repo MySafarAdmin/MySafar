@@ -1217,7 +1217,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 @media (min-width:1000px){.stg2{grid-template-columns:1fr 1fr}}
 .stg{border-radius:var(--r-lg);padding:18px 20px 14px;background:var(--sage-soft);border:1px solid color-mix(in srgb,var(--sage) 18%,transparent)}
 .stg.s{background:var(--gold-soft);border-color:color-mix(in srgb,var(--gold) 22%,transparent)}
-.stg-h{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.stg-h{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
 .stg-h h3{margin:0;font-size:1.125rem;font-weight:800;color:var(--sage-ink)}
 .stg-h .cap{display:block;margin-top:1px}
 @media (max-width:480px){.stg-h{flex-wrap:wrap;gap:10px}}
@@ -2634,11 +2634,11 @@ function rkT(g,t){return '<h3><button type="button" class="ovt" data-rkg="'+g+'"
    passes this month: the total and how many students passed, then the top classes and the students with the most
    passes. Ties share a place. */
 function stagesHtml(K){var by={p:[],s:[]},none=0;CIDS.forEach(function(c){var g=cStage(c);if(by[g])by[g].push(c);else none++});
- function panel(g){var C=by[g],A=K.A.filter(function(o){return C.indexOf(o.c)>=0}),nm=g==="p"?"Primary Years":"Secondary Years",yrs=g==="p"?"Reception to Year 6":"Year 7 and up";
+ function panel(g){var C=by[g],A=K.A.filter(function(o){return C.indexOf(o.c)>=0}),nm=g==="p"?"Primary Years":"Secondary Years";
   var h='<div class="stg '+g+'">';
-  if(!C.length)return h+'<div class="stg-h"><div><h3>'+nm+'</h3><span class="cap">'+yrs+'</span></div></div><p class="none">No '+nm+' classes. A class counts when its name or its students say '+(g==="p"?'Year 1 to 6':'Year 7 or above')+'.</p></div>';
+  if(!C.length)return h+'<div class="stg-h"><div><h3>'+nm+'</h3></div></div><p class="none">No '+nm+' classes. A class counts when its name or its students say '+(g==="p"?'Year 1 to 6':'Year 7 or above')+'.</p></div>';
   var n=sumOf(A.map(function(o){return o.s}),mpc),act=A.filter(function(o){return mpc(o.s)}).length;
-  h+='<div class="stg-h"><div><h3>'+nm+'</h3><span class="cap">'+yrs+'</span></div><div class="shl"><b'+(n?'':' class="zero"')+'>'+n+'</b><span>'+(n===1?'pass':'passes')+'<small>'+act+' of '+plural(A.length,"student")+' passed</small></span></div></div>'
+  h+='<div class="stg-h"><div><h3>'+nm+'</h3></div><div class="shl"><b'+(n?'':' class="zero"')+'>'+n+'</b><span>'+(n===1?'pass':'passes')+'<small>'+act+' of '+plural(A.length,"student")+' passed</small></span></div></div>'
    +'<div class="stg-l"><div class="grp">'+rkT(g,"Top classes")+rankList("tc"+g,C.map(function(c){return {name:cname(ST[c].name),open:c,tab:"T",v:sumOf(ST[c].S,mpc)}}),{limit:3,noMore:1,none:"No Memo passes yet this month."})+'</div>'
    +'<div class="grp"><h3><button type="button" class="ovt" data-mt="mp'+g+'">Most passes<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button></h3>'
    +rankList("mp"+g,A.map(function(o){return {name:shortNm(o.s.name),open:o.c,tab:"T",sub:esc(cname(ST[o.c].name)),v:mpc(o.s)}}),{limit:3,noMore:1,tone:"sky",none:"No passes yet this month."})+'</div></div>';
