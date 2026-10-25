@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Import memorisation passes{% endblock %}
+{% block title %}Import{% endblock %}
 {% block width %} narrow{% endblock %}
 {% macro table(list, why) %}
 <div class="tablewrap"><table class="tbl stackable">
@@ -12,8 +12,15 @@
 </tbody></table></div>
 {% endmacro %}
 {% block content %}
-<div class="band slim"><div class="band-top"><h1>Import memorisation passes</h1><div class="acts"><a class="btn" href="/admin/clear-test-data/backup.json">Download a backup</a></div></div>
-<p class="lede">Makes a CSV of memorisation passes (columns Date, Name and Target) the whole memorisation record. First every student's memo passes, fails and Memo level tests already on the site are cleared; the blue coins from passed Memo level tests stay. Then each pass on the CSV is added on its own date, as the Memo profile's Add pass does, with no tokens or house points, and each student's target becomes the one after the latest target they passed on the sheet. Students not on the sheet keep their target. The version of each class from just before is kept in Class history.</p></div>
+<div class="band slim"><div class="band-top"><h1>Import</h1><div class="acts"><a class="btn" href="/admin/clear-test-data/backup.json">Download a backup</a></div></div></div>
+<div class="mod line">
+  <h2>New students</h2>
+  <p class="sub">Upload a CSV of students. New students are added to their class and students already on the site are updated, never added twice.</p>
+  <a class="btn" href="/#upload-students">Upload students</a>
+</div>
+<div class="mod line">
+<h2>Memorisation passes</h2>
+<p class="sub">Upload a CSV with Date, Name and Target columns. It replaces all memo passes on the site with the ones in the file. You'll see a check before anything changes.</p>
 {% if done is defined %}
 <div class="panel" role="status"><p><b>Imported the CSV into {{ done }} {{ "class" if done == 1 else "classes" }}.</b> Open dashboards need a reload to show it. Importing another CSV clears first again, so any pass recorded after now would be lost.</p></div>
 {% endif %}
@@ -49,4 +56,5 @@
 <p class="sub">Nothing to add.</p>
 {% endif %}
 {% endif %}
+</div>
 {% endblock %}

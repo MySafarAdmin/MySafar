@@ -216,7 +216,9 @@ function changed(c){navL();
  if(CID){if(c===undefined||c===CID)setClass(CID)}else if(PAGE==="R")recPage();else master()}
 /* #classes, #students, #house-points, #rankings, #record, a class's id, or #tab-Q (and T, D, H, S) for a page of the class used last: the admin and
    account pages link to these from their own dock. */
-function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];if(h==="students")return ["U"];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="rankings")return [TEACHER?"M":"K"];if(h==="record")return [TEACHER?"M":"R"];
+function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];
+ /* From the Import page: Classes with "Upload students from a CSV file" open. */
+ if(h==="upload-students"&&!TEACHER){setTimeout(function(){var u=$("up");if(u){u.open=true;u.scrollIntoView({block:"start"})}},0);return ["L"]}if(h==="students")return ["U"];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="rankings")return [TEACHER?"M":"K"];if(h==="record")return [TEACHER?"M":"R"];
  var m=/^tab-([QTDHS])$/.exec(h);if(m){var c=lastC();return c?[c,m[1]]:CIDS.length||LOADED?["L"]:null}return ST[h]?[h]:null}
 function setSt(t,s){var e=document.getElementById("st");if(e){e.textContent=t;e.setAttribute("data-s",s||(/couldn|can't|not saved|signed out|could not/i.test(t)?"bad":/saving|loading/i.test(t)?"busy":"ok"))}}
 function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
