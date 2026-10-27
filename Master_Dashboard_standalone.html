@@ -2244,8 +2244,8 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    from the item list}.
    Book passes are the third choice: the Qaidah Book or the Tajweed Book finished, kept on the student as
    {t: when, b: "q" or "t"} in s.bp, with no house points.
-   House points are the fourth choice. While HPOFF is set it is shown but closed, so nothing can be given by accident;
-   earlier ones can still be undone. When open, the admin picks the student and what the points are for, and the
+   House points are the fourth choice, hidden while HPOFF is set: house points now come only from counted coins.
+   When shown, the admin picks the student and what the points are for, and the
    points and coin follow from HPR. Each is kept on the student as {t: when its token was given, r: what for} in
    s.hp, with the token itself in s.tg, s.tb or s.tr.
    Memo's "Item number and Surah" picker is the school's own list: Fail, every book target ("L1 Target 1") and the
@@ -2306,7 +2306,7 @@ var RL=[];
 function rAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s,i){A.push({s:s,c:c,i:i})})});
  return A.sort(function(a,b){return a.s.name.trim().localeCompare(b.s.name.trim(),undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function recPage(){var o=rStu(),s=o&&o.s,h='';
- h+=rStep(1,'<p class="rl">Record</p>'+rSeg("rK",RK,[["q","Quran test"],["m","Memo test"],["b","Book pass"],["h","House points"]],"Record"),1);
+ h+=rStep(1,'<p class="rl">Record</p>'+rSeg("rK",RK,[["q","Quran test"],["m","Memo test"],["b","Book pass"]].concat(HPOFF?[]:[["h","House points"]]),"Record"),1);
  RL=rAll();(function(A){var n={},key=function(o){return o.s.name.trim().toLowerCase()+"|"+o.t};
   A.forEach(function(o){var cn=ST[o.c].name;o.t=cteach(cn)||cname(cn);n[key(o)]=(n[key(o)]||0)+1});
   A.forEach(function(o){o.v=o.c+"|"+o.i;o.b=n[key(o)]>1?cname(ST[o.c].name):o.t;o.k=nkey(o.s.name+" "+o.b)})})(RL);

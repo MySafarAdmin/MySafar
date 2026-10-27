@@ -67,7 +67,7 @@ box at the office, and an admin counts them and adds each house's count on **Cou
 
 The Record page still records Quran level tests (Qaidah Book levels 1 to 13, Tajweed Book levels 14 to 20),
 Memo tests and book passes (Qaidah Book or Tajweed Book), but none of them gives house points. Its House points
-choice is kept but closed (`HPOFF` in `src/page.html`), so nothing is given by accident.
+choice is hidden (`HPOFF` in `src/page.html`), so nothing is given by accident.
 A Memo pass chosen there by **Item number and Surah** (the school's list: Fail, L1 Target 1 to L10 Target 14,
 and items 197 to 230) is logged as a pass in the same way.
 The overview's House points pop-up shows the whole school's totals, and on
