@@ -514,6 +514,20 @@ class DashboardTests:
         self.assertNotIn(b'href="/#rankings"', teacher.get("/account").data)
         self.assertIn(b'href="/#rankings"', self.client.get("/account").data)
 
+    def test_tutorial_starts_once_for_teachers(self):
+        self.add_user("t@example.com")
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        self.assertIn('"tour": true', teacher.get("/").get_data(as_text=True))
+        # Admins aren't shown it on their own, but can take it from Account like teachers can retake it.
+        self.assertIn('"tour": false', self.client.get("/").get_data(as_text=True))
+        self.assertIn(b'href="/#tour"', teacher.get("/account").data)
+        self.assertIn(b'href="/#tour"', self.client.get("/account").data)
+        # Finishing or skipping it is a dashboard request like any other write.
+        self.assertEqual(teacher.post("/api/tour", json={}).status_code, 403)
+        self.assertEqual(teacher.post("/api/tour", json={}, headers=self.headers).status_code, 200)
+        self.assertIn('"tour": false', teacher.get("/").get_data(as_text=True))
+        self.assertTrue(self.query("SELECT tour_done FROM users WHERE email = ?", ("t@example.com",))[0]["tour_done"])
+
     def test_admin_downloads_the_school_spreadsheet(self):
         from io import BytesIO
         from openpyxl import load_workbook
