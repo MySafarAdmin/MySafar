@@ -29,6 +29,7 @@ import export
 import house_extra
 import quran_coins
 import memo_import
+import helpdesk
 import tv
 from db import DB_ERRORS, Database
 from mailer import Mailer
@@ -216,6 +217,8 @@ def create_app(test_config=None):
         RETENTION_DAYS=int(os.environ.get("RETENTION_DAYS", "14")),
         # Shown on the password pages so staff can contact the school office directly.
         SUPPORT_EMAIL=os.environ.get("SUPPORT_EMAIL", "").strip(),
+        # Who gets the weekly Help or Requests summary on Sundays at 12:00 (see helpdesk.py).
+        HELP_SUMMARY_TO=os.environ.get("HELP_SUMMARY_TO", "").strip(),
     )
     if test_config:
         app.config.update(test_config)
@@ -238,6 +241,9 @@ def create_app(test_config=None):
     app.register_blueprint(house_extra.bp)
     app.register_blueprint(quran_coins.bp)
     app.register_blueprint(memo_import.bp)
+    app.register_blueprint(helpdesk.bp)
+    if not app.config.get("TESTING"):
+        helpdesk.start_summary_thread(app)
     pruned = {"at": 0}
 
     def wants_json():

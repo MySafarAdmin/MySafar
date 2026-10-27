@@ -36,7 +36,8 @@
     tv: '<rect x="3" y="4.5" width="18" height="12" rx="1.5"/><path d="M8 20h8"/><path d="M12 16.5V20"/>',
     sheet: '<rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 9.5h17"/><path d="M3.5 15h17"/><path d="M9.5 9.5v11"/>',
     pie: '<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5v10z"/><path d="M14 3.2A8.5 8.5 0 0 1 20.8 10H14z"/>',
-    upload: '<path d="M12 15V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v4.5h16V15"/>'
+    upload: '<path d="M12 15V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v4.5h16V15"/>',
+    faq: '<path d="M20.5 12a8.5 8.5 0 0 1-12.3 7.6L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M9.8 9.6a2.3 2.3 0 0 1 4.4.9c0 1.5-2.2 2-2.2 3.2"/><path d="M12 16.4h.01"/>'
   };
   if (ME.role === "admin") {
     var adminNav = document.getElementById("adminNav");
@@ -46,7 +47,7 @@
     adminNav.appendChild(heading);
     [["Manage users", "/admin/users", "users"], ["Class history", "/admin/history", "history"],
      ["Activity", "/admin/activity", "activity"], ["TV screens", "/admin/tv", "tv"], ["Historical points", "/admin/house-points", "pie"],
-     ["Spreadsheet", "/admin/export", "sheet"], ["Import", "/admin/import", "upload"]].forEach(function (l) {
+     ["Spreadsheet", "/admin/export", "sheet"], ["Import", "/admin/import", "upload"], ["FAQs", "/admin/faqs", "faq"]].forEach(function (l) {
       var a = document.createElement("a");
       a.className = "nav"; a.href = l[1];
       a.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[l[2]] + "</svg>";
@@ -247,4 +248,128 @@
     checkedIn = Date.now();
     fetch("/api/houses", { credentials: "same-origin", cache: "no-store" }).catch(function () {});
   }, 10000);
+  // Help or Requests (helpdesk.py): teachers ask the office for help or make a request from the bottom of their
+  // overview, and read the replies in the same pop-up. Admins answer on the FAQs page.
+  if (ME.role === "teacher") (function () {
+    var KIND = {help: "Help", request: "Request"};
+    var ASK = {help: "What do you need help with?", request: "What would you like to request?"};
+    var SEND = {help: "Send message", request: "Send request"};
+    var HINT = {help: "Say what you were trying to do and what happened. Include the class or student if it helps.",
+                request: "Say what you'd like and why it would help your class."};
+    var SVG = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+    var ICON = {help: '<circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.6a2.3 2.3 0 0 1 4.4.9c0 1.5-2.2 2-2.2 3.2"/><path d="M12 16.4h.01"/>',
+                request: '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
+                faq: ICONS.faq};
+    var state = {items: [], unread: 0, email: false, loaded: false}, kind = null, note = "";
+    var foot = document.createElement("div");
+    foot.className = "hrq";
+    foot.innerHTML = '<div class="hrq-t"><b>Need a hand?</b><span>Ask the office for help, or make a request.</span></div>'
+      + '<button type="button" class="btn hrq-b" aria-haspopup="dialog">' + SVG + ICON.faq + '</svg>Help or Requests'
+      + '<span class="hrq-dot" hidden></span><span class="sr-only hrq-new"></span></button>';
+    var overview = document.getElementById("vM");
+    if (!overview) return;
+    overview.appendChild(foot);
+    var button = foot.querySelector("button"), dot = foot.querySelector(".hrq-dot"), srNew = foot.querySelector(".hrq-new");
+
+    function e(text) { return esc(text == null ? "" : text); }
+    function when(t) {
+      return new Date(t * 1000).toLocaleString("en-GB", {weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit"});
+    }
+    function open() { return !document.getElementById("drw").hidden && DMODE === "hrq"; }
+    function badge() {
+      dot.hidden = !state.unread;
+      srNew.textContent = state.unread ? " (" + state.unread + " new repl" + (state.unread === 1 ? "y" : "ies") + ")" : "";
+    }
+    function take(data) {
+      state.items = data.items || []; state.unread = data.unread || 0; state.email = !!data.email; state.loaded = true;
+      badge();
+    }
+    async function call(path, body) {
+      var options = {credentials: "same-origin", cache: "no-store"};
+      if (body) {
+        options.method = "POST";
+        options.headers = {"Content-Type": "application/json", "X-Dashboard-Request": "1"};
+        options.body = JSON.stringify(body);
+      }
+      var response = await fetch(path, options), data = {};
+      try { data = await response.json(); } catch (error) { /* An error page, not JSON. */ }
+      if (!response.ok) {
+        var error = new Error(data.error || (response.status === 401 ? "You've been signed out. Sign in again, then try once more." : "That didn't send. Check your connection and try again."));
+        throw error;
+      }
+      return data;
+    }
+    async function refresh() {
+      try {
+        var before = JSON.stringify(state.items), data = await call("/api/help");
+        take(data);
+        // Redraw an open list only when something changed, so focus isn't lost for nothing.
+        if (open() && !kind && JSON.stringify(state.items) !== before) home();
+      } catch (error) { /* Tried again later. */ }
+    }
+    function list() {
+      if (!state.items.length) return '<p class="cap hrq-none">Nothing sent yet. Your messages and the office\'s replies will appear here.</p>';
+      return '<ol class="hrq-list">' + state.items.map(function (i) {
+        return '<li class="hrq-it' + (i.unread ? " new" : "") + '"><div class="hrq-h"><span class="pill ' + (i.kind === "help" ? "blue" : "amber") + '">' + KIND[i.kind] + "</span>"
+          + (i.unread ? '<span class="pill green">New reply</span>' : "") + '<span class="cap">' + e(when(i.at)) + "</span></div>"
+          + '<p class="hrq-msg">' + e(i.body) + "</p>"
+          + (i.reply ? '<div class="hrq-r"><p class="cap"><b>' + e(i.by || "The office") + "</b> replied " + e(when(i.repliedAt)) + (i.emailed ? ", also by email" : "") + '</p><p class="hrq-msg">' + e(i.reply) + "</p></div>"
+            : '<p class="cap hrq-wait">Waiting for a reply</p>') + "</li>";
+      }).join("") + "</ol>";
+    }
+    function home() {
+      kind = null;
+      var body = document.getElementById("drwB");
+      body.innerHTML = (note ? '<p class="hrq-ok" role="status">' + e(note) + "</p>" : "")
+        + '<p class="cap">Choose one. The office replies here' + (state.email ? ", and by email" : "") + ".</p>"
+        + '<div class="hrq-pick">' + ["help", "request"].map(function (k) {
+          return '<button type="button" class="hrq-opt" data-hk="' + k + '"><span class="hrq-ic">' + SVG + ICON[k] + "</svg></span><b>" + KIND[k] + "</b><span>"
+            + (k === "help" ? "Something isn't working, or you're not sure how to do it." : "Ask for something new, like a change to the dashboard or a resource for your class.") + "</span></button>";
+        }).join("") + "</div>"
+        + '<h3>Your messages</h3>' + (state.loaded ? list() : '<p class="cap">Loading…</p>');
+      note = "";
+    }
+    function write(k) {
+      kind = k;
+      document.getElementById("drwB").innerHTML = '<form class="addf hrq-f" id="hrqF" novalidate>'
+        + '<button type="button" class="btn sm quiet hrq-back" data-hk="back">' + SVG + '<path d="m15 6-6 6 6 6"/></svg>Back</button>'
+        + '<label>' + ASK[k] + '<span class="cap">' + HINT[k] + '</span><textarea id="hrqT" rows="7" maxlength="2000"></textarea></label>'
+        + '<p class="naerr" id="hrqE" role="alert"></p><div class="acts"><button type="submit" class="btn p">' + SEND[k] + "</button></div></form>";
+      document.getElementById("hrqT").focus();
+    }
+    button.onclick = function () {
+      drawer("Help or Requests", "");
+      DMODE = "hrq";
+      home();
+      document.getElementById("drwX").focus();
+      if (!state.loaded) refresh();
+      if (state.unread) {
+        call("/api/help/seen", {}).then(function () { state.unread = 0; badge(); state.items.forEach(function (i) { i.unread = false; }); }).catch(function () {});
+      }
+    };
+    document.getElementById("drwB").addEventListener("click", function (event) {
+      if (DMODE !== "hrq") return;
+      var b = event.target.closest("[data-hk]");
+      if (!b) return;
+      if (b.dataset.hk === "back") { home(); var first = document.querySelector("#drwB [data-hk]"); if (first) first.focus(); }
+      else write(b.dataset.hk);
+    });
+    document.getElementById("drwB").addEventListener("submit", async function (event) {
+      if (DMODE !== "hrq" || event.target.id !== "hrqF") return;
+      event.preventDefault();
+      var text = document.getElementById("hrqT"), err = document.getElementById("hrqE"), send = event.target.querySelector("[type=submit]");
+      if (!text.value.trim()) { err.textContent = "Type your message first."; text.focus(); return; }
+      send.disabled = true; send.textContent = "Sending…";
+      try {
+        take(await call("/api/help", {kind: kind, body: text.value}));
+        note = (kind === "help" ? "Your message was sent." : "Your request was sent.") + " The office will reply here" + (state.email ? " and by email." : ".");
+        if (open()) { home(); document.getElementById("drwX").focus(); }
+      } catch (error) {
+        if (!document.contains(err)) return;
+        err.textContent = error.message; send.disabled = false; send.textContent = SEND[kind];
+      }
+    });
+    refresh();
+    setInterval(function () { if (!document.hidden) refresh(); }, 180000);
+  })();
 })();

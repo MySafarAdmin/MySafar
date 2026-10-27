@@ -205,3 +205,27 @@ fieldset.hold:disabled input{opacity:1;-webkit-text-fill-color:currentColor}
 .rail .navs>.mhl.go{transition:transform .34s cubic-bezier(.22,1,.36,1),width .34s cubic-bezier(.22,1,.36,1),height .34s cubic-bezier(.22,1,.36,1),opacity .2s ease}
 .rail .navs.has-h>.nav{position:relative;z-index:1}
 .rail .navs.has-h>.nav:not([aria-current]):hover{background:none}
+
+/* FAQs: Help or Requests from staff, each a card with its reply form. */
+.faqs-h{display:flex;align-items:center;gap:8px;margin:24px 0 10px}
+.faqs-h:first-of-type{margin-top:8px}
+.faq+.faq{margin-top:12px}
+.faq.wait{box-shadow:inset 3px 0 0 var(--warn)}
+.faqh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:8px}
+.faqh .pill{align-self:center}
+.faqh .faqt{margin-left:auto}
+.faqm{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55}
+.faqr{margin:12px 0 0;padding:10px 14px;border-radius:var(--r);background:var(--primary-soft)}
+.faqr .sub{margin:0 0 4px;font-size:.8125rem}
+.faqf{margin-top:16px}
+.faq>.faqm+.faqf{padding-top:14px;border-top:1px solid var(--line)}
+.faqf textarea{margin-top:6px;font-weight:400}
+.faqsend{border:0;padding:0;margin:0 0 12px;display:flex;flex-wrap:wrap;gap:6px 18px}
+.faqsend legend{font-weight:700;font-size:.9375rem;padding:0;margin-bottom:4px;width:100%}
+.faqsend label{display:inline-flex;align-items:center;gap:6px;font-size:.9375rem}
+.faqsend input{min-height:0}
+.faqa{display:flex;justify-content:flex-end}
+.faq details.confirm{display:inline-block;margin-top:12px;margin-right:8px;vertical-align:top}
+.faq details.faqedit[open]{display:block}
+.faq details.faqedit form{max-width:none;padding:12px 14px}
+.faqnone{margin:0}
