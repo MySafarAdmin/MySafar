@@ -267,6 +267,13 @@ button.link{font:inherit;background:none;border:0;padding:0;color:var(--primary-
 input,select,textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:9px 12px;min-height:44px;max-width:100%}
 textarea{min-height:96px;resize:vertical;width:100%}
 input:hover,select:hover,textarea:hover{border-color:var(--mute)}
+/* Drop-downs: our own chevron, drawn in CSS (no image, so it works under every page's security policy), set well in
+   from the edge with room for it in the padding. */
+select:not([multiple]){-webkit-appearance:none;appearance:none;padding-right:40px;cursor:pointer;
+ background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
+ background-position:calc(100% - 20px) 52%,calc(100% - 15px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+select:not([multiple]):disabled{cursor:default;opacity:.6}
+select:not([multiple])[aria-expanded="true"]{border-color:var(--navy);box-shadow:0 0 0 3px rgba(0,59,107,.1)}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:0;border-color:var(--focus)}
 input[type=checkbox],input[type=radio]{min-height:0;width:18px;height:18px;accent-color:var(--primary)}
 input[type=file]{padding:7px 10px}

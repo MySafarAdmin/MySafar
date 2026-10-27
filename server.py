@@ -138,8 +138,8 @@ def valid_state(state):
             return False
         if len(student["log"]) != len(student["lt"]) or len(student["log"]) != len(student["lx"]):
             return False
-        # The Quran tab scores out of 5, starting at 0.
-        if not isinstance(student.get("q"), dict) or not all(type(v) is int and 0 <= v <= 5 for v in student["q"].values()):
+        # The Quran tab scores out of 5, starting at 0; -1 marks the student absent that day.
+        if not isinstance(student.get("q"), dict) or not all(type(v) is int and -1 <= v <= 5 for v in student["q"].values()):
             return False
     return True
 

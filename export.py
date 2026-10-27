@@ -49,7 +49,7 @@ SHEETS = {
         ("Memo passes", 9, "0"), ("Passes this month", 9, "0"), ("Memo fails", 9, "0"),
         ("Level tests", 9, "0"), ("Quran average", 9, "0.0"), ("Merits", 9, "0"),
         ("With a warning", 9, "0"), ("House points", 9, "0")]),
-    "quran": ("Quran scores", "Every daily Quran score, 0 to 5, one row per student per day.", [
+    "quran": ("Quran scores", "Every daily Quran score, 0 to 5 or Absent, one row per student per day.", [
         ("Date", 13, DAY), ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None),
         ("Score", 8, "0")]),
     "memo": ("Memo passes and fails", "Every Memo pass and fail, newest first.", [
@@ -147,18 +147,20 @@ def gather(db):
         for s in students:
             sid, name, house = s.get("sid", ""), s.get("name", ""), s.get("house", "")
             log, fails, merits = s.get("log", []), s.get("fl", []), s.get("ml", [])
+            # -1 is absent: listed on the Quran sheet, left out of every average.
             scores = s.get("q", {})
+            marks = [v for v in scores.values() if v >= 0]
             points = sum(len(s.get(k, [])) * v for k, _, v in TOKENS)
             started = s.get("target", 1) > 1 or log or fails
             sheets["students"].add(
                 cname, sid, name, s.get("fid", ""), birth(s.get("dob", "")), s.get("gender", ""), s.get("year", ""), s.get("sy", ""), s.get("ist", ""), house,
                 target_label(s.get("target", 1), levels) if started else "No data", s.get("passes", 0),
                 sum(1 for t in log if t >= month), when(max(log)).date() if log else None, len(fails),
-                s.get("qa") or None, len(scores), round(sum(scores.values()) / len(scores), 2) if scores else None,
+                s.get("qa") or None, len(marks), round(sum(marks) / len(marks), 2) if marks else None,
                 s.get("merits", 0), WARNINGS[s.get("warn", 0)], points, *(len(s.get(k, [])) for k, _, _ in TOKENS),
                 len(s.get("sw", [])))
             for d, score in sorted(scores.items()):
-                sheets["quran"].add(day(d), cname, sid, name, score)
+                sheets["quran"].add(day(d), cname, sid, name, "Absent" if score < 0 else score)
             labels = s.get("lx", [])
             for k, t in enumerate(log):
                 lt = s.get("lt", [])
@@ -187,7 +189,7 @@ def gather(db):
             totals["merits"] += s.get("merits", 0)
             totals["warned"] += 1 if s.get("warn") else 0
             totals["points"] += points
-            totals["q"] += scores.values()
+            totals["q"] += marks
         try:
             first_day = day(state.get("fcd", ""))
         except ValueError:
