@@ -1591,13 +1591,18 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .hpsrc>span{display:flex;justify-content:space-between;gap:10px}
 .hpsrc .hpr{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hpcards .hpsrc b{font-size:.8125rem;font-weight:700;margin:0;display:inline;line-height:1.4;font-variant-numeric:tabular-nums}
-.hpby{overflow-x:auto;margin:6px 0 10px;scrollbar-width:none}.hpby::-webkit-scrollbar{display:none}
+.hpby{overflow-x:auto;min-width:0;max-width:100%;scrollbar-width:none}.hpby::-webkit-scrollbar{display:none}
 .hpby .seg{flex-wrap:nowrap}.hpby .seg button{white-space:nowrap}
-.hpbar{gap:8px 14px;margin-bottom:10px}
-.hpbar #hpQ{flex:0 1 240px;width:100%;min-height:40px}
+.hpbar{gap:10px 14px;margin:14px 0 12px;align-items:center}
+.hpfind{display:flex;gap:8px;align-items:center;margin-left:auto;flex:0 1 auto}
+.hpbar #hpQ{flex:0 1 180px;width:180px;min-height:40px}
+#hpFB{min-height:40px;gap:8px}#hpFB.on{border-color:var(--navy);color:var(--navy)}
+#hpFB .ic{width:18px;height:18px}
+.hpfp{left:auto;right:0;width:min(420px,calc(100vw - 32px))}
+.hpfp .w2{grid-column:1/-1}
+.hpcards .hpsrc .zero{color:var(--mute)}
 .hpf{display:inline-flex;align-items:center;gap:8px;font-size:.8125rem;font-weight:650;color:var(--ink-2)}
 .hpf select{min-height:40px;max-width:190px}
-.hpbar .cap{flex:1 1 120px;text-align:right}
 #vH .hpt th,#vH .hpt td{padding-top:6px;padding-bottom:6px}
 .hpt td.lead small{display:block;color:var(--mute);font-size:.8125rem;font-weight:400;max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hpt td.tot{font-weight:800}
@@ -1612,7 +1617,8 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .hpd h3{margin:18px 0 4px;font-size:1rem}
 .hpd .hpw{margin-top:8px}
 #hpL>.hpl{background:var(--surface);border-radius:var(--r-lg);padding:4px 16px}
-@media (max-width:959.98px){.hpbar .cap{text-align:left;flex-basis:100%}.hpf{flex:1 1 150px}.hpf select{flex:1;max-width:none;min-width:0}.hpbar #hpQ{flex-basis:100%}}
+@media (max-width:959.98px){.hpfind{margin-left:0;flex:1 1 100%}.hpbar #hpQ{flex:1 1 auto;width:auto}}
+@media (max-width:640px){.hpfp{position:fixed;left:16px;right:16px;top:auto;bottom:calc(84px + env(safe-area-inset-bottom));width:auto;max-height:70vh;overflow:auto}}
 @media (max-width:640px){.hpcards .hcol{display:grid;padding:12px 16px}.hpcards .hcol .hpsrc{grid-column:1/-1;margin-top:6px}.hpt td.lead small{white-space:normal}.hpt td.act{text-align:left}.hpt td.act .btn{width:100%}}
 @media (prefers-reduced-motion:reduce){.hpcards .hcol{transition:none}}
 /* Rankings page: the list kept to a readable width. */
@@ -1655,7 +1661,8 @@ mark.qhl{background:none;color:#2f8ae0;font-weight:inherit}
 .rkx{display:grid;gap:18px 28px;grid-template-columns:minmax(0,1fr);align-items:start}
 @media (min-width:1100px){.rkx{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
  .rkr{max-height:calc(100vh - 260px);max-height:calc(100dvh - 260px);overflow-y:auto;overscroll-behavior:contain;padding-right:6px;scrollbar-width:thin}
- .podium{position:sticky;top:12px}}
+ .podium{height:calc(100vh - 260px);height:calc(100dvh - 260px);min-height:340px}
+ .pd{height:100%;justify-content:flex-end}}
 .podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:10px;padding:18px 16px 0;border-radius:18px;
  background:var(--surface-2);overflow:hidden}
 .pd{display:flex;flex-direction:column;align-items:stretch;min-width:0}
@@ -1671,6 +1678,7 @@ mark.qhl{background:none;color:#2f8ae0;font-weight:inherit}
 .p1 .pdb{height:120px;background:#f2c94c}
 .p2 .pdb{height:88px;background:#d5dde6}
 .p3 .pdb{height:64px;background:#e0a46e}
+@media (min-width:1100px){.p1 .pdb{height:66%}.p2 .pdb{height:50%}.p3 .pdb{height:37%}}
 @media (max-width:640px){.podium{gap:6px;padding:12px 8px 0}.pdn{font-size:.8125rem}.p1 .pdn{font-size:.875rem}.p1 .pdb{height:96px}.p2 .pdb{height:70px}.p3 .pdb{height:50px}}
 
 /* Absent: a light grey box with a dash, first in the score picker. */
@@ -2837,8 +2845,9 @@ function stuAll(){var A=[];CIDS.forEach(function(c){if(SC&&c!==SC)return;ST[c].S
  return A.sort(function(a,b){return a.s.name.trim().localeCompare(b.s.name.trim(),undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function stuPage(){if(!CIDS.length){$("stuW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>'+(TEACHER?'Ask an administrator to add you to your classrooms on Manage users.':'Students belong to a class, so upload a CSV on Classes to create the classrooms first.<button type="button" class="btn sm p" data-open="L">Go to Classes</button>')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';return}
  if(SC&&!ST[SC])SC="";
- if(!$("stuQ"))$("stuW").innerHTML='<div class="toolbar stbar"><input type="search" id="stuQ" placeholder="Find a student or ID…" aria-label="Find a student, Student ID or Family ID" autocomplete="off"><div class="sfw"><button type="button" class="btn" id="stuFB" aria-expanded="false" aria-controls="stuP"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filters<span class="sfn" id="stuFN" hidden></span></button><div class="sfpop" id="stuP" role="dialog" aria-label="Filters" hidden></div></div><p class="cap" id="stuN"></p><div class="tools"><button type="button" class="btn p" id="stuA">'+ADDIC+'Add student</button></div></div><div class="stchips" id="stuF"></div><div id="stuL"></div>';
+ if(!$("stuQ"))$("stuW").innerHTML='<div class="toolbar stbar"><input type="search" id="stuQ" placeholder="Find a student or ID…" aria-label="Find a student, Student ID or Family ID" autocomplete="off"><div class="sfw"><button type="button" class="btn" id="stuFB" aria-expanded="false" aria-controls="stuP">'+FILTIC+'Filters<span class="sfn" id="stuFN" hidden></span></button><div class="sfpop" id="stuP" role="dialog" aria-label="Filters" hidden></div></div><p class="cap" id="stuN"></p><div class="tools"><button type="button" class="btn p" id="stuA">'+ADDIC+'Add student</button></div></div><div class="stchips" id="stuF"></div><div id="stuL"></div>';
  stuFilters();stuRows()}
+var FILTIC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg>';
 /* Filters, behind one button: QM class, AI class, year group, house, gender, and students missing a detail. Each
    lists only what the students have, A to Z. Filters in use show as chips under the search, each with a cross.
    Whatever is chosen, the list stays in name order. */
@@ -2962,7 +2971,7 @@ $("drwB").addEventListener("submit",function(e){if(e.target.id!=="spF")return;e.
  toast(mv?s.name+" moved to "+cname(ST[to].name):n===1?"Detail saved for "+s.name:n+" details saved for "+s.name)});
 $("vU").addEventListener("input",function(e){if(e.target.id==="stuQ"){SQ=e.target.value;PG.stu=0;stuRows()}});
 $("vU").addEventListener("change",function(e){if(e.target.dataset.sf){sfSet(e.target.dataset.sf,e.target.value);PG.stu=0;stuFilters();stuRows()}});
-document.addEventListener("click",function(e){var P=$("stuP");if(P&&!P.hidden&&!e.target.closest(".sfw"))sfOpen(false)});
+document.addEventListener("click",function(e){var P=$("stuP");if(P&&!P.hidden&&!e.target.closest(".sfw")&&!e.target.closest(".csm"))sfOpen(false)});
 document.addEventListener("keydown",function(e){var P=$("stuP");if(e.key==="Escape"&&P&&!P.hidden){sfOpen(false);$("stuFB").focus()}});
 $("vU").addEventListener("click",function(e){if(e.target.closest("#stuA,#stuA2")){stuAdd();return}
  if(e.target.closest("#stuFB")){sfOpen($("stuP").hidden);return}
@@ -3024,6 +3033,9 @@ function hpFrom(p){var n=new Date(),y=n.getFullYear(),m=n.getMonth();
  return p==="d"?[new Date(y,m,n.getDate()).getTime(),Infinity]:p==="w"?[wk0(+n),Infinity]:p==="m"?[ms0(),Infinity]:p==="lm"?[new Date(y,m-1,1).getTime(),ms0()]:p==="30"?[+n-30*864e5,Infinity]:null}
 function hpQ(o,q){return nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q||nkey(ocn(o)).indexOf(q)>=0}
 /* The awards the filters keep; the house cards ignore the house filter so all three can be compared. */
+/* The three sums under each house: book completions, Qaidah or Memorisation level completions (from the Record
+   page's reason or a passed level test) and the house's historical points. */
+var HPKIND={bk:"bk",lv:"lv",lt:"lv",hx:"hx"},HPKL=[["bk","Book completion"],["lv","QM level completion"],["hx","Historical points"]];
 function hpPick(anyHouse){var w=hpFrom(HPF.p),q=nkey(HPF.q);return hpAll().filter(function(o){
  return (!w||o.t>=w[0]&&o.t<w[1])&&(!HPF.r||o.r===HPF.r)&&(anyHouse||!HPF.h||(o.s.house||"-")===HPF.h)&&(!q||hpQ(o,q))})}
 function hpWhen(t){if(!(t>1e11))return "Date not recorded";var d=new Date(t);return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})+", "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
@@ -3034,25 +3046,27 @@ function hpGroup(o){var s=o.s;if(!o.c&&HB!=="r")return ["~"+(HB==="st"?s.house:"
  default:return [o.r,hrLab(o.r)]}}
 function hpSum(L){return L.reduce(function(t,o){return t+o.k[3]},0)}
 function hpPage(){if(!CIDS.length){$("hpW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>House points are given to students, so upload a CSV on Classes first.<button type="button" class="btn sm p" data-open="L">Go to Classes</button></div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';return}
- if(!$("hpQ"))$("hpW").innerHTML='<div id="hpH"></div><div class="hpby"><div class="seg" id="hpB" role="group" aria-label="Break down by">'+HBY.map(function(x){return '<button type="button" data-k="'+x[0]+'" aria-pressed="'+(HB===x[0])+'"'+(x[3]?' title="'+x[3]+'"':'')+'>'+x[1]+'</button>'}).join("")+'</div></div>'
-  +'<div class="toolbar hpbar"><input type="search" id="hpQ" placeholder="Find a student, class or ID…" aria-label="Find a student, class, Student ID or Family ID" autocomplete="off">'
-  +'<label class="hpf">Period<select id="hpP">'+HPP.map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>'}).join("")+'</select></label>'
-  +'<label class="hpf">House<select id="hpHs"><option value="">All houses</option>'+HOUSES.map(function(h){return '<option>'+h+'</option>'}).join("")+'<option value="-">No house</option></select></label>'
-  +'<label class="hpf">Reason<select id="hpR"><option value="">All reasons</option>'+hrKeys().map(function(r){return '<option value="'+r+'">'+esc(hrLab(r))+'</option>'}).join("")+'</select></label>'
-  +'<p class="cap" id="hpN"></p></div><div id="hpL"></div>';
+ if(!$("hpQ"))$("hpW").innerHTML='<div id="hpH"></div><div class="toolbar hpbar"><div class="hpby"><div class="seg" id="hpB" role="group" aria-label="Break down by">'+HBY.map(function(x){return '<button type="button" data-k="'+x[0]+'" aria-pressed="'+(HB===x[0])+'"'+(x[3]?' title="'+x[3]+'"':'')+'>'+x[1]+'</button>'}).join("")+'</div></div>'
+  +'<div class="hpfind"><input type="search" id="hpQ" placeholder="Search…" aria-label="Find a student, class, Student ID or Family ID" autocomplete="off">'
+  +'<div class="sfw"><button type="button" class="btn" id="hpFB" aria-expanded="false" aria-controls="hpFP">'+FILTIC+'Filters<span class="sfn" id="hpFN" hidden></span></button>'
+  +'<div class="sfpop hpfp" id="hpFP" role="dialog" aria-label="Filters" hidden><div class="sfg">'
+  +'<label>Period<select id="hpP">'+HPP.map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>'}).join("")+'</select></label>'
+  +'<label>House<select id="hpHs"><option value="">All houses</option>'+HOUSES.map(function(h){return '<option>'+h+'</option>'}).join("")+'<option value="-">No house</option></select></label>'
+  +'<label class="w2">Reason<select id="hpR"><option value="">All reasons</option>'+hrKeys().map(function(r){return '<option value="'+r+'">'+esc(hrLab(r))+'</option>'}).join("")+'</select></label></div>'
+  +'<div class="sfa"><button type="button" class="btn sm" id="hpX2">Clear all</button><button type="button" class="btn sm p" id="hpFD">Done</button></div></div></div></div></div>'
+  +'<div class="stchips" id="hpChips"></div><div id="hpL"></div>';
  $("hpQ").value=HPF.q;$("hpP").value=HPF.p;$("hpHs").value=HPF.h;$("hpR").value=HPF.r;hpRows()}
 /* The three houses for what the filters keep, each with where most of its points came from. */
-function hpHouses(L){var T={},R={},none=0;HOUSES.forEach(function(h){T[h]=0;R[h]={}});
- L.forEach(function(o){var h=o.s.house;if(T[h]===undefined){none+=o.k[3];return}T[h]+=o.k[3];R[h][o.r]=(R[h][o.r]||0)+o.k[3]});
+function hpHouses(L){var T={},R={};HOUSES.forEach(function(h){T[h]=0;R[h]={bk:0,lv:0,hx:0}});
+ L.forEach(function(o){var h=o.s.house;if(T[h]===undefined)return;T[h]+=o.k[3];var g=HPKIND[o.r];if(g)R[h][g]+=o.k[3]});
  var mx=Math.max.apply(null,HOUSES.map(function(h){return T[h]}))||1;
- return '<div class="hbig hpcards">'+HOUSES.map(function(h){var top=Object.keys(R[h]).sort(function(a,b){return R[h][b]-R[h][a]}).slice(0,3);
+ return '<div class="hbig hpcards">'+HOUSES.map(function(h){
    return '<button type="button" class="hcol '+h+'" data-hh="'+h+'" aria-pressed="'+(HPF.h===h)+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+'</span><b>'+T[h]+'</b><small>points</small><span class="hbar" aria-hidden="true"><i style="width:'+(T[h]/mx*100)+'%"></i></span>'
-    +'<span class="hpsrc">'+(top.length?top.map(function(r){return '<span><span class="hpr">'+esc(hrLab(r))+'</span><b>'+R[h][r]+'</b></span>'}).join(""):'<span class="zero">Nothing in this period</span>')+'</span></button>'}).join("")+'</div>'
-  +(none?'<p class="cap">'+none+' more points went to students with no house yet, so they count for no house.</p>':'')}
+    +'<span class="hpsrc">'+HPKL.map(function(g){return '<span'+(R[h][g[0]]?'':' class="zero"')+'><span class="hpr">'+g[1]+'</span><b>'+R[h][g[0]]+'</b></span>'}).join("")+'</span></button>'}).join("")+'</div>'}
 function hpRows(){var L=hpPick(0),G={},O=[],cols=HPF.h?[]:HOUSES.slice(),fon=HPF.p!=="all"||HPF.h||HPF.r||HPF.q;
  $("hpH").innerHTML=hpHouses(hpPick(1));
  if(!HPF.h&&L.some(function(o){return HOUSES.indexOf(o.s.house)<0}))cols.push("-");
- $("hpN").textContent=plural(L.length,"award")+", "+hpSum(L)+" points"+(fon?" match":"");
+ hpChips();
  if(!L.length){HPX=[];$("hpL").innerHTML='<div class="empty"><b>'+(fon?'No house points match':'No house points yet')+'</b>'+(fon?'Try a longer period, or clear the search and filters.':'They are given on the Record page and from a student\'s name on the Quran tab.')+'</div>';return}
  if(HB==="all"){HPX=L.slice().sort(function(a,b){return b.t-a.t});$("hpL").innerHTML=hpList(HPX,1);return}
  L.forEach(function(o){var g=hpGroup(o),x=G[g[0]];if(!x){x=G[g[0]]={k:g[0],name:g[1],o:o,L:[],h:{},st:[]};O.push(x)}x.L.push(o);
@@ -3060,7 +3074,7 @@ function hpRows(){var L=hpPick(0),G={},O=[],cols=HPF.h?[]:HOUSES.slice(),fon=HPF
  O.forEach(function(x){x.v=hpSum(x.L)});O.sort(function(a,b){return b.v-a.v||a.name.localeCompare(b.name)});HPX=O;
  var p=0,st=HB==="st",by=HBY.filter(function(x){return x[0]===HB})[0],what=by[1].toLowerCase(),h;
  h='<div class="tablewrap soft"><table class="tbl stackable hpt"><thead><tr><th scope="col">'+by[2]+'</th>'
-  +(st?'<th scope="col">Class</th><th scope="col">House</th>'+TOK.map(function(k){return '<th scope="col" class="n"><span class="tdot '+k[1]+'"></span>'+k[2]+'</th>'}).join(""):'<th scope="col" class="n">Students</th>'+cols.map(function(c){return '<th scope="col" class="n">'+(c==="-"?"No house":c)+'</th>'}).join(""))
+  +(st?'<th scope="col">Class</th><th scope="col">House</th>'+TOK.map(function(k){return '<th scope="col" class="n" title="'+k[2]+' coins"><span class="tdot '+k[1]+'" aria-hidden="true"></span><span class="sr-only">'+k[2]+' coins</span></th>'}).join(""):'<th scope="col" class="n">Students</th>'+cols.map(function(c){return '<th scope="col" class="n">'+(c==="-"?"No house":c)+'</th>'}).join(""))
   +'<th scope="col" class="n">Points</th><th scope="col"><span class="sr-only">Details</span></th></tr></thead><tbody>'
   +O.map(function(x,i){var s=x.o.s,sub=HB==="fid"&&x.k?x.st.map(function(y){return y.name}).join(", "):"";
    return '<tr><td class="lead"><b>'+esc(x.name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</td>'
@@ -3080,11 +3094,28 @@ function hpOpen(x){var L=x.L.slice().sort(function(a,b){return b.t-a.t}),R={};L.
   +'<table class="tbl hpw"><thead><tr><th scope="col">Reason</th><th scope="col" class="n">Awards</th><th scope="col" class="n">Points</th></tr></thead><tbody>'+K.map(function(r){return '<tr><td>'+esc(hrLab(r))+'</td><td class="n">'+R[r].n+'</td><td class="n">'+R[r].v+'</td></tr>'}).join("")+'</tbody></table>'
   +'<h3>Every award</h3>'+hpList(L.slice(0,max),!one)+(L.length>max?'<p class="cap">The latest '+max+' of '+L.length+'. Choose a shorter period to see the rest.</p>':'')+'</div>')}
 $("vH").addEventListener("input",function(e){if(e.target.id==="hpQ"){HPF.q=e.target.value;PG.hpg=0;hpRows()}});
-$("vH").addEventListener("change",function(e){var k={hpP:"p",hpHs:"h",hpR:"r"}[e.target.id];if(!k)return;HPF[k]=e.target.value;PG.hpg=0;hpRows()});
-$("vH").addEventListener("click",function(e){var b=e.target.closest("#hpB button,[data-hh],[data-hx]");if(!b)return;
+$("vH").addEventListener("change",function(e){var k={hpP:"p",hpHs:"h",hpR:"r"}[e.target.id];if(!k)return;HPF[k]=e.target.value;PG.hpg=0;hpRows();swapIn($("hpL"))});
+$("vH").addEventListener("click",function(e){if(e.target.closest("#hpFB")){hpFOpen($("hpFP").hidden);return}
+ if(e.target.id==="hpFD"){hpFOpen(false);$("hpFB").focus();return}
+ if(e.target.id==="hpX2"||e.target.id==="hpX"){HPF.p="all";HPF.h="";HPF.r="";hpSync();hpRows();swapIn($("hpL"));if(e.target.id==="hpX")$("hpFB").focus();return}
+ var c=e.target.closest("[data-hpx]");if(c){HPF[c.dataset.hpx]=c.dataset.hpx==="p"?"all":"";hpSync();hpRows();swapIn($("hpL"));var nx=$("hpChips").querySelector("[data-hpx]");(nx||$("hpFB")).focus();return}
+ if(e.target.closest(".sfw"))return;
+ var b=e.target.closest("#hpB button,[data-hh],[data-hx]");if(!b)return;
  if(b.dataset.k){HB=b.dataset.k;PG.hpg=0;setSeg("hpB",HB);hpRows();swapIn($("hpL"));return}
  if(b.dataset.hh){HPF.h=HPF.h===b.dataset.hh?"":b.dataset.hh;$("hpHs").value=HPF.h;PG.hpg=0;hpRows();var f=document.querySelector('[data-hh="'+b.dataset.hh+'"]');if(f)f.focus();return}
  var x=HPX[+b.dataset.hx];if(x)hpOpen(x)});
+/* Period, house and reason sit behind one Filters button, as on Students; those in use show as chips. */
+function hpSync(){$("hpP").value=HPF.p;$("hpHs").value=HPF.h;$("hpR").value=HPF.r;PG.hpg=0}
+function hpChips(){var A=[];if(HPF.p!=="all")A.push(["p","Period",HPP.filter(function(x){return x[0]===HPF.p})[0][1]]);
+ if(HPF.h)A.push(["h","House",HPF.h==="-"?"No house":HPF.h]);if(HPF.r)A.push(["r","Reason",hrLab(HPF.r)]);
+ $("hpFN").hidden=!A.length;$("hpFN").textContent=A.length;$("hpFB").classList.toggle("on",!!A.length);$("hpX2").disabled=!A.length;
+ ["hpP","hpHs","hpR"].forEach(function(id,i){$(id).classList.toggle("on",!!HPF["phr".charAt(i)]&&HPF["phr".charAt(i)]!=="all")});
+ $("hpChips").innerHTML=A.map(function(x){return '<span class="sfc"><span>'+x[1]+': <b>'+esc(x[2])+'</b></span><button type="button" data-hpx="'+x[0]+'" aria-label="Remove the '+x[1]+' filter">×</button></span>'}).join("")
+  +(A.length>1?'<button type="button" class="lk" id="hpX">Clear all</button>':'')}
+function hpFOpen(on){var P=$("hpFP");if(!P||P.hidden===!on)return;P.hidden=!on;$("hpFB").setAttribute("aria-expanded",on);
+ if(on){$("hpP").focus();if(!QM.matches&&P.animate)P.animate([{opacity:0,transform:"translateY(-4px)"},{opacity:1,transform:"none"}],{duration:160,easing:"ease-out"})}}
+document.addEventListener("click",function(e){var P=$("hpFP");if(P&&!P.hidden&&!e.target.closest(".sfw")&&!e.target.closest(".csm"))hpFOpen(false)});
+document.addEventListener("keydown",function(e){var P=$("hpFP");if(e.key==="Escape"&&P&&!P.hidden&&!document.querySelector(".csm")){hpFOpen(false);$("hpFB").focus()}});
 /* ---------- Rankings page (admins) ----------
    Classes ranked by Memo passes in a period, most first, counted as the TV's top-class podiums count them
    (tv.summary): every pass in a student's s.log. A class is Primary Years (Reception to Year 6) or Secondary Years
