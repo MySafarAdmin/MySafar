@@ -1755,6 +1755,24 @@ mark.qhl{background:none;color:#2f8ae0;font-weight:inherit}
 .hrq-back{align-self:flex-start}
 @media (max-width:479.98px){.hrq-pick{grid-template-columns:1fr}.hrq-b{width:100%}}
 @media (prefers-reduced-motion:reduce){.hrq-opt{transition:none}.hrq-opt:active{transform:none}}
+/* Help or Requests in motion: the footer card rises in with the overview, the drawer's two choices and the messages
+   arrive one after another, and everything you can press lifts a little under the pointer. */
+@keyframes hrq-in{from{opacity:0;transform:translateY(10px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+#vM:not([hidden]) .hrq{animation:hrq-in .5s cubic-bezier(.2,.8,.2,1) .15s backwards}
+.hrq-pick>.hrq-opt,.hrq-list>li,.hrq-f>*{animation:hrq-in .42s cubic-bezier(.2,.8,.2,1) backwards}
+.hrq-pick>.hrq-opt:nth-child(2){animation-delay:.06s}
+.hrq-list>li:nth-child(1){animation-delay:.1s}.hrq-list>li:nth-child(2){animation-delay:.15s}.hrq-list>li:nth-child(3){animation-delay:.2s}
+.hrq-list>li:nth-child(4){animation-delay:.25s}.hrq-list>li:nth-child(n+5){animation-delay:.3s}
+.hrq-f>:nth-child(2){animation-delay:.05s}.hrq-f>:nth-child(3){animation-delay:.1s}.hrq-f>:nth-child(n+4){animation-delay:.15s}
+.hrq{transition:box-shadow .25s ease,border-color .25s ease}
+.hrq-it{transition:background-color .2s ease,border-color .2s ease,transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease}
+.hrq-b .ic{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+@media (hover:hover){
+ .hrq:hover{border-color:var(--line-2);box-shadow:0 8px 24px rgba(29,33,39,.07)}
+ .hrq-b:hover .ic{transform:rotate(-10deg) scale(1.12)}
+ .hrq-opt:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,59,107,.1)}
+ .hrq-it:hover{background:var(--surface-2);transform:translateY(-1px);box-shadow:0 6px 16px rgba(29,33,39,.06)}}
+@media (prefers-reduced-motion:reduce){.hrq,.hrq-it,.hrq-b .ic{transition:none}.hrq-opt:hover,.hrq-it:hover,.hrq-b:hover .ic{transform:none}}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
