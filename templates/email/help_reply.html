@@ -2,11 +2,12 @@
 {% from "email/_parts.html" import button, p %}
 {% from "email/_quote.html" import quote %}
 {% block preheader %}{{ by }} replied to your {{ kind|lower }} message.{% endblock %}
+{% block kicker %}Help or Requests{% endblock %}
 {% block heading %}You have a reply{% endblock %}
 {% block content %}
 {% call p() %}Assalamu alaikum {{ name }},{% endcall %}
 {% call p() %}{{ by }} replied to the {{ kind|lower }} message you sent from the dashboard on {{ asked_at|when }}.{% endcall %}
-{{ quote("You wrote", body, "#c9d1db") }}
+{{ quote("You wrote", body, "#cbd1dc") }}
 {{ quote(by ~ " replied", reply) }}
 {% call p(True) %}The reply is also on the dashboard, under Help or Requests at the bottom of your overview.{% endcall %}
 {{ button(site, "Open the dashboard") }}

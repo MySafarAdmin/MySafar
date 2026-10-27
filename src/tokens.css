@@ -87,6 +87,7 @@ a:hover{color:var(--primary-hover)}
 .navt{position:absolute;opacity:0;pointer-events:none}
 .menu-btn{display:none}
 .navs{display:flex;flex-direction:column;gap:2px;padding:4px 10px 12px;flex:1;min-height:0;overflow-y:auto}
+.navs .j2jb{margin-top:auto}
 .navh{margin:14px 10px 4px;font-size:.8125rem;font-weight:700;color:var(--rail-mute)}
 .nav{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 12px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--rail-ink)}
 .nav:hover{background:var(--rail-hover);color:#fff}
@@ -266,6 +267,13 @@ button.link{font:inherit;background:none;border:0;padding:0;color:var(--primary-
 input,select,textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:9px 12px;min-height:44px;max-width:100%}
 textarea{min-height:96px;resize:vertical;width:100%}
 input:hover,select:hover,textarea:hover{border-color:var(--mute)}
+/* Drop-downs: our own chevron, drawn in CSS (no image, so it works under every page's security policy), set well in
+   from the edge with room for it in the padding. */
+select:not([multiple]){-webkit-appearance:none;appearance:none;padding-right:40px;cursor:pointer;
+ background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
+ background-position:calc(100% - 20px) 52%,calc(100% - 15px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+select:not([multiple]):disabled{cursor:default;opacity:.6}
+select:not([multiple])[aria-expanded="true"]{border-color:var(--navy);box-shadow:0 0 0 3px rgba(0,59,107,.1)}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:0;border-color:var(--focus)}
 input[type=checkbox],input[type=radio]{min-height:0;width:18px;height:18px;accent-color:var(--primary)}
 input[type=file]{padding:7px 10px}
@@ -314,3 +322,17 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 }
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Moving between the dashboard and the admin pages: the menu stays still and the page underneath crossfades,
+   while the selected item's pill glides to its new place (the dashboard's .navi, an admin page's .navsel). */
+@view-transition{navigation:auto}
+.rail{view-transition-name:rail}.rail .navs{view-transition-name:navs}
+.navi,.navsel{view-transition-name:navsel}
+.nav:has(>.navsel){position:relative;isolation:isolate;background:none;box-shadow:none}
+.navsel{position:absolute;inset:0;z-index:-1;border-radius:var(--r);background:var(--rail-on);box-shadow:0 4px 14px rgba(0,20,40,.22)}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.24s;animation-timing-function:ease}
+::view-transition-group(navsel){animation-duration:.34s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-group(rail),::view-transition-old(rail),::view-transition-new(rail){animation-duration:.2s}
+/* The rail's navy at the back, the pill over it, and the menu's words on top, so the pill never covers a label. */
+::view-transition-group(rail){z-index:1}::view-transition-group(navsel){z-index:2}::view-transition-group(navs){z-index:3}
+@media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}

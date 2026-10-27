@@ -73,7 +73,8 @@ under shooting stars, Cave Thawr with the spider's web and the dove's nest, the
 Ark of Nuh after the flood, the sea parting for Musa, and the splitting of the
 moon. Washing, palms, cypresses and the web move in a gusty wind with a little
 physics and the Ark floats on the swell. House points is a festival with bunting
-and fireworks. The podium steps rise in order: first, then second, then third.
+and fireworks. The podium steps rise in order: first, then second, then third,
+and always stand below the title: when several are tied, the names shrink to fit.
 
 Classes are shown by year group, class letter and teacher, with the title in
 full: Sr, Sister, Ustadha and Mrs/Ms/Miss become Ustadha, every other title (Br,
@@ -82,25 +83,25 @@ the Presenter and the dashboard (the stored name is unchanged, so Rename and the
 CSV upload still use it). On the top-class podiums the teacher's name is the big
 line and "Yr3A" sits under it.
 
-- **Memorisation passes** is one board with the top three ranks: a band for
-  each with everyone tied on it, in boxes of the same size. If they don't all
-  fit, the board stays on first place for a while, moves on to second, then
-  slowly through third, reaching the bottom 29 seconds in.
-- **Podiums** (the top three totals this month; ties share a step): Qaidah
-  levels passed (Quran level tests on the Record page), and the top classes for
-  Qaidah and for memorisation, primary (Years 1 to 6) and secondary (Year 7
-  onwards) separately. A class's stage comes from its name (`Yr7-...`),
-  otherwise from most of its students' Safar or school year groups.
-- **Stars of the week**: one page with each class's star for last week. A star
-  is the teacher's pick on the Quran tab, otherwise the student with the most
-  passes and merits that week.
-- **Book passes** (red tokens this month) take turns a page at a time.
-- **House points** comes last: a podium of all three houses with their rank,
-  points and a black silhouette logo (the Kaaba for Makkah, Masjid an-Nabawi
-  for Madinah, the Dome of the Rock for Al-Aqsa), at a festival.
+The TV plays four slides:
+
+1. **Qaidah level and book passes**, one board: first place for Qaidah levels
+   passed this month (Quran level tests on the Record page, everyone tied on
+   the most), then everyone who finished a book this month, in boxes of the
+   same size. If it doesn't all fit, it stays on first place for a while, moves
+   on to the books, and reaches the bottom 29 seconds in.
+2. **Top Class for Memorisation (Primary Years)**: a podium of the class
+   teachers whose classes passed the most memorisation this month (Years 2 to
+   6; a Year 1 or Reception class counts as primary). Ties share a step.
+3. **Top Class for Memorisation (Secondary Years)**: the same for Years 7 to 10
+   and any later year. A class's stage comes from its name (`Yr7-...`),
+   otherwise from most of its students' Safar or school year groups.
+4. **House points**: a podium of all three houses with their rank, points and
+   a black silhouette logo (the Kaaba for Makkah, Masjid an-Nabawi for Madinah,
+   the Dome of the Rock for Al-Aqsa), at a festival.
 
 Empty slides are skipped. **Settings** on each TV sets a daily time for
-Qaidah slides only and one for Memo slides only (London time; a window can run
+the Qaidah slide only and one for the Memo slides only (London time; a window can run
 past midnight). Outside those times the TV plays every slide.
 
 Students are shown by first name and surname initial (`Aisha K.`) with their
@@ -112,8 +113,8 @@ classroom. Signed-in staff can preview it at `/tv`.
 same scenes, with the class's students riding through by name (the TV has no riders). Teachers
 can present their own classes and admins any class. Its slides are podiums for the best Quran average
 (students with 3 or more scores this month), Qaidah levels, house points earned,
-the class's house race (with the house logos) and merits; memorisation passes as the
-TV's top-three board; book passes taking turns; and the month's stars of the
+the class's house race (with the house logos) and merits; memorisation and book passes on
+one board like the TV's; and the month's stars of the
 week on one page. **Full screen** and **Close** show when the mouse moves;
 Close (or Escape) goes back to the class.
 

@@ -35,6 +35,8 @@
     activity: '<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h10"/>',
     tv: '<rect x="3" y="4.5" width="18" height="12" rx="1.5"/><path d="M8 20h8"/><path d="M12 16.5V20"/>',
     sheet: '<rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M3.5 9.5h17"/><path d="M3.5 15h17"/><path d="M9.5 9.5v11"/>',
+    pie: '<path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5v10z"/><path d="M14 3.2A8.5 8.5 0 0 1 20.8 10H14z"/>',
+    upload: '<path d="M12 15V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v4.5h16V15"/>',
     faq: '<path d="M20.5 12a8.5 8.5 0 0 1-12.3 7.6L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M9.8 9.6a2.3 2.3 0 0 1 4.4.9c0 1.5-2.2 2-2.2 3.2"/><path d="M12 16.4h.01"/>'
   };
   if (ME.role === "admin") {
@@ -44,13 +46,16 @@
     heading.textContent = "Administration";
     adminNav.appendChild(heading);
     [["Manage users", "/admin/users", "users"], ["Class history", "/admin/history", "history"],
-     ["Activity", "/admin/activity", "activity"], ["TV screens", "/admin/tv", "tv"],
-     ["Spreadsheet", "/admin/export", "sheet"], ["FAQs", "/admin/faqs", "faq"]].forEach(function (l) {
+     ["Activity", "/admin/activity", "activity"], ["TV screens", "/admin/tv", "tv"], ["Historical points", "/admin/house-points", "pie"],
+     ["Spreadsheet", "/admin/export", "sheet"], ["Import", "/admin/import", "upload"], ["FAQs", "/admin/faqs", "faq"]].forEach(function (l) {
       var a = document.createElement("a");
       a.className = "nav"; a.href = l[1];
       a.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[l[2]] + "</svg>";
       a.appendChild(document.createTextNode(l[0]));
       adminNav.appendChild(a);
+      // Students sits under Manage users for admins.
+      var stu = document.getElementById("nU");
+      if (l[2] === "users" && stu) adminNav.appendChild(stu);
     });
   }
   var me = document.getElementById("me");
@@ -160,6 +165,12 @@
       var totals = await api("/api/houses");
       var before = JSON.stringify(window.HOUSE_TOTALS);
       window.HOUSE_TOTALS = totals;
+      // Admins also get the points added by hand for a whole house, for the House points page.
+      if (window.ME && ME.role === "admin") {
+        var extra = await api("/api/house-extra"), had = JSON.stringify(window.HOUSE_EXTRA || null);
+        window.HOUSE_EXTRA = extra;
+        if (had !== JSON.stringify(extra)) before = "";
+      }
       if (before !== JSON.stringify(totals) && !CID) master();
     } catch (error) { /* The totals refresh with the next poll. */ }
   }

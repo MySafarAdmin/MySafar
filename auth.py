@@ -542,10 +542,10 @@ def admin_invite():
     email = norm_email(request.form.get("email"))[:254]
     role = request.form.get("role")
     if not name or not EMAIL.fullmatch(email) or role not in ROLES:
-        return users_page(400, error="Enter a name, a valid email address and a role.")
+        return users_page(400, error="Enter a name, a valid email address and a role.", invite_open=True)
     with db().transaction() as tx:
         if tx.execute("SELECT 1 FROM users WHERE email = ?", (email,)).fetchone():
-            return users_page(400, error=f"{email} already has an account.")
+            return users_page(400, error=f"{email} already has an account.", invite_open=True)
         user_id = tx.insert("INSERT INTO users (email, name, role, created_at) VALUES (?, ?, ?, ?)",
                             (email, name, role, now()))
         set_classes(tx, user_id, role, chosen_classes(tx))

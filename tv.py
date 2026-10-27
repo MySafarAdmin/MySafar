@@ -16,6 +16,7 @@ from pathlib import Path
 from flask import Blueprint, Response, abort, current_app, g, jsonify, request
 
 import auth
+import house_extra
 
 ROOT = Path(__file__).resolve().parent
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
@@ -53,11 +54,15 @@ def teacher_parts(text):
             name = TITLE.sub("", "-".join(parts[i:])).split()
             if not name:
                 return None
-            return ("Ustadha" if FEMALE.match(title.group(0).strip()) else "Ustadh"), name[0][:1].upper() + name[0][1:]
-    # No title: a last part that is a name, not the year, the class letter or a subject code (QM, AI).
-    last = re.sub(r"^[A-Z]\s+", "", parts[-1]) if len(parts) > 1 else ""
+            # A title can also trail the name after a slash: "Ustadha Kawthar/Sr".
+            first, _, after = name[0].partition("/")
+            female = FEMALE.match(title.group(0).strip()) or FEMALE.match(after.strip())
+            return ("Ustadha" if female else "Ustadh"), first[:1].upper() + first[1:]
+    # No title: a last part that is a name, not the year, the class letter or a subject code (QM, AI),
+    # perhaps with its title after a slash ("Kawthar/Sr").
+    last, _, after = (re.sub(r"^[A-Z]\s+", "", parts[-1]) if len(parts) > 1 else "").partition("/")
     if len(last) >= 3 and not GROUP.search(last) and not last.isupper() and last.isalpha():
-        return "Ustadh", last[:1].upper() + last[1:]
+        return ("Ustadha" if FEMALE.match(after.strip()) else "Ustadh"), last[:1].upper() + last[1:]
     return None
 
 
@@ -160,14 +165,15 @@ def week_star(students, week):
     return star or None
 
 
-def summary(rows, now=None, teachers=()):
-    """Everything the TV shows, worked out from the classroom records."""
+def summary(rows, now=None, teachers=(), extra=None):
+    """Everything the TV shows, worked out from the classroom records. extra: house points added by hand for a whole
+    house (house_extra.py), which count in the house totals."""
     now = now or datetime.now(auth.LONDON)
     month, month_key, today_key, _ = period(now)
     # The TV shows one star per class on one page: each class's star for last week (the last full week).
     day = now.replace(hour=0, minute=0, second=0, microsecond=0)
     last_week = day - timedelta(days=day.weekday() + 7)
-    houses = dict.fromkeys(HOUSES, 0)
+    houses = {h: (extra or {}).get(h, 0) for h in HOUSES}
     books, stars, memo, qaidah = [], [], [], []
     # Every teacher named in the classrooms (Quran and Islamic Studies) as well as those with an account.
     # A title from a classroom name wins; teachers known only by their account are Ustadh unless the name says otherwise.
@@ -245,7 +251,7 @@ def class_summary(row, now=None):
             continue
         house = s.get("house", "")
         entry = {"name": name, "house": house}
-        scores = [v for d, v in (s.get("q") or {}).items() if month_key <= d <= today_key and isinstance(v, (int, float))]
+        scores = [v for d, v in (s.get("q") or {}).items() if month_key <= d <= today_key and isinstance(v, (int, float)) and v >= 0]
         points = sum(since(s.get(k, []), month) * v for k, v in TOKEN_POINTS.items())
         if house in houses:
             houses[house] += points
@@ -300,10 +306,11 @@ def focus(settings, now=None):
 def data(settings=None):
     with auth.db().transaction() as tx:
         rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
+        extra = house_extra.totals(tx)
         # Teachers' names drift through the scenes; summary() adds everyone named in the classrooms.
         teachers = [r["name"] for r in tx.execute(
             "SELECT name FROM users WHERE role = 'teacher' AND disabled = 0 ORDER BY name").fetchall()]
-    result = summary(rows, teachers=teachers)
+    result = summary(rows, teachers=teachers, extra=extra)
     result["focus"] = focus(settings or {})
     return jsonify(result)
 

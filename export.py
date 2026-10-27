@@ -24,6 +24,9 @@ ROOT = Path(__file__).resolve().parent
 LONDON = ZoneInfo("Europe/London")
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 TOKENS = (("tg", "Green token", 5), ("tb", "Blue token", 20), ("tr", "Red token", 50))  # TOK in src/page.html
+# What a token was given for, when it was given on the Record page's House points (HPR in src/page.html).
+REASONS = {"bk": "Book completion", "lv": "Qaidah or Memorisation level", "hw": "Additional class or homework",
+           "ec": "Extra curricular award", "cp": "Exceptional class participation"}
 WARNINGS = ("None", "Warning 1", "Warning 2", "Miss break")  # WL in src/page.html
 NAVY, WHITE, BAND, LINE, MUTED = "003B6B", "FFFFFF", "F3F5F8", "C9D1DB", "6B7280"
 DAY, WHEN = "d mmm yyyy", "d mmm yyyy hh:mm"
@@ -34,8 +37,8 @@ bp = Blueprint("export", __name__)
 # Each sheet: its title, what it holds, and its columns (header, least width, number format).
 SHEETS = {
     "students": ("Students", "One row per student: their details, where they are and their totals.", [
-        ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None), ("Gender", 9, None),
-        ("Safar year", 10, None), ("School year", 11, None), ("Islamic Studies teacher", 22, None),
+        ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None), ("Family ID", 10, None),
+        ("Date of birth", 13, DAY), ("Gender", 9, None), ("Safar year", 10, None), ("School year", 11, None), ("Islamic Studies teacher", 22, None),
         ("House", 10, None), ("Memo target", 16, None), ("Memo passes", 9, "0"),
         ("Passes this month", 9, "0"), ("Last memo pass", 13, DAY), ("Memo fails", 9, "0"),
         ("Qaidah level", 9, "0"), ("Quran days scored", 9, "0"), ("Quran average", 9, "0.0"),
@@ -46,7 +49,7 @@ SHEETS = {
         ("Memo passes", 9, "0"), ("Passes this month", 9, "0"), ("Memo fails", 9, "0"),
         ("Level tests", 9, "0"), ("Quran average", 9, "0.0"), ("Merits", 9, "0"),
         ("With a warning", 9, "0"), ("House points", 9, "0")]),
-    "quran": ("Quran scores", "Every daily Quran score, 0 to 5, one row per student per day.", [
+    "quran": ("Quran scores", "Every daily Quran score, 0 to 5 or Absent, one row per student per day.", [
         ("Date", 13, DAY), ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None),
         ("Score", 8, "0")]),
     "memo": ("Memo passes and fails", "Every Memo pass and fail, newest first.", [
@@ -58,7 +61,7 @@ SHEETS = {
         ("Blue token", 9, None)]),
     "rewards": ("Rewards", "Every merit and house token given, with its house points.", [
         ("Date and time", 17, WHEN), ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None),
-        ("House", 10, None), ("Award", 13, None), ("House points", 9, "0")]),
+        ("House", 10, None), ("Award", 30, None), ("House points", 9, "0")]),
     "stars": ("Stars of the week", "Each week's stars, by the Monday the week starts.", [
         ("Week starting", 13, DAY), ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None),
         ("House", 10, None)]),
@@ -102,6 +105,11 @@ def day(text):
     return date.fromisoformat(text)
 
 
+def birth(text):
+    """A date of birth from the student's profile, or nothing when it isn't recorded."""
+    return day(text) if text else None
+
+
 class Sheet:
     """One worksheet: its columns (header, width hint, number format) and rows."""
 
@@ -139,18 +147,20 @@ def gather(db):
         for s in students:
             sid, name, house = s.get("sid", ""), s.get("name", ""), s.get("house", "")
             log, fails, merits = s.get("log", []), s.get("fl", []), s.get("ml", [])
+            # -1 is absent: listed on the Quran sheet, left out of every average.
             scores = s.get("q", {})
+            marks = [v for v in scores.values() if v >= 0]
             points = sum(len(s.get(k, [])) * v for k, _, v in TOKENS)
             started = s.get("target", 1) > 1 or log or fails
             sheets["students"].add(
-                cname, sid, name, s.get("gender", ""), s.get("year", ""), s.get("sy", ""), s.get("ist", ""), house,
+                cname, sid, name, s.get("fid", ""), birth(s.get("dob", "")), s.get("gender", ""), s.get("year", ""), s.get("sy", ""), s.get("ist", ""), house,
                 target_label(s.get("target", 1), levels) if started else "No data", s.get("passes", 0),
                 sum(1 for t in log if t >= month), when(max(log)).date() if log else None, len(fails),
-                s.get("qa") or None, len(scores), round(sum(scores.values()) / len(scores), 2) if scores else None,
+                s.get("qa") or None, len(marks), round(sum(marks) / len(marks), 2) if marks else None,
                 s.get("merits", 0), WARNINGS[s.get("warn", 0)], points, *(len(s.get(k, [])) for k, _, _ in TOKENS),
                 len(s.get("sw", [])))
             for d, score in sorted(scores.items()):
-                sheets["quran"].add(day(d), cname, sid, name, score)
+                sheets["quran"].add(day(d), cname, sid, name, "Absent" if score < 0 else score)
             labels = s.get("lx", [])
             for k, t in enumerate(log):
                 lt = s.get("lt", [])
@@ -162,8 +172,10 @@ def gather(db):
                                     f"Qaidah Level {test['n']}" if test["k"] == "q" else target_label(test["n"], levels),
                                     test["sc"], "Passed" if test["ok"] else "Not passed", "Yes" if test.get("tk") else "")
             rewards += [(when(t), cname, sid, name, house, "Merit", None) for t in merits]
+            why = {x["t"]: REASONS.get(x["r"]) for x in s.get("hp", []) if isinstance(x, dict)}
             for key, award, value in TOKENS:
-                rewards += [(when(t), cname, sid, name, house, award, value) for t in s.get(key, [])]
+                rewards += [(when(t), cname, sid, name, house, f"{award}: {why[t]}" if why.get(t) else award, value)
+                            for t in s.get(key, [])]
             for monday in sorted(s.get("sw", [])):
                 sheets["stars"].add(day(monday), cname, sid, name, house)
             if s.get("warn"):
@@ -177,7 +189,7 @@ def gather(db):
             totals["merits"] += s.get("merits", 0)
             totals["warned"] += 1 if s.get("warn") else 0
             totals["points"] += points
-            totals["q"] += scores.values()
+            totals["q"] += marks
         try:
             first_day = day(state.get("fcd", ""))
         except ValueError:

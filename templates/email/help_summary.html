@@ -2,6 +2,7 @@
 {% from "email/_parts.html" import button, p, facts, sans %}
 {% from "email/_quote.html" import quote %}
 {% block preheader %}{% if items %}{{ items|length }} message{{ "s" if items|length != 1 }} this week{% if waiting %}, {{ waiting }} still waiting for a reply{% endif %}.{% else %}No help or requests were sent this week.{% endif %}{% endblock %}
+{% block kicker %}Weekly summary{% endblock %}
 {% block heading %}This week's Help or Requests{% endblock %}
 {% block content %}
 {% call p() %}Assalamu alaikum,{% endcall %}
@@ -9,9 +10,9 @@
 {% call p() %}Here is everything staff sent from Help or Requests between {{ start|when }} and {{ end|when }} (UK time).{% endcall %}
 {{ facts([("Help", helps), ("Requests", requests), ("Waiting for a reply", waiting)]) }}
 {% for i in items %}
-<p style="margin:22px 0 4px;font-family:{{ sans }};font-size:14px;line-height:1.5;color:#5b6470"><b style="color:#1d2127">{{ i.kind }}</b> from <b style="color:#1d2127">{{ i.name }}</b> ({{ i.email }}), {{ i.at|when }}</p>
-{{ quote("Message", i.body, "#c9d1db") }}
-{% if i.reply %}{{ quote(i.by ~ " replied", i.reply) }}{% else %}<p style="margin:0 0 8px;font-family:{{ sans }};font-size:14px;color:#8a5a00;font-weight:600">Waiting for a reply</p>{% endif %}
+<p style="margin:22px 0 4px;font-family:{{ sans }};font-size:14px;line-height:1.5;color:#5a6375"><b style="color:#1c2230">{{ i.kind }}</b> from <b style="color:#1c2230">{{ i.name }}</b> ({{ i.email }}), {{ i.at|when }}</p>
+{{ quote("Message", i.body, "#cbd1dc") }}
+{% if i.reply %}{{ quote(i.by ~ " replied", i.reply) }}{% else %}<p style="margin:0 0 8px;font-family:{{ sans }};font-size:14px;color:#874006;font-weight:600">Waiting for a reply</p>{% endif %}
 {% endfor %}
 {% else %}
 {% call p() %}No help or requests were sent between {{ start|when }} and {{ end|when }} (UK time). There's nothing to do.{% endcall %}

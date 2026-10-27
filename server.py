@@ -24,7 +24,11 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 import auth
 import cleanup
+import set_houses
 import export
+import house_extra
+import quran_coins
+import memo_import
 import helpdesk
 import tv
 from db import DB_ERRORS, Database
@@ -33,11 +37,16 @@ from mailer import Mailer
 ROOT = Path(__file__).resolve().parent
 CLASS_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
 DAY = re.compile(r"\d{4}-\d{2}-\d{2}")
+DETAILS = ("sid", "fid", "gender", "year", "sy", "ist", "dob")
+# Student IDs given by the school, like SE263; new students get the next one.
+STUDENT_NUMBER = re.compile(r"SE(\d+)", re.IGNORECASE)
 MAX_CLASSES = 500
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
-QAIDAH_LEVELS = 10  # keep in step with QAIDAH in src/page.html
+QAIDAH_LEVELS = 20  # keep in step with QAIDAH in src/page.html
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
+# House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
+HOUSE_POINT_REASONS = {"bk": "tr", "lv": "tb", "hw": "tg", "ec": "tg", "cp": "tg"}
 # Reachable without signing in.
 PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
 # Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Figtree
@@ -83,22 +92,32 @@ def valid_state(state):
             return False
         if not isinstance(student.get("lx"), list) or not all(isinstance(x, str) for x in student["lx"]):
             return False
-        # Details from the CSV upload: Student ID, gender, Safar year group, school year group,
-        # Islamic Studies teacher.
-        if not all(isinstance(student.get(k, ""), str) for k in ("sid", "gender", "year", "sy", "ist")):
+        # Details from the CSV upload or the student's profile: Student ID, Family ID, gender, Safar year group,
+        # school year group, Islamic Studies teacher and date of birth.
+        if not all(isinstance(student.get(k, ""), str) for k in DETAILS):
+            return False
+        if student.get("dob", "") and not DAY.fullmatch(student["dob"]):
+            return False
+        # Details changed by hand on the profile ("ed"), which a later CSV upload leaves alone, and the earlier
+        # Student IDs and names it had ("xid", "xn"), so the upload still recognises the student.
+        if not isinstance(student.get("ed", []), list) or not all(k in DETAILS + ("name", "house", "class") for k in student.get("ed", [])):
+            return False
+        if not all(isinstance(student.get(k, []), list) and all(isinstance(x, str) for x in student.get(k, [])) for k in ("xid", "xn")):
             return False
         # Qaidah level, set on the Record page: 0 until set, then 1 to QAIDAH_LEVELS.
         qaidah = student.get("qa", 0)
         if type(qaidah) is not int or not 0 <= qaidah <= QAIDAH_LEVELS:
             return False
-        # Level tests from the Record page: day, Quran ("q") or Memo ("m"), level or target, 0 to 5 score, passed,
-        # and for a pass, when its blue token was given.
+        # Level tests from the Record page: day, Quran ("q") or Memo ("m"), level or target, 0 to 5 score (none for one
+        # imported from a sheet without scores), passed, for a pass, when its blue token was given, and for a surah
+        # chosen by item number, the surah as written.
         tests = student.get("tests", [])
         if not isinstance(tests, list) or not all(
                 isinstance(x, dict) and isinstance(x.get("d"), str) and DAY.fullmatch(x["d"]) and x.get("k") in ("q", "m")
-                and type(x.get("n")) is int and x["n"] >= 1 and type(x.get("sc")) is int and 0 <= x["sc"] <= 5
+                and type(x.get("n")) is int and x["n"] >= 1 and type(x.get("sc", 0)) is int and 0 <= x.get("sc", 0) <= 5
                 and type(x.get("ok")) is bool and type(x.get("pq", 0)) is int and 0 <= x.get("pq", 0) <= QAIDAH_LEVELS
                 and type(x.get("tk", 0)) in (int, float) and x.get("tk", 0) >= 0
+                and isinstance(x.get("x", ""), str) and len(x.get("x", "")) <= 80
                 for x in tests):
             return False
         # Star of the week: the Monday of each week the student was chosen.
@@ -112,10 +131,16 @@ def valid_state(state):
             tokens = student.get(key, [])
             if not isinstance(tokens, list) or not all(type(n) in (int, float) and n >= 0 for n in tokens):
                 return False
+        # House points from the Record page: when ("t", the time its token was given) and what for ("r").
+        given = student.get("hp", [])
+        if not isinstance(given, list) or not all(
+                isinstance(x, dict) and type(x.get("t")) in (int, float) and x["t"] >= 0 and x.get("r") in HOUSE_POINT_REASONS
+                for x in given):
+            return False
         if len(student["log"]) != len(student["lt"]) or len(student["log"]) != len(student["lx"]):
             return False
-        # The Quran tab scores out of 5, starting at 0.
-        if not isinstance(student.get("q"), dict) or not all(type(v) is int and 0 <= v <= 5 for v in student["q"].values()):
+        # The Quran tab scores out of 5, starting at 0; -1 marks the student absent that day.
+        if not isinstance(student.get("q"), dict) or not all(type(v) is int and -1 <= v <= 5 for v in student["q"].values()):
             return False
     return True
 
@@ -210,7 +235,11 @@ def create_app(test_config=None):
     app.register_blueprint(auth.bp)
     app.register_blueprint(tv.bp)
     app.register_blueprint(cleanup.bp)
+    app.register_blueprint(set_houses.bp)
     app.register_blueprint(export.bp)
+    app.register_blueprint(house_extra.bp)
+    app.register_blueprint(quran_coins.bp)
+    app.register_blueprint(memo_import.bp)
     app.register_blueprint(helpdesk.bp)
     if not app.config.get("TESTING"):
         helpdesk.start_summary_thread(app)
@@ -362,14 +391,29 @@ def create_app(test_config=None):
     @app.get("/api/houses")
     def house_totals():
         """Whole-school house points. Only totals, so teachers can see them too."""
-        totals = dict.fromkeys(HOUSES, 0)
         with database.transaction() as db:
             rows = db.execute("SELECT json FROM classrooms").fetchall()
+            # Points added by hand for a whole house count too.
+            totals = house_extra.totals(db)
         for row in rows:
             for student in json.loads(row["json"]).get("S", []):
                 if student.get("house") in totals:
                     totals[student["house"]] += sum(len(student.get(k, [])) * v for k, v in TOKEN_POINTS.items())
         return jsonify(totals)
+
+    @app.get("/api/last-sid")
+    def last_student_number():
+        """The highest SE Student ID in any classroom, so a new student gets the next one. Teachers only load
+        their own classrooms, so the browser can't work this out by itself."""
+        last = 0
+        with database.transaction() as db:
+            rows = db.execute("SELECT json FROM classrooms").fetchall()
+        for row in rows:
+            for student in json.loads(row["json"]).get("S", []):
+                match = STUDENT_NUMBER.fullmatch(str(student.get("sid", "")).strip())
+                if match:
+                    last = max(last, int(match[1]))
+        return jsonify(last=last)
 
     @app.put("/api/classes/<class_id>")
     def write_class(class_id):
@@ -395,6 +439,12 @@ def create_app(test_config=None):
                 cursor = db.execute("INSERT INTO classrooms VALUES (?, ?, 1) ON CONFLICT (id) DO NOTHING",
                                     (class_id, encoded))
             else:
+                # Only admins add or remove students; a teacher's save must keep the class's students.
+                if not is_admin():
+                    current = db.execute("SELECT json FROM classrooms WHERE id = ? AND revision = ?",
+                                         (class_id, document["revision"])).fetchone()
+                    if current and len(json.loads(current["json"]).get("S", [])) != len(state["S"]):
+                        return jsonify(error="Only an admin can add or remove students."), 403
                 cursor = db.execute("UPDATE classrooms SET json = ?, revision = revision + 1 WHERE id = ? AND revision = ?",
                                     (encoded, class_id, document["revision"]))
             if cursor.rowcount:

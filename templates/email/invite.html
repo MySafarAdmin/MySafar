@@ -1,6 +1,7 @@
 {% extends "email/_layout.html" %}
 {% from "email/_parts.html" import button, fallback, p, facts %}
 {% block preheader %}{% if by %}{{ by }} has given you an account.{% else %}You've been given an account.{% endif %} Choose your password within {{ invite_hours }}.{% endblock %}
+{% block kicker %}Invitation{% endblock %}
 {% block heading %}Assalamu alaikum, {{ name }}{% endblock %}
 {% block content %}
 {% call p() %}{{ by if by else "An administrator" }} has given you an account on the Safar Academy staff dashboard, where we record each student's Quran progress, merits and house points.{% endcall %}
@@ -9,7 +10,7 @@
 {% set rows = [("Sign-in email", email), ("Role", "Administrator" if role == "admin" else "Teacher")] %}
 {% if role == "teacher" and rooms %}{% set rows = rows + [("Your classrooms", rooms|join(", "))] %}{% endif %}
 {{ facts(rows) }}
-{% call p(True) %}The link works once and expires in {{ invite_hours }}. If it has expired, ask an administrator for a new invite, or use <a href="{{ forgot }}" style="color:#003b6b">Forgotten your password?</a> on the sign-in page.{% endcall %}
+{% call p(True) %}The link works once and expires in {{ invite_hours }}. If it has expired, ask an administrator for a new invite, or use <a href="{{ forgot }}" style="color:#0b4a82">Forgotten your password?</a> on the sign-in page.{% endcall %}
 {{ fallback(link) }}
 {% endblock %}
 {% block why %}You're getting this because an administrator invited {{ email }} to the dashboard. If you weren't expecting it, you can ignore this email.<br>{% endblock %}

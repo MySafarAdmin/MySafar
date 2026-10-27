@@ -4,6 +4,8 @@ The SQLite tests always run. The same tests run against PostgreSQL when
 TEST_DATABASE_URL is set; each test uses its own temporary schema, which is
 dropped afterwards, so existing tables in that database are never touched.
 """
+import html
+import io
 import json
 import os
 import re
@@ -13,7 +15,7 @@ import tempfile
 import time
 import unittest
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
@@ -67,6 +69,9 @@ class DashboardTests:
         # The first admin chooses their own password at first sign-in; tested separately.
         with self.app.config["DB"].transaction() as tx:
             tx.execute("UPDATE users SET must_change = 0")
+            # The historical house points the migration adds; test_historical_house_points checks them.
+            self.seeded = [dict(r) for r in tx.execute("SELECT house, coin, n FROM house_points ORDER BY id").fetchall()]
+            tx.execute("DELETE FROM house_points")
         self.client = self.sign_in(*ADMIN)
         self.headers = {"X-Dashboard-Request": "1"}
 
@@ -168,6 +173,13 @@ class DashboardTests:
         student["q"] = {"2026-10-10": 6}
         self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
 
+    def test_quran_absent_is_minus_one(self):
+        student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0,
+                   "log": [], "lt": [], "lx": [], "ml": [], "q": {"2026-10-10": -1, "2026-10-11": 4}}
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        student["q"] = {"2026-10-10": -2}
+        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
+
     def test_fails_and_surah_passes(self):
         student = {"name": "A", "target": 4, "passes": 2, "merits": 0, "warn": 0, "log": [1, 2], "lt": [3, 4],
                    "lx": ["", ""], "ml": [], "fl": [3], "q": {}}
@@ -200,6 +212,17 @@ class DashboardTests:
         student["sid"], student["sy"] = "ST001", 4
         self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
 
+    def test_student_profile_details(self):
+        student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                   "ml": [], "q": {}, "sid": "SE012", "fid": "SP004", "dob": "2015-03-12", "ed": ["sid", "dob", "name", "class"],
+                   "xid": ["SE011"], "xn": ["Aisha"]}
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        saved = json.loads(self.records()["yr3-a"]["json"])["S"][0]
+        self.assertEqual((saved["fid"], saved["dob"], saved["ed"], saved["xid"]), ("SP004", "2015-03-12", ["sid", "dob", "name", "class"], ["SE011"]))
+        for bad in ({"dob": "12/03/2015"}, {"dob": 2015}, {"fid": 4}, {"ed": ["q"]}, {"ed": "sid"}, {"xid": [1]}, {"xn": "A"}):
+            self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, **bad)])).status_code, 400)
+        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, dob="")])).status_code, 200)
+
     def test_house_points(self):
         student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
                    "ml": [], "q": {}, "house": "Makkah", "tg": [1, 2], "tb": [3], "tr": [4]}
@@ -216,6 +239,18 @@ class DashboardTests:
         self.assertEqual(self.app.test_client().get("/api/houses").status_code, 401)
         for bad in ({"house": "Hogwarts"}, {"house": None}, {"tg": "1"}, {"tb": [-1]}, {"tr": ["x"]}):
             self.assertEqual(self.write(revision=1, state=dict(self.state, S=[dict(student, **bad)])).status_code, 400)
+
+    def test_last_student_number(self):
+        student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                   "ml": [], "q": {}}
+        self.assertEqual(self.client.get("/api/last-sid").get_json(), {"last": 0})
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, sid="SE263"), dict(student, name="B", sid="ST900")])).status_code, 200)
+        self.assertEqual(self.write("Yr4-B", class_id="yr4-b", state=dict(self.state, S=[dict(student, sid=" se99 ")])).status_code, 200)
+        self.assertEqual(self.client.get("/api/last-sid").get_json(), {"last": 263})
+        # Teachers get the whole school's number, though they only load their own classrooms.
+        self.add_user("t@example.com", classes=["yr4-b"])
+        self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").get("/api/last-sid").get_json(), {"last": 263})
+        self.assertEqual(self.app.test_client().get("/api/last-sid").status_code, 401)
 
     def test_write_validation_and_cross_origin_protection(self):
         self.assertEqual(self.write(headers={}).status_code, 403)
@@ -237,16 +272,23 @@ class DashboardTests:
                    "ml": [], "fl": [], "q": {}}
         state = dict(self.state, L=[9, 9, 9, 9, 10, 10, 10, 12, 15, 14])
         self.assertTrue(valid_state(dict(state, S=[student])))
-        self.assertTrue(valid_state(dict(state, S=[dict(student, qa=10)])))
-        for bad in (-1, 11, "3", 2.5):
+        self.assertTrue(valid_state(dict(state, S=[dict(student, qa=20)])))
+        for bad in (-1, 21, "3", 2.5):
             self.assertFalse(valid_state(dict(state, S=[dict(student, qa=bad)])))
         test = {"d": "2026-10-14", "k": "m", "n": 12, "sc": 4, "ok": True}
         self.assertTrue(valid_state(dict(state, S=[dict(student, tests=[test, dict(test, k="q", n=3, ok=False, pq=2)])])))
         # A pass keeps the time its blue token was given, so taking the test back takes the token back too.
         self.assertTrue(valid_state(dict(state, S=[dict(student, tb=[1760400000000], tests=[dict(test, tk=1760400000000)])])))
-        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 11}, {"tk": -1}, {"tk": "now"}):
+        # A surah chosen by item number on the Record page is kept as written, with no token.
+        self.assertTrue(valid_state(dict(state, S=[dict(student, tests=[dict(test, x="212. Surah Al-Mulk")])])))
+        for bad in ({"d": "14/10/2026"}, {"k": "x"}, {"n": 0}, {"sc": 6}, {"ok": 1}, {"pq": 21}, {"tk": -1}, {"tk": "now"},
+                    {"x": 212}, {"x": "x" * 81}):
             self.assertFalse(valid_state(dict(state, S=[dict(student, tests=[dict(test, **bad)])])))
         self.assertFalse(valid_state(dict(state, S=[dict(student, tests={})])))
+        # House points from the Record page keep what they were for, with the time their token was given.
+        self.assertTrue(valid_state(dict(state, S=[dict(student, tr=[1760400000000], hp=[{"t": 1760400000000, "r": "bk"}])])))
+        for bad in ({}, [{"t": 1760400000000}], [{"t": -1, "r": "bk"}], [{"t": "now", "r": "bk"}], [{"t": 1, "r": "xx"}]):
+            self.assertFalse(valid_state(dict(state, S=[dict(student, hp=bad)])))
         self.assertTrue(valid_state(dict(state, S=[dict(student, sw=["2026-10-12"])])))
         self.assertFalse(valid_state(dict(state, S=[dict(student, sw=["12 Oct"])])))
 
@@ -401,14 +443,18 @@ class DashboardTests:
         # The Students page is for administrators: the account pages' menu links to it only for them.
         self.assertNotIn(b'href="/#students"', teacher.get("/account").data)
         self.assertIn(b'href="/#students"', self.client.get("/account").data)
+        # So is Rankings (classes by Memo passes).
+        self.assertNotIn(b'href="/#rankings"', teacher.get("/account").data)
+        self.assertIn(b'href="/#rankings"', self.client.get("/account").data)
 
     def test_admin_downloads_the_school_spreadsheet(self):
         from io import BytesIO
         from openpyxl import load_workbook
         t = int(datetime(2026, 10, 14, 17, 30).timestamp() * 1000)
-        student = {"name": "Musa Khan", "sid": "ST099", "house": "Madinah", "target": 12, "passes": 2, "merits": 1,
+        student = {"name": "Musa Khan", "sid": "ST099", "fid": "SP040", "dob": "2016-05-02", "house": "Madinah", "target": 12, "passes": 2, "merits": 1,
                    "warn": 2, "log": [t - 864e5, t], "lt": [10, 11], "lx": ["", ""], "ml": [t], "fl": [t], "qa": 3,
-                   "q": {"2026-10-13": 4, "2026-10-14": 5}, "tg": [t], "tb": [t], "tr": [], "sw": ["2026-10-12"],
+                   "q": {"2026-10-12": -1, "2026-10-13": 4, "2026-10-14": 5}, "tg": [t, t + 1], "tb": [t], "tr": [], "sw": ["2026-10-12"],
+                   "hp": [{"t": t + 1, "r": "hw"}],
                    "tests": [{"d": "2026-10-14", "k": "m", "n": 11, "sc": 4, "ok": True, "tk": t}]}
         self.write(state=dict(self.state, S=[student], L=[9, 9]), class_id="yr3-a")
         self.add_user("t@example.com", classes=["yr3-a"])
@@ -426,15 +472,17 @@ class DashboardTests:
         rows = {name: [[c.value for c in r] for r in book[name].iter_rows()] for name in book.sheetnames}
         students = dict(zip(rows["Students"][0], rows["Students"][1]))
         self.assertEqual((students["Student"], students["Memo target"], students["Memo passes"], students["Warning"],
-                          students["House points"], students["Quran average"]), ("Musa Khan", "L2 T3", 2, "Warning 2", 25, 4.5))
+                          students["House points"], students["Quran average"]), ("Musa Khan", "L2 T3", 2, "Warning 2", 30, 4.5))
         self.assertEqual(rows["Classes"][1][:3], ["Yr3-A", "T", 1])
-        self.assertEqual([r[4] for r in rows["Quran scores"][1:]], [5, 4])
+        self.assertEqual([r[4] for r in rows["Quran scores"][1:]], [5, 4, "Absent"])
         self.assertEqual([(r[4], r[5]) for r in rows["Memo passes and fails"][1:]],
                          [("Pass", "L2 T2"), ("Not passed", None), ("Pass", "L2 T1")])
         self.assertEqual(rows["Level tests"][1][5:], ["L2 T2", 4, "Passed", "Yes"])
-        self.assertEqual(sorted(r[5] for r in rows["Rewards"][1:]), ["Blue token", "Green token", "Merit"])
+        self.assertEqual(sorted(r[5] for r in rows["Rewards"][1:]),
+                         ["Blue token", "Green token", "Green token: Additional class or homework", "Merit"])
         self.assertEqual(book["Students"].freeze_panes, "A2")
-        self.assertEqual(book["Students"].auto_filter.ref, "A1:W2")
+        self.assertEqual(book["Students"].auto_filter.ref, "A1:Y2")
+        self.assertEqual((students["Family ID"], students["Date of birth"].date()), ("SP040", date(2016, 5, 2)))
         self.assertIn(["Admin@Example.com".lower(), "Administrator"], [r[1:3] for r in rows["Staff"][1:]])
         self.assertEqual(self.query("SELECT action FROM audit_log WHERE action = 'export.downloaded'"),
                          [{"action": "export.downloaded"}])
@@ -445,19 +493,20 @@ class DashboardTests:
         self.assertEqual(export.target_label(10, [9]), "198 An-Naba")
         self.assertEqual(export.target_label(10 + len(export.JUZ_ITEMS), [9]), "Quran complete")
 
-    def test_teacher_adds_a_student_from_the_quran_tab(self):
-        self.write(class_id="yr3-a")
-        self.write("Yr4-B", class_id="yr4-b")
-        self.add_user("t@example.com", classes=["yr3-a"])
-        teacher = self.sign_in("t@example.com", "teacher-password-1")
+    def test_only_admins_add_or_remove_students(self):
         student = {"name": "Musa Khan", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
                    "ml": [], "fl": [], "q": {}, "tg": [], "tb": [], "tr": [], "house": "Madinah", "sid": "ST099"}
-        added = dict(self.state, S=[student])
-        self.assertEqual(self.write(state=added, revision=1, client=teacher).status_code, 200)
-        saved = json.loads(self.records(teacher)["yr3-a"]["json"])["S"]
-        self.assertEqual([(s["name"], s["house"], s["sid"]) for s in saved], [("Musa Khan", "Madinah", "ST099")])
-        self.assertEqual(self.write("Yr4-B", state=added, revision=1, class_id="yr4-b", client=teacher).status_code, 403)
-        self.assertEqual(json.loads(self.records()["yr4-b"]["json"])["S"], [])
+        self.write(class_id="yr3-a", state=dict(self.state, S=[student]))
+        self.add_user("t@example.com", classes=["yr3-a"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        other = dict(student, name="Aisha Ali", sid="ST100")
+        for students in ([student, other], []):
+            response = self.write(state=dict(self.state, S=students), revision=1, client=teacher)
+            self.assertEqual(response.status_code, 403)
+        self.assertEqual(len(json.loads(self.records(teacher)["yr3-a"]["json"])["S"]), 1)
+        # Teachers still record work for the students they have.
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1)]), revision=1, client=teacher).status_code, 200)
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1), other]), revision=2).status_code, 200)
 
     def test_invite_without_email(self):
         self.write()
@@ -662,44 +711,196 @@ class DashboardTests:
         record = self.records()["yr3-a"]
         self.assertEqual((json.loads(record["json"])["name"], record["revision"]), ("Yr3-A", 1))
 
-    def test_clear_test_data_removes_records_from_monday_12_october(self):
-        ms = lambda *args: int(datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000)  # noqa: E731
-        old, new = ms(2026, 10, 9, 10), ms(2026, 10, 12, 0, 30)
-        before = self.tv_student("Amina", sid="7", target=3, passes=2, merits=1, warn=1, log=[old - 1, old], lt=[1, 2],
-                                 lx=["", ""], ml=[old], fl=[], q={"2026-10-09": 4}, tb=[old], qa=2, sw=["2026-10-05"],
-                                 tests=[{"d": "2026-10-09", "k": "q", "n": 2, "sc": 4, "ok": True, "pq": 1, "tk": old}])
-        self.write(state=dict(self.state, S=[before]))
-        with self.app.config["DB"].transaction() as tx:
-            tx.execute("UPDATE classroom_history SET saved_at = ?", (old // 1000,))
-        after = json.loads(json.dumps(before))
-        after.update(target=5, passes=4, merits=3, warn=3, log=before["log"] + [new, new + 1], lt=[1, 2, 3, 4],
-                     lx=["", "", "", ""], ml=[old, new, new], fl=[new], q={"2026-10-09": 4, "2026-10-13": 2}, tb=[old, new],
-                     tg=[new], qa=3, sw=["2026-10-05", "2026-10-12"],
-                     tests=before["tests"] + [{"d": "2026-10-13", "k": "q", "n": 3, "sc": 5, "ok": True, "pq": 2, "tk": new}])
-        added = self.tv_student("Bilal", merits=1, ml=[new], warn=2)
-        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[after, added])).status_code, 200)
+    def test_clear_removes_every_progress_record(self):
+        t = 1760000000000
+        tests = [{"d": "2026-10-13", "k": "m", "n": 3, "sc": 4, "ok": True, "tk": t},
+                 {"d": "2026-10-13", "k": "m", "n": 4, "sc": 1, "ok": False},
+                 {"d": "2026-10-13", "k": "q", "n": 2, "sc": 5, "ok": True, "pq": 1, "tk": t}]
+        amina = self.tv_student("Amina", target=4, passes=3, merits=2, warn=1, log=[t, t + 1], lt=[2, 3], lx=["", ""],
+                                ml=[t, t], fl=[t], q={"2026-10-13": 4}, tb=[t, t], qa=2, sw=["2026-10-12"], tests=tests)
+        self.write(state=dict(self.state, S=[amina, self.tv_student("Bilal")]))
         page = self.client.get("/admin/clear-test-data").get_data(as_text=True)
-        self.assertIn("Monday 12 October 2026", page)
         self.assertIn("Yr3-A", page)
-        self.assertEqual(self.client.get("/admin/clear-test-data/backup.json").get_json()["classrooms"]["yr3-a"]["revision"], 2)
+        self.assertEqual(self.client.get("/admin/clear-test-data/backup.json").get_json()["classrooms"]["yr3-a"]["revision"], 1)
         self.assertIn("Type CLEAR", self.form(self.client, "/admin/clear-test-data", "/admin/clear-test-data",
                                               confirm="no").get_data(as_text=True))
-        self.assertEqual(self.records()["yr3-a"]["revision"], 2)
+        self.assertEqual(self.records()["yr3-a"]["revision"], 1)
         done = self.form(self.client, "/admin/clear-test-data", "/admin/clear-test-data", confirm="clear")
         self.assertIn("Cleared 1 class", done.get_data(as_text=True))
         record = self.records()["yr3-a"]
-        amina, bilal = json.loads(record["json"])["S"]
-        self.assertEqual(record["revision"], 3)
-        self.assertEqual({k: amina.get(k) for k in before}, before)
-        self.assertEqual(amina["tg"], [])
-        self.assertEqual((bilal["merits"], bilal["ml"], bilal["warn"]), (0, [], 0))
-        self.assertTrue(valid_state(json.loads(record["json"])))
-        # The version from just before the clear can be restored from Class history.
-        saved = [json.loads(r["json"]) for r in self.query("SELECT json FROM classroom_history ORDER BY id")]
-        self.assertEqual(saved[-2]["S"][0]["passes"], 4)
-        self.assertIn("Nothing is recorded", self.client.get("/admin/clear-test-data").get_data(as_text=True))
+        state = json.loads(record["json"])
+        cleared = state["S"][0]
+        self.assertEqual(record["revision"], 2)
+        self.assertTrue(valid_state(state))
+        for key, empty in (("passes", 0), ("log", []), ("lt", []), ("lx", []), ("sw", []), ("tests", []), ("merits", 0),
+                           ("ml", []), ("warn", 0), ("fl", []), ("q", {}), ("tb", []), ("tg", []), ("tr", [])):
+            self.assertEqual(cleared[key], empty, key)
+        self.assertEqual((cleared["name"], cleared["target"], cleared["qa"]), ("Amina", 1, 0))
+        self.assertEqual(self.client.get("/api/houses").get_json(), {"Makkah": 0, "Al-Aqsa": 0, "Madinah": 0})
+        self.assertEqual(json.loads(self.query("SELECT json FROM classroom_history ORDER BY id")[-2]["json"])["S"][0]["passes"], 3)
+        self.assertIn("no progress records", self.client.get("/admin/clear-test-data").get_data(as_text=True))
+        self.add_user("t@example.com")
+        self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").get("/admin/clear-test-data").status_code, 403)
+
+    def test_image_copies_every_module(self):
+        # The Dockerfile names each file it copies; a module left out stops the live site from starting.
+        copied = set(re.search(r"^COPY (server\.py .*) \./$", Path("Dockerfile").read_text(), re.M).group(1).split())
+        local = {p.name for p in Path(".").glob("*.py") if not p.name.startswith("test_")}
+        imported = {m + ".py" for m in re.findall(r"^import (\w+)$", Path("server.py").read_text() + Path("tv.py").read_text(), re.M)}
+        self.assertEqual((imported & local) - copied, set())
+
+    def test_historical_house_points(self):
+        points = {"tg": 5, "tb": 20, "tr": 50}
+        seeded = {}
+        for r in self.seeded:
+            seeded[r["house"]] = seeded.get(r["house"], 0) + r["n"] * points[r["coin"]]
+        self.assertEqual(seeded, {"Al-Aqsa": 130, "Madinah": 220, "Makkah": 240})
+        self.write(state=dict(self.state, S=[self.tv_student("Amina", house="Makkah", tg=[1, 2])]))
+        self.assertIn("None added yet", self.client.get("/admin/house-points").get_data(as_text=True))
+        bad = self.form(self.client, "/admin/house-points", "/admin/house-points", house="Makkah", tg="x")
+        self.assertEqual(bad.status_code, 400)
+        done = self.form(self.client, "/admin/house-points", "/admin/house-points", house="Makkah", tr="1", tg="4", note="Before")
+        self.assertIn("Added to Makkah", done.get_data(as_text=True))
+        self.assertEqual(self.client.get("/api/houses").get_json(), {"Makkah": 80, "Al-Aqsa": 0, "Madinah": 0})
+        extra = self.client.get("/api/house-extra").get_json()
+        self.assertEqual(sorted((e["coin"], e["n"], e["note"]) for e in extra), [("tg", 4, "Before"), ("tr", 1, "Before")])
+        self.assertTrue(all(e["given_at"] > 1e12 for e in extra))
+        self.assertEqual(tv.summary(self.query("SELECT id, json FROM classrooms"), extra={"Makkah": 70})["houses"][0],
+                         {"house": "Makkah", "points": 80})
+        page = self.client.get("/admin/house-points")
+        self.client.post(f"/admin/house-points/{extra[0]['id']}/delete", data={"csrf": csrf_of(page)})
+        self.assertEqual(len(self.client.get("/api/house-extra").get_json()), 1)
+        self.add_user("t@example.com")
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        self.assertEqual(teacher.get("/admin/house-points").status_code, 403)
+        self.assertEqual(teacher.get("/api/house-extra").status_code, 403)
+
+    def test_remove_quran_tab_coins_lists_them_first(self):
+        t = 1760000000000
+        amina = self.tv_student("Amina", house="Makkah", tg=[t, t + 1], tb=[t + 2, t + 3], tr=[t + 4],
+                                hp=[{"t": t, "r": "hw"}, {"t": t + 4, "r": "bk"}],
+                                tests=[{"d": "2026-10-13", "k": "m", "n": 3, "sc": 4, "ok": True, "tk": t + 2}])
+        self.write(state=dict(self.state, S=[amina, self.tv_student("Bilal", house="Madinah", tr=[t])]))
+        page = self.client.get("/admin/remove-quran-coins").get_data(as_text=True)
+        self.assertIn("Amina", page)
+        self.assertIn("Bilal", page)
+        self.assertEqual(self.records()["yr3-a"]["revision"], 1)
+        self.assertIn("Type DELETE", self.form(self.client, "/admin/remove-quran-coins", "/admin/remove-quran-coins",
+                                               confirm="no").get_data(as_text=True))
+        done = self.form(self.client, "/admin/remove-quran-coins", "/admin/remove-quran-coins", confirm="delete")
+        self.assertIn("Removed 3 coins", done.get_data(as_text=True))
+        state = json.loads(self.records()["yr3-a"]["json"])
+        self.assertTrue(valid_state(state))
+        a, b = state["S"]
+        self.assertEqual((a["tg"], a["tb"], a["tr"], b["tr"]), ([t], [t + 2], [t + 4], []))
+        self.assertIn("No student has house points from the Quran tab", self.client.get("/admin/remove-quran-coins").get_data(as_text=True))
+        self.add_user("t@example.com")
+        self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").get("/admin/remove-quran-coins").status_code, 403)
+
+    def test_set_houses_matches_by_name_and_fills_in_ids_and_family(self):
+        # On the list: Aayat Nm SE0001 SP457 Makkah, Musa Un SE0065, Adam Or SE0060 in Yr3-A and SE0265 in Yr3-B.
+        yr3a = dict(self.state, S=[self.tv_student("Aayat Nm", sid="SE0005", house="Al-Aqsa", tg=[1]),
+                                   self.tv_student("Musa Un", sid="SE0065"), self.tv_student("Adam Or", sid="SE0060"),
+                                   self.tv_student("Saima K", sid="SE9999", house="Madinah")])
+        self.write(name="Yr3-A-QM-Br Faeez", state=yr3a)
+        self.write(name="Yr3B Ustadha Sophia", class_id="yr3-b", state=dict(self.state, S=[self.tv_student("Adam Or", sid="SE0060")]))
+        page = self.client.get("/admin/set-houses").get_data(as_text=True)
+        self.assertIn("Saima K (SE9999)", page)
+        self.assertIn("Aayat Nm: SE0005 to SE0001", page)
+        self.assertIn("Adam Or: SE0060 to SE0265", page)
+        self.assertIn("SE0002 Ishaaq Ya", page)
+        self.assertIn("Type HOUSES", self.form(self.client, "/admin/set-houses", "/admin/set-houses",
+                                               confirm="no").get_data(as_text=True))
+        done = self.form(self.client, "/admin/set-houses", "/admin/set-houses", confirm="houses")
+        self.assertIn("Updated 4 students", done.get_data(as_text=True))
+        records = self.records()
+        a, b = (json.loads(records[k]["json"])["S"] for k in ("yr3-a", "yr3-b"))
+        self.assertEqual([(s.get("sid"), s.get("fid", ""), s.get("house", "")) for s in a + b],
+                         [("SE0001", "SP457", "Makkah"), ("SE0065", "SP290", "Al-Aqsa"), ("SE0060", "SP379", "Makkah"),
+                          ("SE9999", "", "Madinah"), ("SE0265", "SP470", "Al-Aqsa")])
+        self.assertEqual((a[0]["xid"], sorted(a[0]["ed"]), a[0]["tg"]),
+                         (["SE0005"], ["fid", "gender", "house", "ist", "sid", "sy"], [1]))
+        self.assertEqual((a[0]["sy"], a[0]["gender"], a[0]["ist"], b[0]["ist"]),
+                         ("Year 1", "Female", "Yr1-A-AI-Sr Nasrin", "Yr3-B-AI-Sr Nusrat"))
+        self.assertEqual(records["yr3-a"]["revision"], 2)
+        self.assertTrue(valid_state(json.loads(records["yr3-a"]["json"])))
         teacher = self.sign_in("t@example.com", "teacher-password-1") if self.add_user("t@example.com") else None
-        self.assertEqual(teacher.get("/admin/clear-test-data").status_code, 403)
+        self.assertEqual(teacher.get("/admin/set-houses").status_code, 403)
+
+    def test_import_memo_passes_clears_then_adds_the_sheet(self):
+        sheet = ("Date,Student ID,Name,Target\n12/09/2026 10:36:25,SE0001,,L1 Target 2\n13/09/2026 10:00:00,se1,,L1 Target 2\n"
+                 "20/09/2026 10:00:00,SE0001,,212. Surah Al-Mulk\n21/09/2026 10:00:00,SE0001,,Qalam page 2\n"
+                 "26/09/2026 10:00:00,SE0001,,Fail\n27/09/2026 10:00:00,SE0001,,L1 Target 1\n"
+                 "27/09/2026 10:00:00,,Musa Un,L1 Target 3\n27/09/2026 10:00:00,SE9999,Nobody Here,L1 Target 1\n"
+                 "27/09/2026 10:00:00,,Musa Un,L9 Target 1\n28/09/2026 10:00:00,,Adam Or,L1 Target 5\n"
+                 "25/10/2026 10:00:00,,Musa Un,L1 Target 2\n")
+        url = "/admin/import-memo-passes"
+        had = datetime(2026, 9, 1, 12, tzinfo=auth.LONDON).timestamp() * 1000
+        quran_test = {"d": "2026-09-06", "k": "q", "n": 2, "sc": 3, "ok": True, "pq": 1}
+        tests = [{"d": "2026-09-05", "k": "m", "n": 1, "sc": 4, "ok": True, "tk": had}, quran_test]
+        self.write(state=dict(self.state, S=[self.tv_student("Aayat Nm", sid="SE0001", target=2, passes=1, log=[had], lt=[1], lx=[""],
+                                                             fl=[had], tests=tests, tb=[had]),
+                                             self.tv_student("Musa Un"),
+                                             self.tv_student("Adam Or", sid="SE0060", target=4, passes=1, log=[had], lt=[3], lx=[""])]))
+        self.write(name="Yr3-B", class_id="yr3-b", state=dict(self.state, S=[self.tv_student("Adam Or", sid="SE0265")]))
+        hub = self.client.get("/admin/import").get_data(as_text=True)
+        for text in ("New students", "/#upload-students", "Memorisation passes", "Qaidah/Tajwid level passes", "Choose CSV file"):
+            self.assertIn(text, hub)
+        self.assertIn("needs columns called Date, Student ID and Target",
+                      self.form(self.client, url, url, csv=(io.BytesIO(b"Day,Who\n1,2\n"), "x.csv")).get_data(as_text=True))
+        self.assertIn("isn&#39;t a date", self.form(self.client, url, url, csv=(io.BytesIO(b"Date,Student ID,Target\nsoon,A,B\n"),
+                                                                                   "x.csv")).get_data(as_text=True))
+        page = self.form(self.client, url, url, csv=(io.BytesIO(sheet.encode()), "passes.csv")).get_data(as_text=True)
+        for text in ("No student on the site has this Student ID", "Two students share this name", "Not on the class&#39;s list",
+                     "The same target is higher up the sheet", "Earlier in the book", "213. Surah-Al Qalam, page 2",
+                     "Adam Or in Yr3-B (SE0265)", "2 passes, 1 fail and 1 Memo level test"):
+            self.assertIn(text, page)
+        # The page sends the sheet back with the confirmation.
+        sent = re.search(r'<textarea name="sheet" hidden>(.*?)</textarea>', page, re.S).group(1)
+        self.assertEqual(html.unescape(sent), sheet)
+        self.assertIn("Type IMPORT", self.form(self.client, url, url, sheet=sheet, confirm="no").get_data(as_text=True))
+        self.assertIn("Choose a CSV file first", self.form(self.client, url, url, confirm="import").get_data(as_text=True))
+        for _ in range(2):  # a second go clears and adds the same again
+            done = self.form(self.client, url, url, sheet=sheet, confirm="import", **{"pick-adamor": "yr3-b|0"}).get_data(as_text=True)
+            self.assertIn("Imported the CSV into 2 classes", done)
+            records = self.records()
+            a, musa, other = json.loads(records["yr3-a"]["json"])["S"]
+            self.assertTrue(valid_state(json.loads(records["yr3-a"]["json"])))
+            self.assertEqual((a["lt"], a["lx"], a["passes"], a["target"], len(a["fl"])),
+                             ([2, 3, 3, 1], ["", "212. Surah Al-Mulk", "213. Surah-Al Qalam, page 2", ""], 4, 2, 1))
+            self.assertEqual(a["log"][0], datetime(2026, 9, 12, 10, 36, 25, tzinfo=auth.LONDON).timestamp() * 1000)
+            # The Memo level test goes; its blue coin stays as a level completion.
+            self.assertEqual((a["tests"], a["tb"], a["hp"]), ([quran_test], [had], [{"t": had, "r": "lv"}]))
+            self.assertEqual((musa["lt"], musa["target"], musa.get("tg", [])), ([3, 2], 3, []))
+            self.assertEqual((other["log"], other["passes"], other["target"]), ([], 0, 4))
+        b = json.loads(records["yr3-b"]["json"])["S"][0]
+        self.assertEqual((b["lt"], b["target"]), ([5], 6))
+        self.assertEqual(records["yr3-a"]["revision"], 3)
+
+    def test_import_qaidah_passes_clears_then_adds_level_tests(self):
+        sheet = ("Date,Student ID,Level,Score\n01/10/2026,SE0001,Level 1,\n08/10/2026,SE0001,Qaidah 3,4\n08/10/2026,se1,3,\n"
+                 "15/10/2026,SE0001,Fail,\n10/10/2026,SE0001,Level 2,\n20/10/2026,SE0001,Level 21,\n")
+        url = "/admin/import-qaidah-passes"
+        memo_test = {"d": "2026-09-05", "k": "m", "n": 1, "sc": 4, "ok": True, "tk": 5}
+        self.write(state=dict(self.state, S=[self.tv_student("Aayat Nm", sid="SE0001", qa=2, tb=[5, 6], tests=[
+            memo_test, {"d": "2026-09-06", "k": "q", "n": 2, "sc": 3, "ok": True, "pq": 1, "tk": 6}]),
+                                             self.tv_student("Musa Un", qa=5)]))
+        page = self.form(self.client, url, url, csv=(io.BytesIO(sheet.encode()), "levels.csv")).get_data(as_text=True)
+        for text in ("1 Quran level test already on the site", "Not a level from 1 to 20", "The same level is higher up the sheet",
+                     "Lower than a level they had already passed", "Qaidah Level 3"):
+            self.assertIn(text, page)
+        done = self.form(self.client, url, url, sheet=sheet, confirm="import").get_data(as_text=True)
+        self.assertIn("Imported the CSV into 1 class", done)
+        state = json.loads(self.records()["yr3-a"]["json"])
+        self.assertTrue(valid_state(state))
+        a, musa = state["S"]
+        self.assertEqual(a["tests"], [memo_test,
+                                      {"d": "2026-10-01", "k": "q", "n": 1, "ok": True, "pq": 0},
+                                      {"d": "2026-10-08", "k": "q", "n": 3, "ok": True, "pq": 1, "sc": 4},
+                                      {"d": "2026-10-10", "k": "q", "n": 2, "ok": True, "pq": 3},
+                                      {"d": "2026-10-15", "k": "q", "n": 3, "ok": False}])
+        # The Qaidah level is the latest level passed; the cleared test's blue coin stays.
+        self.assertEqual((a["qa"], a["tb"], a["hp"], musa["qa"]), (2, [5, 6], [{"t": 6, "r": "lv"}], 5))
 
     def test_activity_is_recorded_and_pruned(self):
         self.sign_in("someone@example.com", "wrong password")
@@ -780,8 +981,10 @@ class DashboardTests:
                          [("Week of 12 Oct", "Yr2A Ustadh Faeez", "Amina R."), ("Week of 12 Oct", "Yr9/10B Ustadh Fawaaz", "Hana A.")])
         self.assertEqual(data["teachers"], ["Ustadh Ahmed", "Ustadh Faeez", "Ustadh Fawaaz", "Ustadha Maryam"])
         self.assertEqual([tv.class_label(n) for n in ("Year 3A Quran - Ustadh Faeez", "Yr4-B-QM-Sr Zainab", "Yr5-C Idris",
-                                                      "Reception-QM", "Hifz group")],
-                         ["Yr3A Ustadh Faeez", "Yr4B Ustadha Zainab", "Yr5C Ustadh Idris", "Reception", "Hifz group"])
+                                                      "Reception-QM", "Hifz group", "Yr8-A-QM-Ustadha Kawthar/Sr",
+                                                      "Yr8-B-QM-Kawthar/Sr")],
+                         ["Yr3A Ustadh Faeez", "Yr4B Ustadha Zainab", "Yr5C Ustadh Idris", "Reception", "Hifz group",
+                          "Yr8A Ustadha Kawthar", "Yr8B Ustadha Kawthar"])
         window = {"qaidah": ["16:00", "17:00"], "memo": ["23:30", "00:30"]}
         at = lambda h, m: datetime(2026, 10, 22, h, m, tzinfo=auth.LONDON)  # noqa: E731
         self.assertEqual(tv.focus(window, at(16, 30)), ["qaidah"])

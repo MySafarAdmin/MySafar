@@ -1,7 +1,7 @@
 # Safar Academy Enfield dashboards
 
 One page holds the school overview (one Summary page, with Classes and Record beside it) and a full class
-dashboard (Quran, Memo, Progress, Rewards, Settings) for every
+dashboard (Quran, Memo, Progress, Settings) for every
 classroom. The dashboard starts empty:
 classrooms and students are added by uploading a CSV on the overview.
 
@@ -55,7 +55,7 @@ Spellings are matched loosely ("al aqsa", "Medina"), and anything else is
 listed in the upload preview and left unchanged. A later upload with a House
 column updates each student's house; one without it leaves houses as they are.
 
-Each classroom's **Rewards** tab gives house tokens:
+House tokens are given from the menu on a student's name on the Quran tab:
 
 | Token | Points |
 | --- | --- |
@@ -64,7 +64,9 @@ Each classroom's **Rewards** tab gives house tokens:
 | Red (book completion) | 50 |
 
 **−** takes back the latest token of that colour. The tab shows the class's
-points per house. A pass on the Record page gives the student a blue token by itself.
+points per house. A level test passed on the Record page gives the student a blue token by itself.
+A Memo pass chosen there by **Item number and Surah** (the school's list: Fail, L1 Target 1 to L10 Target 14,
+and items 197 to 230) is only logged as a pass, with no token or house points.
 The overview's House points pop-up shows the whole school's totals, and on
 Railway teachers see those totals too, without seeing other classes'
 students. The points are set in `TOK` near the top of the script in
