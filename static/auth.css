@@ -199,3 +199,9 @@ fieldset.hold:disabled input{opacity:1;-webkit-text-fill-color:currentColor}
 .mod form.confirm{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
 .mod .panel{box-shadow:none;border:1px solid var(--line);margin:14px 0 0}
 .mod .panel p{margin:0}
+/* The menu's gliding hover highlight (nav.js), drawn as the dashboard draws it. */
+.rail .navs{position:relative}
+.rail .navs>.mhl{position:absolute;left:0;top:0;z-index:0;pointer-events:none;opacity:0;border-radius:var(--r);background:var(--rail-hover)}
+.rail .navs>.mhl.go{transition:transform .34s cubic-bezier(.22,1,.36,1),width .34s cubic-bezier(.22,1,.36,1),height .34s cubic-bezier(.22,1,.36,1),opacity .2s ease}
+.rail .navs.has-h>.nav{position:relative;z-index:1}
+.rail .navs.has-h>.nav:not([aria-current]):hover{background:none}
