@@ -10,6 +10,26 @@
   <input readonly value="{{ link }}" aria-label="Link to send">
 </div>
 {% endif %}
+{# The invite form stays folded away until the Invite staff button opens it (#invite, no scripts on this page), or
+   an invite just failed and needs fixing. #}
+<div class="mod line invite{{ ' open' if invite_open }}" id="invite" tabindex="-1">
+  <div class="invh"><h2>Invite staff</h2><a class="btn sm" href="/admin/users">Close</a></div>
+  <p class="sub">They get {{ "an email with " if mail_enabled }}a link to choose their password. It expires in 72 hours. Teachers see only the classrooms you tick; admins see everything.</p>
+  <form method="post" action="/admin/users/invite">
+    <input type="hidden" name="csrf" value="{{ csrf }}">
+    <div class="formrow">
+      <label class="field">Name<input name="name" maxlength="80" autocomplete="off" required></label>
+      <label class="field">Email<input type="email" name="email" maxlength="254" autocomplete="off" spellcheck="false" required></label>
+      <label class="field">Role<select name="role"><option value="teacher">Teacher</option><option value="admin">Administrator</option></select></label>
+    </div>
+    {% if rooms %}
+    <fieldset><legend>Classrooms (for teachers)</legend>
+      <div class="rooms">{% for id, name in rooms %}<label class="check"><input type="checkbox" name="classes" value="{{ id }}"> {{ name }}</label>{% endfor %}</div>
+    </fieldset>
+    {% endif %}
+    <button class="btn primary">Send invite</button>
+  </form>
+</div>
 <section class="accounts" aria-labelledby="acch"><h2 id="acch">Accounts</h2>
 {% for u in users %}
 <details class="user{{ ' off' if u.disabled }}">
@@ -49,24 +69,6 @@
 </details>
 {% endfor %}
 </section>
-<div class="mod line invite" id="invite" tabindex="-1">
-  <h2>Invite staff</h2>
-  <p class="sub">They get {{ "an email with " if mail_enabled }}a link to choose their password. It expires in 72 hours. Teachers see only the classrooms you tick; admins see everything.</p>
-  <form method="post" action="/admin/users/invite">
-    <input type="hidden" name="csrf" value="{{ csrf }}">
-    <div class="formrow">
-      <label class="field">Name<input name="name" maxlength="80" autocomplete="off" required></label>
-      <label class="field">Email<input type="email" name="email" maxlength="254" autocomplete="off" spellcheck="false" required></label>
-      <label class="field">Role<select name="role"><option value="teacher">Teacher</option><option value="admin">Administrator</option></select></label>
-    </div>
-    {% if rooms %}
-    <fieldset><legend>Classrooms (for teachers)</legend>
-      <div class="rooms">{% for id, name in rooms %}<label class="check"><input type="checkbox" name="classes" value="{{ id }}"> {{ name }}</label>{% endfor %}</div>
-    </fieldset>
-    {% endif %}
-    <button class="btn primary">Send invite</button>
-  </form>
-</div>
 <div class="mod line mail" id="email">
   <h2>Email</h2>
   {% if mail_enabled %}
