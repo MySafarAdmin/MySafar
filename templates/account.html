@@ -74,8 +74,8 @@
 </div>
 <div class="mod line">
   <h2>Tutorial</h2>
-  <p class="sub">{{ "A short step-by-step look at what each part of the dashboard does." if user.role == "teacher" else "The step-by-step tour teachers see when they first sign in." }}</p>
-  <a class="btn" href="/#tour">{{ "Retake the tutorial" if user.role == "teacher" else "Take the teacher tutorial" }}</a>
+  <p class="sub">A short step-by-step look at what each part of the dashboard does.</p>
+  <a class="btn" href="/#tour">Retake the tutorial</a>
 </div></div></div>
 {% endif %}
 {% if not user.must_change %}<script src="/avatar.js" defer></script>{% endif %}
