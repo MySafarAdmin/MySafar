@@ -199,6 +199,12 @@ fieldset.hold:disabled input{opacity:1;-webkit-text-fill-color:currentColor}
 .mod form.confirm{margin-top:20px;padding-top:16px;border-top:1px solid var(--line)}
 .mod .panel{box-shadow:none;border:1px solid var(--line);margin:14px 0 0}
 .mod .panel p{margin:0}
+/* The menu's gliding hover highlight (nav.js), drawn as the dashboard draws it. */
+.rail .navs{position:relative}
+.rail .navs>.mhl{position:absolute;left:0;top:0;z-index:0;pointer-events:none;opacity:0;border-radius:var(--r);background:var(--rail-hover)}
+.rail .navs>.mhl.go{transition:transform .34s cubic-bezier(.22,1,.36,1),width .34s cubic-bezier(.22,1,.36,1),height .34s cubic-bezier(.22,1,.36,1),opacity .2s ease}
+.rail .navs.has-h>.nav{position:relative;z-index:1}
+.rail .navs.has-h>.nav:not([aria-current]):hover{background:none}
 
 /* FAQs: Help or Requests from staff, each a card with its reply form. */
 .faqs-h{display:flex;align-items:center;gap:8px;margin:24px 0 10px}
@@ -223,3 +229,12 @@ fieldset.hold:disabled input{opacity:1;-webkit-text-fill-color:currentColor}
 .faq details.faqedit[open]{display:block}
 .faq details.faqedit form{max-width:none;padding:12px 14px}
 .faqnone{margin:0}
+/* FAQs in motion: the messages rise in one after another as the page opens and lift a little under the pointer. */
+@keyframes faq-in{from{opacity:0;transform:translateY(12px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+.faqs-h,.faq,.faqnone{animation:faq-in .5s cubic-bezier(.2,.8,.2,1) backwards}
+.faq:nth-of-type(1){animation-delay:.08s}.faq:nth-of-type(2){animation-delay:.14s}.faq:nth-of-type(3){animation-delay:.2s}
+.faq:nth-of-type(4){animation-delay:.26s}.faq:nth-of-type(n+5){animation-delay:.32s}
+.faq{transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s ease,border-color .25s ease}
+@media (hover:hover){.faq:hover{transform:translateY(-2px);border-color:var(--line-2);box-shadow:0 10px 26px rgba(29,33,39,.08)}
+ .faq.wait:hover{box-shadow:inset 3px 0 0 var(--warn),0 10px 26px rgba(29,33,39,.08)}}
+@media (prefers-reduced-motion:reduce){.faq{transition:none}.faq:hover{transform:none}}
