@@ -356,6 +356,10 @@ class DashboardTests:
         self.assertTrue(valid_state(dict(state, S=[dict(student, tr=[1760400000000], hp=[{"t": 1760400000000, "r": "bk"}])])))
         for bad in ({}, [{"t": 1760400000000}], [{"t": -1, "r": "bk"}], [{"t": "now", "r": "bk"}], [{"t": 1, "r": "xx"}]):
             self.assertFalse(valid_state(dict(state, S=[dict(student, hp=bad)])))
+        # Book passes: when and which book, the Qaidah Book or the Tajweed Book.
+        self.assertTrue(valid_state(dict(state, S=[dict(student, bp=[{"t": 1760400000000, "b": "q"}, {"t": 1760400000001, "b": "t"}])])))
+        for bad in ({}, [{"t": 1760400000000}], [{"t": -1, "b": "q"}], [{"t": "now", "b": "t"}], [{"t": 1, "b": "x"}]):
+            self.assertFalse(valid_state(dict(state, S=[dict(student, bp=bad)])))
         self.assertTrue(valid_state(dict(state, S=[dict(student, sw=["2026-10-12"])])))
         self.assertFalse(valid_state(dict(state, S=[dict(student, sw=["12 Oct"])])))
 
@@ -588,6 +592,11 @@ class DashboardTests:
         # Teachers still record work for the students they have.
         self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1)]), revision=1, client=teacher).status_code, 200)
         self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1), other]), revision=2).status_code, 200)
+        # House points are given by admins only: a teacher's save can't add a coin, an admin's can.
+        response = self.write(state=dict(self.state, S=[dict(student, merits=1, tg=[1760400000000]), other]), revision=3, client=teacher)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1, tg=[1760400000000]), other]), revision=3).status_code, 200)
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=2, tg=[1760400000000]), other]), revision=4, client=teacher).status_code, 200)
 
     def test_invite_without_email(self):
         self.write()
@@ -841,7 +850,7 @@ class DashboardTests:
         bad = self.form(self.client, "/admin/house-points", "/admin/house-points", house="Makkah", tg="x")
         self.assertEqual(bad.status_code, 400)
         done = self.form(self.client, "/admin/house-points", "/admin/house-points", house="Makkah", tr="1", tg="4", note="Before")
-        self.assertIn("Added to Makkah", done.get_data(as_text=True))
+        self.assertIn("Added 70 points to Makkah", done.get_data(as_text=True))
         self.assertEqual(self.client.get("/api/houses").get_json(), {"Makkah": 80, "Al-Aqsa": 0, "Madinah": 0})
         extra = self.client.get("/api/house-extra").get_json()
         self.assertEqual(sorted((e["coin"], e["n"], e["note"]) for e in extra), [("tg", 4, "Before"), ("tr", 1, "Before")])
@@ -851,6 +860,14 @@ class DashboardTests:
         page = self.client.get("/admin/house-points")
         self.client.post(f"/admin/house-points/{extra[0]['id']}/delete", data={"csrf": csrf_of(page)})
         self.assertEqual(len(self.client.get("/api/house-extra").get_json()), 1)
+        # Coins counted on an earlier day are dated that day (noon, London); a day in the future is refused.
+        late = self.form(self.client, "/admin/house-points", "/admin/house-points", house="Madinah", tg="2", day="2026-10-02")
+        self.assertIn("Added 10 points to Madinah", late.get_data(as_text=True))
+        dated = [e for e in self.client.get("/api/house-extra").get_json() if e["house"] == "Madinah"]
+        self.assertEqual(datetime.fromtimestamp(dated[0]["given_at"] / 1000, auth.LONDON).strftime("%Y-%m-%d %H"), "2026-10-02 12")
+        self.assertEqual(dated[0]["note"], "Coins counted")
+        ahead = self.form(self.client, "/admin/house-points", "/admin/house-points", house="Madinah", tg="2", day="2999-01-01")
+        self.assertEqual(ahead.status_code, 400)
         self.add_user("t@example.com")
         teacher = self.sign_in("t@example.com", "teacher-password-1")
         self.assertEqual(teacher.get("/admin/house-points").status_code, 403)
@@ -925,7 +942,7 @@ class DashboardTests:
                                              self.tv_student("Adam Or", sid="SE0060", target=4, passes=1, log=[had], lt=[3], lx=[""])]))
         self.write(name="Yr3-B", class_id="yr3-b", state=dict(self.state, S=[self.tv_student("Adam Or", sid="SE0265")]))
         hub = self.client.get("/admin/import").get_data(as_text=True)
-        for text in ("New students", "/#upload-students", "Memorisation passes", "Qaidah/Tajwid level passes", "Choose CSV file"):
+        for text in ("New students", "/#upload-students", "Memorisation passes", "Qaidah/Tajweed level passes", "Choose CSV file"):
             self.assertIn(text, hub)
         self.assertIn("needs columns called Date, Student ID and Target",
                       self.form(self.client, url, url, csv=(io.BytesIO(b"Day,Who\n1,2\n"), "x.csv")).get_data(as_text=True))
@@ -1008,7 +1025,9 @@ class DashboardTests:
         rows = [{"id": "yr3-a", "json": json.dumps({"name": "Yr3-A-QM-Br Ahmed", "S": [
                     self.tv_student("Aisha Bint Khan", house="Makkah", log=[monday] * 3, ml=[monday], tr=[monday], tg=[1]),
                     self.tv_student("Yusuf Ali", house="Madinah", log=[monday] * 3 + [last_month], ml=[], tb=[1]),
-                    self.tv_student("Old Book", year="Year 3", tr=[last_month], log=[last_month])]})},
+                    self.tv_student("Old Book", year="Year 3", tr=[last_month], log=[last_month]),
+                    self.tv_student("Bilal Noor", house="Madinah", bp=[{"t": monday, "b": "t"}]),
+                    self.tv_student("Old Pass", bp=[{"t": last_month, "b": "q"}])]})},
                 {"id": "yr8-b", "json": json.dumps({"name": "Yr8-B", "S": [
                     self.tv_student("Zara", year="Year 4", log=[monday]),  # her Safar year group wins over the class
                     self.tv_student("Omar Farooq", sy="Year 9", log=[monday] * 2)]})},
@@ -1016,7 +1035,7 @@ class DashboardTests:
         data = tv.summary(rows, now)
         self.assertEqual(data["houses"], [{"house": "Makkah", "points": 55}, {"house": "Madinah", "points": 20},
                                           {"house": "Al-Aqsa", "points": 0}])
-        self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Yr3A Ustadh Ahmed")])
+        self.assertEqual([(b["name"], b["class"]) for b in data["books"]], [("Aisha K.", "Yr3A Ustadh Ahmed"), ("Bilal N.", "Yr3A Ustadh Ahmed")])
         # The TV's stars are last week's (5 October), when nobody passed or earned a merit.
         self.assertEqual(data["stars"], [])
         self.assertEqual([(step["place"], step["n"], [w["name"] for w in step["who"]]) for step in data["memo"]],

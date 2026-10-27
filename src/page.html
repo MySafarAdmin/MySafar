@@ -166,7 +166,7 @@ function fix(a,old){var mv=old&&old.join()!==LEVELS.join();a.forEach(function(s)
  if(!s.q)s.q={};if(!s.log){s.log=[];s.hit=null;s.target=1}
  if(!s.lt||s.lt.length!==s.log.length){s.lt=s.log.map(function(_,k){return Math.max(1,s.target-(s.log.length-k))})}
  if(!s.lx||s.lx.length!==s.log.length){var o=s.lx||[];s.lx=s.log.map(function(_,k){return o[k]||""})}
- if(!s.ml)s.ml=[];if(!s.fl)s.fl=[];TOK.forEach(function(k){if(!s[k[0]])s[k[0]]=[]});s.passes=s.passes||0;s.merits=s.merits||0;s.qa=s.qa||0;if(!s.tests)s.tests=[];if(!s.hp)s.hp=[];if(!s.sw)s.sw=[];s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
+ if(!s.ml)s.ml=[];if(!s.fl)s.fl=[];TOK.forEach(function(k){if(!s[k[0]])s[k[0]]=[]});s.passes=s.passes||0;s.merits=s.merits||0;s.qa=s.qa||0;if(!s.tests)s.tests=[];if(!s.hp)s.hp=[];if(!s.bp)s.bp=[];if(!s.sw)s.sw=[];s.target=Math.min(Math.max(s.target||1,1),NB)});return a}
 /* Houses and their tokens. Each token is [field, css class, name, points]; the field holds the times it was given.
    Keep the points in step with TOKEN_POINTS in server.py. */
 var HOUSES=["Makkah","Al-Aqsa","Madinah"],TOK=[["tg","g","Green",5],["tb","b","Blue",20],["tr","r","Red",50]];
@@ -439,7 +439,7 @@ function refill(el,html){var a=document.activeElement,key=null;
  el.innerHTML=html;
  if(key){var n=el.querySelector(key);if(n)n.focus()}}
 var DMODE="";
-function details(s){return [["Student ID",s.sid],["Family ID",s.fid],["Date of birth",dobText(s.dob)],["Year group",s.sy],["Gender",s.gender],["House",s.house],["Arabic and Islamic Studies Class",s.ist],["Qaidah",s.qa?"Level "+s.qa:""]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
+function details(s){return [["Student ID",s.sid],["Family ID",s.fid],["Date of birth",dobText(s.dob)],["Year group",s.sy],["Gender",s.gender],["House",s.house],["Arabic and Islamic Studies Class",s.ist],["Quran level",s.qa?qaLab(s.qa):""]].map(function(x){return '<dt>'+x[0]+'</dt><dd>'+esc(x[1]||"Not recorded")+'</dd>'}).join("")}
 /* Details, history, rename and remove from a student's Memo profile. */
 document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]");if(!bt||!bt.closest("#drwB"))return;var a=bt.dataset.a,i=+bt.dataset.i,s=S[i],c=CID;if(!s)return;
  var nm=fn(s);
@@ -453,18 +453,23 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    Memo (a target, as level and target or as item number and Surah), the student, the level and the 0 to 5 score,
    then Passed or Not passed. The score also goes into that day's box on the Quran sheet, with a gold border, and
    only the Record page can change it. A Memo pass moves the student past that target; a Quran pass sets their
-   Qaidah level. Every pass gives the student a blue token, except one chosen by item number and Surah (below). Each
-   test is kept on the student as {d: day, k: "q" or "m", n: level or target, sc: score, ok: passed, pq: the Qaidah
-   level before a Quran pass, tk: when the pass's blue token was given, x: the surah from the item list}.
-   House points are the third choice in step 1: the admin picks the student and what the points are for, and the
+   Qaidah level (levels 1 to 13 are the Qaidah Book, 14 to 20 the Tajweed Book, QBOOK). Passes give no house points:
+   house points come only from the physical coins teachers hand out, which the admin counts and adds for each house
+   on /admin/house-points. Tests from before that change may still have a blue token (tk), which taking the test back
+   also takes away. Each test is kept on the student as {d: day, k: "q" or "m", n: level or target, sc: score,
+   ok: passed, pq: the Qaidah level before a Quran pass, tk: when an older pass's blue token was given, x: the surah
+   from the item list}.
+   Book passes are the third choice: the Qaidah Book or the Tajweed Book finished, kept on the student as
+   {t: when, b: "q" or "t"} in s.bp, with no house points.
+   House points are the fourth choice, for admins only (the Record page is admin-only, and the server refuses a
+   teacher's save that adds a coin). Setting HPOFF hides it. The the admin picks the student and what the points are for, and the
    points and coin follow from HPR. Each is kept on the student as {t: when its token was given, r: what for} in
-   s.hp, with the token itself in s.tg, s.tb or s.tr like the ones from the Quran name menu. A level passed on this
-   page already gives its blue coin, so the level choice is closed for a student who passed one today.
+   s.hp, with the token itself in s.tg, s.tb or s.tr.
    Memo's "Item number and Surah" picker is the school's own list: Fail, every book target ("L1 Target 1") and the
    numbered surahs in SUR, written exactly as the school writes them. A pass chosen there is only logged as a pass, with
    no token or house points. A book target moves the student on as usual; a surah is kept as the pass's label (s.lx and
    the test's x) and leaves the target where it is. Fail can only be recorded as Not passed. */
-var QAIDAH=20,RK="m",RS="",RM="",RX=0,RI="",RSC=-1,RH="";
+var QAIDAH=20,QBOOK=13,HPOFF=0,RK="m",RS="",RM="",RX=0,RI="",RSC=-1,RH="",RB="";
 var SUR=["197. Surah An-Naba'","198. Surah An-Nazi'aat","199. Surah Abasa","200. Surah At-Takwir","201. Surah Al-Infitaar",
  "202. Surah Al-Mutaffifin","203. Surah Al-Inshiqaq","204. Surah Al-Burooj","205. Surah At-Tariq","206. Surah Al-A'la",
  "207. Surah Al-Ghaashiyah","208. Surah Al-Fajr","209. Surah Al-Balad","210. Surah Ash-Shams","211. Surah Al-Lail",
@@ -484,23 +489,32 @@ function hpCoin(r){var k=htk(r);return '<span class="hcoin '+k[1]+'"><span class
 /* Today's passed level test, which gave its blue coin already. */
 function lvToday(s){var d=dk(Date.now());return (s.tests||[]).some(function(t){return t.ok&&t.tk&&t.d===d})}
 function qTest(s,d){var T=s.tests||[];for(var k=T.length-1;k>=0;k--)if(T[k].d===d)return T[k];return null}
-function tLab(t){return t.x||(t.k==="q"?"Qaidah Level "+t.n:bl(t.n))}
+/* "Qaidah Level 4" or "Tajweed Level 15": the book a Quran level belongs to. */
+function qaLab(n){return (n>QBOOK?"Tajweed":"Qaidah")+" Level "+n}
+function tLab(t){return t.x||(t.k==="q"?qaLab(t.n):bl(t.n))}
+var BOOKS=[["q","Qaidah Book","Levels 1 to "+QBOOK],["t","Tajweed Book","Levels "+(QBOOK+1)+" to "+QAIDAH]];
+function bkName(b){var x=BOOKS.filter(function(y){return y[0]===b})[0];return x?x[1]:"Book"}
 function rStu(){var p=RS.split("|"),c=p[0],i=+p[1];return ST[c]&&ST[c].S[i]?{c:c,i:i,s:ST[c].S[i]}:null}
 function rSeg(id,cur,o,lab){return '<div class="seg" id="'+id+'" role="group" aria-label="'+lab+'">'+o.map(function(x){return '<button type="button" data-v="'+x[0]+'" aria-pressed="'+(cur===x[0])+'">'+x[1]+'</button>'}).join("")+'</div>'}
 function rStep(n,body,done){return '<div class="rstep'+(done?' done':'')+'"><span class="rn" aria-hidden="true">'+n+'</span><div>'+body+'</div></div>'}
 /* The chosen student beside the steps: where they are now and their latest level tests. */
-function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No student chosen</h2><p>Choose a student in step 2 to see '+(RK==="h"?'their house points':'their Memo target, Qaidah level and past level tests')+' here.</p></aside>';
+function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No student chosen</h2><p>Choose a student in step 2 to see '+(RK==="h"?'their house points':RK==="b"?'the books they have finished':'their Memo target, Qaidah level and past level tests')+' here.</p></aside>';
+ if(RK==="b"){var B=(s.bp||[]).slice().reverse();
+  return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
+   +'<dl class="rfacts"><div><dt>Quran level</dt><dd>'+(s.qa?qaLab(s.qa):'No level yet')+'</dd></div><div><dt>Books finished</dt><dd>'+B.length+'</dd></div></dl>'
+   +'<section class="rlast"><div class="mod-h"><h3>Book passes</h3></div>'
+   +(B.length?'<ul class="rhl">'+B.map(function(x){return '<li><b>'+esc(bkName(x.b))+'</b><span class="d">'+ds(x.t)+'</span><button type="button" class="btn sm quiet" data-r="bx" data-t="'+x.t+'" aria-label="Undo '+esc(bkName(x.b))+' on '+ds(x.t)+'">Undo</button></li>'}).join("")+'</ul>':'<p class="none">No book passes yet.</p>')+'</section></aside>'}
  if(RK==="h"){var H=(s.hp||[]).slice().reverse();
   return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
    +'<dl class="rfacts"><div><dt>House points</dt><dd>'+hp(s)+'</dd></div><div><dt>Coins</dt><dd class="rcoins">'+TOK.map(function(k){return '<span title="'+k[2]+' coins"><span class="tdot '+k[1]+'" aria-hidden="true"></span>'+(s[k[0]]||[]).length+'<span class="sr-only"> '+k[2].toLowerCase()+'</span></span>'}).join("")+'</dd></div></dl>'
    +'<section class="rlast"><div class="mod-h"><h3>Given on this page</h3></div>'
    +(H.length?'<ul class="rhl">'+H.map(function(x){var k=htk(x.r);return '<li><b>'+esc(hpr(x.r)[1])+'</b><span class="d">'+ds(x.t)+'</span><span class="rtok '+k[1]+'"><span class="tdot '+k[1]+'" aria-hidden="true"></span>+'+k[3]+'</span><button type="button" class="btn sm quiet" data-r="hx" data-t="'+x.t+'" aria-label="Undo '+esc(hpr(x.r)[1])+' on '+ds(x.t)+'">Undo</button></li>'}).join("")+'</ul>':'<p class="none">No house points given here yet.</p>')
-   +'<p class="cap">The total also counts coins from passed level tests.</p></section></aside>'}
+   +'<p class="cap">The total also counts coins from level tests passed before passes stopped giving points.</p></section></aside>'}
  var T=(s.tests||[]).slice().reverse().slice(0,5);
  return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
-  +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Qaidah</dt><dd>'+(s.qa?'Level '+s.qa:'No level yet')+'</dd></div></dl>'
+  +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Quran level</dt><dd>'+(s.qa?qaLab(s.qa):'No level yet')+'</dd></div></dl>'
   +'<section class="rlast"><div class="mod-h"><h3>Level tests</h3>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
-  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+(t.sc==null?'':t.sc+'/5, ')+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
+  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+(t.sc==null?'':t.sc+'/5, ')+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok" title="Given before house points moved to physical coins"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
 /* Step 2 is a search box: typing part of a name (or a teacher's name) narrows the list under it to the students who
    match, names starting with what was typed first, and clicking the box with nothing typed opens everyone, A to Z.
    Each student shows their teacher in brackets ("Adam Or (Ustadh Faeez)"); if two students with the same name share
@@ -509,7 +523,7 @@ var RL=[];
 function rAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s,i){A.push({s:s,c:c,i:i})})});
  return A.sort(function(a,b){return a.s.name.trim().localeCompare(b.s.name.trim(),undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function recPage(){var o=rStu(),s=o&&o.s,h='';
- h+=rStep(1,'<p class="rl">Record</p>'+rSeg("rK",RK,[["q","Quran test"],["m","Memo test"],["h","House points"]],"Record"),1);
+ h+=rStep(1,'<p class="rl">Record</p>'+rSeg("rK",RK,[["q","Quran test"],["m","Memo test"],["b","Book pass"]].concat(HPOFF?[]:[["h","House points"]]),"Record"),1);
  RL=rAll();(function(A){var n={},key=function(o){return o.s.name.trim().toLowerCase()+"|"+o.t};
   A.forEach(function(o){var cn=ST[o.c].name;o.t=cteach(cn)||cname(cn);n[key(o)]=(n[key(o)]||0)+1});
   A.forEach(function(o){o.v=o.c+"|"+o.i;o.b=n[key(o)]>1?cname(ST[o.c].name):o.t;o.k=nkey(o.s.name+" "+o.b)})})(RL);
@@ -518,17 +532,24 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
   +'<input type="text" id="rS" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="rSL" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="go" placeholder="Type a student\'s name" value="'+(ch?esc(rLab(ch)):'')+'"'+(CIDS.length?'':' disabled')+'>'
   +'<button type="button" class="rpx" aria-label="Clear the student"'+(ch?'':' hidden')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>'
   +'<div class="csm rsl" id="rSL" role="listbox" aria-label="Students" hidden></div></div>'
-  +(s?'':'<p class="rnow">'+(CIDS.length?(RK==="h"?'Choose a student to give house points.':'Choose a student to record their level test.'):'No classes yet.')+'</p>'),!!s);
+  +(s?'':'<p class="rnow">'+(CIDS.length?(RK==="h"?(HPOFF?'House points are paused. They now come from physical coins, which you count on Counted coins.':'Choose a student to give house points.'):RK==="b"?'Choose a student to record a book they finished.':'Choose a student to record their level test.'):'No classes yet.')+'</p>'),!!s);
  if(!s){refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  var b;
- if(RK==="h"){var lt=lvToday(s),c=RH&&hpr(RH),k=c&&htk(RH);if(RH==="lv"&&lt)RH="",c=k=null;
-  h+=rStep(3,'<p class="rl" id="rHl">What for</p><div class="rhp" role="group" aria-labelledby="rHl">'+HPR.map(function(x){var off=x[0]==="lv"&&lt,t=htk(x[0]);
-   return '<button type="button" data-h="'+x[0]+'" aria-pressed="'+(RH===x[0])+'"'+(off?' disabled':'')+'><span class="hpn">'+esc(x[1])+(x[0]==="lv"?'<small>'+(off?'Already given by today\'s level test':'A level test passed on this page gives this by itself')+'</small>':'')+'</span>'+hpCoin(x[0])+'<b class="hv">'+t[3]+'<span> points</span></b></button>'}).join("")+'</div>',!!RH);
+ if(RK==="b"){h+=rStep(3,'<p class="rl">Book finished</p>'+rSeg("rB",RB,BOOKS,"Book finished")+'<p class="cap">'+BOOKS.map(function(x){return x[1]+': '+x[2].toLowerCase()}).join(". ")+'.</p>',!!RB);
+  h+=rStep(4,'<p class="rl">Record</p><div class="racts"><button type="button" class="btn primary" data-r="b"'+(RB?'':' disabled')+'>Record book pass</button></div>'
+   +'<p class="cap">'+(RB?esc(fn(s))+' finished the '+esc(bkName(RB))+' today. It is logged as a pass, with no house points.':'Choose the book first.')+'</p>',0);
+  refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
+ if(RK==="h"){var lt=lvToday(s),c=!HPOFF&&RH&&hpr(RH),k=c&&htk(RH);if(HPOFF)RH="";if(RH==="lv"&&lt)RH="",c=k=null;
+  if(HPOFF)h+='<div class="rpause" role="note"><b>House points are paused</b><span>Teachers give physical house coins, students put them in the box at the office, and the admin counts them and adds each house\'s total on <a href="/admin/house-points">Counted coins</a>. Nothing can be given here, so no points go in by accident.</span></div>';
+  h+=rStep(3,'<p class="rl" id="rHl">What for</p><div class="rhp'+(HPOFF?' off':'')+'" role="group" aria-labelledby="rHl">'+HPR.map(function(x){var off=HPOFF||x[0]==="lv"&&lt,t=htk(x[0]);
+   return '<button type="button" data-h="'+x[0]+'" aria-pressed="'+(RH===x[0])+'"'+(off?' disabled':'')+'><span class="hpn">'+esc(x[1])+(x[0]==="lv"&&off?'<small>Already given by today\'s level test</small>':'')+'</span>'+hpCoin(x[0])+'<b class="hv">'+t[3]+'<span> points</span></b></button>'}).join("")+'</div>',!!RH);
   h+=rStep(4,'<p class="rl">Give</p><div class="racts"><button type="button" class="btn primary" data-r="h"'+(c?'':' disabled')+'>'+(c?'Give '+k[3]+' house points':'Give house points')+'</button></div>'
-   +'<p class="cap">'+(c?esc(fn(s))+' gets 1 '+k[2].toLowerCase()+' coin, '+k[3]+' points '+(s.house?'for '+esc(s.house):'(no house set yet, so no house total changes)')+'.':'Choose what the points are for first.')+'</p>',0);
+   +'<p class="cap">'+(HPOFF?'Paused while house points come from physical coins.':c?esc(fn(s))+' gets 1 '+k[2].toLowerCase()+' coin, '+k[3]+' points '+(s.house?'for '+esc(s.house):'(no house set yet, so no house total changes)')+'.':'Choose what the points are for first.')+'</p>',0);
   refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  if(RK==="q"){if(!RX)RX=Math.min((s.qa||0)+1,QAIDAH);
-  b='<label class="rl" for="rQ">Qaidah level tested</label><select id="rQ">'+Array.apply(null,{length:QAIDAH}).map(function(_,l){return '<option value="'+(l+1)+'"'+(RX===l+1?' selected':'')+'>Level '+(l+1)+'</option>'}).join("")+'</select>'}
+  var qo=function(a,z){var h='';for(var l=a;l<=z;l++)h+='<option value="'+l+'"'+(RX===l?' selected':'')+'>Level '+l+'</option>';return h};
+  b='<label class="rl" for="rQ">Level tested</label><select id="rQ"><optgroup label="Qaidah Book">'+qo(1,QBOOK)+'</optgroup><optgroup label="Tajweed Book">'+qo(QBOOK+1,QAIDAH)+'</optgroup></select>'
+   +'<p class="cap">'+(RX>QBOOK?'Tajweed Book, levels '+(QBOOK+1)+' to '+QAIDAH+'.':'Qaidah Book, levels 1 to '+QBOOK+'.')+'</p>'}
  else{if(!RX)RX=Math.min(Math.max(s.target,1),NB-1);var m=rMode();if(m==="lt"&&RX>BL)RX=BL;if(m==="is"&&!RI)RI=s.target<=BL?"b"+s.target:"s0";
   b='<p class="rl">Target tested</p>'+rSeg("rM",m,[["lt","Level and target"],["is","Item number and Surah"]],"Choose the target by");
   if(m==="lt"){var l=lv(RX);
@@ -539,12 +560,13 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
  h+=rStep(4,'<p class="rl">Score</p><div class="rsc" role="group" aria-label="Score out of 5">'+QC.map(function(c,k){return '<button type="button" data-sc="'+k+'" style="--c:'+c+'" aria-pressed="'+(RSC===k)+'">'+k+'</button>'}).join("")+'</div>'
   +'<div class="racts"><button type="button" class="btn primary" data-r="ok"'+(RSC<0||IS&&RI==="f"?' disabled':'')+'>Passed</button><button type="button" class="btn" data-r="no"'+(RSC<0?' disabled':'')+'>Not passed</button>'
   +(RK==="m"&&(!IS||RI.charAt(0)==="b")?'<button type="button" class="btn quiet" data-r="t">Set as current target, no test</button>':'')+'</div>'
-  +(IS?'<p class="cap">'+(RI==="f"?'Fail is recorded with Not passed, against '+esc(fn(s))+'\'s current target.':'A pass here is only logged as a pass, with no token or house points.')+'</p>'
-   :'<p class="cap rtokn"><span class="tdot b" aria-hidden="true"></span>A pass gives '+esc(fn(s))+' a blue token, '+TOK[1][3]+' house points.</p>'),RSC>=0);
+  +'<p class="cap">'+(IS&&RI==="f"?'Fail is recorded with Not passed, against '+esc(fn(s))+'\'s current target.':'A pass is logged as a pass, with no house points. Give house points on the House points tab.')+'</p>',RSC>=0);
  refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o))}
 function rDone(o,msg){persist(o.c);if(o.c===CID)render();recPage();toast(msg)}
-function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d=dk(now);if(!s.tests)s.tests=[];
- if(k==="h"){if(!RH||(RH==="lv"&&lvToday(s)))return;var c=htk(RH);if(!s.hp)s.hp=[];s[c[0]].push(now);s.hp.push({t:now,r:RH});var why=hpr(RH)[1];RH="";
+function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d=dk(now);if(!s.tests)s.tests=[];if(!s.bp)s.bp=[];
+ if(k==="b"){if(!RB)return;s.bp.push({t:now,b:RB});var bn=bkName(RB);RB="";rDone(o,nm+" finished the "+bn+", logged as a pass");return}
+ if(k==="bx"){var jb=-1;s.bp.forEach(function(y,j){if(y.t===arg)jb=j});if(jb<0)return;var gone=s.bp.splice(jb,1)[0];rDone(o,bkName(gone.b)+" pass taken back for "+nm);return}
+ if(k==="h"){if(HPOFF||!RH||(RH==="lv"&&lvToday(s)))return;var c=htk(RH);if(!s.hp)s.hp=[];s[c[0]].push(now);s.hp.push({t:now,r:RH});var why=hpr(RH)[1];RH="";
   rDone(o,nm+": +"+c[3]+" house points, "+why.toLowerCase()+(s.house?", for "+s.house:""));return}
  if(k==="hx"){var j0=-1;(s.hp||[]).forEach(function(y,j){if(y.t===arg)j0=j});if(j0<0)return;var x=s.hp.splice(j0,1)[0];var c2=htk(x.r),j2=s[c2[0]].lastIndexOf(x.t);if(j2>=0)s[c2[0]].splice(j2,1);
   rDone(o,c2[3]+" house points taken back from "+nm);return}
@@ -567,14 +589,14 @@ function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now
  if(RK==="q"){t.pq=s.qa||0;if(ok)s.qa=x}
  else if(ok){s.passes++;s.log.push(now);s.lt.push(x);s.lx.push("");s.target=Math.min(x+1,NB);s.hit=now}
  else{s.fl.push(now);s.target=x}
- if(ok){s.tb.push(now);t.tk=now}
  s.tests.push(t);s.q[d]=RSC;RSC=-1;RX=0;
- rDone(o,nm+(ok?" passed ":" did not pass ")+tLab(t)+" with "+t.sc+"/5"+(ok?" and got a blue token":""))}
+ rDone(o,nm+(ok?" passed ":" did not pass ")+tLab(t)+" with "+t.sc+"/5"+(ok?", logged as a pass":""))}
 $("recF").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
- var g=b.closest(".seg");if(g&&g.id==="rK"){RK=b.dataset.v;RM="";RX=0;RI="";RH="";recPage();return}
+ var g=b.closest(".seg");if(g&&g.id==="rK"){RK=b.dataset.v;RM="";RX=0;RI="";RH="";RB="";recPage();return}
+ if(g&&g.id==="rB"){RB=RB===b.dataset.v?"":b.dataset.v;recPage();var nb=$("rB");if(nb)nb.querySelector('[data-v="'+b.dataset.v+'"]').focus();return}
  if(g&&g.id==="rM"){RM=b.dataset.v;RI="";recPage();return}
  if(b.dataset.sc){RSC=+b.dataset.sc;recPage();return}
- if(b.dataset.h){RH=RH===b.dataset.h?"":b.dataset.h;recPage();var n=$("recF").querySelector('[data-h="'+b.dataset.h+'"]');if(n)n.focus();return}
+ if(b.dataset.h){if(HPOFF)return;RH=RH===b.dataset.h?"":b.dataset.h;recPage();var n=$("recF").querySelector('[data-h="'+b.dataset.h+'"]');if(n)n.focus();return}
  if(b.dataset.r)recAct(b.dataset.r,+b.dataset.t)});
 $("recF").addEventListener("change",function(e){var t=e.target;
  if(t.id==="rL")RX=LVS[+t.value]+1;else if(t.id==="rI")RI=t.value;else if(t.id==="rT"||t.id==="rQ")RX=+t.value;else return;
@@ -596,13 +618,13 @@ function rsAct(k,center){var L=rsBox(),I=$("rS");if(!L)return;var O=L.querySelec
  var t=on.offsetTop,b=t+on.offsetHeight;if(center)L.scrollTop=t-L.clientHeight/2+on.offsetHeight/2;else if(t<L.scrollTop)L.scrollTop=t-4;else if(b>L.scrollTop+L.clientHeight)L.scrollTop=b-L.clientHeight+4}
 function rsClose(keep){var L=rsBox(),I=$("rS");if(!L||L.hidden)return;L.hidden=true;RSA=-1;I.setAttribute("aria-expanded","false");I.removeAttribute("aria-activedescendant");
  if(!keep){var ch=RL.filter(function(x){return x.v===RS})[0];I.value=ch?rLab(ch):""}}
-function rsPick(v){rsClose(1);if(v!==RS){RS=v;RM="";RX=0;RI="";RSC=-1;RH=""}recPage();var I=$("rS");if(I)I.focus()}
+function rsPick(v){rsClose(1);if(v!==RS){RS=v;RM="";RX=0;RI="";RSC=-1;RH="";RB=""}recPage();var I=$("rS");if(I)I.focus()}
 $("recF").addEventListener("input",function(e){if(e.target.id==="rS")rsShow(e.target.value)});
 $("recF").addEventListener("focusin",function(e){if(e.target.id==="rS"&&RS)e.target.select()});
 $("recF").addEventListener("mousedown",function(e){if(e.target.closest(".rsl"))e.preventDefault()});
 $("recF").addEventListener("click",function(e){var o=e.target.closest(".rsl .cso");if(o){rsPick(o.dataset.v);return}
  if(e.target.id==="rS"&&rsBox().hidden){var ch=RL.filter(function(x){return x.v===RS})[0];if(ch&&e.target.value===rLab(ch)){var I=e.target;setTimeout(function(){I.select()},0)}rsShow(e.target.value)}
- if(e.target.closest(".rpx")){RS="";RM="";RX=0;RI="";RSC=-1;RH="";recPage();var I=$("rS");if(I){I.focus();rsShow("")}}});
+ if(e.target.closest(".rpx")){RS="";RM="";RX=0;RI="";RSC=-1;RH="";RB="";recPage();var I=$("rS");if(I){I.focus();rsShow("")}}});
 $("recF").addEventListener("mousemove",function(e){var o=e.target.closest(".rsl .cso");if(o){var O=Array.prototype.indexOf.call(rsBox().querySelectorAll(".cso"),o);if(O!==RSA)rsAct(O)}});
 $("recF").addEventListener("focusout",function(e){if(e.target.id==="rS")rsClose()});
 $("recF").addEventListener("keydown",function(e){if(e.target.id!=="rS")return;var L=rsBox(),k=e.key,open=!L.hidden;
@@ -1031,7 +1053,7 @@ function dockSet(){var inC=PAGE==="C",cls=TEACHER||inC;
 function cur(b,on){if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")}
 /* The overviews open with a greeting, as Journey2Jannah does, then say which overview this is. */
 function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("band").classList.toggle("greet",on);if(!on)return;
- if(PAGE==="R"){el.innerHTML='<span class="hsub">End-of-level tests and house points</span>';return}
+ if(PAGE==="R"){el.innerHTML='<span class="hsub">Level tests, book passes and house points</span>';return}
  var who=window.ME&&ME.name&&ME.name!=="Administrator"?" "+ME.name:"",c=TEACHER&&CIDS.length?lastC():"";
  $("ttl").textContent="Assalāmu ʿalaykum"+who+"!";
  /* On a phone a teacher mostly opens the app to enter the day's Quran scores, so one large button under the
@@ -1374,11 +1396,12 @@ function houseHtml(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.sli
    set now, as the totals do. The page breaks them down by student, class, AI class, family, gender, year group or
    what they were for, after the period, house, what-for and search filters; a row opens every award behind it.
    Points an admin added by hand for a whole house (/admin/house-points, in HOUSE_EXTRA from railway-storage.js) are
-   awards too, with no class or student: "Historical points". */
+   awards too, with no class or student: "Counted coins". Since house points moved to physical coins these are where
+   new points come from; the older entries are the school's historical points. */
 var HB="st",HPF={p:"all",h:"",r:"",q:""},HPSZ=10,HPX=[];
 var HBY=[["st","Students","Student"],["c","QM","QM class","Quran and Memorisation classes"],["ist","IA","AI class","Arabic and Islamic Studies classes"],["fid","Families","Family"],["gender","Gender","Gender"],["sy","Years","Year group","Year groups"],["r","Reasons","Reason"],["all","History","","Every award, newest first"]];
 var HPP=[["all","All time"],["d","Today"],["w","This week"],["m","This month"],["lm","Last month"],["30","Last 30 days"]];
-function hrLab(r){if(r==="hx")return "Historical points";if(r==="lt")return "Level test passed";if(r.charAt(0)==="q"&&r.length===2){var k=TOK.filter(function(x){return x[1]===r.charAt(1)})[0];return "Quran tab, "+(k?k[2].toLowerCase():"")+" coin"}
+function hrLab(r){if(r==="hx")return "Counted coins";if(r==="lt")return "Level test passed";if(r.charAt(0)==="q"&&r.length===2){var k=TOK.filter(function(x){return x[1]===r.charAt(1)})[0];return "Quran tab, "+(k?k[2].toLowerCase():"")+" coin"}
  var x=hpr(r);return x?x[1]:r}
 function hrKeys(){return HPR.map(function(x){return x[0]}).concat(["lt","hx"],TOK.map(function(k){return "q"+k[1]}))}
 /* Every coin in the school as {s, c, t, k: its TOK entry, r: what for}. */
@@ -1386,7 +1409,7 @@ function hpAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){v
   (s.hp||[]).forEach(function(x){var h=hpr(x.r),f=h?h[2]:"";(W[f+"|"+x.t]=W[f+"|"+x.t]||[]).push(x.r)});
   (s.tests||[]).forEach(function(t){if(t.ok&&t.tk)(W["tb|"+t.tk]=W["tb|"+t.tk]||[]).push("lt")});
   TOK.forEach(function(k){(s[k[0]]||[]).forEach(function(t){var w=W[k[0]+"|"+t];A.push({s:s,c:c,t:t,k:k,r:w&&w.length?w.shift():"q"+k[1]})})})})});
- var P={};(window.HOUSE_EXTRA||[]).forEach(function(e){var k=TOK.filter(function(x){return x[0]===e.coin})[0],h=P[e.house]=P[e.house]||{name:"Historical points",house:e.house};
+ var P={};(window.HOUSE_EXTRA||[]).forEach(function(e){var k=TOK.filter(function(x){return x[0]===e.coin})[0],h=P[e.house]=P[e.house]||{name:"Counted coins",house:e.house};
   if(k)for(var n=0;n<e.n;n++)A.push({s:h,c:"",t:e.given_at,k:k,r:"hx",note:e.note})});
  return A}
 function ocn(o){return o.c?cname(ST[o.c].name):"–"}
@@ -1396,11 +1419,11 @@ function hpQ(o,q){return nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).
 /* The awards the filters keep; the house cards ignore the house filter so all three can be compared. */
 /* The three sums under each house: book completions, Qaidah or Memorisation level completions (from the Record
    page's reason or a passed level test) and the house's historical points. */
-var HPKIND={bk:"bk",lv:"lv",lt:"lv",hx:"hx"},HPKL=[["bk","Book completion"],["lv","QM level completion"],["hx","Historical points"]];
+var HPKIND={bk:"bk",lv:"lv",lt:"lv",hx:"hx"},HPKL=[["bk","Book completion"],["lv","QM level completion"],["hx","Counted coins"]];
 function hpPick(anyHouse){var w=hpFrom(HPF.p),q=nkey(HPF.q);return hpAll().filter(function(o){
  return (!w||o.t>=w[0]&&o.t<w[1])&&(!HPF.r||o.r===HPF.r)&&(anyHouse||!HPF.h||(o.s.house||"-")===HPF.h)&&(!q||hpQ(o,q))})}
 function hpWhen(t){if(!(t>1e11))return "Date not recorded";var d=new Date(t);return d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})+", "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
-function hpGroup(o){var s=o.s;if(!o.c&&HB!=="r")return ["~"+(HB==="st"?s.house:""),HB==="st"?"Historical points, "+s.house:"Historical points"];switch(HB){
+function hpGroup(o){var s=o.s;if(!o.c&&HB!=="r")return ["~"+(HB==="st"?s.house:""),HB==="st"?"Counted coins, "+s.house:"Counted coins"];switch(HB){
  case "st":return [o.c+"|"+ST[o.c].S.indexOf(s),s.name];case "c":return [o.c,ocn(o)];
  case "ist":return [s.ist||"",s.ist?cname(s.ist):"No AI class"];case "fid":var f=String(s.fid||"").trim();return [f.toUpperCase(),f||"No Family ID"];
  case "gender":return [s.gender||"",s.gender||"Gender not recorded"];case "sy":return [s.sy||"",s.sy||"Year group not recorded"];
@@ -1428,7 +1451,7 @@ function hpRows(){var L=hpPick(0),G={},O=[],cols=HPF.h?[]:HOUSES.slice(),fon=HPF
  $("hpH").innerHTML=hpHouses(hpPick(1));
  if(!HPF.h&&L.some(function(o){return HOUSES.indexOf(o.s.house)<0}))cols.push("-");
  hpChips();
- if(!L.length){HPX=[];$("hpL").innerHTML='<div class="empty"><b>'+(fon?'No house points match':'No house points yet')+'</b>'+(fon?'Try a longer period, or clear the search and filters.':'They are given on the Record page and from a student\'s name on the Quran tab.')+'</div>';return}
+ if(!L.length){HPX=[];$("hpL").innerHTML='<div class="empty"><b>'+(fon?'No house points match':'No house points yet')+'</b>'+(fon?'Try a longer period, or clear the search and filters.':'Teachers give physical house coins, and the admin adds each house\'s count on Counted coins.')+'</div>';return}
  if(HB==="all"){HPX=L.slice().sort(function(a,b){return b.t-a.t});$("hpL").innerHTML=hpList(HPX,1);return}
  L.forEach(function(o){var g=hpGroup(o),x=G[g[0]];if(!x){x=G[g[0]]={k:g[0],name:g[1],o:o,L:[],h:{},st:[]};O.push(x)}x.L.push(o);
   var h=HOUSES.indexOf(o.s.house)<0?"-":o.s.house;x.h[h]=(x.h[h]||0)+o.k[3];if(o.c&&x.st.indexOf(o.s)<0)x.st.push(o.s)});

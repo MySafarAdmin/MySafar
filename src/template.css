@@ -1206,6 +1206,11 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .rhp button:hover:not(:disabled){border-color:color-mix(in srgb,var(--navy) 40%,var(--line))}
 .rhp button[aria-pressed="true"]{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);background:color-mix(in srgb,var(--navy) 4%,var(--surface))}
 .rhp button:disabled{cursor:not-allowed;background:var(--bg);color:var(--mute)}
+.rhp.off{opacity:.7}
+.rhp.off .hcoin,.rhp.off .hv{filter:grayscale(1)}
+.rpause{display:flex;flex-direction:column;gap:4px;max-width:560px;margin:0 0 4px;padding:14px 16px;border-radius:var(--r);background:var(--gold-soft);border:1px solid color-mix(in srgb,var(--gold) 30%,var(--line));font-size:.9375rem;line-height:1.5;color:var(--ink)}
+.rpause b{font-weight:700;color:var(--navy)}
+.rpause a{color:var(--navy);font-weight:600}
 .rhp .hpn{font-weight:700;min-width:0}
 .rhp .hpn small{display:block;margin-top:2px;font-weight:500;font-size:.8125rem;color:var(--mute)}
 .hcoin{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:.75rem;font-weight:700;white-space:nowrap}

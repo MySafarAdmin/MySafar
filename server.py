@@ -15,6 +15,7 @@ import logging
 import os
 import re
 import time
+from collections import Counter
 from datetime import date
 from pathlib import Path
 from urllib.parse import quote
@@ -43,7 +44,8 @@ DETAILS = ("sid", "fid", "gender", "year", "sy", "ist", "dob")
 STUDENT_NUMBER = re.compile(r"SE(\d+)", re.IGNORECASE)
 MAX_CLASSES = 500
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
-QAIDAH_LEVELS = 20  # keep in step with QAIDAH in src/page.html
+QAIDAH_LEVELS = 20  # keep in step with QAIDAH in src/page.html; 1 to 13 are the Qaidah Book, 14 to 20 the Tajweed Book
+BOOKS = ("q", "t")  # book passes: Qaidah Book, Tajweed Book (BOOKS in src/page.html)
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
@@ -55,6 +57,11 @@ PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js"
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
 # /tv/<token> is a TV screen link; tv.py checks the token.
 PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/")
+
+
+def coins(state):
+    """Every house coin in a class, counted by colour and the time it was given."""
+    return Counter((k, t) for s in state.get("S", []) for k in TOKEN_POINTS for t in s.get(k, []))
 
 
 def valid_state(state):
@@ -132,6 +139,12 @@ def valid_state(state):
             tokens = student.get(key, [])
             if not isinstance(tokens, list) or not all(type(n) in (int, float) and n >= 0 for n in tokens):
                 return False
+        # Book passes from the Record page: when ("t") and which book ("b": the Qaidah Book "q" or the Tajweed Book "t").
+        # They give no house points.
+        books = student.get("bp", [])
+        if not isinstance(books, list) or not all(
+                isinstance(x, dict) and type(x.get("t")) in (int, float) and x["t"] >= 0 and x.get("b") in BOOKS for x in books):
+            return False
         # House points from the Record page: when ("t", the time its token was given) and what for ("r").
         given = student.get("hp", [])
         if not isinstance(given, list) or not all(
@@ -474,6 +487,9 @@ def create_app(test_config=None):
                                          (class_id, document["revision"])).fetchone()
                     if current and len(json.loads(current["json"]).get("S", [])) != len(state["S"]):
                         return jsonify(error="Only an admin can add or remove students."), 403
+                    # House points are given by admins only (on the Record page and Counted coins).
+                    if current and coins(state) - coins(json.loads(current["json"])):
+                        return jsonify(error="Only an admin can give house points."), 403
                 cursor = db.execute("UPDATE classrooms SET json = ?, revision = revision + 1 WHERE id = ? AND revision = ?",
                                     (encoded, class_id, document["revision"]))
             if cursor.rowcount:

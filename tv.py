@@ -200,8 +200,8 @@ def summary(rows, now=None, teachers=(), extra=None):
             house = s.get("house", "")
             if house in houses:
                 houses[house] += sum(len(s.get(k, [])) * v for k, v in TOKEN_POINTS.items())
-            # A red token is given for completing a book.
-            if since(s.get("tr", []), month):
+            # A book pass from the Record page, or a red token from before house points moved to physical coins.
+            if book_passed(s, month):
                 books.append({"name": name, "class": label, "house": house})
             passes = since(s.get("log", []), month)
             levels = levels_passed(s, month_key, today_key)
@@ -234,6 +234,12 @@ def summary(rows, now=None, teachers=(), extra=None):
     }
 
 
+def book_passed(student, start):
+    """Whether the student finished a book since start (ms): a Record page book pass, or an older red token."""
+    times = [x.get("t", 0) for x in student.get("bp") or [] if isinstance(x, dict)]
+    return bool(since(times, start) or since(student.get("tr", []), start))
+
+
 QURAN_DAYS = 3  # Quran scores a student needs this month to be on the Quran podium
 
 
@@ -260,7 +266,7 @@ def class_summary(row, now=None):
                        ("points", points), ("merits", since(s.get("ml", []), month))):
             if n:
                 tops[key].append(dict(entry, n=n))
-        if since(s.get("tr", []), month):
+        if book_passed(s, month):
             books.append(entry)
         students.append((s, name, house))
     stars = []

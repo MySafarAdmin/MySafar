@@ -1,6 +1,6 @@
 """Admin Import page (/admin/import): CSVs that become the students' whole record of one kind of pass.
 
-Memorisation passes and Qaidah/Tajwid level passes each have a CSV with a Date (dd/mm/yyyy hh:mm:ss, London time; a
+Memorisation passes and Qaidah/Tajweed level passes each have a CSV with a Date (dd/mm/yyyy hh:mm:ss, London time; a
 date alone counts as midday), a Student ID (SE0001; a Name instead when a row has no ID) and a Target or Level, and
 an optional Score (0 to 5) for level passes. Students are matched by their Student ID, or an earlier one (s.xid).
 A name two students share needs a choice on the page.
@@ -56,7 +56,7 @@ DATES = ("%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y", "%Y-%m-%d %H:%M:%S",
 ID_COLUMNS = ("student id", "id", "mysafar id", "se", "se id", "se number", "student number")
 # Each kind: its page title, the column that says what was passed, and what clearing takes away.
 KINDS = {"memo": {"title": "Memorisation passes", "what": ("target",), "what_name": "Target"},
-         "qaidah": {"title": "Qaidah/Tajwid level passes", "what": ("level", "target"), "what_name": "Level"}}
+         "qaidah": {"title": "Qaidah/Tajweed level passes", "what": ("level", "target"), "what_name": "Level"}}
 
 
 def rows(text, kind):
@@ -179,7 +179,7 @@ def add_qaidah(r, events):
     if kind == "fail":
         r["status"] = "fail"
     else:
-        r["label"] = f"Qaidah Level {value}"
+        r["label"] = f"{'Tajweed' if value > 13 else 'Qaidah'} Level {value}"
         if any(n == value for _, n, _, _ in events):
             r["status"] = "repeat"
             return

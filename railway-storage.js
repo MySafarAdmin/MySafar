@@ -46,7 +46,7 @@
     heading.textContent = "Administration";
     adminNav.appendChild(heading);
     [["Manage users", "/admin/users", "users"], ["Class history", "/admin/history", "history"],
-     ["Activity", "/admin/activity", "activity"], ["TV screens", "/admin/tv", "tv"], ["Historical points", "/admin/house-points", "pie"],
+     ["Activity", "/admin/activity", "activity"], ["TV screens", "/admin/tv", "tv"], ["Counted coins", "/admin/house-points", "pie"],
      ["Spreadsheet", "/admin/export", "sheet"], ["Import", "/admin/import", "upload"], ["FAQs", "/admin/faqs", "faq"]].forEach(function (l) {
       var a = document.createElement("a");
       a.className = "nav"; a.href = l[1];
