@@ -25,7 +25,7 @@ label.check input{margin:0}
 .accounts>h2{padding:16px 20px 12px;margin:0;border-bottom:1px solid var(--line)}
 details.user{border-bottom:1px solid var(--line)}
 details.user:last-child{border-bottom:0}
-details.user summary{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;padding:12px 20px;min-height:60px}
+details.user summary{display:flex;flex-wrap:wrap;gap:8px 14px;justify-content:flex-start;align-items:center;cursor:pointer;list-style:none;padding:12px 20px;min-height:60px}
 details.user summary::-webkit-details-marker{display:none}
 details.user summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);margin-left:4px;flex:none}
 details.user[open] summary::after{transform:rotate(-135deg)}
@@ -37,7 +37,8 @@ details.user .who .sub{font-size:.875rem;overflow-wrap:anywhere}
 details.user .tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-left:auto}
 details.user .body{padding:4px 20px 20px;background:var(--surface-2)}
 details.user .body>p:first-child{margin-top:4px}
-details.user.off .who{opacity:.7}
+details.user.off .who,details.user.off .av{opacity:.7}
+details.user .av{--av:40px}
 .invite,.mail{margin-top:24px;scroll-margin-top:24px}
 .mail form{margin-top:12px}
 .invite{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:24px 16px;background:rgba(15,28,45,.32);
@@ -223,3 +224,60 @@ fieldset.hold:disabled input{opacity:1;-webkit-text-fill-color:currentColor}
 .faq details.faqedit[open]{display:block}
 .faq details.faqedit form{max-width:none;padding:12px 14px}
 .faqnone{margin:0}
+
+/* Profile picture on the Account page (avatars.py, avatar.js). The picture is a button for choosing a new one: on
+   hover it lifts and a camera fades in. */
+.pfp{display:flex;align-items:center;gap:20px 24px;flex-wrap:wrap;margin-bottom:20px}
+.pfp-pic{position:relative;border-radius:50%;cursor:pointer;flex:none;transition:transform .35s cubic-bezier(.2,.9,.3,1.2),box-shadow .35s ease}
+.pfp-pic .av{--av:96px;box-shadow:0 0 0 4px #fff,0 0 0 5px var(--line)}
+.pfp-pic:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 12px 28px rgba(15,28,45,.16)}
+.pfp-cam{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;background:rgba(0,44,82,.5);color:#fff;opacity:0;transition:opacity .25s ease}
+.pfp-cam svg{width:30px;height:30px;transform:scale(.8);transition:transform .35s cubic-bezier(.2,.9,.3,1.3)}
+.pfp-pic:hover .pfp-cam,.pfp:has(#pfpfile:focus-visible) .pfp-cam{opacity:1}
+.pfp-pic:hover .pfp-cam svg{transform:none}
+.pfp-txt{flex:1 1 280px;min-width:0}
+.pfp-txt h2{margin-bottom:4px}
+.pfp-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pfp-acts form{margin:0;display:flex;gap:8px;flex-wrap:wrap}
+.pfp-up:has(#pfpfile:focus-visible) label.btn{outline:2px solid var(--focus);outline-offset:2px}
+.pfp.js .pfp-send{display:none}
+.pfp-msg{margin:10px 0 0;font-size:.875rem;font-weight:650;color:var(--ok-ink);min-height:0}
+.pfp-msg:empty{display:none}
+.pfp-msg.bad{color:var(--bad-ink)}
+.pfp .av.pop{animation:pfp-pop .6s cubic-bezier(.2,.9,.3,1.25) both}
+@keyframes pfp-pop{from{opacity:0;transform:scale(.6);filter:blur(6px)}}
+
+/* The cropper: a pop-up over the blurred page, as Invite staff. The photo moves and zooms under a round frame. */
+.crop{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:24px 16px}
+.crop[hidden]{display:none}
+.cropbg{position:fixed;inset:0;background:rgba(15,28,45,.32);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.cropcard{position:relative;width:min(560px,100%);max-height:calc(100dvh - 48px);overflow-y:auto;border-radius:20px;padding:24px;box-shadow:0 24px 60px rgba(15,28,45,.28)}
+.cropcard>h2{margin-bottom:4px}
+.cropmain{display:flex;gap:20px;align-items:center;margin:16px 0 12px;flex-wrap:wrap;justify-content:center}
+.cropstage{--s:280px;position:relative;width:var(--s);height:var(--s);border-radius:16px;overflow:hidden;background:var(--sunk);cursor:grab;touch-action:none;flex:none;user-select:none}
+.cropstage:active{cursor:grabbing}
+.cropstage:focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.cropstage img{position:absolute;left:0;top:0;transform-origin:0 0;max-width:none;pointer-events:none;will-change:transform}
+.cropring{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 999px rgba(15,28,45,.5);outline:2px solid rgba(255,255,255,.9);outline-offset:-2px;pointer-events:none}
+.cropside{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cropprev{display:block;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #fff,0 0 0 4px var(--line);background:var(--sunk)}
+.cropprev canvas{display:block;width:38px;height:38px}
+.cropprev.big canvas{width:80px;height:80px}
+.cropzoom{display:flex;align-items:center;gap:10px;color:var(--mute);max-width:360px;margin:0 auto 4px}
+.cropzoom svg{width:20px;height:20px;flex:none}
+.cropzoom input{flex:1;accent-color:var(--primary)}
+.cropacts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.cropacts .sp{flex:1}
+@media (max-width:519.98px){.cropstage{--s:min(280px,calc(100vw - 80px))}.cropside{flex-direction:row}.cropcard{padding:20px 16px}}
+.crop.in .cropbg{animation:crop-bg .3s ease both}
+.crop.in .cropcard{animation:crop-in .5s cubic-bezier(.2,.9,.3,1.12) both}
+.crop.in .cropstage img{animation:crop-img .6s .12s cubic-bezier(.2,.9,.3,1) both}
+.crop.out .cropbg{animation:crop-bg .24s ease reverse both}
+.crop.out .cropcard{animation:crop-out .24s ease both}
+@keyframes crop-bg{from{opacity:0;-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}}
+@keyframes crop-in{from{opacity:0;transform:translateY(16px) scale(.95);filter:blur(5px)}}
+@keyframes crop-out{to{opacity:0;transform:translateY(8px) scale(.97);filter:blur(4px)}}
+@keyframes crop-img{from{opacity:0;filter:blur(8px)}}
+body:has(.crop:not([hidden])){overflow:hidden}
+@media (prefers-reduced-motion:reduce){.pfp-pic,.pfp-cam,.pfp-cam svg{transition:none}.pfp-pic:hover{transform:none}
+ .pfp .av.pop,.crop.in .cropbg,.crop.in .cropcard,.crop.in .cropstage img,.crop.out .cropbg,.crop.out .cropcard{animation:none}}

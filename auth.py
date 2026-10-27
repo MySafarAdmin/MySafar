@@ -61,7 +61,8 @@ ACTIONS = {
     "tv.revoked": "Turned off a TV screen link", "tv.settings": "Changed a TV screen's settings",
     "email.test": "Sent a test email", "export.downloaded": "Downloaded the school spreadsheet",
     "help.sent": "Sent a Help or Requests message", "help.replied": "Replied on FAQs",
-    "help.deleted": "Deleted a FAQs message",
+    "help.deleted": "Deleted a FAQs message", "avatar.changed": "Changed their profile picture",
+    "avatar.removed": "Removed their profile picture",
 }
 
 
@@ -165,7 +166,7 @@ def load_session():
     with db().transaction() as tx:
         row = tx.execute(
             "SELECT s.token_hash, s.csrf, s.last_seen_at, s.expires_at, u.id, u.email, u.name, u.role, u.must_change, "
-            "u.disabled FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?",
+            "u.disabled, u.avatar_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?",
             (token_hash(token),)).fetchone()
         if not row:
             return
@@ -177,7 +178,7 @@ def load_session():
         if t - row["last_seen_at"] >= MINUTE:
             tx.execute("UPDATE sessions SET last_seen_at = ? WHERE token_hash = ?", (t, row["token_hash"]))
     g.session = {"token_hash": row["token_hash"], "csrf": row["csrf"]}
-    g.user = {k: row[k] for k in ("id", "email", "name", "role", "must_change")}
+    g.user = {k: row[k] for k in ("id", "email", "name", "role", "must_change", "avatar_at")}
 
 
 def start_session(tx, user_id):
@@ -418,11 +419,16 @@ def other_sessions(tx):
                       (g.user["id"], g.session["token_hash"], now())).fetchone()["n"]
 
 
+def account_page(status=200, **context):
+    if "others" not in context:
+        with db().transaction() as tx:
+            context["others"] = other_sessions(tx)
+    return page("account.html", status, **context)
+
+
 @bp.get("/account")
 def account():
-    with db().transaction() as tx:
-        others = other_sessions(tx)
-    return page("account.html", others=others)
+    return account_page()
 
 
 @bp.post("/account/password")
@@ -479,7 +485,7 @@ def classrooms(tx):
 def users_page(status=200, **context):
     with db().transaction() as tx:
         users = [dict(row) for row in tx.execute(
-            "SELECT id, email, name, role, disabled, password_hash IS NOT NULL AS active, last_login_at FROM users "
+            "SELECT id, email, name, role, disabled, password_hash IS NOT NULL AS active, last_login_at, avatar_at FROM users "
             "ORDER BY disabled, role, name").fetchall()]
         members = {}
         for row in tx.execute("SELECT class_id, user_id FROM classroom_members").fetchall():

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_avatar.html" import avatar %}
 {% block title %}Your account{% endblock %}
 {% block body_class %}{{ "solo" if user.must_change else "app" }}{% endblock %}
 {% block width %} narrow{% endblock %}
@@ -10,6 +11,40 @@
   <p class="lede">You signed in with the shared setup password. Choose a password only you know before continuing.</p>
 {% else %}
 <div class="band slim"><div class="band-top"><h1>Your account</h1></div><p class="lede">Signed in as {{ user.email }} ({{ "administrator" if user.role == "admin" else "teacher" }})</p></div>
+{# Profile picture. Without scripts the form uploads the photo as it is and the server crops it square; with
+   /avatar.js, choosing a photo opens the cropper below, which sends the picture as framed. #}
+<div class="mod line pfp" id="picture">
+  <label class="pfp-pic" for="pfpfile" title="Change your picture">{{ avatar(user.id, user.name, user.avatar_at, 96) }}<span class="pfp-cam" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5h3l1.6-2.5h6.8L17 8.5h3v10H4z"/><circle cx="12" cy="13" r="3.3"/></svg></span></label>
+  <div class="pfp-txt">
+    <h2>Profile picture</h2>
+    <p class="sub">Shown by your name at the bottom of the menu and on Manage users. Without one, the first letter of your name shows.</p>
+    <div class="pfp-acts">
+      <form method="post" action="/account/avatar" enctype="multipart/form-data" class="pfp-up">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <label class="btn" for="pfpfile">{{ "Change picture" if user.avatar_at else "Add a picture" }}</label>
+        <input type="file" id="pfpfile" name="photo" accept="image/jpeg,image/png,image/webp,image/gif" class="sr-only">
+        <button class="btn primary pfp-send">Upload</button>
+      </form>
+      {% if user.avatar_at %}
+      <form method="post" action="/account/avatar/remove" class="pfp-rm"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn">Remove picture</button></form>
+      {% endif %}
+    </div>
+    <p class="pfp-msg" role="status" aria-live="polite"></p>
+  </div>
+</div>
+<div class="crop" id="crop" hidden>
+  <div class="cropbg"></div>
+  <div class="mod cropcard" role="dialog" aria-modal="true" aria-labelledby="cropt">
+    <h2 id="cropt">Adjust your picture</h2>
+    <p class="sub">Drag to move it. Zoom with the slider, the mouse wheel or two fingers.</p>
+    <div class="cropmain">
+      <div class="cropstage" tabindex="0" aria-label="Picture position. Use the arrow keys to move it and plus or minus to zoom."><img alt="" draggable="false"><span class="cropring" aria-hidden="true"></span></div>
+      <div class="cropside" aria-hidden="true"><span class="sub">Preview</span><span class="cropprev big"><canvas width="160" height="160"></canvas></span><span class="cropprev"><canvas width="76" height="76"></canvas></span></div>
+    </div>
+    <label class="cropzoom"><span class="sr-only">Zoom</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11h6M16 16l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="range" min="1" max="4" step="0.01" value="1"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 11h6M11 8v6M16 16l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></label>
+    <div class="cropacts"><button type="button" class="btn" data-crop="reset">Reset</button><span class="sp"></span><button type="button" class="btn" data-crop="cancel">Cancel</button><button type="button" class="btn primary" data-crop="save">Save picture</button></div>
+  </div>
+</div>
 <div class="g12"><div class="mod line s7">
   <h2>Change your password</h2>
   <p class="sub">You'll stay signed in on this device.</p>
@@ -37,4 +72,5 @@
   {% endif %}
 </div></div>
 {% endif %}
+{% if not user.must_change %}<script src="/avatar.js" defer></script>{% endif %}
 {% endblock %}

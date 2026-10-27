@@ -23,6 +23,7 @@ from flask import Flask, Response, abort, g, jsonify, redirect, request
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import auth
+import avatars
 import cleanup
 import set_houses
 import export
@@ -153,6 +154,9 @@ PAGE_CSP = ("default-src 'none'; style-src 'self'; img-src 'self'; font-src 'sel
             "base-uri 'none'")
 # The sign-in page also runs one script of ours, /intro.js, which focuses the email field after the opening.
 LOGIN_CSP = PAGE_CSP + "; script-src 'self'"
+# The Account page runs /avatar.js, the profile picture cropper, which shows the chosen photo from a blob: address
+# and sends the cropped picture with fetch.
+ACCOUNT_CSP = PAGE_CSP.replace("img-src 'self'", "img-src 'self' blob:") + "; script-src 'self'; connect-src 'self'"
 # Email previews are styled inline, as emails must be; they have no scripts or forms.
 EMAIL_PREVIEW_CSP = ("default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'none'; "
                      "frame-ancestors 'none'; base-uri 'none'")
@@ -233,6 +237,7 @@ def create_app(test_config=None):
                                            app.config["MAIL_REDIRECT_TO"].strip(),
                                            app.config["MAIL_REPLY_TO"] or app.config["SUPPORT_EMAIL"]))
     app.register_blueprint(auth.bp)
+    app.register_blueprint(avatars.bp)
     app.register_blueprint(tv.bp)
     app.register_blueprint(cleanup.bp)
     app.register_blueprint(set_houses.bp)
@@ -282,7 +287,9 @@ def create_app(test_config=None):
     def private_responses(response):
         # The font files are public and never change; everything else is private.
         # The logo is public too, and email apps fetch it for every email they show.
-        response.headers["Cache-Control"] = "public, max-age=604800" if (request.path.startswith("/fonts/")
+        # A profile picture sets its own (private) caching, as its address changes with the picture.
+        if not (request.path.startswith("/avatar/") and response.status_code == 200):
+            response.headers["Cache-Control"] = "public, max-age=604800" if (request.path.startswith("/fonts/")
             or request.path in ("/logo.png", "/favicon.png", "/favicon.ico")) and response.status_code == 200 else "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
@@ -291,7 +298,7 @@ def create_app(test_config=None):
                                                         and response.mimetype == "text/html" and response.status_code == 200)
         response.headers["Content-Security-Policy"] = DASHBOARD_CSP if dashboard else \
             EMAIL_PREVIEW_CSP if request.path.startswith("/admin/email/preview/") else \
-            LOGIN_CSP if request.path == "/login" else PAGE_CSP
+            LOGIN_CSP if request.path == "/login" else ACCOUNT_CSP if request.path == "/account" else PAGE_CSP
         if app.config["COOKIE_SECURE"]:
             response.headers["Strict-Transport-Security"] = "max-age=31536000"
         return response
@@ -331,6 +338,10 @@ def create_app(test_config=None):
     def intro_js():
         return Response((ROOT / "static" / "intro.js").read_text(encoding="utf-8"), mimetype="text/javascript")
 
+    @app.get("/avatar.js")
+    def avatar_js():
+        return Response((ROOT / "static" / "avatar.js").read_text(encoding="utf-8"), mimetype="text/javascript")
+
     @app.get("/fonts/<name>")
     def font(name):
         if name not in FONTS:
@@ -341,7 +352,8 @@ def create_app(test_config=None):
     def dashboard():
         fresh = bool(request.cookies.get(auth.fresh_cookie_name()))
         me = {"name": g.user["name"], "email": g.user["email"], "role": g.user["role"], "csrf": g.session["csrf"],
-              "fresh": fresh}
+              "fresh": fresh, "initial": avatars.initial(g.user["name"]),
+              "avatar": avatars.url(g.user["id"], g.user["avatar_at"])}
         html = (ROOT / "Master_Dashboard_standalone.html").read_text(encoding="utf-8")
         html = html.replace("<script>", f"<script>window.RAILWAY=true;window.ME={script_json(me)};{TAB_GUARD}</script>\n<script>", 1)
         html = html.replace("<header>", "<header inert>").replace("<main>", "<main inert>")

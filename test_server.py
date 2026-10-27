@@ -108,6 +108,73 @@ class DashboardTests:
     def form(self, client, page, action, **data):
         return client.post(action, data=dict(data, csrf=csrf_of(client.get(page))))
 
+    def picture(self, size=(640, 480), fmt="PNG", **save):
+        from PIL import Image
+        out = io.BytesIO()
+        Image.new("RGB", size, "#3366cc").save(out, fmt, **save)
+        return out.getvalue()
+
+    def upload_picture(self, client, data, json_reply=True):
+        headers = {"Accept": "application/json"} if json_reply else {}
+        return client.post("/account/avatar", headers=headers, content_type="multipart/form-data",
+                           data={"csrf": csrf_of(client.get("/account")), "photo": (io.BytesIO(data), "me.png")})
+
+    def test_profile_picture_default_is_first_initial(self):
+        page = self.client.get("/account").get_data(as_text=True)
+        self.assertIn('<span class="av" aria-hidden="true">A</span>', page)
+        self.assertIn("Add a picture", page)
+        self.assertNotIn("Remove picture", page)
+        self.assertIn("script-src 'self'", self.client.get("/account").headers["Content-Security-Policy"])
+        self.assertIn('"initial": "A", "avatar": null', self.client.get("/").get_data(as_text=True))
+
+    def test_profile_picture_upload_is_reencoded_and_shown(self):
+        from PIL import Image
+        exif = Image.Exif()
+        exif[0x010F] = "Secret Camera"
+        reply = self.upload_picture(self.client, self.picture((900, 600), "JPEG", exif=exif.tobytes()))
+        self.assertEqual(reply.status_code, 200, reply.data)
+        url = reply.get_json()["url"]
+        self.assertRegex(url, r"^/avatar/\d+\?v=\d+$")
+        served = self.client.get(url)
+        self.assertEqual(served.mimetype, "image/jpeg")
+        self.assertIn("private", served.headers["Cache-Control"])
+        with Image.open(io.BytesIO(served.data)) as image:
+            self.assertEqual((image.format, image.size), ("JPEG", (256, 256)))
+            self.assertNotIn(0x010F, image.getexif())
+        self.assertNotIn(b"Secret Camera", served.data)
+        # Shown by the name in the menu, on the dashboard, on Manage users and to other staff.
+        self.assertIn(url, self.client.get("/account").get_data(as_text=True))
+        self.assertIn(url, self.client.get("/").get_data(as_text=True))
+        self.assertIn(url.replace("&", "&amp;"), self.client.get("/admin/users").get_data(as_text=True))
+        self.add_user("teacher@example.com")
+        teacher = self.sign_in("teacher@example.com", "teacher-password-1")
+        self.assertEqual(teacher.get(url).status_code, 200)
+        self.assertEqual(self.app.test_client().get(url).status_code, 302)
+        self.assertEqual(len(self.query("SELECT 1 FROM audit_log WHERE action = 'avatar.changed'")), 1)
+        # Removing it brings the initial back.
+        self.form(self.client, "/account", "/account/avatar/remove")
+        self.assertEqual(self.client.get(url).status_code, 404)
+        self.assertIn('<span class="av" aria-hidden="true">A</span>', self.client.get("/account").get_data(as_text=True))
+
+    def test_profile_picture_rejects_files_that_are_not_pictures(self):
+        for data in (b"<svg xmlns='http://www.w3.org/2000/svg'/>", b"%PDF-1.4", b"", self.picture(fmt="BMP")):
+            reply = self.upload_picture(self.client, data)
+            self.assertEqual(reply.status_code, 400)
+            self.assertFalse(reply.get_json()["ok"])
+        self.assertEqual(self.query("SELECT COUNT(*) AS n FROM avatars")[0]["n"], 0)
+        # A plain form post (no scripts) gets the Account page back with the error.
+        reply = self.upload_picture(self.client, b"not a picture", json_reply=False)
+        self.assertEqual(reply.status_code, 400)
+        self.assertIn("couldn", reply.get_data(as_text=True))
+        reply = self.upload_picture(self.client, self.picture(), json_reply=False)
+        self.assertIn("Profile picture saved.", reply.get_data(as_text=True))
+        self.assertIn("Remove picture", reply.get_data(as_text=True))
+
+    def test_profile_picture_needs_form_token(self):
+        reply = self.client.post("/account/avatar", content_type="multipart/form-data",
+                                 data={"photo": (io.BytesIO(self.picture()), "me.png")})
+        self.assertEqual(reply.status_code, 400)
+
     def test_first_admin_needs_admin_email(self):
         with self.assertRaisesRegex(RuntimeError, "ADMIN_EMAIL"):
             create_app(dict(self.config, DATABASE_URL=self.database_url(), DATA_DIR=Path(self.temp.name) / "new",

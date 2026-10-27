@@ -1,4 +1,4 @@
-{% from "_icons.html" import icon %}<!DOCTYPE html>
+{% from "_icons.html" import icon %}{% from "_avatar.html" import avatar %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -48,7 +48,7 @@
     <a class="nav j2j j2jb" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
   </nav>
   <div class="me">
-    <div class="who"><b>{{ user.name }}</b><span>{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></div>
+    <div class="who">{{ avatar(user.id, user.name, user.avatar_at, 38) }}<div class="wt"><b>{{ user.name }}</b><span>{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></div></div>
     <div class="row">
       <a class="linkbtn" href="/account"{{ ' aria-current="page"'|safe if here == "/account" }}>Account</a>
       <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="linkbtn">Sign out</button></form>
