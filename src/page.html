@@ -498,16 +498,23 @@ function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No s
   +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Qaidah</dt><dd>'+(s.qa?'Level '+s.qa:'No level yet')+'</dd></div></dl>'
   +'<section class="rlast"><div class="mod-h"><h3>Level tests</h3>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
   +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+(t.sc==null?'':t.sc+'/5, ')+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
-/* Step 2 lists every student in one list, A to Z by name, each with their teacher in brackets ("Adam Or (Ustadh Faeez)");
-   if two students with the same name share a teacher too, the year and class letter are added. */
+/* Step 2 is a search box: typing part of a name (or a teacher's name) narrows the list under it to the students who
+   match, names starting with what was typed first, and clicking the box with nothing typed opens everyone, A to Z.
+   Each student shows their teacher in brackets ("Adam Or (Ustadh Faeez)"); if two students with the same name share
+   a teacher too, the year and class letter are added. Arrows move, Enter picks, Escape closes. RL is the list. */
+var RL=[];
 function rAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s,i){A.push({s:s,c:c,i:i})})});
  return A.sort(function(a,b){return a.s.name.trim().localeCompare(b.s.name.trim(),undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function recPage(){var o=rStu(),s=o&&o.s,h='';
  h+=rStep(1,'<p class="rl">Record</p>'+rSeg("rK",RK,[["q","Quran test"],["m","Memo test"],["h","House points"]],"Record"),1);
- h+=rStep(2,'<label class="rl" for="rS">Student</label><select id="rS"><option value="">Choose a student</option>'
-  +(function(A){var n={},key=function(o){return o.s.name.trim().toLowerCase()+"|"+o.t};
-   A.forEach(function(o){var cn=ST[o.c].name;o.t=cteach(cn)||cname(cn);n[key(o)]=(n[key(o)]||0)+1});
-   return A.map(function(o){var v=o.c+"|"+o.i;return '<option value="'+esc(v)+'"'+(RS===v?' selected':'')+'>'+esc(o.s.name)+' ('+esc(n[key(o)]>1?cname(ST[o.c].name):o.t)+')</option>'}).join("")})(rAll())+'</select>'
+ RL=rAll();(function(A){var n={},key=function(o){return o.s.name.trim().toLowerCase()+"|"+o.t};
+  A.forEach(function(o){var cn=ST[o.c].name;o.t=cteach(cn)||cname(cn);n[key(o)]=(n[key(o)]||0)+1});
+  A.forEach(function(o){o.v=o.c+"|"+o.i;o.b=n[key(o)]>1?cname(ST[o.c].name):o.t;o.k=nkey(o.s.name+" "+o.b)})})(RL);
+ var ch=RL.filter(function(x){return x.v===RS})[0];
+ h+=rStep(2,'<label class="rl" for="rS">Student</label><div class="rpick"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>'
+  +'<input type="text" id="rS" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="rSL" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="go" placeholder="Type a student\'s name" value="'+(ch?esc(rLab(ch)):'')+'"'+(CIDS.length?'':' disabled')+'>'
+  +'<button type="button" class="rpx" aria-label="Clear the student"'+(ch?'':' hidden')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>'
+  +'<div class="csm rsl" id="rSL" role="listbox" aria-label="Students" hidden></div></div>'
   +(s?'':'<p class="rnow">'+(CIDS.length?(RK==="h"?'Choose a student to give house points.':'Choose a student to record their level test.'):'No classes yet.')+'</p>'),!!s);
  if(!s){refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  var b;
@@ -567,8 +574,39 @@ $("recF").addEventListener("click",function(e){var b=e.target.closest("button");
  if(b.dataset.h){RH=RH===b.dataset.h?"":b.dataset.h;recPage();var n=$("recF").querySelector('[data-h="'+b.dataset.h+'"]');if(n)n.focus();return}
  if(b.dataset.r)recAct(b.dataset.r,+b.dataset.t)});
 $("recF").addEventListener("change",function(e){var t=e.target;
- if(t.id==="rS"){RS=t.value;RM="";RX=0;RI="";RSC=-1;RH=""}else if(t.id==="rL")RX=LVS[+t.value]+1;else if(t.id==="rI")RI=t.value;else if(t.id==="rT"||t.id==="rQ")RX=+t.value;else return;
+ if(t.id==="rL")RX=LVS[+t.value]+1;else if(t.id==="rI")RI=t.value;else if(t.id==="rT"||t.id==="rQ")RX=+t.value;else return;
  recPage();var n=$(t.id);if(n)n.focus()});
+
+function rLab(o){return o.s.name.trim()+" ("+o.b+")"}
+var RSA=-1;
+function rsBox(){return $("rSL")}
+function rsShow(q){var L=rsBox(),I=$("rS");if(!L||!I)return;q=nkey(q);var ch=RL.filter(function(x){return x.v===RS})[0];if(ch&&q===nkey(rLab(ch)))q="";
+ var W=q.split(" ").filter(Boolean),R=RL.filter(function(o){return W.every(function(w){return o.k.indexOf(w)>=0})});
+ if(q){var nm=function(o){var n=nkey(o.s.name);return n.indexOf(q)===0?0:(" "+n).indexOf(" "+W[0])>=0?1:2};R=R.map(function(o,k){return [nm(o),k,o]}).sort(function(a,b){return a[0]-b[0]||a[1]-b[1]}).map(function(x){return x[2]})}
+ var was=L.hidden;L.innerHTML=R.length?R.map(function(o,k){return '<div class="cso" role="option" id="rso'+k+'" data-v="'+esc(o.v)+'" aria-selected="'+(o.v===RS)+'"><span>'+qhl(o.s.name.trim(),q)+' <span class="rsb">('+qhl(o.b,q)+')</span></span></div>'}).join("")
+  :'<p class="rsn">No student matches “'+esc(I.value.trim())+'”.</p>';
+ L.hidden=false;I.setAttribute("aria-expanded","true");
+ var k0=R.findIndex(function(o){return o.v===RS});rsAct(q?0:Math.max(0,k0),!q);
+ if(was&&L.animate&&!QM.matches)L.animate([{opacity:0,transform:"translateY(-4px) scale(.98)"},{opacity:1,transform:"none"}],{duration:170,easing:"cubic-bezier(.22,1,.36,1)"})}
+function rsAct(k,center){var L=rsBox(),I=$("rS");if(!L)return;var O=L.querySelectorAll(".cso");if(!O.length){RSA=-1;I.removeAttribute("aria-activedescendant");return}
+ RSA=Math.max(0,Math.min(O.length-1,k));O.forEach(function(e,j){e.classList.toggle("act",j===RSA)});var on=O[RSA];I.setAttribute("aria-activedescendant",on.id);
+ var t=on.offsetTop,b=t+on.offsetHeight;if(center)L.scrollTop=t-L.clientHeight/2+on.offsetHeight/2;else if(t<L.scrollTop)L.scrollTop=t-4;else if(b>L.scrollTop+L.clientHeight)L.scrollTop=b-L.clientHeight+4}
+function rsClose(keep){var L=rsBox(),I=$("rS");if(!L||L.hidden)return;L.hidden=true;RSA=-1;I.setAttribute("aria-expanded","false");I.removeAttribute("aria-activedescendant");
+ if(!keep){var ch=RL.filter(function(x){return x.v===RS})[0];I.value=ch?rLab(ch):""}}
+function rsPick(v){rsClose(1);if(v!==RS){RS=v;RM="";RX=0;RI="";RSC=-1;RH=""}recPage();var I=$("rS");if(I)I.focus()}
+$("recF").addEventListener("input",function(e){if(e.target.id==="rS")rsShow(e.target.value)});
+$("recF").addEventListener("focusin",function(e){if(e.target.id==="rS"&&RS)e.target.select()});
+$("recF").addEventListener("mousedown",function(e){if(e.target.closest(".rsl"))e.preventDefault()});
+$("recF").addEventListener("click",function(e){var o=e.target.closest(".rsl .cso");if(o){rsPick(o.dataset.v);return}
+ if(e.target.id==="rS"&&rsBox().hidden){var ch=RL.filter(function(x){return x.v===RS})[0];if(ch&&e.target.value===rLab(ch)){var I=e.target;setTimeout(function(){I.select()},0)}rsShow(e.target.value)}
+ if(e.target.closest(".rpx")){RS="";RM="";RX=0;RI="";RSC=-1;RH="";recPage();var I=$("rS");if(I){I.focus();rsShow("")}}});
+$("recF").addEventListener("mousemove",function(e){var o=e.target.closest(".rsl .cso");if(o){var O=Array.prototype.indexOf.call(rsBox().querySelectorAll(".cso"),o);if(O!==RSA)rsAct(O)}});
+$("recF").addEventListener("focusout",function(e){if(e.target.id==="rS")rsClose()});
+$("recF").addEventListener("keydown",function(e){if(e.target.id!=="rS")return;var L=rsBox(),k=e.key,open=!L.hidden;
+ if(k==="ArrowDown"||k==="ArrowUp"){e.preventDefault();if(!open){rsShow(e.target.value);return}rsAct(RSA+(k==="ArrowDown"?1:-1))}
+ else if((k==="PageDown"||k==="PageUp")&&open){e.preventDefault();rsAct(RSA+(k==="PageDown"?8:-8))}
+ else if(k==="Enter"){e.preventDefault();var O=L.querySelectorAll(".cso");if(open&&O[RSA])rsPick(O[RSA].dataset.v);else if(!open)rsShow(e.target.value)}
+ else if(k==="Escape"&&open){e.preventDefault();e.stopPropagation();rsClose()}});
 
 /* ---------- Class: Progress ---------- */
 function qavg(s){var v=Object.keys(s.q).map(function(k){return s.q[k]});return avg(marks(v))}
