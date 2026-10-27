@@ -24,6 +24,7 @@ import psycopg
 from psycopg.conninfo import make_conninfo
 
 import auth
+import helpdesk
 import tv
 from server import create_app, valid_state
 
@@ -1096,6 +1097,80 @@ class DashboardTests:
         self.assertEqual((script.status_code, script.mimetype), (200, "text/javascript"))
         self.assertNotIn("script-src", anonymous.get("/forgot").headers["Content-Security-Policy"])
         self.assertEqual(self.client.get("/admin/users").headers["Cache-Control"], "no-store")
+
+    def test_help_or_requests(self):
+        mailer = FakeMailer()
+        self.app.config["MAILER"] = mailer
+        self.add_user("maryam@example.com")
+        teacher = self.sign_in("maryam@example.com", "teacher-password-1")
+        self.assertEqual(teacher.get("/api/help").get_json()["items"], [])
+        self.assertEqual(teacher.post("/api/help", json={"kind": "help", "body": "x"}).status_code, 403)
+        self.assertEqual(teacher.post("/api/help", json={"kind": "other", "body": "x"}, headers=self.headers).status_code, 400)
+        self.assertEqual(teacher.post("/api/help", json={"kind": "help", "body": "  \n "}, headers=self.headers).status_code, 400)
+        sent = teacher.post("/api/help", json={"kind": "help", "body": "How do I <b>add</b> a pass?\n\n\n\nThanks"},
+                            headers=self.headers).get_json()
+        self.assertEqual(sent["items"][0]["body"], "How do I <b>add</b> a pass?\n\nThanks")
+        teacher.post("/api/help", json={"kind": "request", "body": "A second TV please"}, headers=self.headers)
+        # Teachers can't open FAQs; admins see both messages waiting, escaped.
+        self.assertEqual(teacher.get("/admin/faqs").status_code, 403)
+        page = self.client.get("/admin/faqs").get_data(as_text=True)
+        self.assertIn("&lt;b&gt;add&lt;/b&gt;", page)
+        self.assertIn("A second TV please", page)
+        self.assertIn('href="/admin/faqs"', page)
+        item = self.query("SELECT id FROM help_requests WHERE kind = 'help'")[0]["id"]
+        replied = self.form(self.client, "/admin/faqs", f"/admin/faqs/{item}/reply", reply="Use Add a past pass.", send="email")
+        self.assertIn("in the app and by email", replied.get_data(as_text=True))
+        self.assertEqual(mailer.sent[-1][0], "maryam@example.com")
+        self.assertIn("Use Add a past pass.", mailer.sent[-1][2])
+        self.assertIn("&lt;b&gt;add&lt;/b&gt;", mailer.html[-1])
+        mine = teacher.get("/api/help").get_json()
+        self.assertEqual(mine["unread"], 1)
+        self.assertEqual(next(i for i in mine["items"] if i["kind"] == "help")["reply"], "Use Add a past pass.")
+        teacher.post("/api/help/seen", json={}, headers=self.headers)
+        self.assertEqual(teacher.get("/api/help").get_json()["unread"], 0)
+        # An app-only reply sends no email; another teacher sees none of this.
+        other = self.query("SELECT id FROM help_requests WHERE kind = 'request'")[0]["id"]
+        self.form(self.client, "/admin/faqs", f"/admin/faqs/{other}/reply", reply="Noted", send="app")
+        self.assertEqual(len(mailer.sent), 1)
+        self.add_user("idris@example.com")
+        colleague = self.sign_in("idris@example.com", "teacher-password-1")
+        self.assertEqual(colleague.get("/api/help").get_json()["items"], [])
+        self.form(self.client, "/admin/faqs", f"/admin/faqs/{other}/delete")
+        self.assertEqual(len(teacher.get("/api/help").get_json()["items"]), 1)
+
+    def test_help_summary_every_sunday_at_noon(self):
+        mailer = FakeMailer()
+        self.app.config["MAILER"] = mailer
+        london = auth.LONDON
+        noon = datetime(2026, 10, 18, 12, tzinfo=london).timestamp()  # a Sunday
+        self.assertEqual(helpdesk.last_summary_time(noon - 1).date().isoformat(), "2026-10-11")
+        self.assertEqual(helpdesk.last_summary_time(noon).date().isoformat(), "2026-10-18")
+        # Summer time ends on 25 October: still noon in London.
+        self.assertEqual(helpdesk.last_summary_time(datetime(2026, 10, 25, 13, tzinfo=london).timestamp()).hour, 12)
+        with self.app.test_request_context():
+            # Nothing sent this week: the email says so.
+            self.assertFalse(helpdesk.send_summary_if_due(noon - 60))
+            self.assertTrue(helpdesk.send_summary_if_due(noon + 60))
+            self.assertEqual(mailer.sent[-1][0], "mysafaradmin@gmail.com")
+            self.assertIn("No help or requests were sent", mailer.sent[-1][2])
+            # Only once a week, even when checked again.
+            self.assertFalse(helpdesk.send_summary_if_due(noon + 120))
+        # The next week's lists that week's messages, answered or not.
+        self.add_user("maryam@example.com")
+        teacher = self.sign_in("maryam@example.com", "teacher-password-1")
+        teacher.post("/api/help", json={"kind": "request", "body": "More Qaidah books"}, headers=self.headers)
+        week = datetime(2026, 10, 25, 12, tzinfo=london).timestamp()  # the clocks went back that morning
+        with self.app.config["DB"].transaction() as tx:
+            tx.execute("UPDATE help_requests SET created_at = ?", (int(week - 86400),))
+        self.app.config["HELP_SUMMARY_TO"] = "office@example.com"
+        with self.app.test_request_context():
+            self.assertTrue(helpdesk.send_summary_if_due(week + 5))
+            # Too late to send after the grace period.
+            self.assertFalse(helpdesk.send_summary_if_due(week + 14 * 86400 + 2 * 86400))
+        self.assertEqual(mailer.sent[-1][0], "office@example.com")
+        self.assertIn("More Qaidah books", mailer.sent[-1][2])
+        self.assertIn("Waiting for a reply", mailer.sent[-1][2])
+        self.assertEqual(len(mailer.sent), 2)
 
     def test_password_help_links_to_the_school(self):
         anonymous = self.app.test_client()

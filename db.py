@@ -137,7 +137,30 @@ def _m5_house_points(db, postgres):
                        "INSERT INTO house_points (house, coin, n, note, given_at) VALUES (?, ?, ?, ?, ?)", (house, coin, n, note, at))
 
 
-MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points]
+def _m6_help_requests(db, postgres):
+    t = _types(postgres)
+    # Help or Requests from staff, and the admins' replies (see helpdesk.py).
+    db.execute(f"""CREATE TABLE help_requests (
+        id {t['id']},
+        kind TEXT NOT NULL CHECK (kind IN ('help', 'request')),
+        user_id {t['ref']} REFERENCES users (id) ON DELETE SET NULL,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        body TEXT NOT NULL,
+        created_at BIGINT NOT NULL,
+        reply TEXT,
+        replied_by {t['ref']} REFERENCES users (id) ON DELETE SET NULL,
+        replied_by_name TEXT,
+        replied_at BIGINT,
+        emailed INTEGER NOT NULL DEFAULT 0,
+        seen_at BIGINT)""")
+    db.execute("CREATE INDEX help_requests_user ON help_requests (user_id, created_at)")
+    db.execute("CREATE INDEX help_requests_created ON help_requests (created_at)")
+    # One row per weekly summary email, so each week's is sent once even after a restart.
+    db.execute("CREATE TABLE help_summaries (week TEXT PRIMARY KEY, sent_at BIGINT NOT NULL, items INTEGER NOT NULL)")
+
+
+MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests]
 
 
 class Database:

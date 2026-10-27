@@ -35,6 +35,25 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
   open (an open dashboard checks in, even in a background tab), and after 12
   hours at most. There is no "Keep me signed in".
 
+## Help or Requests and FAQs
+
+Teachers have a **Help or Requests** button at the bottom of their overview,
+on a computer and on a phone. They choose **Help** or **Request**, type a
+message and send it; their messages and the replies stay in the same pop-up,
+and a red dot on the button shows a reply they haven't opened yet.
+
+Messages land on **FAQs** in the admin menu. An admin types a reply and sends
+it **in the app**, or **in the app and by email** (email needs `RESEND_API_KEY`
+and `MAIL_FROM`). A reply can be changed later, and a message deleted.
+
+Every Sunday at 12:00 London time a summary of the week's messages, answered
+or not, is emailed to `mysafaradmin@gmail.com` (set `HELP_SUMMARY_TO` on
+Railway to send it somewhere else). A week with no messages gets an email
+saying so. The web service checks once a minute from a background thread and
+records each week's email in the database, so it goes once, even after a
+restart; if the site was down at noon it goes out when it's back, up to Monday
+evening. No cron service is needed.
+
 ## TV dashboard
 
 A TV in the admin area can show a live dashboard without anyone signing in on
@@ -112,6 +131,7 @@ Close (or Escape) goes back to the class.
 | `MAIL_REPLY_TO` | Where replies to the emails go. Optional; defaults to `SUPPORT_EMAIL`. Without either, replies go to the sending address, which doesn't receive mail. |
 | `MAIL_REDIRECT_TO` | Testing only: every email goes to this address instead of the real recipient. Remove it to go live. |
 | `PUBLIC_URL` | The site's address, used in email links and for the logo in emails: `https://mysafar.org`. Change it if the address changes. |
+| `HELP_SUMMARY_TO` | Who gets the Sunday 12:00 Help or Requests summary. Optional; defaults to `mysafaradmin@gmail.com`. |
 | `RETENTION_DAYS` | How long class history and the activity log are kept. Default `14`. |
 | `SUPPORT_EMAIL` | The school office address staff should write to for password help, for example `office@safaracademy.org`. The password pages show an **Email** button for it. Optional; without it they say to ask an administrator. |
 
