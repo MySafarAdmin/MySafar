@@ -176,8 +176,13 @@ def _m8_tutorial(db, postgres):
     db.execute("ALTER TABLE users ADD COLUMN tour_done BIGINT")
 
 
+def _m9_tutorial_again(db, postgres):
+    # The tutorial now starts for admins too: everyone, old accounts included, sees it once more.
+    db.execute("UPDATE users SET tour_done = NULL")
+
+
 MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
-              _m7_avatars, _m8_tutorial]
+              _m7_avatars, _m8_tutorial, _m9_tutorial_again]
 
 
 class Database:

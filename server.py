@@ -370,13 +370,13 @@ def create_app(test_config=None):
     @app.get("/")
     def dashboard():
         fresh = bool(request.cookies.get(auth.fresh_cookie_name()))
-        # A teacher's first visit starts the tutorial (the "tour" in page.html); Account can start it again.
+        # Anyone's first visit starts the tutorial (the "tour" in page.html); Account can start it again.
         with database.transaction() as tx:
             toured = tx.execute("SELECT tour_done FROM users WHERE id = ?", (g.user["id"],)).fetchone()["tour_done"]
         me = {"name": g.user["name"], "email": g.user["email"], "role": g.user["role"], "csrf": g.session["csrf"],
               "fresh": fresh, "initial": avatars.initial(g.user["name"]),
               "avatar": avatars.url(g.user["id"], g.user["avatar_at"]),
-              "tour": g.user["role"] == "teacher" and not toured}
+              "tour": not toured}
         html = (ROOT / "Master_Dashboard_standalone.html").read_text(encoding="utf-8")
         html = html.replace("<script>", f"<script>window.RAILWAY=true;window.ME={script_json(me)};{TAB_GUARD}</script>\n<script>", 1)
         html = html.replace("<header>", "<header inert>").replace("<main>", "<main inert>")

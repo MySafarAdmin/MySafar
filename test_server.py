@@ -518,12 +518,12 @@ class DashboardTests:
         self.assertNotIn(b'href="/#rankings"', teacher.get("/account").data)
         self.assertIn(b'href="/#rankings"', self.client.get("/account").data)
 
-    def test_tutorial_starts_once_for_teachers(self):
+    def test_tutorial_starts_once_for_everyone(self):
         self.add_user("t@example.com")
         teacher = self.sign_in("t@example.com", "teacher-password-1")
         self.assertIn('"tour": true', teacher.get("/").get_data(as_text=True))
-        # Admins aren't shown it on their own, but can take it from Account like teachers can retake it.
-        self.assertIn('"tour": false', self.client.get("/").get_data(as_text=True))
+        # Admins get it too, and everyone can retake it from Account.
+        self.assertIn('"tour": true', self.client.get("/").get_data(as_text=True))
         self.assertIn(b'href="/#tour"', teacher.get("/account").data)
         self.assertIn(b'href="/#tour"', self.client.get("/account").data)
         # Finishing or skipping it is a dashboard request like any other write.
