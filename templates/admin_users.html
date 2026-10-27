@@ -10,10 +10,14 @@
   <input readonly value="{{ link }}" aria-label="Link to send">
 </div>
 {% endif %}
-{# The invite form stays folded away until the Invite staff button opens it (#invite, no scripts on this page), or
-   an invite just failed and needs fixing. #}
-<div class="mod line invite{{ ' open' if invite_open }}" id="invite" tabindex="-1">
-  <div class="invh"><h2>Invite staff</h2><a class="btn sm" href="/admin/users">Close</a></div>
+{# Invite staff is a pop-up over the blurred page. It opens from the Invite staff button (#invite; this page runs no
+   scripts), or stays open when an invite just failed and needs fixing. #}
+{% set inv_close = "/admin/users" if invite_open else "#_" %}
+<div class="invite{{ ' open' if invite_open }}" id="invite">
+  <a class="invbg" href="{{ inv_close }}" aria-label="Close" tabindex="-1"></a>
+  <div class="mod invcard" role="dialog" aria-modal="true" aria-labelledby="invt">
+  <div class="invh"><h2 id="invt">Invite staff</h2><a class="btn sm" href="{{ inv_close }}">Close</a></div>
+  {% if invite_open and error %}<p class="error">{{ error }}</p>{% endif %}
   <p class="sub">They get {{ "an email with " if mail_enabled }}a link to choose their password. It expires in 72 hours. Teachers see only the classrooms you tick; admins see everything.</p>
   <form method="post" action="/admin/users/invite">
     <input type="hidden" name="csrf" value="{{ csrf }}">
@@ -29,6 +33,7 @@
     {% endif %}
     <button class="btn primary">Send invite</button>
   </form>
+</div>
 </div>
 <section class="accounts" aria-labelledby="acch"><h2 id="acch">Accounts</h2>
 {% for u in users %}
