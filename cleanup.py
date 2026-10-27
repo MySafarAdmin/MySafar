@@ -18,7 +18,7 @@ from flask import Blueprint, Response, current_app, g, request
 import auth
 
 TOKENS = ("tg", "tb", "tr")
-KINDS = (("q", "Quran scores"), ("passes", "Memo passes"), ("fails", "Memo fails"), ("tests", "Level tests"),
+KINDS = (("q", "Quran scores"), ("passes", "Memo passes"), ("fails", "Memo fails"), ("tests", "Level tests and book passes"),
          ("merits", "Merits"), ("warnings", "Warnings and missed breaks"), ("tokens", "House tokens"),
          ("stars", "Stars of the week"), ("targets", "Memo targets reset"), ("levels", "Qaidah levels reset"))
 
@@ -28,10 +28,10 @@ bp = Blueprint("cleanup", __name__)
 def clear_student(s):
     """Removes this student's progress records, in place. Returns how many of each were removed."""
     n = {"q": len(s.get("q", {})), "passes": max(s.get("passes", 0), len(s.get("log", []))), "fails": len(s.get("fl", [])),
-         "tests": len(s.get("tests", [])), "merits": max(s.get("merits", 0), len(s.get("ml", []))),
+         "tests": len(s.get("tests", [])) + len(s.get("bp", [])), "merits": max(s.get("merits", 0), len(s.get("ml", []))),
          "warnings": 1 if s.get("warn") else 0, "tokens": sum(len(s.get(k, [])) for k in TOKENS),
          "stars": len(s.get("sw", [])), "targets": 1 if s.get("target", 1) > 1 else 0, "levels": 1 if s.get("qa") else 0}
-    s.update(q={}, passes=0, log=[], lt=[], lx=[], hit=None, fl=[], tests=[], hp=[], merits=0, ml=[], warn=0, sw=[], target=1, qa=0,
+    s.update(q={}, passes=0, log=[], lt=[], lx=[], hit=None, fl=[], tests=[], bp=[], hp=[], merits=0, ml=[], warn=0, sw=[], target=1, qa=0,
              **{k: [] for k in TOKENS})
     s.pop("mp", None)
     return n

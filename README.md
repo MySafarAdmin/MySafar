@@ -55,7 +55,9 @@ Spellings are matched loosely ("al aqsa", "Medina"), and anything else is
 listed in the upload preview and left unchanged. A later upload with a House
 column updates each student's house; one without it leaves houses as they are.
 
-House tokens are given from the menu on a student's name on the Quran tab:
+House points come only from physical house coins. Teachers hand students coins, students put them in the
+box at the office, and an admin counts them and adds each house's count on **Counted coins**
+(`/admin/house-points`, with the day counted). Older tokens on students still count:
 
 | Token | Points |
 | --- | --- |
@@ -63,10 +65,11 @@ House tokens are given from the menu on a student's name on the Quran tab:
 | Blue | 20 |
 | Red (book completion) | 50 |
 
-**−** takes back the latest token of that colour. The tab shows the class's
-points per house. A level test passed on the Record page gives the student a blue token by itself.
+The Record page still records Quran level tests (Qaidah Book levels 1 to 13, Tajweed Book levels 14 to 20),
+Memo tests and book passes (Qaidah Book or Tajweed Book), but none of them gives house points. Its House points
+choice is kept but closed (`HPOFF` in `src/page.html`), so nothing is given by accident.
 A Memo pass chosen there by **Item number and Surah** (the school's list: Fail, L1 Target 1 to L10 Target 14,
-and items 197 to 230) is only logged as a pass, with no token or house points.
+and items 197 to 230) is logged as a pass in the same way.
 The overview's House points pop-up shows the whole school's totals, and on
 Railway teachers see those totals too, without seeing other classes'
 students. The points are set in `TOK` near the top of the script in

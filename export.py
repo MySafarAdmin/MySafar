@@ -27,6 +27,8 @@ TOKENS = (("tg", "Green token", 5), ("tb", "Blue token", 20), ("tr", "Red token"
 # What a token was given for, when it was given on the Record page's House points (HPR in src/page.html).
 REASONS = {"bk": "Book completion", "lv": "Qaidah or Memorisation level", "hw": "Additional class or homework",
            "ec": "Extra curricular award", "cp": "Exceptional class participation"}
+BOOKS = {"q": "Qaidah Book", "t": "Tajweed Book"}  # BOOKS in src/page.html
+QAIDAH_BOOK = 13  # Quran levels 1 to 13 are the Qaidah Book, the rest the Tajweed Book (QBOOK in src/page.html)
 WARNINGS = ("None", "Warning 1", "Warning 2", "Miss break")  # WL in src/page.html
 NAVY, WHITE, BAND, LINE, MUTED = "003B6B", "FFFFFF", "F3F5F8", "C9D1DB", "6B7280"
 DAY, WHEN = "d mmm yyyy", "d mmm yyyy hh:mm"
@@ -55,7 +57,7 @@ SHEETS = {
     "memo": ("Memo passes and fails", "Every Memo pass and fail, newest first.", [
         ("Date and time", 17, WHEN), ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None),
         ("Result", 11, None), ("Target", 18, None)]),
-    "tests": ("Level tests", "End-of-level tests recorded on the Record page.", [
+    "tests": ("Level tests", "End-of-level tests and book passes recorded on the Record page.", [
         ("Date", 13, DAY), ("Class", 22, None), ("Student ID", 11, None), ("Student", 22, None),
         ("Test", 8, None), ("Level or target", 18, None), ("Score out of 5", 9, "0"), ("Result", 11, None),
         ("Blue token", 9, None)]),
@@ -85,6 +87,10 @@ def _juz():
 
 
 JUZ_ITEMS = _juz()
+
+
+def quran_level(n):
+    return f"{'Tajweed' if n > QAIDAH_BOOK else 'Qaidah'} Level {n}"
 
 
 def target_label(n, levels):
@@ -169,8 +175,10 @@ def gather(db):
             memo += [(when(t), cname, sid, name, "Not passed", "") for t in fails]
             for test in s.get("tests", []):
                 sheets["tests"].add(day(test["d"]), cname, sid, name, "Quran" if test["k"] == "q" else "Memo",
-                                    f"Qaidah Level {test['n']}" if test["k"] == "q" else target_label(test["n"], levels),
-                                    test["sc"], "Passed" if test["ok"] else "Not passed", "Yes" if test.get("tk") else "")
+                                    quran_level(test["n"]) if test["k"] == "q" else target_label(test["n"], levels),
+                                    test.get("sc"), "Passed" if test["ok"] else "Not passed", "Yes" if test.get("tk") else "")
+            for b in s.get("bp", []):
+                sheets["tests"].add(when(b["t"]).date(), cname, sid, name, "Book", BOOKS.get(b["b"], "Book"), None, "Passed", "")
             rewards += [(when(t), cname, sid, name, house, "Merit", None) for t in merits]
             why = {x["t"]: REASONS.get(x["r"]) for x in s.get("hp", []) if isinstance(x, dict)}
             for key, award, value in TOKENS:
