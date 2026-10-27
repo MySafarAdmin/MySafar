@@ -1190,6 +1190,7 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .qcol.on .qc.has.test:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* Star of the week: a gold star by the student's name; the toolbar star fills once a student is chosen. */
 .qsw{flex:none;display:inline-flex}.qsw svg{width:14px;height:14px;fill:var(--gold);stroke:color-mix(in srgb,var(--gold) 70%,#1d2127);stroke-width:1.2}
+.qstar[aria-disabled="true"]{opacity:.45;cursor:not-allowed}
 .qstar.on .ic{fill:var(--gold);stroke:color-mix(in srgb,var(--gold) 70%,#1d2127)}
 .starl button[aria-pressed="true"]{background:var(--gold-soft);box-shadow:inset 0 0 0 2px var(--gold)}
 /* Teacher class overview: rankings large across the top, the two graphs below, then attention and houses. */
@@ -2454,7 +2455,7 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  if(dir&&!QM.matches){B.classList.add("moving");clearTimeout(QT);QT=setTimeout(function(){B.classList.remove("moving")},430)}
  if(keep>=0){var c=Y.querySelector('.qcol.on [data-qi="'+keep+'"]');if(c)c.focus()}
  if(QMN>=0)qMenu(QMN,1)}
-function quran(){qGrid(0);qSheetDraw();$("qStar").classList.toggle("on",S.some(qStarOf))}
+function quran(){qGrid(0);qSheetDraw();var b=$("qStar"),x=noStar();b.classList.toggle("on",S.some(qStarOf));b.setAttribute("aria-disabled",x);b.title=x?"Star of the week can't be chosen on a Saturday":"Star of the week"}
 function qGo(d,dir){if(!d||d===QF)return;var was=QF;QF=d;qGrid(dir||(d>was?1:-1))}
 function qStep(n){var D=qDays(),i=D.indexOf(QF)+n;if(i>=0&&i<D.length)qGo(D[i],n)}
 $("qPrev").onclick=function(){qStep(-1)};$("qNext").onclick=function(){qStep(1)};
@@ -2537,7 +2538,9 @@ function qStarPick(){var w=qWeek(),cur=-1;S.forEach(function(s,i){if(qStarOf(s))
 function qStarSet(i){var w=qWeek(),s=S[i],old=null;S.forEach(function(x){if(qStarOf(x))old=x;x.sw=(x.sw||[]).filter(function(d){return d!==w})});
  if(s&&s!==old){s.sw.push(w);toast(fn(s)+" is star of the week")}else toast("Star of the week cleared");
  save();render();closeDrawer();$("qStar").focus()}
-$("qStar").onclick=qStarPick;
+/* No star of the week on Saturdays: the button stays but says why. */
+function noStar(){return new Date().getDay()===6}
+$("qStar").onclick=function(){if(noStar()){toast("Star of the week can't be chosen on a Saturday.",1);return}qStarPick()};
 $("drwB").addEventListener("click",function(e){var b=e.target.closest("[data-star]");if(b)qStarSet(+b.dataset.star)});
 /* The menu on a student's name: warnings and house points, so teachers can give both from the Quran tab. */
 var QMN=-1;
