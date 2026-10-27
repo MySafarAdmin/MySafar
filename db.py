@@ -160,7 +160,19 @@ def _m6_help_requests(db, postgres):
     db.execute("CREATE TABLE help_summaries (week TEXT PRIMARY KEY, sent_at BIGINT NOT NULL, items INTEGER NOT NULL)")
 
 
-MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests]
+def _m7_avatars(db, postgres):
+    t = _types(postgres)
+    # Profile pictures (see avatars.py): one square JPEG per person, re-encoded on the server. users.avatar_at is
+    # when it last changed, so pages can link to it with a version that changes with the picture.
+    db.execute(f"""CREATE TABLE avatars (
+        user_id {t['ref']} PRIMARY KEY REFERENCES users (id) ON DELETE CASCADE,
+        image {"BYTEA" if postgres else "BLOB"} NOT NULL,
+        updated_at BIGINT NOT NULL)""")
+    db.execute("ALTER TABLE users ADD COLUMN avatar_at BIGINT")
+
+
+MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
+              _m7_avatars]
 
 
 class Database:

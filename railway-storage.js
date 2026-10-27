@@ -61,11 +61,22 @@
   var me = document.getElementById("me");
   var who = document.createElement("div");
   who.className = "who";
+  // Their profile picture, or their initial (avatars.py).
+  var av = document.createElement("span");
+  av.className = "av"; av.setAttribute("aria-hidden", "true");
+  if (ME.avatar) {
+    var pic = document.createElement("img");
+    pic.src = ME.avatar; pic.alt = ""; pic.width = 38; pic.height = 38;
+    av.appendChild(pic);
+  } else av.textContent = ME.initial || "";
+  var text = document.createElement("div");
+  text.className = "wt";
   var nameLine = document.createElement("b");
   nameLine.textContent = ME.name || "";
   var roleLine = document.createElement("span");
   roleLine.textContent = ME.role === "admin" ? "Administrator" : "Teacher";
-  who.appendChild(nameLine); who.appendChild(roleLine);
+  text.appendChild(nameLine); text.appendChild(roleLine);
+  who.appendChild(av); who.appendChild(text);
   var row = document.createElement("div");
   row.className = "row";
   var account = document.createElement("a");
