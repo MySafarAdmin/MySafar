@@ -3661,7 +3661,7 @@ var TOUR=(function(){
   {where:"T",el:"#mL .mgrp",t:"Memo",b:"Each card is a student and their current target. Concern lists students due a pass. Tap a card for their pass calendar."},
   {where:"D",desk:true,el:"#vD .grp",t:"Progress",b:"Where each student is in the book. Pass history shows their passes week by week."},
   {where:"M",el:function(){return phone()?document.querySelector(".dock .dk-more"):$("me")},t:"Your account",
-   b:function(){return (phone()?"Tap More, then Account,":"Use Account")+" to change your password or retake this tutorial."}},
+   b:function(){return (phone()?"Tap More, then Account,":"Use Account")+" to change your picture or password, or retake this tutorial."}},
   {where:"M",t:"You're all set",b:"That's everything. You can retake this tutorial any time from Account."}];
  var root=null,veil,ring,card,bar,num,ttl,txt,back,next,skip,i=0,R=null,tw=0,fol=0,running=false,cur=null;
  function list(x){return (Array.isArray(x)?x:[x]).filter(function(e){return e&&e.isConnected&&e.getClientRects().length&&e.offsetWidth})}
