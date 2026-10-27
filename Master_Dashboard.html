@@ -3782,11 +3782,13 @@ var TOUR=(function(){
   document.querySelector(".shell").inert=false;document.documentElement.classList.remove("touring");
   function gone(){root.hidden=true;cur=null;go("M");var h=$("home");if(h)h.focus({preventScroll:true})}
   if(still())gone();else root.animate([{opacity:1},{opacity:0}],{duration:320,easing:"ease-in"}).onfinish=gone}
- // Waits for the class records and for the sign-in greeting to finish before starting on its own.
- function ready(){var m=document.querySelector("main");return LOADED&&m&&!m.inert&&!document.documentElement.classList.contains("fresh")&&!document.body.classList.contains("enter")}
+ // Waits for the class records and for the sign-in greeting before starting on its own.
+ // It comes in as soon as the greeting has moved into place, while the rest of the page is still arriving
+ // behind the veil, so nothing on the page can be pressed first.
+ function ready(){var m=document.querySelector("main");return LOADED&&m&&!m.inert&&!document.documentElement.classList.contains("fresh")}
  (function wait(){if(running){setTimeout(wait,1000);return}
-  if((TOURQ||(window.ME&&ME.tour))&&ready()){TOURQ=false;setTimeout(function(){if(ready())start()},500)}
-  setTimeout(wait,TOURQ||(window.ME&&ME.tour)?200:1000)})();
+  if((TOURQ||(window.ME&&ME.tour))&&ready()){TOURQ=false;start()}
+  setTimeout(wait,TOURQ||(window.ME&&ME.tour)?50:1000)})();
  return {start:start}})();
 
 /* Just signed in: the greeting in the heading ("Assalāmu ʿalaykum ...!") is typed out letter by letter, large in
