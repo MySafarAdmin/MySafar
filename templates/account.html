@@ -62,7 +62,8 @@
 {% if user.must_change %}
 <form method="post" action="/logout" class="center"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="link">Sign out</button></form>
 {% else %}
-<div class="mod line s5">
+<div class="s5">
+<div class="mod line">
   <h2>Other devices</h2>
   {% if others %}
   <p>You're signed in on {{ others }} other device{{ "s" if others != 1 }}.</p>
@@ -70,7 +71,12 @@
   {% else %}
   <p class="sub">You aren't signed in anywhere else.</p>
   {% endif %}
-</div></div>
+</div>
+<div class="mod line">
+  <h2>Tutorial</h2>
+  <p class="sub">{{ "A short step-by-step look at what each part of the dashboard does." if user.role == "teacher" else "The step-by-step tour teachers see when they first sign in." }}</p>
+  <a class="btn" href="/#tour">{{ "Retake the tutorial" if user.role == "teacher" else "Take the teacher tutorial" }}</a>
+</div></div></div>
 {% endif %}
 {% if not user.must_change %}<script src="/avatar.js" defer></script>{% endif %}
 {% endblock %}
