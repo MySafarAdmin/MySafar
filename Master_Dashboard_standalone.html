@@ -275,6 +275,13 @@ button.link{font:inherit;background:none;border:0;padding:0;color:var(--primary-
 input,select,textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:9px 12px;min-height:44px;max-width:100%}
 textarea{min-height:96px;resize:vertical;width:100%}
 input:hover,select:hover,textarea:hover{border-color:var(--mute)}
+/* Drop-downs: our own chevron, drawn in CSS (no image, so it works under every page's security policy), set well in
+   from the edge with room for it in the padding. */
+select:not([multiple]){-webkit-appearance:none;appearance:none;padding-right:40px;cursor:pointer;
+ background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
+ background-position:calc(100% - 20px) 52%,calc(100% - 15px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+select:not([multiple]):disabled{cursor:default;opacity:.6}
+select:not([multiple])[aria-expanded="true"]{border-color:var(--navy);box-shadow:0 0 0 3px rgba(0,59,107,.1)}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:0;border-color:var(--focus)}
 input[type=checkbox],input[type=radio]{min-height:0;width:18px;height:18px;accent-color:var(--primary)}
 input[type=file]{padding:7px 10px}
@@ -1015,7 +1022,7 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 .qsh{text-align:center;margin-bottom:14px}
 .qsh b{display:block;font-size:1.25rem;font-weight:800;line-height:1.25;color:var(--navy);overflow-wrap:anywhere}
 .qsh small{color:var(--mute);font-size:.875rem}
-.qsb{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.qsb{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
 .qpop.qsheet .qsb button{min-width:0;height:56px;border-radius:16px;font-size:1.25rem;font-weight:800}
 .qpop.qsheet .qsb button:active{transform:scale(.92)}
 .qpop.qsheet .qsb .qclr{grid-column:1/-1;height:46px;font-size:.9375rem;font-weight:650}
@@ -1337,11 +1344,11 @@ body.enter .shell>header,body.enter .rail{animation:e-fade .8s ease both}
  html.fresh .shell,body.enter .shell{background:var(--bg)}}
 @keyframes e-rail{from{transform:translateX(-100%);opacity:.6}to{transform:none;opacity:1}}
 @keyframes e-fade{from{opacity:0}}
-body.enter .rail .brand,body.enter .rail .navs>*,body.enter .rail .me{animation:e-slide .7s cubic-bezier(.16,1,.3,1) both}
+body.enter .rail .brand,body.enter .rail .navs>:not(.navi):not(.mhl),body.enter .rail .me{animation:e-slide .7s cubic-bezier(.16,1,.3,1) both}
 body.enter .rail .brand{animation-delay:.35s}
-body.enter .rail .navs>:nth-child(1){animation-delay:.42s}body.enter .rail .navs>:nth-child(2){animation-delay:.48s}body.enter .rail .navs>:nth-child(3){animation-delay:.54s}
-body.enter .rail .navs>:nth-child(4){animation-delay:.6s}body.enter .rail .navs>:nth-child(5){animation-delay:.66s}body.enter .rail .navs>:nth-child(6){animation-delay:.72s}
-body.enter .rail .navs>:nth-child(7){animation-delay:.78s}body.enter .rail .navs>:nth-child(8){animation-delay:.84s}body.enter .rail .me{animation-delay:.9s}
+/* Each shown item gets its own even step (--ed, set as the arrival starts), however many items the menu has. */
+body.enter .rail .navs>:not(.navi):not(.mhl),body.enter .rail .me{animation-delay:var(--ed,.42s)}
+body.enter .rail .navs>.navi{animation:e-fade .6s ease var(--ed,.42s) both}
 body.enter .head-top>:not(h1),body.enter .hello,body.enter .head .tabs{animation:e-rise .9s cubic-bezier(.16,1,.3,1) both}
 body.enter .head-top>:not(h1){animation-delay:.4s}body.enter .hello{animation-delay:.5s}body.enter .head .tabs{animation-delay:.58s}
 body.enter .ws{animation:e-rise 1s cubic-bezier(.16,1,.3,1) .66s both}
@@ -1409,7 +1416,14 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 .seg.has-i>button{position:relative;z-index:1;transition:color .18s ease}
 .seg.has-i>button[aria-pressed="true"]{background:none;box-shadow:none}
 .segi{position:absolute;left:0;top:0;z-index:0;pointer-events:none;border-radius:var(--r-pill);background:var(--surface);box-shadow:0 1px 3px rgba(28,34,48,.12),0 0 0 1px rgba(0,59,107,.12)}
-.segi.go{transition:transform .22s var(--ease-out),width .22s var(--ease-out),height .22s var(--ease-out)}
+.segi.go{transition:transform .34s cubic-bezier(.2,.8,.2,1),width .34s cubic-bezier(.2,.8,.2,1),height .34s cubic-bezier(.2,.8,.2,1)}
+/* The pointer's soft highlight inside a segmented control, as on the class tabs. */
+.seg>.mhl{border-radius:var(--r-pill);background:rgba(255,255,255,.7)}
+.seg.has-h>button{position:relative;z-index:1}
+.seg.has-h>button:not([aria-pressed="true"]):hover{background:none}
+@media (prefers-reduced-motion:reduce){.seg.has-h>button:not([aria-pressed="true"]):hover{background:rgba(255,255,255,.6)}}
+/* An empty ranked list keeps its column: a soft panel with the message, so no hole opens between the columns. */
+.rnone{display:grid;place-items:center;text-align:center;min-height:150px;padding:18px;border-radius:var(--r-lg);background:var(--sunk);color:var(--mute);font-size:.9375rem}
 /* Class cards: lift on hover, a clear ring for the keyboard, a press that sinks. */
 .ccard{transition:box-shadow .18s ease,transform .18s var(--ease-out),border-color .18s ease}
 .ccard:hover{border-color:var(--line-2)}
@@ -1606,10 +1620,65 @@ body.enter .wkc:nth-child(8) i,body.enter .lvi:nth-child(n+8) i{animation-delay:
 @media (prefers-reduced-motion:reduce){.hpcards .hcol{transition:none}}
 /* Rankings page: the list kept to a readable width. */
 #vK{margin-top:12px}
-.rkp{max-width:860px}
+.rkp{max-width:none}
 .rkbar{gap:8px 14px;margin-bottom:6px}
 .rkbar .cap{flex:1 1 160px;text-align:right}
 @media (max-width:640px){.rkbar .seg{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.rkbar .seg button{padding:6px 4px;font-size:.8125rem;white-space:nowrap}.rkbar .cap{text-align:left}}
+
+/* ---------- Drop-down menu ----------
+   The white list a drop-down opens (page.html, CS): a floating card with soft depth, the chosen item ticked in navy,
+   a pale highlight that follows the pointer and the arrow keys, and group names in small graphite type. */
+.csm{position:fixed;z-index:1000;max-width:min(420px,calc(100vw - 16px));overflow-y:auto;overscroll-behavior:contain;padding:6px;
+ background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(16,24,40,.14),0 3px 8px rgba(16,24,40,.06);
+ transform-origin:top center;font-size:.9375rem;scrollbar-width:thin}
+.csm.up{transform-origin:bottom center}
+.cso{display:flex;align-items:center;gap:10px;padding:9px 12px 9px 34px;border-radius:9px;color:var(--ink);cursor:pointer;position:relative;line-height:1.3;transition:background-color .12s ease}
+.cso.act{background:var(--sunk)}
+.cso[aria-selected="true"]{color:var(--navy);font-weight:700}
+.cso[aria-selected="true"]::before{content:"";position:absolute;left:14px;top:50%;width:5px;height:10px;margin-top:-7px;border:solid var(--navy);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.cso.off{color:var(--mute);cursor:default}
+.csg{padding:10px 12px 4px;font-size:.75rem;font-weight:700;color:var(--mute);letter-spacing:.02em}
+.csg:not(:first-child){margin-top:4px;border-top:1px solid var(--line);padding-top:12px}
+
+/* Tables that belong to the page: a rounded card with a hairline edge, a quiet header band and roomy edge cells,
+   rather than a bare grid set into it (House points, Students). */
+.tablewrap.soft,.ws .tablewrap.soft{border:1px solid var(--line);border-radius:16px;box-shadow:none;background:var(--surface)}
+.tablewrap.soft .tbl thead th{background:var(--surface-2);border-bottom:1px solid var(--line)}
+.tablewrap.soft .tbl th:first-child,.tablewrap.soft .tbl td:first-child{padding-left:18px}
+.tablewrap.soft .tbl th:last-child,.tablewrap.soft .tbl td:last-child{padding-right:18px}
+.hpt td.n,.hpt th.n{text-align:center}
+.hpcards .hcol{border-radius:16px}
+.hbig.hpcards{gap:8px}
+/* Students search: the typed letters in light blue. */
+mark.qhl{background:none;color:#2f8ae0;font-weight:inherit}
+@media (max-width:640px){.tablewrap.soft,.ws .tablewrap.soft{border:0;border-radius:0;background:none}}
+
+/* Rankings page: the podium beside the rest of the list, both within one screen on a computer (the list scrolls in
+   its own panel); stacked on smaller screens. */
+.rkx{display:grid;gap:18px 28px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:1100px){.rkx{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ .rkr{max-height:calc(100vh - 260px);max-height:calc(100dvh - 260px);overflow-y:auto;overscroll-behavior:contain;padding-right:6px;scrollbar-width:thin}
+ .podium{position:sticky;top:12px}}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:10px;padding:18px 16px 0;border-radius:18px;
+ background:var(--surface-2);overflow:hidden}
+.pd{display:flex;flex-direction:column;align-items:stretch;min-width:0}
+.pdc{font:inherit;color:inherit;background:none;border:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px 12px;border-radius:12px;text-align:center;transition:background-color .15s ease}
+.pdc:hover{background:var(--surface)}
+.pdc .rk{width:38px;height:38px;font-size:.9375rem}
+.p1 .pdc .rk{width:46px;height:46px;font-size:1.0625rem;box-shadow:0 0 0 5px rgba(242,201,76,.25)}
+.pdn{font-size:.9375rem;font-weight:750;color:var(--navy);line-height:1.25;overflow-wrap:anywhere}
+.p1 .pdn{font-size:1.0625rem}
+.pdv{font-size:.8125rem;color:var(--mute)}.pdv b{font-size:1.25rem;color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums}
+.p1 .pdv b{font-size:1.5rem}
+.pdb{display:grid;place-items:start center;padding-top:10px;border-radius:12px 12px 0 0;font-size:1.5rem;font-weight:800;transform-origin:bottom;color:rgba(28,34,48,.55)}
+.p1 .pdb{height:120px;background:#f2c94c}
+.p2 .pdb{height:88px;background:#d5dde6}
+.p3 .pdb{height:64px;background:#e0a46e}
+@media (max-width:640px){.podium{gap:6px;padding:12px 8px 0}.pdn{font-size:.8125rem}.p1 .pdn{font-size:.875rem}.p1 .pdb{height:96px}.p2 .pdb{height:70px}.p3 .pdb{height:50px}}
+
+/* Absent: a light grey box with a dash, first in the score picker. */
+.qpop .qab{border-color:#c9ced8;color:var(--mute)}
+.qcol.on .qc.has.ab,.qc.has.ab{border-color:#c9ced8;color:var(--mute)}
 </style></head><body>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -1911,8 +1980,9 @@ function pagerHtml(key,n,size,what){var pages=Math.ceil(n/size),p=PG[key]||0;if(
  return '<nav class="pgn" aria-label="Pages of '+what+'"><span class="pgc">'+(p*size+1)+'–'+Math.min(n,(p+1)*size)+' of '+n+'</span><button type="button" class="btn sm" data-pg="'+key+'" data-pd="-1"'+(p?'':' disabled')+'>Previous</button><button type="button" class="btn sm" data-pg="'+key+'" data-pd="1"'+(p<pages-1?'':' disabled')+'>Next</button></nav>'}
 /* o.page pages the list in steps of o.limit; otherwise it shows the top o.limit with a Show all button, unless o.noMore. */
 function rankList(key,items,o){o=o||{};var a=ranked(items),lim=o.limit||10,mx=a.length?a[0].v:1,zero=items.length-a.length,show;
- if(!a.length)return '<p class="none">'+o.none+'</p>';
+ if(!a.length)return o.tone?'<p class="none rnone">'+o.none+'</p>':'<p class="none">'+o.none+'</p>';
  if(o.page){var p=pager(key,a.length,lim);show=a.slice(p*lim,(p+1)*lim)}else show=EXP[key]?a:a.slice(0,lim);
+ if(o.from){show=show.slice(o.from);if(!show.length)return zero&&o.zeroNote?'<p class="rank-note">'+o.zeroNote(zero)+'</p>':''}
  var h='<ol class="rank'+(o.tone?' '+o.tone:'')+'">'+show.map(function(x){return '<li>'+rkHtml(x.r,tied(a,x))+'<div class="n"><b>'+(x.open?'<button type="button" class="lk" data-open="'+esc(x.open)+'"'+(x.tab?' data-tab="'+x.tab+'"':'')+'>'+esc(x.name)+'</button>':esc(x.name))+'</b>'+(x.sub?'<small>'+x.sub+'</small>':'')+'<div class="tr"><i style="width:'+(x.v/mx*100)+'%"></i></div></div><span class="v">'+(o.after?o.after(x):'')+(o.fmt?o.fmt(x.v):x.v)+'</span></li>'}).join("")+'</ol>';
  if(o.page)h+=pagerHtml(key,a.length,lim,o.what||"results");
  else if(a.length>lim&&!o.noMore)h+='<button type="button" class="btn sm quiet more-btn" data-exp="'+key+'" aria-expanded="'+!!EXP[key]+'">'+(EXP[key]?'Show the top '+lim:'Show all '+a.length)+'</button>';
@@ -1964,6 +2034,65 @@ document.addEventListener("keydown",function(e){
  if(e.key!=="Escape")return;
  var d=document.querySelector(".rmore[open],.help[open]");if(d){d.open=false;d.querySelector("summary").focus()}});
 document.addEventListener("click",function(e){Array.prototype.forEach.call(document.querySelectorAll(".rmore[open],.help[open]"),function(d){if(!d.contains(e.target))d.open=false})});
+/* Drop-down menus. Every <select> keeps its native control (its value, label, form and change events are the
+   real ones), drawn as a white field with a chevron (tokens.css). With a mouse, its list opens as our own white
+   menu instead of the browser's: rounded, with the chosen item ticked, a soft highlight under the pointer, group
+   names in small type, and a short fade in and out. The keyboard works as before (arrows, Home/End, typing a
+   name, Enter, Escape). On touch screens the phone's own picker opens, which suits fingers better. */
+var CS=(function(){var M=null,SEL=null,ACT=-1,BUF="",BT=0,FINE=null;try{FINE=matchMedia("(pointer:fine)")}catch(e){}
+ function ours(s){return s&&s.tagName==="SELECT"&&!s.multiple&&!s.disabled&&s.size<=1&&FINE&&FINE.matches}
+ function items(){return M?M.querySelectorAll(".cso"):[]}
+ function name(s){var l=s.getAttribute("aria-label");if(l)return l;var L=s.labels&&s.labels[0];if(!L)return "";
+  var t="";L.childNodes.forEach(function(n){if(n.nodeType===3)t+=n.nodeValue});return t.trim()}
+ function open(s){close(true);SEL=s;M=document.createElement("div");M.className="csm";M.id="csm";M.setAttribute("role","listbox");M.tabIndex=-1;
+  var nm=name(s);if(nm)M.setAttribute("aria-label",nm);var h="";
+  Array.prototype.forEach.call(s.children,function(c){
+   if(c.tagName==="OPTGROUP"){var o=Array.prototype.filter.call(c.children,function(x){return !x.hidden});if(!o.length)return;h+='<div class="csg" role="presentation">'+esc(c.label)+'</div>';o.forEach(function(x){h+=row(x)})}
+   else if(c.tagName==="OPTION"&&!c.hidden)h+=row(c)});
+  M.innerHTML=h;document.body.appendChild(M);
+  var r=s.getBoundingClientRect(),vh=innerHeight,vw=innerWidth,below=vh-r.bottom-12,above=r.top-12,up=below<220&&above>below,room=Math.max(140,Math.min(340,up?above:below));
+  M.style.minWidth=r.width+"px";M.style.maxHeight=room+"px";M.style.left=Math.max(8,Math.min(r.left,vw-M.offsetWidth-8))+"px";
+  M.style.top=(up?r.top-6-Math.min(room,M.scrollHeight):r.bottom+6)+"px";M.classList.toggle("up",up);
+  s.setAttribute("aria-expanded","true");s.setAttribute("aria-controls","csm");
+  active(s.selectedIndex,true);
+  if(M.animate&&!QM.matches)M.animate([{opacity:0,transform:"translateY("+(up?4:-4)+"px) scale(.98)"},{opacity:1,transform:"none"}],{duration:170,easing:"cubic-bezier(.22,1,.36,1)"})}
+ function row(o){return '<div class="cso'+(o.disabled?' off':'')+'" role="option" id="cso'+o.index+'" data-i="'+o.index+'" aria-selected="'+o.selected+'"'+(o.disabled?' aria-disabled="true"':'')+'><span>'+esc(o.textContent)+'</span></div>'}
+ function active(i,center){ACT=i;var on=null;items().forEach(function(e){var a=+e.dataset.i===i;e.classList.toggle("act",a);if(a)on=e});
+  if(SEL)if(on)SEL.setAttribute("aria-activedescendant",on.id);else SEL.removeAttribute("aria-activedescendant");
+  if(on){var t=on.offsetTop,b=t+on.offsetHeight;if(center)M.scrollTop=t-M.clientHeight/2+on.offsetHeight/2;else if(t<M.scrollTop)M.scrollTop=t-4;else if(b>M.scrollTop+M.clientHeight)M.scrollTop=b-M.clientHeight+4}}
+ function move(d){var L=Array.prototype.filter.call(items(),function(e){return !e.classList.contains("off")});if(!L.length)return;
+  var k=L.findIndex(function(e){return +e.dataset.i===ACT});k=k<0?0:d===-2?0:d===2?L.length-1:Math.max(0,Math.min(L.length-1,k+d));active(+L[k].dataset.i)}
+ function pick(i){var s=SEL;if(!s)return;var o=s.options[i];if(!o||o.disabled)return;close();s.focus();
+  if(s.selectedIndex!==i){s.selectedIndex=i;s.dispatchEvent(new Event("input",{bubbles:true}));s.dispatchEvent(new Event("change",{bubbles:true}))}}
+ function close(now){if(!M)return;var m=M,s=SEL;M=null;SEL=null;ACT=-1;
+  if(s){s.removeAttribute("aria-expanded");s.removeAttribute("aria-controls");s.removeAttribute("aria-activedescendant")}
+  m.removeAttribute("id");m.style.pointerEvents="none";
+  if(now||!m.animate||QM.matches){m.remove();return}
+  m.animate([{opacity:1},{opacity:0,transform:"translateY("+(m.classList.contains("up")?4:-4)+"px) scale(.98)"}],{duration:120,easing:"ease",fill:"forwards"}).onfinish=function(){m.remove()}}
+ function type(ch){var now=Date.now();BUF=now-BT<700?BUF+ch:ch;BT=now;var L=Array.prototype.slice.call(SEL.options),n=L.length,st=ACT;
+  for(var j=1;j<=n;j++){var o=L[(st+(BUF.length>1?0:j))%n];if(o&&!o.disabled&&!o.hidden&&o.textContent.trim().toLowerCase().indexOf(BUF.toLowerCase())===0){active(o.index);return}}}
+ document.addEventListener("mousedown",function(e){var s=e.target;
+  if(M&&M.contains(s)){e.preventDefault();return}
+  if(M&&s!==SEL)close();
+  if(e.button!==0||!ours(s))return;e.preventDefault();if(SEL===s){close();return}s.focus();open(s)},true);
+ document.addEventListener("click",function(e){var o=e.target.closest&&e.target.closest(".csm .cso");if(o&&M&&M.contains(o))pick(+o.dataset.i)});
+ document.addEventListener("mousemove",function(e){var o=e.target.closest&&e.target.closest(".csm .cso");if(o&&M&&M.contains(o)&&+o.dataset.i!==ACT&&!o.classList.contains("off"))active(+o.dataset.i)});
+ document.addEventListener("keydown",function(e){var s=e.target;
+  if(M&&SEL===s){var k=e.key;e.stopImmediatePropagation();
+   if(k==="ArrowDown"||k==="ArrowUp"){e.preventDefault();if(e.altKey&&k==="ArrowUp"){pick(ACT);return}move(k==="ArrowDown"?1:-1)}
+   else if(k==="Home"||k==="End"){e.preventDefault();move(k==="Home"?-2:2)}
+   else if(k==="PageDown"||k==="PageUp"){e.preventDefault();move(k==="PageDown"?8:-8)}
+   else if(k==="Enter"||k===" "&&Date.now()-BT>700){e.preventDefault();pick(ACT)}
+   else if(k==="Escape"){e.preventDefault();close()}
+   else if(k==="Tab")close();
+   else if(k.length===1&&!e.ctrlKey&&!e.metaKey){e.preventDefault();type(k)}
+   return}
+  if(ours(s)&&(e.key===" "||e.key==="Enter"||e.key==="F4"||e.altKey&&(e.key==="ArrowDown"||e.key==="ArrowUp"))){e.preventDefault();e.stopImmediatePropagation();open(s)}},true);
+ // The menu belongs to its field: scrolling the page, a new window size or the field going away closes it.
+ window.addEventListener("scroll",function(e){if(M&&!M.contains(e.target))close(true)},true);
+ window.addEventListener("resize",function(){close(true)});
+ document.addEventListener("focusout",function(e){if(M&&e.target===SEL)setTimeout(function(){if(M&&document.activeElement!==SEL)close()},0)});
+ return {close:close}})();
 function same(c,i,s){if(CID===c&&S[i]===s)return true;toast("The list was updated. Please try again.",1);return false}
 
 /* ---------- Class: student record ---------- */
@@ -2117,7 +2246,7 @@ $("recF").addEventListener("change",function(e){var t=e.target;
  recPage();var n=$(t.id);if(n)n.focus()});
 
 /* ---------- Class: Progress ---------- */
-function qavg(s){var v=Object.keys(s.q).map(function(k){return s.q[k]});return avg(v)}
+function qavg(s){var v=Object.keys(s.q).map(function(k){return s.q[k]});return avg(marks(v))}
 function lanes(){var A=S.slice().sort(function(a,b){return (nod(a)?0:b.target)-(nod(b)?0:a.target)||(nod(b)?0:b.target)-(nod(a)?0:a.target)||a.name.localeCompare(b.name)});
  A=S.slice().sort(function(a,b){var x=nod(a)?0:a.target,y=nod(b)?0:b.target;return y-x||a.name.localeCompare(b.name)});
  var top=Math.max(BL+1,A.length&&!nod(A[0])?A[0].target:0);
@@ -2243,6 +2372,8 @@ $("drwB").addEventListener("click",function(e){if(DMODE!=="mm")return;
 /* Score colours, 0 to 5: pastel coral, peach, butter, pistachio, mint and sea green. The other days on the
    day-by-day sheet show only the colour; the focused day shows the number on it too. */
 var QC=["#f2a7a0","#f6c39a","#f3dc8f","#d3e39a","#aedcb0","#8fcfb8"];
+/* Absent is stored as -1: a light grey box with a dash, counted as recorded but left out of every average. */
+var QAB="#e4e7ec";function qcol(v){return v<0?QAB:QC[v]}function qtxt(v){return v<0?"–":String(v)}function marks(v){return v.filter(function(x){return x>=0})}
 function qlab(k){var p=k.split("-");return ds(new Date(+p[0],+p[1]-1,+p[2],12).getTime())}
 function avg(v){return v.length?(v.reduce(function(a,b){return a+b},0)/v.length).toFixed(1):""}
 /* The Quran tab: a day-by-day sheet. The focused class day sits in the middle between the student names and their
@@ -2269,10 +2400,10 @@ function qGeo(W){if(W<600){var bw=Math.round(Math.min(84,Math.max(64,W*.2))),nw=
  return {side:side,w:w,nameW:nameW,houseW:houseW,x:function(k){return k<=0?(k+side)*w+(k===0?nameW:0):side*w+nameW+w+houseW+(k-1)*w}}}
 function qOp(k,side){var a=Math.abs(k);return a>side?0:a===0?1:1-a*(.24/side)}
 function qCell(s,i,d,on,future){var v=s.q[d],nm=esc(s.name),lt=v!==undefined&&qTest(s,d);
- if(!on)return '<span class="qc'+(v===undefined?'':' has')+(lt?' test':'')+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+'></span>';
- var lab=nm+", "+qlab(d)+": "+(v===undefined?"not recorded":v+" out of 5")+(lt?", "+tLab(lt)+" level test":"");
- if(lt)return '<button type="button" class="qc has test" data-qi="'+i+'" data-lock="1" style="--c:'+QC[v]+'" aria-disabled="true" aria-label="'+lab+'. Only an admin can change it" title="Level test: '+esc(tLab(lt))+', '+v+' out of 5">'+v+'</button>';
- return '<button type="button" class="qc'+(v===undefined?'':' has')+'" data-qi="'+i+'"'+(v===undefined?'':' style="--c:'+QC[v]+'"')+(future?' disabled title="This class day hasn\'t happened yet"':'')+' aria-label="'+lab+(future?', not open yet':'. Change score')+'" aria-haspopup="'+!future+'"'+(v===undefined?'':' title="'+v+' out of 5"')+'>'+(v===undefined?(future?'':'<span aria-hidden="true">+</span>'):v)+'</button>'}
+ if(!on)return '<span class="qc'+(v===undefined?'':' has')+(v<0?' ab':'')+(lt?' test':'')+'"'+(v===undefined?'':' style="--c:'+qcol(v)+'"')+'></span>';
+ var lab=nm+", "+qlab(d)+": "+(v===undefined?"not recorded":v<0?"absent":v+" out of 5")+(lt?", "+tLab(lt)+" level test":"");
+ if(lt)return '<button type="button" class="qc has test" data-qi="'+i+'" data-lock="1" style="--c:'+qcol(v)+'" aria-disabled="true" aria-label="'+lab+'. Only an admin can change it" title="Level test: '+esc(tLab(lt))+', '+v+' out of 5">'+v+'</button>';
+ return '<button type="button" class="qc'+(v===undefined?'':' has')+(v<0?' ab':'')+'" data-qi="'+i+'"'+(v===undefined?'':' style="--c:'+qcol(v)+'"')+(future?' disabled title="This class day hasn\'t happened yet"':'')+' aria-label="'+lab+(future?', not open yet':'. Change score')+'" aria-haspopup="'+!future+'"'+(v===undefined?'':' title="'+(v<0?'Absent':v+' out of 5')+'"')+'>'+(v===undefined?(future?'':'<span aria-hidden="true">+</span>'):qtxt(v))+'</button>'}
 /* dir is -1 or 1 when the focused day has just moved, so the columns slide; 0 redraws in place. */
 function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  if(!S.length){B.innerHTML='<div class="empty"><b>No students yet</b>'+addBtn()+'</div>';B.removeAttribute("style");return}
@@ -2280,7 +2411,7 @@ function qGrid(dir){var B=$("qB");if(!B)return;qPopClose();
  var p=qDate(QF);$("qDay").innerHTML='<b>'+p.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})+'</b><small>'+p.toLocaleDateString("en-GB",{weekday:"long"})+(QF===today?', today':QF>today?', coming up':'')+'</small>';
  $("qPrev").disabled=f<=0;$("qNext").disabled=f>=D.length-1;var L=qLatest(D);$("qToday").hidden=QF===L;
  var rec=S.filter(function(s){return s.q[QF]!==undefined});
- $("qSum").innerHTML='<b>'+rec.length+' of '+S.length+'</b> recorded'+(rec.length?' · average <b>'+avg(rec.map(function(s){return s.q[QF]}))+'</b>':'');
+ $("qSum").innerHTML='<b>'+rec.length+' of '+S.length+'</b> recorded'+(marks(rec.map(function(s){return s.q[QF]})).length?' · average <b>'+avg(marks(rec.map(function(s){return s.q[QF]})))+'</b>':'');
  var W=B.clientWidth;if(!W)return; /* hidden: drawn when the tab opens */
  var G=qGeo(W);B.classList.toggle("qph",!!G.phone);var fb=40,top=B.getBoundingClientRect().top,
   rh=fb+6,pad=rh-fb; /* pad: the room above the first box, the same as the gap between two boxes */
@@ -2361,7 +2492,7 @@ var QP_=null;
 function qPopClose(back){var p=document.querySelector(".qpop:not(.mo-ghost)");if(p)fxOut(p,"pop",function(){p.remove()});Array.prototype.forEach.call(document.querySelectorAll("#qB .qhid"),function(e){e.classList.remove("qhid")});if(QP_)QP_.removeAttribute("aria-expanded");if(back&&QP_&&document.contains(QP_))QP_.focus();QP_=null}
 function qPop(btn){qPopClose();var s=S[+btn.dataset.qi];if(!s)return;var cur=s.q[QF],B=$("qB");QP_=btn;
  var p=document.createElement("div");p.className="qpop";p.setAttribute("role","group");p.setAttribute("aria-label","Score for "+s.name);
- p.innerHTML=[0,1,2,3,4,5].map(function(k){return '<button type="button" style="--c:'+QC[k]+'" data-qv="'+k+'" aria-pressed="'+(cur===k)+'">'+k+'</button>'}).join("")+(cur===undefined?'':'<button type="button" class="qclr" data-qv="x">Clear</button>');
+ p.innerHTML=[-1,0,1,2,3,4,5].map(function(k){return '<button type="button"'+(k<0?' class="qab" aria-label="Absent" title="Absent"':'')+' style="--c:'+qcol(k)+'" data-qv="'+k+'" aria-pressed="'+(cur===k)+'">'+qtxt(k)+'</button>'}).join("")+(cur===undefined?'':'<button type="button" class="qclr" data-qv="x">Clear</button>');
  if(B.classList.contains("qph")){p.className="qpop qsheet";p.removeAttribute("role");p.removeAttribute("aria-label");
   p.innerHTML='<div class="qsc" data-qx aria-hidden="true"></div><div class="qscard" role="group" aria-label="Score for '+esc(s.name)+'"><div class="qsh"><b>'+esc(s.name)+'</b><small>'+esc(qlab(QF))+'</small></div><div class="qsb">'+p.innerHTML+'</div></div>';
   B.appendChild(p);btn.setAttribute("aria-expanded","true");(p.querySelector('[aria-pressed="true"]')||p.querySelector("[data-qv]")).focus({preventScroll:true});return}
@@ -2386,6 +2517,7 @@ $("qB").addEventListener("keydown",function(e){
  else if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();qStep(e.key==="ArrowRight"?1:-1);
   setTimeout(function(){var c=$("qB").querySelector('.qcol.on [data-qi="'+i+'"]');if(c&&!c.disabled)c.focus();else $(e.key==="ArrowRight"?"qNext":"qPrev").focus()},0);return}
  else if(/^[0-5]$/.test(e.key)&&!b.disabled){e.preventDefault();qSet(i,+e.key,1);return}
+ else if((e.key==="-"||e.key==="a"||e.key==="A")&&!b.disabled){e.preventDefault();qSet(i,-1,1);return}
  else if((e.key==="Backspace"||e.key==="Delete")&&S[i]&&S[i].q[QF]!==undefined){e.preventDefault();qSet(i,"x");return}
  if(go!==null&&go>=0&&go<S.length){e.preventDefault();var c=$("qB").querySelector('.qcol.on [data-qi="'+go+'"]');if(c)c.focus()}});
 document.addEventListener("click",function(e){if(QP_&&!e.target.closest(".qpop")&&!e.target.closest(".qcol.on [data-qi]"))qPopClose()});
@@ -2443,8 +2575,8 @@ function qSheetDraw(){var days={},from=QP==="r"?dk(addDays(today0(),-42).getTime
  var D=Object.keys(days).filter(function(k){return k>=from&&wkend(k)}).sort();
  if(!S.length){$("qSheet").innerHTML='<div class="empty"><b>Nothing recorded yet</b></div>';return}
  var h='<table class="sh"><thead><tr><th class="t1" scope="col">Student</th><th scope="col">Average, all days</th>'+D.map(function(k){return '<th scope="col">'+qlab(k)+'</th>'}).join("")+'</tr></thead><tbody>';
- var SN=shortNames(S);S.forEach(function(s,i){h+='<tr><th scope="row" class="t1" title="'+esc(s.name)+'">'+esc(SN[i])+'</th><td><b>'+(qavg(s)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':chip(QC[q],q+'/5'))+'</td>'}).join("")+'</tr>'});
- h+='<tr><th scope="row" class="t1">Class average</th><td></td>'+D.map(function(k){return '<td><b>'+avg(S.filter(function(s){return s.q[k]!==undefined}).map(function(s){return s.q[k]}))+'</b></td>'}).join("")+'</tr>';
+ var SN=shortNames(S);S.forEach(function(s,i){h+='<tr><th scope="row" class="t1" title="'+esc(s.name)+'">'+esc(SN[i])+'</th><td><b>'+(qavg(s)||"–")+'</b></td>'+D.map(function(k){var q=s.q[k];return '<td>'+(q===undefined?'':q<0?chip(QAB,'Absent'):chip(QC[q],q+'/5'))+'</td>'}).join("")+'</tr>'});
+ h+='<tr><th scope="row" class="t1">Class average</th><td></td>'+D.map(function(k){return '<td><b>'+avg(S.filter(function(s){return s.q[k]>=0}).map(function(s){return s.q[k]}))+'</b></td>'}).join("")+'</tr>';
  $("qSheet").innerHTML=h+'</tbody></table>'}
 /* Phones have no Full sheet (Quran or Memo): fall back to the day-by-day and student views. */
 var PHN=matchMedia("(max-width:959.98px)");function noSheet(){if(!PHN.matches)return;if(VW.Q==="his")view("Q","rec");if(VW.T==="his")view("T","rec")}
@@ -2502,8 +2634,11 @@ function keyTabs(ids,fn,prefix){ids.forEach(function(k,i){var b=$(prefix+k);b.on
  b.onkeydown=function(e){var j=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?ids.length-1:null;if(j===null)return;e.preventDefault();fn(ids[(j+ids.length)%ids.length],1)}})}
 keyTabs(TABS,tab,"t");
 /* Segmented controls: one choice pressed at a time. */
+/* A tab's new content comes in softly (a short fade with a little blur, column by column) instead of cutting in. */
+function swapIn(box){if(!box||!box.animate||QM.matches)return;Array.prototype.forEach.call(box.children,function(c,i){
+ c.animate([{opacity:.25,filter:"blur(3px)",transform:"translateY(4px)"},{opacity:1,filter:"blur(0)",transform:"none"}],{duration:320,easing:"cubic-bezier(.22,1,.36,1)",delay:i*45,fill:"backwards"})})}
 function setSeg(id,v){var g=$(id);Array.prototype.forEach.call(g.querySelectorAll("button"),function(b){var k=b.dataset.p||b.dataset.k||b.dataset.t;b.setAttribute("aria-pressed",k===v)});
- if(id==="hP")HP=v;if(id==="tP")TP=v;if(id==="qP")QP=v;if(id==="rP"){RP=v;master();return}
+ if(id==="hP")HP=v;if(id==="tP")TP=v;if(id==="qP")QP=v;if(id==="rP"){RP=v;master();swapIn($("mst").querySelector(".rk4"));return}
  if(CID)render()}
 ["hP","tP","qP"].forEach(function(id){$(id).addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg(id,b.dataset.p||b.dataset.k||b.dataset.t)})});
 /* Views inside a class tab (Quran, Memo, Progress): one pane at a time, kept while moving between classes. */
@@ -2573,7 +2708,7 @@ function lastPass(L){var t=0;L.forEach(function(s){var x=s.log[s.log.length-1];i
 function ago(t){if(!t)return '<span class="zero">No passes yet</span>';var w=Math.round((wk0(Date.now())-wk0(t))/(7*864e5));return w<1?"This week":w===1?"Last week":w+" weeks ago"}
 function opener(c,txt,t){return '<button type="button" class="lk" data-open="'+esc(c)+'"'+(t?' data-tab="'+t+'"':'')+'>'+txt+'</button>'}
 /* A student's Quran average this month, to one decimal place, and how many days it covers; null with no scores. */
-function qMonth(s){var a=dk(ms0()),b=dk(Date.now()),v=Object.keys(s.q).filter(function(d){return d>=a&&d<=b}).map(function(d){return s.q[d]});
+function qMonth(s){var a=dk(ms0()),b=dk(Date.now()),v=marks(Object.keys(s.q).filter(function(d){return d>=a&&d<=b}).map(function(d){return s.q[d]}));
  return v.length?{v:Math.round(v.reduce(function(x,y){return x+y},0)/v.length*10)/10,n:v.length}:null}
 /* Every student in the school with their class, and the attention groups (see AGR). The Quran groups use the average
    as shown, so a 2.04 that reads 2.0 counts as 2 or less. */
@@ -2614,7 +2749,7 @@ function attnBox(K){
   +AGP.map(function(g){return '<section class="ag"><h3>'+g[0]+(g[1]?' <small>'+g[1]+'</small>':'')+'</h3><div class="ag2">'+AGR.slice(g[2],g[2]+2).map(tile).join("")+'</div></section>'}).join("")+'</div></div>'}
 function latest(A,n){var E=[];A.forEach(function(o){o.s.log.forEach(function(t,k){E.push({t:t,s:o.s,c:o.c,x:pl(o.s,k)})})});return E.sort(function(a,b){return b.t-a.t}).slice(0,n)}
 function houseBoard(all){var T=window.HOUSE_TOTALS||houseTotals(all),V=HOUSES.map(function(h){return T[h]||0}),top=Math.max(1,Math.max.apply(null,V)),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null;
- return '<div class="mod gold hb"><div class="mod-h">'+ovT("H","House points")+'</div><div class="houses">'+O.map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+(h===lead?' <span class="pill lead">Leading</span>':'')+'</span><span class="pts">'+v+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div></div>'}).join("")+'</div><p class="cap">Whole school, all time</p></div>'}
+ return '<div class="mod gold hb"><div class="mod-h">'+ovT("H","House points")+'</div><div class="houses">'+O.map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+(h===lead?' <span class="pill lead">Leading</span>':'')+'</span><span class="pts">'+v+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div></div>'}).join("")+'</div></div>'}
 function classRows(per){return CIDS.map(function(c){var L=ST[c].S,n=L.length,p=per==="m"?sumOf(L,mpc):sumOf(L,function(s){return s.passes}),m=per==="m"?sumOf(L,mmc):sumOf(L,function(s){return s.merits});
  return {name:cname(ST[c].name),open:c,v:n?Math.round((p+m)/n*10)/10:0,sub:plural(p,"pass","passes")+", "+plural(m,"merit")+", "+plural(n,"student")}})}
 function master(){if(PAGE==="L"){dirTab();return}if(PAGE==="U"){stuPage();return}if(PAGE==="H"){hpPage();return}if(PAGE==="K"){rkPage();return}var K=school(),A=K.A,all=K.all,adm=!(window.ME&&ME.role!=="admin");
@@ -2737,17 +2872,19 @@ function stuFilters(){if(SC&&!ST[SC])SC="";var O=sfOpts(),act=[];
 function sfOpen(on){var P=$("stuP");if(!P||P.hidden===!on)return;P.hidden=!on;$("stuFB").setAttribute("aria-expanded",on);
  if(on){stuFilters();var s=P.querySelector("select");if(s)s.focus();if(!QM.matches&&P.animate)P.animate([{opacity:0,transform:"translateY(-4px)"},{opacity:1,transform:"none"}],{duration:160,easing:"ease-out"})}}
 function sfOk(s){return ["sy","house","gender","ist"].every(function(k){var f=SF[k];return !f||(f==="-"?!s[k]:s[k]===f)})&&(!SF.miss||!s[SF.miss])}
+/* The letters typed in the search, picked out in light blue wherever they appear in a name or ID. */
+function qhl(t,q){t=String(t||"");var i=q?t.toLowerCase().indexOf(q):-1;return i<0?esc(t):esc(t.slice(0,i))+'<mark class="qhl">'+esc(t.slice(i,i+q.length))+'</mark>'+esc(t.slice(i+q.length))}
 function stuRows(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return sfOk(o.s)}).filter(function(o){return !q||nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q});
  var fon=q||SC||Object.keys(SF).some(function(k){return SF[k]}),tot=0;CIDS.forEach(function(c){tot+=ST[c].S.length});
  $("stuN").textContent=fon?A.length+" of "+plural(tot,"student")+" match":plural(tot,"student")+(CIDS.length<2?"":" in "+plural(CIDS.length,"class","classes"));
  if(!A.length){$("stuL").innerHTML='<div class="empty"><b>'+(fon?'No student matches':'No students yet')+'</b>'+(fon?'Check the spelling, or clear the filters.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
  var p=pager("stu",A.length,SPG);
- $("stuL").innerHTML='<div class="tablewrap"><table class="tbl stackable stul"><thead><tr><th scope="col">Student</th><th scope="col">QM class</th><th scope="col">AI class</th><th scope="col">Year group</th><th scope="col">Student ID</th><th scope="col">Family ID</th><th scope="col">House</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>'
-  +A.slice(p*SPG,(p+1)*SPG).map(function(o){var s=o.s;return '<tr data-c="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(s)+'"'+(s===SNEW?' class="snew"':'')+'><td class="lead"><button type="button" class="spo" aria-label="Open '+esc(s.name)+'\'s profile"><b>'+esc(s.name)+'</b></button></td>'
+ $("stuL").innerHTML='<div class="tablewrap soft"><table class="tbl stackable stul"><thead><tr><th scope="col">Student</th><th scope="col">QM class</th><th scope="col">AI class</th><th scope="col">Year group</th><th scope="col">Student ID</th><th scope="col">Family ID</th><th scope="col">House</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>'
+  +A.slice(p*SPG,(p+1)*SPG).map(function(o){var s=o.s;return '<tr data-c="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(s)+'"'+(s===SNEW?' class="snew"':'')+'><td class="lead"><button type="button" class="spo" aria-label="Open '+esc(s.name)+'\'s profile"><b>'+qhl(s.name,q)+'</b></button></td>'
    +'<td data-label="QM class" class="sm"><span class="pfx">QM </span>'+opener(o.c,esc(cname(ST[o.c].name)))+'</td>'
    +'<td data-label="AI class" class="sm ai"><span class="pfx">AI </span>'+(s.ist?esc(cname(s.ist)):'<span class="zero">Not set</span>')+'</td>'
    +'<td data-label="Year group" class="sy">'+(s.sy?esc(s.sy):'<span class="zero">Not recorded</span>')+'</td>'
-   +'<td data-label="Student ID" class="sm">'+(s.sid?esc(s.sid):'<span class="zero">None</span>')+'</td>'
+   +'<td data-label="Student ID" class="sm">'+(s.sid?qhl(s.sid,q):'<span class="zero">None</span>')+'</td>'
    +'<td data-label="Family ID" class="sm fi">'+(s.fid?esc(s.fid):'<span class="zero">None</span>')+'</td>'
    +'<td data-label="House" class="sm">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">Not set</span>')+'</td>'
    +'<td class="act"><button type="button" class="btn sm srm" aria-label="Remove '+esc(s.name)+'" title="Remove student">'+BINIC+'<span aria-hidden="true">Remove</span></button></td></tr>'}).join("")
@@ -2846,11 +2983,11 @@ $("vU").addEventListener("click",function(e){if(e.target.closest("#stuA,#stuA2")
 /* The overview's rankings: house points, the top three students for passes (teachers; the school overview has them
    by stage) and for merits, and passes per week. Each title opens the full list. */
 function rankHtml(K,school){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
- var h='<div class="toolbar"><div class="seg" id="rP" role="group" aria-label="Period"><button type="button" data-p="m" aria-pressed="'+m+'">This month</button><button type="button" data-p="a" aria-pressed="'+!m+'">All time</button></div><p class="cap">'+(m?'Since the 1st of this month':'Every pass and merit recorded: '+plural(sumOf(K.all,function(s){return s.passes}),"pass","passes")+' and '+plural(sumOf(K.all,function(s){return s.merits}),"merit")+' in total')+'</p></div>';
+ var h='<div class="toolbar"><div class="seg" id="rP" role="group" aria-label="Period"><button type="button" data-p="m" aria-pressed="'+m+'">This month</button><button type="button" data-p="a" aria-pressed="'+!m+'">All time</button></div></div>';
  h+='<div class="rk4 mine'+(school?'':' c4')+'">'+houseBoard(K.all)
-  +(school?'':'<div class="grp"><div class="mod-h">'+ovT("mp","Most passes")+'</div><p class="cap">Students, '+tm+'</p>'+rankList("mp"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:m?mpc(o.s):o.s.passes}}),{limit:3,noMore:1,tone:"sky",none:"No passes yet "+tm+"."})+'</div>')
-  +'<div class="grp"><div class="mod-h">'+ovT("mm","Most merits")+'</div><p class="cap">Students, '+tm+'</p>'+rankList("mm"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:m?mmc(o.s):o.s.merits}}),{limit:3,noMore:1,tone:"gold",none:"No merits yet "+tm+"."})+'</div>'
-  +'<div class="grp"><div class="mod-h"><h2>Passes per week</h2></div><p class="cap">'+(school?'Whole school, last 8 weeks':'Last 8 weeks')+'</p>'+weekRows(allLogs(K.all))+'</div></div>';
+  +(school?'':'<div class="grp"><div class="mod-h">'+ovT("mp","Most passes")+'</div>'+rankList("mp"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:m?mpc(o.s):o.s.passes}}),{limit:3,noMore:1,tone:"sky",none:"No passes yet "+tm+"."})+'</div>')
+  +'<div class="grp"><div class="mod-h">'+ovT("mm","Most merits")+'</div>'+rankList("mm"+RP,A.map(function(o){return {name:o.s.name,open:o.c,sub:esc(cname(ST[o.c].name)),v:m?mmc(o.s):o.s.merits}}),{limit:3,noMore:1,tone:"gold",none:"No merits yet "+tm+"."})+'</div>'
+  +'<div class="grp"><div class="mod-h"><h2>Passes per week</h2></div>'+weekRows(allLogs(K.all))+'</div></div>';
  return h}
 function houseHtml(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.slice().sort(function(a,b){return (T[b]||0)-(T[a]||0)}),lead=(T[O[0]]||0)>(T[O[1]]||0)?O[0]:null,mx=Math.max.apply(null,O.map(function(y){return T[y]||0}))||1;
  var tok={},stu={},none=0;HOUSES.forEach(function(h){tok[h]=TOK.map(function(){return 0});stu[h]=0});
@@ -2872,9 +3009,9 @@ function houseHtml(K){var T=window.HOUSE_TOTALS||houseTotals(K.all),O=HOUSES.sli
    Points an admin added by hand for a whole house (/admin/house-points, in HOUSE_EXTRA from railway-storage.js) are
    awards too, with no class or student: "Historical points". */
 var HB="st",HPF={p:"all",h:"",r:"",q:""},HPSZ=10,HPX=[];
-var HBY=[["st","Students","Student"],["c","Classes","QM class"],["ist","AI classes","AI class"],["fid","Families","Family"],["gender","Gender","Gender"],["sy","Year groups","Year group"],["r","What for","What for"],["all","Every award",""]];
+var HBY=[["st","Students","Student"],["c","Classes","QM class"],["ist","Arabic","AI class","Arabic and Islamic Studies classes"],["fid","Families","Family"],["gender","Gender","Gender"],["sy","Years","Year group","Year groups"],["r","Reasons","Reason"],["all","History","","Every award, newest first"]];
 var HPP=[["all","All time"],["d","Today"],["w","This week"],["m","This month"],["lm","Last month"],["30","Last 30 days"]];
-function hrLab(r){if(r==="hx")return "Historical points (added by hand)";if(r==="lt")return "Level test passed (Record)";if(r.charAt(0)==="q"&&r.length===2){var k=TOK.filter(function(x){return x[1]===r.charAt(1)})[0];return "Quran tab, "+(k?k[2].toLowerCase():"")+" coin"}
+function hrLab(r){if(r==="hx")return "Historical points";if(r==="lt")return "Level test passed";if(r.charAt(0)==="q"&&r.length===2){var k=TOK.filter(function(x){return x[1]===r.charAt(1)})[0];return "Quran tab, "+(k?k[2].toLowerCase():"")+" coin"}
  var x=hpr(r);return x?x[1]:r}
 function hrKeys(){return HPR.map(function(x){return x[0]}).concat(["lt","hx"],TOK.map(function(k){return "q"+k[1]}))}
 /* Every coin in the school as {s, c, t, k: its TOK entry, r: what for}. */
@@ -2885,7 +3022,7 @@ function hpAll(){var A=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){v
  var P={};(window.HOUSE_EXTRA||[]).forEach(function(e){var k=TOK.filter(function(x){return x[0]===e.coin})[0],h=P[e.house]=P[e.house]||{name:"Historical points",house:e.house};
   if(k)for(var n=0;n<e.n;n++)A.push({s:h,c:"",t:e.given_at,k:k,r:"hx",note:e.note})});
  return A}
-function ocn(o){return o.c?cname(ST[o.c].name):"Added by hand"}
+function ocn(o){return o.c?cname(ST[o.c].name):"–"}
 function hpFrom(p){var n=new Date(),y=n.getFullYear(),m=n.getMonth();
  return p==="d"?[new Date(y,m,n.getDate()).getTime(),Infinity]:p==="w"?[wk0(+n),Infinity]:p==="m"?[ms0(),Infinity]:p==="lm"?[new Date(y,m-1,1).getTime(),ms0()]:p==="30"?[+n-30*864e5,Infinity]:null}
 function hpQ(o,q){return nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q||nkey(ocn(o)).indexOf(q)>=0}
@@ -2900,11 +3037,11 @@ function hpGroup(o){var s=o.s;if(!o.c&&HB!=="r")return ["~"+(HB==="st"?s.house:"
  default:return [o.r,hrLab(o.r)]}}
 function hpSum(L){return L.reduce(function(t,o){return t+o.k[3]},0)}
 function hpPage(){if(!CIDS.length){$("hpW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>House points are given to students, so upload a CSV on Classes first.<button type="button" class="btn sm p" data-open="L">Go to Classes</button></div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';return}
- if(!$("hpQ"))$("hpW").innerHTML='<div id="hpH"></div><div class="hpby"><div class="seg" id="hpB" role="group" aria-label="Break down by">'+HBY.map(function(x){return '<button type="button" data-k="'+x[0]+'" aria-pressed="'+(HB===x[0])+'">'+x[1]+'</button>'}).join("")+'</div></div>'
+ if(!$("hpQ"))$("hpW").innerHTML='<div id="hpH"></div><div class="hpby"><div class="seg" id="hpB" role="group" aria-label="Break down by">'+HBY.map(function(x){return '<button type="button" data-k="'+x[0]+'" aria-pressed="'+(HB===x[0])+'"'+(x[3]?' title="'+x[3]+'"':'')+'>'+x[1]+'</button>'}).join("")+'</div></div>'
   +'<div class="toolbar hpbar"><input type="search" id="hpQ" placeholder="Find a student, class or ID…" aria-label="Find a student, class, Student ID or Family ID" autocomplete="off">'
   +'<label class="hpf">Period<select id="hpP">'+HPP.map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>'}).join("")+'</select></label>'
   +'<label class="hpf">House<select id="hpHs"><option value="">All houses</option>'+HOUSES.map(function(h){return '<option>'+h+'</option>'}).join("")+'<option value="-">No house</option></select></label>'
-  +'<label class="hpf">What for<select id="hpR"><option value="">Everything</option>'+hrKeys().map(function(r){return '<option value="'+r+'">'+esc(hrLab(r))+'</option>'}).join("")+'</select></label>'
+  +'<label class="hpf">Reason<select id="hpR"><option value="">All reasons</option>'+hrKeys().map(function(r){return '<option value="'+r+'">'+esc(hrLab(r))+'</option>'}).join("")+'</select></label>'
   +'<p class="cap" id="hpN"></p></div><div id="hpL"></div>';
  $("hpQ").value=HPF.q;$("hpP").value=HPF.p;$("hpHs").value=HPF.h;$("hpR").value=HPF.r;hpRows()}
 /* The three houses for what the filters keep, each with where most of its points came from. */
@@ -2920,22 +3057,21 @@ function hpRows(){var L=hpPick(0),G={},O=[],cols=HPF.h?[]:HOUSES.slice(),fon=HPF
  if(!HPF.h&&L.some(function(o){return HOUSES.indexOf(o.s.house)<0}))cols.push("-");
  $("hpN").textContent=plural(L.length,"award")+", "+hpSum(L)+" points"+(fon?" match":"");
  if(!L.length){HPX=[];$("hpL").innerHTML='<div class="empty"><b>'+(fon?'No house points match':'No house points yet')+'</b>'+(fon?'Try a longer period, or clear the search and filters.':'They are given on the Record page and from a student\'s name on the Quran tab.')+'</div>';return}
- if(HB==="all"){HPX=L.slice().sort(function(a,b){return b.t-a.t});var p=pager("hpg",HPX.length,HPSZ);
-  $("hpL").innerHTML=hpList(HPX.slice(p*HPSZ,(p+1)*HPSZ),1)+pagerHtml("hpg",HPX.length,HPSZ,"awards");return}
+ if(HB==="all"){HPX=L.slice().sort(function(a,b){return b.t-a.t});$("hpL").innerHTML=hpList(HPX,1);return}
  L.forEach(function(o){var g=hpGroup(o),x=G[g[0]];if(!x){x=G[g[0]]={k:g[0],name:g[1],o:o,L:[],h:{},st:[]};O.push(x)}x.L.push(o);
   var h=HOUSES.indexOf(o.s.house)<0?"-":o.s.house;x.h[h]=(x.h[h]||0)+o.k[3];if(o.c&&x.st.indexOf(o.s)<0)x.st.push(o.s)});
  O.forEach(function(x){x.v=hpSum(x.L)});O.sort(function(a,b){return b.v-a.v||a.name.localeCompare(b.name)});HPX=O;
- var p=pager("hpg",O.length,HPSZ),st=HB==="st",by=HBY.filter(function(x){return x[0]===HB})[0],what=by[1].toLowerCase(),h;
- h='<div class="tablewrap"><table class="tbl stackable hpt"><thead><tr><th scope="col">'+by[2]+'</th>'
+ var p=0,st=HB==="st",by=HBY.filter(function(x){return x[0]===HB})[0],what=by[1].toLowerCase(),h;
+ h='<div class="tablewrap soft"><table class="tbl stackable hpt"><thead><tr><th scope="col">'+by[2]+'</th>'
   +(st?'<th scope="col">Class</th><th scope="col">House</th>'+TOK.map(function(k){return '<th scope="col" class="n"><span class="tdot '+k[1]+'"></span>'+k[2]+'</th>'}).join(""):'<th scope="col" class="n">Students</th>'+cols.map(function(c){return '<th scope="col" class="n">'+(c==="-"?"No house":c)+'</th>'}).join(""))
   +'<th scope="col" class="n">Points</th><th scope="col"><span class="sr-only">Details</span></th></tr></thead><tbody>'
-  +O.slice(p*HPSZ,(p+1)*HPSZ).map(function(x,i){var s=x.o.s,sub=HB==="fid"&&x.k?x.st.map(function(y){return y.name}).join(", "):"";
+  +O.map(function(x,i){var s=x.o.s,sub=HB==="fid"&&x.k?x.st.map(function(y){return y.name}).join(", "):"";
    return '<tr><td class="lead"><b>'+esc(x.name)+'</b>'+(sub?'<small>'+esc(sub)+'</small>':'')+'</td>'
     +(st?'<td data-label="Class">'+esc(ocn(x.o))+'</td><td data-label="House">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">Not set</span>')+'</td>'
       +TOK.map(function(k){var n=x.L.filter(function(o){return o.k===k}).length;return '<td data-label="'+k[2]+' coins" class="n'+(n?'':' zero')+'">'+n+'</td>'}).join("")
      :'<td data-label="Students" class="n">'+x.st.length+'</td>'+cols.map(function(c){var v=x.h[c]||0;return '<td data-label="'+(c==="-"?"No house":c)+'" class="n'+(v?'':' zero')+'">'+v+'</td>'}).join(""))
     +'<td data-label="Points" class="n tot">'+x.v+'</td><td class="act"><button type="button" class="btn sm quiet" data-hx="'+(p*HPSZ+i)+'" aria-label="See where '+esc(x.name)+'\'s '+x.v+' points came from">See awards</button></td></tr>'}).join("")
-  +'</tbody></table></div>'+pagerHtml("hpg",O.length,HPSZ,what);
+  +'</tbody></table></div>';
  $("hpL").innerHTML=h}
 /* Awards newest first: when, who (with their class and house), what for and the coin. */
 function hpList(L,who){return '<ul class="hpl">'+L.map(function(o){var s=o.s;
@@ -2943,13 +3079,13 @@ function hpList(L,who){return '<ul class="hpl">'+L.map(function(o){var s=o.s;
    +'<span class="x">'+esc(hrLab(o.r))+(o.note?' · '+esc(o.note):'')+'</span><span class="rtok '+o.k[1]+'"><span class="tdot '+o.k[1]+'" aria-hidden="true"></span>+'+o.k[3]+'</span></li>'}).join("")+'</ul>'}
 function hpOpen(x){var L=x.L.slice().sort(function(a,b){return b.t-a.t}),R={};L.forEach(function(o){var r=R[o.r]=R[o.r]||{n:0,v:0};r.n++;r.v+=o.k[3]});
  var K=Object.keys(R).sort(function(a,b){return R[b].v-R[a].v}),one=HB==="st",max=200;
- drawer(x.name,'<div class="hpd"><p class="cap">'+(one?esc(ocn(x.o))+(x.o.s.house?', '+esc(x.o.s.house):', no house yet')+'. ':plural(x.st.length,"student")+'. ')+plural(L.length,"award")+', '+x.v+' points'+(HPF.p!=="all"?', '+HPP.filter(function(p){return p[0]===HPF.p})[0][1].toLowerCase():'')+'.</p>'
-  +'<table class="tbl hpw"><thead><tr><th scope="col">What for</th><th scope="col" class="n">Awards</th><th scope="col" class="n">Points</th></tr></thead><tbody>'+K.map(function(r){return '<tr><td>'+esc(hrLab(r))+'</td><td class="n">'+R[r].n+'</td><td class="n">'+R[r].v+'</td></tr>'}).join("")+'</tbody></table>'
+ drawer(x.name,'<div class="hpd"><p class="cap">'+(one?(x.o.c?esc(ocn(x.o))+(x.o.s.house?', '+esc(x.o.s.house):', no house yet'):esc(x.o.s.house||"No house"))+'. ':plural(x.st.length,"student")+'. ')+plural(L.length,"award")+', '+x.v+' points'+(HPF.p!=="all"?', '+HPP.filter(function(p){return p[0]===HPF.p})[0][1].toLowerCase():'')+'.</p>'
+  +'<table class="tbl hpw"><thead><tr><th scope="col">Reason</th><th scope="col" class="n">Awards</th><th scope="col" class="n">Points</th></tr></thead><tbody>'+K.map(function(r){return '<tr><td>'+esc(hrLab(r))+'</td><td class="n">'+R[r].n+'</td><td class="n">'+R[r].v+'</td></tr>'}).join("")+'</tbody></table>'
   +'<h3>Every award</h3>'+hpList(L.slice(0,max),!one)+(L.length>max?'<p class="cap">The latest '+max+' of '+L.length+'. Choose a shorter period to see the rest.</p>':'')+'</div>')}
 $("vH").addEventListener("input",function(e){if(e.target.id==="hpQ"){HPF.q=e.target.value;PG.hpg=0;hpRows()}});
 $("vH").addEventListener("change",function(e){var k={hpP:"p",hpHs:"h",hpR:"r"}[e.target.id];if(!k)return;HPF[k]=e.target.value;PG.hpg=0;hpRows()});
 $("vH").addEventListener("click",function(e){var b=e.target.closest("#hpB button,[data-hh],[data-hx]");if(!b)return;
- if(b.dataset.k){HB=b.dataset.k;PG.hpg=0;setSeg("hpB",HB);hpRows();return}
+ if(b.dataset.k){HB=b.dataset.k;PG.hpg=0;setSeg("hpB",HB);hpRows();swapIn($("hpL"));return}
  if(b.dataset.hh){HPF.h=HPF.h===b.dataset.hh?"":b.dataset.hh;$("hpHs").value=HPF.h;PG.hpg=0;hpRows();var f=document.querySelector('[data-hh="'+b.dataset.hh+'"]');if(f)f.focus();return}
  var x=HPX[+b.dataset.hx];if(x)hpOpen(x)});
 /* ---------- Rankings page (admins) ----------
@@ -2971,11 +3107,22 @@ function rkRows(){var w=hpFrom(RKF.p),per=HPP.filter(function(x){return x[0]===R
   S.forEach(function(s){s.log.forEach(function(t){if(!w||t>=w[0]&&t<w[1])n++})});tot+=n;
   return {name:cname(ST[x.c].name),open:x.c,tab:"T",v:n,sub:(x.g&&RKF.g==="a"?RKG.filter(function(y){return y[0]===x.g})[0][1]+' · ':'')+plural(S.length,"student")+(S.length&&n?' · '+(Math.round(n/S.length*10)/10)+' per student':'')}});
  $("rkN").textContent=plural(L.length,"class","classes")+", "+plural(tot,"pass","passes")+" "+tm;
- $("rkL").innerHTML=L.length?rankList("rk"+RKF.g+RKF.p,L,{limit:25,page:1,what:"classes",none:"No Memo passes yet "+tm+".",zeroNote:function(z){return plural(z,"class","classes")+" with no passes "+tm+"."}})
+ var a=ranked(L);
+ $("rkL").innerHTML=L.length?(a.length?'<div class="rkx">'+podium(a)+'<div class="rkr">'+rankList("rk"+RKF.g+RKF.p,L,{limit:999,noMore:1,from:3,what:"classes",none:"",zeroNote:function(z){return plural(z,"class","classes")+" with no passes "+tm+"."}}):'<div class="rkx"><div class="rkr"><p class="none rnone">No Memo passes yet '+tm+'.</p>')+'</div></div>' 
    +(RKF.g==="a"&&none?'<p class="rank-note">'+plural(none,"class","classes")+' with no year group in the name or on the students, so '+(none===1?'it shows':'they show')+' under All classes only.</p>':'')
-  :'<div class="empty"><b>No '+RKG.filter(function(y){return y[0]===RKF.g})[0][1]+' classes</b>No class name or student says Year '+(RKF.g==="p"?'1 to 6':'7 or above')+'.</div>'}
-$("vK").addEventListener("change",function(e){if(e.target.id==="rkP"){RKF.p=e.target.value;rkRows()}});
-$("vK").addEventListener("click",function(e){var b=e.target.closest("#rkG button");if(!b)return;RKF.g=b.dataset.k;setSeg("rkG",RKF.g);rkRows()});
+  :'<div class="empty"><b>No '+RKG.filter(function(y){return y[0]===RKF.g})[0][1]+' classes</b>No class name or student says Year '+(RKF.g==="p"?'1 to 6':'7 or above')+'.</div>';podiumRise()}
+$("vK").addEventListener("change",function(e){if(e.target.id==="rkP"){RKF.p=e.target.value;rkRows();swapIn($("rkL").querySelector(".rkx"))}});
+$("vK").addEventListener("click",function(e){var b=e.target.closest("#rkG button");if(!b)return;RKF.g=b.dataset.k;setSeg("rkG",RKF.g);rkRows();swapIn($("rkL").querySelector(".rkx"))});
+/* The top three classes on a podium: first in the middle and tallest, second on its left, third on its right. Joint
+   places share a step's height. Each step opens its class. The steps rise as the page or a filter draws them. */
+function podium(a){var T=a.slice(0,3),O=[T[1],T[0],T[2]];
+ return '<div class="podium" role="list" aria-label="Top classes">'+O.map(function(x){if(!x)return '<div class="pd pd-x" aria-hidden="true"></div>';var r=Math.min(x.r,3),t=tied(a,x);
+  return '<div class="pd p'+r+'" role="listitem"><button type="button" class="pdc" data-open="'+esc(x.open)+'" data-tab="T" aria-label="'+(t?'Joint '+x.r:ordinal(x.r))+', '+esc(x.name)+', '+plural(x.v,"pass","passes")+'">'
+   +rkHtml(x.r,t)+'<b class="pdn">'+esc(x.name)+'</b><span class="pdv"><b>'+x.v+'</b> '+(x.v===1?'pass':'passes')+'</span></button><span class="pdb" aria-hidden="true">'+(t?'='+x.r:x.r)+'</span></div>'}).join("")+'</div>'}
+function ordinal(n){var t=n%100,u=n%10;return n+(t>10&&t<14?"th":u===1?"st":u===2?"nd":u===3?"rd":"th")}
+function podiumRise(){var P=$("rkL").querySelector(".podium");if(!P||!P.animate||QM.matches)return;
+ [P.querySelector(".p3 .pdb"),P.querySelector(".p2 .pdb"),P.querySelector(".p1 .pdb")].forEach(function(b,i){if(b)b.animate([{transform:"scaleY(0)"},{transform:"none"}],{duration:620,easing:"cubic-bezier(.22,1,.36,1)",delay:i*110,fill:"backwards"})});
+ P.querySelectorAll(".pdc").forEach(function(c){var i=c.parentNode.classList.contains("p1")?2:c.parentNode.classList.contains("p2")?1:0;c.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.22,1,.36,1)",delay:180+i*110,fill:"backwards"})})}
 (function(){
 $("ren").onclick=function(){var c=CID;if(!c)return;ask("Rename this class","Save name",function(v){if(!ST[c])return;ST[c].name=v;sortC();save();navL();head();toast("Class name saved")},"Class name",0,ST[c].name)};
 var f=$("fcd");
@@ -3172,7 +3319,7 @@ function clearCSV(){CSV=null;document.getElementById("csvP").innerHTML="";docume
    reduced motion, and while the sign-in arrival plays (it has its own). */
 var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduce)")}catch(e){}
  var EZ="cubic-bezier(.2,.8,.2,1)",BAR=".tr>i,.wkb>i,.lvb>i,.db>i,.hbar>i",GRP=".rank,.wk,.lvc,.dist,.houses,.hbig",ROW=".rank>li,.houses>.house,.ccards>.ccard",
-  LEN={},POS={},SEEN={},SEG={},CARDS={},AP=null,busy=false,still=false,GK=null,T=0;
+  LEN={},POS={},SEEN={},SEG={},SEGF={},CARDS={},AP=null,busy=false,still=false,GK=null,T=0;
  function busyNow(){return document.documentElement.classList.contains("fresh")||document.body.classList.contains("enter")}
  function shown(el){return !!(el.offsetWidth||el.offsetHeight)&&!el.closest(".mo-ghost")}
  function home(el){var c=el.closest("[id]");return c?c.id:""}
@@ -3228,8 +3375,10 @@ var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduc
    W.push([g,g.id||gkey(g),[on.offsetLeft,on.offsetTop,on.offsetWidth,on.offsetHeight].join()])});
   W.forEach(function(w){var g=w[0],k=w[1],pos=w[2],m=g.querySelector(":scope>.segi");
    if(!m){m=document.createElement("span");m.className="segi";m.setAttribute("aria-hidden","true");g.insertBefore(m,g.firstChild);g.classList.add("has-i");
-    var o=SEG[k]&&!still?SEG[k]:pos;place(m,o);m.dataset.p=o;if(o!==pos)m.getBoundingClientRect()}
-   if(m.dataset.p===pos)return;if(!still)m.classList.add("go");else m.classList.remove("go");place(m,pos);m.dataset.p=pos;SEG[k]=pos})}
+    // A tab that redraws its whole panel (This month / All time) replaces the control too: its new thumb starts where
+    // the old one was sliding from, so the slide still plays.
+    var o=SEGF[k]&&Date.now()-SEGF[k][1]<250?SEGF[k][0]:SEG[k];o=o&&!still?o:pos;place(m,o);m.dataset.p=o;if(o!==pos)m.getBoundingClientRect()}
+   SEG[k]=pos;if(m.dataset.p===pos)return;if(m.dataset.p)SEGF[k]=[m.dataset.p,Date.now()];if(!still)m.classList.add("go");else m.classList.remove("go");place(m,pos);m.dataset.p=pos;SEG[k]=pos})}
  function place(m,p){p=p.split(",");m.style.width=p[2]+"px";m.style.height=p[3]+"px";m.style.transform="translate("+p[0]+"px,"+p[1]+"px)"}
  // The side menu's marker sits under the first current item that is visible (a class's Settings marks both the
  // phone-only Class settings and Classes); only that item hands its pill to the marker.
@@ -3265,6 +3414,12 @@ var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduc
    m.style.opacity=it.matches('[aria-current="page"],[aria-selected="true"]')?"0":"1"});
   box.addEventListener("pointerleave",function(){if(m){m.style.opacity="0";on=false}})}
  hover($("nav"),".nav");hover($("sub"),"button");
+ // Segmented controls are redrawn with their pages, so one listener on the page serves them all.
+ document.addEventListener("pointerover",function(e){if(e.pointerType!=="mouse"||(RM&&RM.matches))return;var it=e.target.closest(".seg>button");if(!it)return;var g=it.parentNode;
+  var m=g.querySelector(":scope>.mhl"),fresh=!m;if(!m){m=document.createElement("span");m.className="mhl";m.setAttribute("aria-hidden","true");g.insertBefore(m,g.firstChild);g.classList.add("has-h")}
+  var pos=[it.offsetLeft,it.offsetTop,it.offsetWidth,it.offsetHeight].join();if(fresh||m.style.opacity!=="1"){m.classList.remove("go");place(m,pos);m.getBoundingClientRect();m.classList.add("go")}else place(m,pos);
+  m.style.opacity=it.getAttribute("aria-pressed")==="true"?"0":"1"});
+ document.addEventListener("pointerout",function(e){var g=e.target.closest(".seg");if(!g||(e.relatedTarget&&g.contains(e.relatedTarget)))return;var m=g.querySelector(":scope>.mhl");if(m)m.style.opacity="0"});
  function pass(){still=!!(RM&&RM.matches);busy=still||busyNow();GK=typeof Map==="function"?new Map():null;thumbs();rail();if(!still){bars();rows();appear();nums()}GK=null}
  var obs=new MutationObserver(function(){pass();obs.takeRecords()});
  obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["class","hidden","aria-pressed","aria-current","open"]});
@@ -3313,6 +3468,10 @@ var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduc
  function move(c,s,x,y,L,T,rows){var cw=c.getBoundingClientRect().width;
   rows.forEach(function(r){var R=document.createRange();R.selectNodeContents(r);var off=(cw-R.getBoundingClientRect().width)/2;r.style.textAlign="left";r.style.transform="translateX("+off+"px)";r.getBoundingClientRect();r.style.transition="transform .9s "+EASE;r.style.transform="none"});
   c.style.transition="transform .9s "+EASE;c.style.transform="translate("+(x-L)+"px,"+(y-T)+"px) scale("+(1/s)+")";
+  // The side menu's items arrive one after another at an even pace: only the ones shown (an admin has more, and
+  // some are phone-only or teacher-only) are counted, so no item jumps in with another or lags behind.
+  var NV=0;document.querySelectorAll(".rail .navs>:not(.navi):not(.mhl)").forEach(function(e){if(e.offsetWidth||e.offsetHeight)e.style.setProperty("--ed",(.42+NV++*.045).toFixed(3)+"s")});
+  document.querySelector(".rail .me")&&document.querySelector(".rail .me").style.setProperty("--ed",(.42+NV*.045+.04).toFixed(3)+"s");
   setTimeout(function(){document.body.classList.add("enter");H.classList.remove("fresh")},500);
   setTimeout(function(){h.style.opacity="";c.remove()},920);
   setTimeout(function(){document.body.classList.remove("enter")},4200)}})();

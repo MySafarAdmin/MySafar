@@ -251,7 +251,7 @@ def class_summary(row, now=None):
             continue
         house = s.get("house", "")
         entry = {"name": name, "house": house}
-        scores = [v for d, v in (s.get("q") or {}).items() if month_key <= d <= today_key and isinstance(v, (int, float))]
+        scores = [v for d, v in (s.get("q") or {}).items() if month_key <= d <= today_key and isinstance(v, (int, float)) and v >= 0]
         points = sum(since(s.get(k, []), month) * v for k, v in TOKEN_POINTS.items())
         if house in houses:
             houses[house] += points

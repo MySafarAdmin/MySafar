@@ -172,6 +172,13 @@ class DashboardTests:
         student["q"] = {"2026-10-10": 6}
         self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
 
+    def test_quran_absent_is_minus_one(self):
+        student = {"name": "A", "target": 1, "passes": 0, "merits": 0, "warn": 0,
+                   "log": [], "lt": [], "lx": [], "ml": [], "q": {"2026-10-10": -1, "2026-10-11": 4}}
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        student["q"] = {"2026-10-10": -2}
+        self.assertEqual(self.write(revision=1, state=dict(self.state, S=[student])).status_code, 400)
+
     def test_fails_and_surah_passes(self):
         student = {"name": "A", "target": 4, "passes": 2, "merits": 0, "warn": 0, "log": [1, 2], "lt": [3, 4],
                    "lx": ["", ""], "ml": [], "fl": [3], "q": {}}
@@ -445,7 +452,7 @@ class DashboardTests:
         t = int(datetime(2026, 10, 14, 17, 30).timestamp() * 1000)
         student = {"name": "Musa Khan", "sid": "ST099", "fid": "SP040", "dob": "2016-05-02", "house": "Madinah", "target": 12, "passes": 2, "merits": 1,
                    "warn": 2, "log": [t - 864e5, t], "lt": [10, 11], "lx": ["", ""], "ml": [t], "fl": [t], "qa": 3,
-                   "q": {"2026-10-13": 4, "2026-10-14": 5}, "tg": [t, t + 1], "tb": [t], "tr": [], "sw": ["2026-10-12"],
+                   "q": {"2026-10-12": -1, "2026-10-13": 4, "2026-10-14": 5}, "tg": [t, t + 1], "tb": [t], "tr": [], "sw": ["2026-10-12"],
                    "hp": [{"t": t + 1, "r": "hw"}],
                    "tests": [{"d": "2026-10-14", "k": "m", "n": 11, "sc": 4, "ok": True, "tk": t}]}
         self.write(state=dict(self.state, S=[student], L=[9, 9]), class_id="yr3-a")
@@ -466,7 +473,7 @@ class DashboardTests:
         self.assertEqual((students["Student"], students["Memo target"], students["Memo passes"], students["Warning"],
                           students["House points"], students["Quran average"]), ("Musa Khan", "L2 T3", 2, "Warning 2", 30, 4.5))
         self.assertEqual(rows["Classes"][1][:3], ["Yr3-A", "T", 1])
-        self.assertEqual([r[4] for r in rows["Quran scores"][1:]], [5, 4])
+        self.assertEqual([r[4] for r in rows["Quran scores"][1:]], [5, 4, "Absent"])
         self.assertEqual([(r[4], r[5]) for r in rows["Memo passes and fails"][1:]],
                          [("Pass", "L2 T2"), ("Not passed", None), ("Pass", "L2 T1")])
         self.assertEqual(rows["Level tests"][1][5:], ["L2 T2", 4, "Passed", "Yes"])
