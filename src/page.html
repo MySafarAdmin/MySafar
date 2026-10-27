@@ -458,15 +458,15 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    from the item list}.
    Book passes are the third choice: the Qaidah Book or the Tajweed Book finished, kept on the student as
    {t: when, b: "q" or "t"} in s.bp, with no house points.
-   House points are the fourth choice, hidden while HPOFF is set: house points now come only from counted coins.
-   When shown, the admin picks the student and what the points are for, and the
+   House points are the fourth choice, for admins only (the Record page is admin-only, and the server refuses a
+   teacher's save that adds a coin). Setting HPOFF hides it. The the admin picks the student and what the points are for, and the
    points and coin follow from HPR. Each is kept on the student as {t: when its token was given, r: what for} in
    s.hp, with the token itself in s.tg, s.tb or s.tr.
    Memo's "Item number and Surah" picker is the school's own list: Fail, every book target ("L1 Target 1") and the
    numbered surahs in SUR, written exactly as the school writes them. A pass chosen there is only logged as a pass, with
    no token or house points. A book target moves the student on as usual; a surah is kept as the pass's label (s.lx and
    the test's x) and leaves the target where it is. Fail can only be recorded as Not passed. */
-var QAIDAH=20,QBOOK=13,HPOFF=1,RK="m",RS="",RM="",RX=0,RI="",RSC=-1,RH="",RB="";
+var QAIDAH=20,QBOOK=13,HPOFF=0,RK="m",RS="",RM="",RX=0,RI="",RSC=-1,RH="",RB="";
 var SUR=["197. Surah An-Naba'","198. Surah An-Nazi'aat","199. Surah Abasa","200. Surah At-Takwir","201. Surah Al-Infitaar",
  "202. Surah Al-Mutaffifin","203. Surah Al-Inshiqaq","204. Surah Al-Burooj","205. Surah At-Tariq","206. Surah Al-A'la",
  "207. Surah Al-Ghaashiyah","208. Surah Al-Fajr","209. Surah Al-Balad","210. Surah Ash-Shams","211. Surah Al-Lail",
@@ -506,7 +506,7 @@ function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No s
    +'<dl class="rfacts"><div><dt>House points</dt><dd>'+hp(s)+'</dd></div><div><dt>Coins</dt><dd class="rcoins">'+TOK.map(function(k){return '<span title="'+k[2]+' coins"><span class="tdot '+k[1]+'" aria-hidden="true"></span>'+(s[k[0]]||[]).length+'<span class="sr-only"> '+k[2].toLowerCase()+'</span></span>'}).join("")+'</dd></div></dl>'
    +'<section class="rlast"><div class="mod-h"><h3>Given on this page</h3></div>'
    +(H.length?'<ul class="rhl">'+H.map(function(x){var k=htk(x.r);return '<li><b>'+esc(hpr(x.r)[1])+'</b><span class="d">'+ds(x.t)+'</span><span class="rtok '+k[1]+'"><span class="tdot '+k[1]+'" aria-hidden="true"></span>+'+k[3]+'</span><button type="button" class="btn sm quiet" data-r="hx" data-t="'+x.t+'" aria-label="Undo '+esc(hpr(x.r)[1])+' on '+ds(x.t)+'">Undo</button></li>'}).join("")+'</ul>':'<p class="none">No house points given here yet.</p>')
-   +'<p class="cap">The total also counts coins from level tests passed before house points moved to physical coins.</p></section></aside>'}
+   +'<p class="cap">The total also counts coins from level tests passed before passes stopped giving points.</p></section></aside>'}
  var T=(s.tests||[]).slice().reverse().slice(0,5);
  return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
   +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Quran level</dt><dd>'+(s.qa?qaLab(s.qa):'No level yet')+'</dd></div></dl>'
@@ -539,7 +539,7 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
  if(RK==="h"){var lt=lvToday(s),c=!HPOFF&&RH&&hpr(RH),k=c&&htk(RH);if(HPOFF)RH="";if(RH==="lv"&&lt)RH="",c=k=null;
   if(HPOFF)h+='<div class="rpause" role="note"><b>House points are paused</b><span>Teachers give physical house coins, students put them in the box at the office, and the admin counts them and adds each house\'s total on <a href="/admin/house-points">Counted coins</a>. Nothing can be given here, so no points go in by accident.</span></div>';
   h+=rStep(3,'<p class="rl" id="rHl">What for</p><div class="rhp'+(HPOFF?' off':'')+'" role="group" aria-labelledby="rHl">'+HPR.map(function(x){var off=HPOFF||x[0]==="lv"&&lt,t=htk(x[0]);
-   return '<button type="button" data-h="'+x[0]+'" aria-pressed="'+(RH===x[0])+'"'+(off?' disabled':'')+'><span class="hpn">'+esc(x[1])+(x[0]==="lv"&&!HPOFF?'<small>'+(off?'Already given by today\'s level test':'A level test passed on this page gives this by itself')+'</small>':'')+'</span>'+hpCoin(x[0])+'<b class="hv">'+t[3]+'<span> points</span></b></button>'}).join("")+'</div>',!!RH);
+   return '<button type="button" data-h="'+x[0]+'" aria-pressed="'+(RH===x[0])+'"'+(off?' disabled':'')+'><span class="hpn">'+esc(x[1])+(x[0]==="lv"&&off?'<small>Already given by today\'s level test</small>':'')+'</span>'+hpCoin(x[0])+'<b class="hv">'+t[3]+'<span> points</span></b></button>'}).join("")+'</div>',!!RH);
   h+=rStep(4,'<p class="rl">Give</p><div class="racts"><button type="button" class="btn primary" data-r="h"'+(c?'':' disabled')+'>'+(c?'Give '+k[3]+' house points':'Give house points')+'</button></div>'
    +'<p class="cap">'+(HPOFF?'Paused while house points come from physical coins.':c?esc(fn(s))+' gets 1 '+k[2].toLowerCase()+' coin, '+k[3]+' points '+(s.house?'for '+esc(s.house):'(no house set yet, so no house total changes)')+'.':'Choose what the points are for first.')+'</p>',0);
   refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
@@ -557,7 +557,7 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
  h+=rStep(4,'<p class="rl">Score</p><div class="rsc" role="group" aria-label="Score out of 5">'+QC.map(function(c,k){return '<button type="button" data-sc="'+k+'" style="--c:'+c+'" aria-pressed="'+(RSC===k)+'">'+k+'</button>'}).join("")+'</div>'
   +'<div class="racts"><button type="button" class="btn primary" data-r="ok"'+(RSC<0||IS&&RI==="f"?' disabled':'')+'>Passed</button><button type="button" class="btn" data-r="no"'+(RSC<0?' disabled':'')+'>Not passed</button>'
   +(RK==="m"&&(!IS||RI.charAt(0)==="b")?'<button type="button" class="btn quiet" data-r="t">Set as current target, no test</button>':'')+'</div>'
-  +'<p class="cap">'+(IS&&RI==="f"?'Fail is recorded with Not passed, against '+esc(fn(s))+'\'s current target.':'A pass is logged as a pass, with no house points. House points come from physical coins.')+'</p>',RSC>=0);
+  +'<p class="cap">'+(IS&&RI==="f"?'Fail is recorded with Not passed, against '+esc(fn(s))+'\'s current target.':'A pass is logged as a pass, with no house points. Give house points on the House points tab.')+'</p>',RSC>=0);
  refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o))}
 function rDone(o,msg){persist(o.c);if(o.c===CID)render();recPage();toast(msg)}
 function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d=dk(now);if(!s.tests)s.tests=[];if(!s.bp)s.bp=[];
@@ -1050,7 +1050,7 @@ function dockSet(){var inC=PAGE==="C",cls=TEACHER||inC;
 function cur(b,on){if(on)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")}
 /* The overviews open with a greeting, as Journey2Jannah does, then say which overview this is. */
 function hello(){var on=PAGE==="M"||PAGE==="R",el=$("hello");el.hidden=!on;$("band").classList.toggle("greet",on);if(!on)return;
- if(PAGE==="R"){el.innerHTML='<span class="hsub">Level tests and book passes. House points come from counted coins</span>';return}
+ if(PAGE==="R"){el.innerHTML='<span class="hsub">Level tests, book passes and house points</span>';return}
  var who=window.ME&&ME.name&&ME.name!=="Administrator"?" "+ME.name:"",c=TEACHER&&CIDS.length?lastC():"";
  $("ttl").textContent="Assalāmu ʿalaykum"+who+"!";
  /* On a phone a teacher mostly opens the app to enter the day's Quran scores, so one large button under the

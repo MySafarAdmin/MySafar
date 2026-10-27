@@ -15,6 +15,7 @@ import logging
 import os
 import re
 import time
+from collections import Counter
 from datetime import date
 from pathlib import Path
 from urllib.parse import quote
@@ -56,6 +57,11 @@ PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js"
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
 # /tv/<token> is a TV screen link; tv.py checks the token.
 PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/")
+
+
+def coins(state):
+    """Every house coin in a class, counted by colour and the time it was given."""
+    return Counter((k, t) for s in state.get("S", []) for k in TOKEN_POINTS for t in s.get(k, []))
 
 
 def valid_state(state):
@@ -470,6 +476,9 @@ def create_app(test_config=None):
                                          (class_id, document["revision"])).fetchone()
                     if current and len(json.loads(current["json"]).get("S", [])) != len(state["S"]):
                         return jsonify(error="Only an admin can add or remove students."), 403
+                    # House points are given by admins only (on the Record page and Counted coins).
+                    if current and coins(state) - coins(json.loads(current["json"])):
+                        return jsonify(error="Only an admin can give house points."), 403
                 cursor = db.execute("UPDATE classrooms SET json = ?, revision = revision + 1 WHERE id = ? AND revision = ?",
                                     (encoded, class_id, document["revision"]))
             if cursor.rowcount:

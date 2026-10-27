@@ -55,9 +55,10 @@ Spellings are matched loosely ("al aqsa", "Medina"), and anything else is
 listed in the upload preview and left unchanged. A later upload with a House
 column updates each student's house; one without it leaves houses as they are.
 
-House points come only from physical house coins. Teachers hand students coins, students put them in the
+Only admins give house points. Teachers hand students physical house coins, students put them in the
 box at the office, and an admin counts them and adds each house's count on **Counted coins**
-(`/admin/house-points`, with the day counted). Older tokens on students still count:
+(`/admin/house-points`, with the day counted), or gives a student points on the Record page's House points tab.
+The server refuses a teacher's save that adds a coin. Tokens on students count:
 
 | Token | Points |
 | --- | --- |
@@ -67,7 +68,7 @@ box at the office, and an admin counts them and adds each house's count on **Cou
 
 The Record page still records Quran level tests (Qaidah Book levels 1 to 13, Tajweed Book levels 14 to 20),
 Memo tests and book passes (Qaidah Book or Tajweed Book), but none of them gives house points. Its House points
-choice is hidden (`HPOFF` in `src/page.html`), so nothing is given by accident.
+tab can be hidden with `HPOFF` in `src/page.html`.
 A Memo pass chosen there by **Item number and Surah** (the school's list: Fail, L1 Target 1 to L10 Target 14,
 and items 197 to 230) is logged as a pass in the same way.
 The overview's House points pop-up shows the whole school's totals, and on

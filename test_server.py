@@ -578,6 +578,11 @@ class DashboardTests:
         # Teachers still record work for the students they have.
         self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1)]), revision=1, client=teacher).status_code, 200)
         self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1), other]), revision=2).status_code, 200)
+        # House points are given by admins only: a teacher's save can't add a coin, an admin's can.
+        response = self.write(state=dict(self.state, S=[dict(student, merits=1, tg=[1760400000000]), other]), revision=3, client=teacher)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1, tg=[1760400000000]), other]), revision=3).status_code, 200)
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=2, tg=[1760400000000]), other]), revision=4, client=teacher).status_code, 200)
 
     def test_invite_without_email(self):
         self.write()
