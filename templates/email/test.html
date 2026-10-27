@@ -1,6 +1,7 @@
 {% extends "email/_layout.html" %}
 {% from "email/_parts.html" import button, p, facts %}
 {% block preheader %}Email from the dashboard is working.{% endblock %}
+{% block kicker %}Test email{% endblock %}
 {% block heading %}Email is working{% endblock %}
 {% block content %}
 {% call p() %}Assalamu alaikum {{ name }},{% endcall %}
