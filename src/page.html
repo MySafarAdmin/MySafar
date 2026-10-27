@@ -275,6 +275,8 @@ function today0(){var n=new Date();return new Date(n.getFullYear(),n.getMonth(),
 
 /* ---------- Visualisations ---------- */
 /* Students by level as bars, with the count and the class size as the denominator. Empty levels are named once below. */
+function levelCounts(L){var c=LEVELS.map(function(){return 0}),juz=0,none=0;
+ L.forEach(function(s){if(nod(s)){none++;return}if(s.target>BL)juz++;else c[lv(s.target)]++});return {c:c,juz:juz,none:none}}
 function distHtml(L){var k=levelCounts(L),rows=LEVELS.map(function(_,l){return ["L"+(l+1),k.c[l],LC[l%LC.length]]}).concat([["Juz",k.juz,BC]]);if(k.none)rows.push(["No data",k.none,"var(--line-2)"]);
  var mx=Math.max(1,Math.max.apply(null,rows.map(function(r){return r[1]})));
  var Z=rows.filter(function(r){return !r[1]}).map(function(r){return r[0]});rows=rows.filter(function(r){return r[1]});
