@@ -171,8 +171,13 @@ def _m7_avatars(db, postgres):
     db.execute("ALTER TABLE users ADD COLUMN avatar_at BIGINT")
 
 
+def _m8_tutorial(db, postgres):
+    # When a teacher finished or skipped the dashboard tutorial; until then it starts on its own.
+    db.execute("ALTER TABLE users ADD COLUMN tour_done BIGINT")
+
+
 MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
-              _m7_avatars]
+              _m7_avatars, _m8_tutorial]
 
 
 class Database:
