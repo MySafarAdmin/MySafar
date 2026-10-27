@@ -1759,6 +1759,8 @@ mark.qhl{background:none;color:#2f8ae0;font-weight:inherit}
    arrive one after another, and everything you can press lifts a little under the pointer. */
 @keyframes hrq-in{from{opacity:0;transform:translateY(10px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
 #vM:not([hidden]) .hrq{animation:hrq-in .5s cubic-bezier(.2,.8,.2,1) .15s backwards}
+/* Straight after signing in it waits for the greeting, then joins the overview's arrival after the rankings. */
+html.fresh #vM .hrq{animation:none}body.enter #vM .hrq{animation-delay:1.3s}
 .hrq-pick>.hrq-opt,.hrq-list>li,.hrq-f>*{animation:hrq-in .42s cubic-bezier(.2,.8,.2,1) backwards}
 .hrq-pick>.hrq-opt:nth-child(2){animation-delay:.06s}
 .hrq-list>li:nth-child(1){animation-delay:.1s}.hrq-list>li:nth-child(2){animation-delay:.15s}.hrq-list>li:nth-child(3){animation-delay:.2s}
