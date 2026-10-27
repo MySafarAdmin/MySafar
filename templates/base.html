@@ -23,24 +23,28 @@
   <input type="checkbox" id="navt" class="navt" aria-label="Show the menu">
   <div class="navw">
   <nav class="navs" aria-label="Main">
-    <a class="nav" href="/">{{ icon("home") }}Dashboard</a>
-    {% if user.role == "admin" %}<a class="nav j2j" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>{% endif %}
-    <a class="nav" href="/#classes">{{ icon("grid") }}Classes</a>
-    {% if user.role == "admin" %}<a class="nav" href="/#students">{{ icon("students") }}Students</a>
-    <a class="nav" href="/#house-points">{{ icon("pie") }}House points</a>
-    <a class="nav" href="/#rankings">{{ icon("trophy") }}Rankings</a>{% endif %}
-    {% if user.role == "admin" %}
+    {# The same items in the same order as the dashboard's menu (src/page.html and railway-storage.js). The page
+       you are on carries a .navsel pill, which glides from item to item as pages change (tokens.css). #}
+    {% macro nl(href, ic, label, on=False) -%}
+    <a class="nav" href="{{ href }}"{{ ' aria-current="page"'|safe if on }}>{% if on %}<span class="navsel" aria-hidden="true"></span>{% endif %}{{ icon(ic) }}{{ label }}</a>
+    {%- endmacro %}
+    {{ nl("/", "home", "Overview") }}
+    {% if user.role == "admin" %}{{ nl("/#record", "pen", "Record") }}{% endif %}
+    {{ nl("/#classes", "grid", "Classes") }}
+    {% if user.role == "admin" %}{{ nl("/#house-points", "pie", "House points") }}
+    {{ nl("/#rankings", "trophy", "Rankings") }}
     <div class="navh" id="adminh">Administration</div>
-    <a class="nav" href="/admin/users"{{ ' aria-current="page"'|safe if here == "/admin/users" }}>{{ icon("users") }}Manage users</a>
-    <a class="nav" href="/admin/history"{{ ' aria-current="page"'|safe if here.startswith("/admin/history") }}>{{ icon("history") }}Class history</a>
-    <a class="nav" href="/admin/activity"{{ ' aria-current="page"'|safe if here == "/admin/activity" }}>{{ icon("activity") }}Activity</a>
-    <a class="nav" href="/admin/tv"{{ ' aria-current="page"'|safe if here == "/admin/tv" }}>{{ icon("tv") }}TV screens</a>
-    <a class="nav" href="/admin/house-points"{{ ' aria-current="page"'|safe if here == "/admin/house-points" }}>{{ icon("pie") }}Historical points</a>
-    <a class="nav" href="/admin/export"{{ ' aria-current="page"'|safe if here == "/admin/export" }}>{{ icon("sheet") }}Spreadsheet</a>
-    <a class="nav" href="/admin/import"{{ ' aria-current="page"'|safe if here.startswith("/admin/import") }}>{{ icon("upload") }}Import</a>
+    {{ nl("/admin/users", "users", "Manage users", here == "/admin/users") }}
+    {{ nl("/#students", "students", "Students") }}
+    {{ nl("/admin/history", "history", "Class history", here.startswith("/admin/history")) }}
+    {{ nl("/admin/activity", "activity", "Activity", here == "/admin/activity") }}
+    {{ nl("/admin/tv", "tv", "TV screens", here == "/admin/tv") }}
+    {{ nl("/admin/house-points", "pie", "Historical points", here == "/admin/house-points") }}
+    {{ nl("/admin/export", "sheet", "Spreadsheet", here == "/admin/export") }}
+    {{ nl("/admin/import", "upload", "Import", here.startswith("/admin/import")) }}
     {% endif %}
-    {# Teachers have Journey2Jannah at the foot of the menu, just above their name. #}
-    {% if user.role != "admin" %}<a class="nav j2j j2jb" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>{% endif %}
+    {# Journey2Jannah sits at the foot of the menu, just above the signed-in name. #}
+    <a class="nav j2j j2jb" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
   </nav>
   <div class="me">
     <div class="who"><b>{{ user.name }}</b><span>{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></div>

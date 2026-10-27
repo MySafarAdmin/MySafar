@@ -322,3 +322,17 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 }
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Moving between the dashboard and the admin pages: the menu stays still and the page underneath crossfades,
+   while the selected item's pill glides to its new place (the dashboard's .navi, an admin page's .navsel). */
+@view-transition{navigation:auto}
+.rail{view-transition-name:rail}.rail .navs{view-transition-name:navs}
+.navi,.navsel{view-transition-name:navsel}
+.nav:has(>.navsel){position:relative;isolation:isolate;background:none;box-shadow:none}
+.navsel{position:absolute;inset:0;z-index:-1;border-radius:var(--r);background:var(--rail-on);box-shadow:0 4px 14px rgba(0,20,40,.22)}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.24s;animation-timing-function:ease}
+::view-transition-group(navsel){animation-duration:.34s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-group(rail),::view-transition-old(rail),::view-transition-new(rail){animation-duration:.2s}
+/* The rail's navy at the back, the pill over it, and the menu's words on top, so the pill never covers a label. */
+::view-transition-group(rail){z-index:1}::view-transition-group(navsel){z-index:2}::view-transition-group(navs){z-index:3}
+@media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}

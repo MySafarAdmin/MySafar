@@ -38,9 +38,18 @@ details.user .tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin
 details.user .body{padding:4px 20px 20px;background:var(--surface-2)}
 details.user .body>p:first-child{margin-top:4px}
 details.user.off .who{opacity:.7}
-.invite,.mail{margin-top:24px;scroll-margin-top:72px}
+.invite,.mail{margin-top:24px;scroll-margin-top:24px}
 .mail form{margin-top:12px}
-.invite:target,.invite:focus{outline:3px solid var(--focus);outline-offset:2px}
+.invite{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:24px 16px;background:rgba(15,28,45,.32);
+ -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);overflow-y:auto;margin:0}
+.invite:not(:target):not(.open){display:none}
+.invbg{position:fixed;inset:0;cursor:default}
+.invcard{position:relative;width:min(760px,100%);max-height:calc(100dvh - 48px);overflow-y:auto;box-shadow:0 24px 60px rgba(15,28,45,.28);border-radius:20px;padding:24px}
+.invite:target{animation:inv-bg .28s ease both}.invite:target .invcard{animation:inv-in .42s cubic-bezier(.2,.9,.3,1.1) both}
+@keyframes inv-bg{from{opacity:0;-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}}
+@keyframes inv-in{from{opacity:0;transform:translateY(14px) scale(.96);filter:blur(4px)}}
+.invh{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}.invh h2{margin:0}
+body:has(.invite:target),body:has(.invite.open){overflow:hidden}
 @media (max-width:959.98px){.accounts{margin:0 -16px;border-radius:0;border-left:0;border-right:0}details.user summary{padding:12px 16px}details.user .body{padding:4px 16px 16px}}
 .danger-zone{margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
 

@@ -331,6 +331,20 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
+/* Moving between the dashboard and the admin pages: the menu stays still and the page underneath crossfades,
+   while the selected item's pill glides to its new place (the dashboard's .navi, an admin page's .navsel). */
+@view-transition{navigation:auto}
+.rail{view-transition-name:rail}.rail .navs{view-transition-name:navs}
+.navi,.navsel{view-transition-name:navsel}
+.nav:has(>.navsel){position:relative;isolation:isolate;background:none;box-shadow:none}
+.navsel{position:absolute;inset:0;z-index:-1;border-radius:var(--r);background:var(--rail-on);box-shadow:0 4px 14px rgba(0,20,40,.22)}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.24s;animation-timing-function:ease}
+::view-transition-group(navsel){animation-duration:.34s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-group(rail),::view-transition-old(rail),::view-transition-new(rail){animation-duration:.2s}
+/* The rail's navy at the back, the pill over it, and the menu's words on top, so the pill never covers a label. */
+::view-transition-group(rail){z-index:1}::view-transition-group(navsel){z-index:2}::view-transition-group(navs){z-index:3}
+@media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}
+
 /* Dashboard screens. Shared tokens, shell, band, modules and controls are in src/tokens.css (inlined before this). */
 html{scroll-padding-top:calc(var(--topbar,0px) + 64px)}
 body{padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -2698,7 +2712,7 @@ function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("pres").hidden=!n||!window.RAILWAY;if(n)$("pres").href="/presenter/"+encodeURIComponent(CID);
  document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+(PAGE==="K"?"Rankings · ":"")+"MySafar"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
-function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":"C";closeDrawer();$("figP").hidden=U||H||K;if(U||H||K)$("figP").open=false;
+function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":"C";closeDrawer();$("figP").hidden=!M;if(!M)$("figP").open=false;
  $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("vL").classList.toggle("hide",!L);$("vU").classList.toggle("hide",!U);$("vH").classList.toggle("hide",!H);$("vK").classList.toggle("hide",!K);$("sub").classList.toggle("hide",M||R||L||U||H||K);
  if(K){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();rkPage()}
  else if(H){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();hpPage()}
