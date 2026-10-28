@@ -67,7 +67,7 @@ The server refuses a teacher's save that adds a coin. Tokens on students count:
 | Red (book completion) | 50 |
 
 The Record page still records Quran level tests (Qaidah Book levels 1 to 13, Tajweed Book levels 14 to 20),
-Memo tests and book passes (Qaidah Book or Tajweed Book), but none of them gives house points. Its House points
+Memo tests and book passes (Qaidah Book, Tajweed Book, Memorisation Book 1 or Memorisation Book 2), but none of them gives house points. Its House points
 tab can be hidden with `HPOFF` in `src/page.html`.
 A Memo pass chosen there by **Item number and Surah** (the school's list: Fail, L1 Target 1 to L10 Target 14,
 and items 197 to 230) is logged as a pass in the same way.

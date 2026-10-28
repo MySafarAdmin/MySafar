@@ -27,7 +27,7 @@ TOKENS = (("tg", "Green token", 5), ("tb", "Blue token", 20), ("tr", "Red token"
 # What a token was given for, when it was given on the Record page's House points (HPR in src/page.html).
 REASONS = {"bk": "Book completion", "lv": "Qaidah or Memorisation level", "hw": "Additional class or homework",
            "ec": "Extra curricular award", "cp": "Exceptional class participation"}
-BOOKS = {"q": "Qaidah Book", "t": "Tajweed Book"}  # BOOKS in src/page.html
+BOOKS = {"q": "Qaidah Book", "t": "Tajweed Book", "m1": "Memorisation Book 1", "m2": "Memorisation Book 2"}  # BOOKS in src/page.html
 QAIDAH_BOOK = 13  # Quran levels 1 to 13 are the Qaidah Book, the rest the Tajweed Book (QBOOK in src/page.html)
 WARNINGS = ("None", "Warning 1", "Warning 2", "Miss break")  # WL in src/page.html
 NAVY, WHITE, BAND, LINE, MUTED = "003B6B", "FFFFFF", "F3F5F8", "C9D1DB", "6B7280"
