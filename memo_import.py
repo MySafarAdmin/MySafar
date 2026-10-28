@@ -8,9 +8,10 @@ A name two students share needs a choice on the page.
 Memo: written as the Record page's "Item number and Surah" list writes it: "L1 Target 1", "212. Surah Al-Mulk" or
 "Fail". First every student's memo passes, fails and Memo level tests are cleared (a passed Memo level test's blue
 coin stays, as a level completion). Each pass is then added as the Memo profile's "Add pass" adds one: a dated pass in
-s.log, s.lt and s.lx, with no token or house points. The target becomes the one after the latest book target passed
-on the sheet; a student not on the sheet keeps theirs. A surah pass keeps its label in s.lx and leaves the target
-where it is, as on the Record page; a few surahs written by hand are read as the nearest item on the list (WRITTEN).
+s.log, s.lt and s.lx, with no token or house points. The target becomes the one after the highest book target passed
+on the sheet (an earlier target passed later is likely a revision target); a student not on the sheet keeps theirs.
+A surah pass keeps its label in s.lx and leaves the target where it is, as on the Record page; a few surahs written
+by hand are read as the nearest item on the list (WRITTEN).
 A Fail is added to s.fl.
 
 Qaidah: "Level 3", "Qaidah 3" or "3", or "Fail". First every student's Quran level tests are cleared (blue coins
@@ -160,14 +161,15 @@ def add_memo(r, cls, s, latest, key):
         r["status"] = "repeat"
         return
     if kind == "book" and lt < max([s["lt"][k] for k in range(len(s["log"])) if not s["lx"][k]] or [0]):
-        r["note"] = "Earlier in the book than a target they had already passed"
+        r["note"] = "Earlier in the book than a target they had already passed: possibly a revision target"
     merged = sorted(zip(s["log"] + [r["t"]], s["lt"] + [lt], s["lx"] + [lx]), key=lambda x: (x[0], x[1]))
     s["log"], s["lt"], s["lx"] = (list(x) for x in zip(*merged))
     s["passes"] += 1
     s["hit"] = s["log"][-1]
-    if kind == "book" and r["t"] >= latest.get(key, 0):
-        # The one after the latest book target passed on the sheet.
-        latest[key] = r["t"]
+    if kind == "book" and lt > latest.get(key, 0):
+        # The one after the highest book target passed on the sheet: an earlier target passed later is likely a
+        # revision target, which doesn't send the student back in the book.
+        latest[key] = lt
         s["target"] = min(lt + 1, sum(cls[3]["L"]) + cls[3].get("Q", 0) + 1)
 
 

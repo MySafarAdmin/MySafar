@@ -950,7 +950,7 @@ class DashboardTests:
                                                                                    "x.csv")).get_data(as_text=True))
         page = self.form(self.client, url, url, csv=(io.BytesIO(sheet.encode()), "passes.csv")).get_data(as_text=True)
         for text in ("No student on the site has this Student ID", "Two students share this name", "Not on the class&#39;s list",
-                     "The same target is higher up the sheet", "Earlier in the book", "213. Surah-Al Qalam, page 2",
+                     "The same target is higher up the sheet", "possibly a revision target", "213. Surah-Al Qalam, page 2",
                      "Adam Or in Yr3-B (SE0265)", "2 passes, 1 fail and 1 Memo level test"):
             self.assertIn(text, page)
         # The page sends the sheet back with the confirmation.
@@ -965,11 +965,12 @@ class DashboardTests:
             a, musa, other = json.loads(records["yr3-a"]["json"])["S"]
             self.assertTrue(valid_state(json.loads(records["yr3-a"]["json"])))
             self.assertEqual((a["lt"], a["lx"], a["passes"], a["target"], len(a["fl"])),
-                             ([2, 3, 3, 1], ["", "212. Surah Al-Mulk", "213. Surah-Al Qalam, page 2", ""], 4, 2, 1))
+                             ([2, 3, 3, 1], ["", "212. Surah Al-Mulk", "213. Surah-Al Qalam, page 2", ""], 4, 3, 1))
             self.assertEqual(a["log"][0], datetime(2026, 9, 12, 10, 36, 25, tzinfo=auth.LONDON).timestamp() * 1000)
             # The Memo level test goes; its blue coin stays as a level completion.
             self.assertEqual((a["tests"], a["tb"], a["hp"]), ([quran_test], [had], [{"t": had, "r": "lv"}]))
-            self.assertEqual((musa["lt"], musa["target"], musa.get("tg", [])), ([3, 2], 3, []))
+            # A revision target passed later doesn't send them back in the book.
+            self.assertEqual((musa["lt"], musa["target"], musa.get("tg", [])), ([3, 2], 4, []))
             self.assertEqual((other["log"], other["passes"], other["target"]), ([], 0, 4))
         b = json.loads(records["yr3-b"]["json"])["S"][0]
         self.assertEqual((b["lt"], b["target"]), ([5], 6))
