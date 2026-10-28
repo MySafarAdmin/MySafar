@@ -45,7 +45,7 @@ STUDENT_NUMBER = re.compile(r"SE(\d+)", re.IGNORECASE)
 MAX_CLASSES = 500
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
 QAIDAH_LEVELS = 20  # keep in step with QAIDAH in src/page.html; 1 to 13 are the Qaidah Book, 14 to 20 the Tajweed Book
-BOOKS = ("q", "t")  # book passes: Qaidah Book, Tajweed Book (BOOKS in src/page.html)
+BOOKS = ("q", "t", "m1", "m2")  # book passes: Qaidah, Tajweed, Memorisation Book 1 and 2 (BOOKS in src/page.html)
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
 TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completion)
 # House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
@@ -139,7 +139,7 @@ def valid_state(state):
             tokens = student.get(key, [])
             if not isinstance(tokens, list) or not all(type(n) in (int, float) and n >= 0 for n in tokens):
                 return False
-        # Book passes from the Record page: when ("t") and which book ("b": the Qaidah Book "q" or the Tajweed Book "t").
+        # Book passes from the Record page: when ("t") and which book ("b": the Qaidah Book "q", the Tajweed Book "t", or Memorisation Book 1 "m1" or 2 "m2").
         # They give no house points.
         books = student.get("bp", [])
         if not isinstance(books, list) or not all(

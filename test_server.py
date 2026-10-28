@@ -356,8 +356,9 @@ class DashboardTests:
         self.assertTrue(valid_state(dict(state, S=[dict(student, tr=[1760400000000], hp=[{"t": 1760400000000, "r": "bk"}])])))
         for bad in ({}, [{"t": 1760400000000}], [{"t": -1, "r": "bk"}], [{"t": "now", "r": "bk"}], [{"t": 1, "r": "xx"}]):
             self.assertFalse(valid_state(dict(state, S=[dict(student, hp=bad)])))
-        # Book passes: when and which book, the Qaidah Book or the Tajweed Book.
-        self.assertTrue(valid_state(dict(state, S=[dict(student, bp=[{"t": 1760400000000, "b": "q"}, {"t": 1760400000001, "b": "t"}])])))
+        # Book passes: when and which book, the Qaidah Book, the Tajweed Book or Memorisation Book 1 or 2.
+        self.assertTrue(valid_state(dict(state, S=[dict(student, bp=[{"t": 1760400000000, "b": "q"}, {"t": 1760400000001, "b": "t"},
+                                                                     {"t": 1760400000002, "b": "m1"}, {"t": 1760400000003, "b": "m2"}])])))
         for bad in ({}, [{"t": 1760400000000}], [{"t": -1, "b": "q"}], [{"t": "now", "b": "t"}], [{"t": 1, "b": "x"}]):
             self.assertFalse(valid_state(dict(state, S=[dict(student, bp=bad)])))
         self.assertTrue(valid_state(dict(state, S=[dict(student, sw=["2026-10-12"])])))

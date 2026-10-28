@@ -2269,7 +2269,7 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    ok: passed, pq: the Qaidah level before a Quran pass, tk: when an older pass's blue token was given, x: the surah
    from the item list}.
    Book passes are the third choice: the Qaidah Book or the Tajweed Book finished, kept on the student as
-   {t: when, b: "q" or "t"} in s.bp, with no house points.
+   {t: when, b: "q", "t", "m1" or "m2"} in s.bp, with no house points.
    House points are the fourth choice, for admins only (the Record page is admin-only, and the server refuses a
    teacher's save that adds a coin). Setting HPOFF hides it. The the admin picks the student and what the points are for, and the
    points and coin follow from HPR. Each is kept on the student as {t: when its token was given, r: what for} in
@@ -2301,7 +2301,7 @@ function qTest(s,d){var T=s.tests||[];for(var k=T.length-1;k>=0;k--)if(T[k].d===
 /* "Qaidah Level 4" or "Tajweed Level 15": the book a Quran level belongs to. */
 function qaLab(n){return (n>QBOOK?"Tajweed":"Qaidah")+" Level "+n}
 function tLab(t){return t.x||(t.k==="q"?qaLab(t.n):bl(t.n))}
-var BOOKS=[["q","Qaidah Book","Levels 1 to "+QBOOK],["t","Tajweed Book","Levels "+(QBOOK+1)+" to "+QAIDAH]];
+var BOOKS=[["q","Qaidah Book","Levels 1 to "+QBOOK],["t","Tajweed Book","Levels "+(QBOOK+1)+" to "+QAIDAH],["m1","Memorisation Book 1",""],["m2","Memorisation Book 2",""]];
 function bkName(b){var x=BOOKS.filter(function(y){return y[0]===b})[0];return x?x[1]:"Book"}
 function rStu(){var p=RS.split("|"),c=p[0],i=+p[1];return ST[c]&&ST[c].S[i]?{c:c,i:i,s:ST[c].S[i]}:null}
 function rSeg(id,cur,o,lab){return '<div class="seg" id="'+id+'" role="group" aria-label="'+lab+'">'+o.map(function(x){return '<button type="button" data-v="'+x[0]+'" aria-pressed="'+(cur===x[0])+'">'+x[1]+'</button>'}).join("")+'</div>'}
@@ -2344,7 +2344,7 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
   +(s?'':'<p class="rnow">'+(CIDS.length?(RK==="h"?(HPOFF?'House points are paused. They now come from physical coins, which you count on Counted coins.':'Choose a student to give house points.'):RK==="b"?'Choose a student to record a book they finished.':'Choose a student to record their level test.'):'No classes yet.')+'</p>'),!!s);
  if(!s){refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  var b;
- if(RK==="b"){h+=rStep(3,'<p class="rl">Book finished</p>'+rSeg("rB",RB,BOOKS,"Book finished")+'<p class="cap">'+BOOKS.map(function(x){return x[1]+': '+x[2].toLowerCase()}).join(". ")+'.</p>',!!RB);
+ if(RK==="b"){h+=rStep(3,'<p class="rl">Book finished</p>'+rSeg("rB",RB,BOOKS,"Book finished")+'<p class="cap">'+BOOKS.filter(function(x){return x[2]}).map(function(x){return x[1]+': '+x[2].toLowerCase()}).join(". ")+'.</p>',!!RB);
   h+=rStep(4,'<p class="rl">Record</p><div class="racts"><button type="button" class="btn primary" data-r="b"'+(RB?'':' disabled')+'>Record book pass</button></div>'
    +'<p class="cap">'+(RB?esc(fn(s))+' finished the '+esc(bkName(RB))+' today. It is logged as a pass, with no house points.':'Choose the book first.')+'</p>',0);
   refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
