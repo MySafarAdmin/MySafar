@@ -465,10 +465,9 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    teacher's save that adds a coin). Setting HPOFF hides it. The the admin picks the student and what the points are for, and the
    points and coin follow from HPR. Each is kept on the student as {t: when its token was given, r: what for} in
    s.hp, with the token itself in s.tg, s.tb or s.tr.
-   Memo's "Item number and Surah" picker is the school's own list: Fail, every book target ("L1 Target 1") and the
-   numbered surahs in SUR, written exactly as the school writes them. A pass chosen there is only logged as a pass, with
-   no token or house points. A book target moves the student on as usual; a surah is kept as the pass's label (s.lx and
-   the test's x) and leaves the target where it is. Fail can only be recorded as Not passed. */
+   Memo's "Item number and Surah" choice is a search box over the school's numbered surahs in SUR, written exactly as
+   the school writes them (book targets are chosen under "Level and target"). A surah pass is kept as the pass's label
+   (s.lx and the test's x) and leaves the target where it is. */
 var QAIDAH=20,QBOOK=13,HPOFF=0,RK="m",RS="",RM="",RX=0,RI="",RSC=-1,RH="",RB="";
 var SUR=["197. Surah An-Naba'","198. Surah An-Nazi'aat","199. Surah Abasa","200. Surah At-Takwir","201. Surah Al-Infitaar",
  "202. Surah Al-Mutaffifin","203. Surah Al-Inshiqaq","204. Surah Al-Burooj","205. Surah At-Tariq","206. Surah Al-A'la",
@@ -478,9 +477,6 @@ var SUR=["197. Surah An-Naba'","198. Surah An-Nazi'aat","199. Surah Abasa","200.
  "223. Last 10 verses of Surah Kahf","224. Surah Ya-Sin","225. Dahhar v1-12","226. Surah Dahhar v13-22",
  "228. Surah Mursalaat 1-23","229. Surah Mursalaat 24-40","230. Surah Mursalaat 41-50"];
 function rMode(){return RM||"lt"}
-function rItems(){var h='<option value="f"'+(RI==="f"?' selected':'')+'>Fail</option>';
- LEVELS.forEach(function(c,l){h+='<optgroup label="Level '+(l+1)+'">';for(var t=1;t<=c;t++){var v="b"+(LVS[l]+t);h+='<option value="'+v+'"'+(RI===v?' selected':'')+'>L'+(l+1)+' Target '+t+'</option>'}h+='</optgroup>'});
- return h+'<optgroup label="Surahs">'+SUR.map(function(x,k){return '<option value="s'+k+'"'+(RI==="s"+k?' selected':'')+'>'+esc(x)+'</option>'}).join("")+'</optgroup>'}
 var HPR=[["bk","Book completion","tr"],["lv","Qaidah or Memorisation level completion","tb"],["hw","Additional class or homework","tg"],
  ["ec","Extra Curricular Award","tg"],["cp","Exceptional Class Participation","tg"]];
 function hpr(r){return HPR.filter(function(x){return x[0]===r})[0]}
@@ -526,12 +522,9 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
  h+=rStep(1,'<p class="rl">Record</p>'+rSeg("rK",RK,[["q","Quran test"],["m","Memo test"],["b","Book pass"]].concat(HPOFF?[]:[["h","House points"]]),"Record"),1);
  RL=rAll();(function(A){var n={},key=function(o){return o.s.name.trim().toLowerCase()+"|"+o.t};
   A.forEach(function(o){var cn=ST[o.c].name;o.t=cteach(cn)||cname(cn);n[key(o)]=(n[key(o)]||0)+1});
-  A.forEach(function(o){o.v=o.c+"|"+o.i;o.b=n[key(o)]>1?cname(ST[o.c].name):o.t;o.k=nkey(o.s.name+" "+o.b)})})(RL);
+  A.forEach(function(o){o.v=o.c+"|"+o.i;o.b=n[key(o)]>1?cname(ST[o.c].name):o.t;o.k=skey(o.s.name+" "+o.b)})})(RL);
  var ch=RL.filter(function(x){return x.v===RS})[0];
- h+=rStep(2,'<label class="rl" for="rS">Student</label><div class="rpick"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>'
-  +'<input type="text" id="rS" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="rSL" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="go" placeholder="Type a student\'s name" value="'+(ch?esc(rLab(ch)):'')+'"'+(CIDS.length?'':' disabled')+'>'
-  +'<button type="button" class="rpx" aria-label="Clear the student"'+(ch?'':' hidden')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>'
-  +'<div class="csm rsl" id="rSL" role="listbox" aria-label="Students" hidden></div></div>'
+ h+=rStep(2,'<label class="rl" for="rS">Student</label>'+rBox("rS","","Type a student\'s name",ch?rLab(ch):"",!CIDS.length)
   +(s?'':'<p class="rnow">'+(CIDS.length?(RK==="h"?(HPOFF?'House points are paused. They now come from physical coins, which you count on Counted coins.':'Choose a student to give house points.'):RK==="b"?'Choose a student to record a book they finished.':'Choose a student to record their level test.'):'No classes yet.')+'</p>'),!!s);
  if(!s){refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  var b;
@@ -550,17 +543,16 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
   var qo=function(a,z){var h='';for(var l=a;l<=z;l++)h+='<option value="'+l+'"'+(RX===l?' selected':'')+'>Level '+l+'</option>';return h};
   b='<label class="rl" for="rQ">Level tested</label><select id="rQ"><optgroup label="Qaidah Book">'+qo(1,QBOOK)+'</optgroup><optgroup label="Tajweed Book">'+qo(QBOOK+1,QAIDAH)+'</optgroup></select>'
    +'<p class="cap">'+(RX>QBOOK?'Tajweed Book, levels '+(QBOOK+1)+' to '+QAIDAH+'.':'Qaidah Book, levels 1 to '+QBOOK+'.')+'</p>'}
- else{if(!RX)RX=Math.min(Math.max(s.target,1),NB-1);var m=rMode();if(m==="lt"&&RX>BL)RX=BL;if(m==="is"&&!RI)RI=s.target<=BL?"b"+s.target:"s0";
+ else{if(!RX)RX=Math.min(Math.max(s.target,1),NB-1);var m=rMode();if(m==="lt"&&RX>BL)RX=BL;
   b='<p class="rl">Target tested</p>'+rSeg("rM",m,[["lt","Level and target"],["is","Item number and Surah"]],"Choose the target by");
   if(m==="lt"){var l=lv(RX);
    b+='<div class="rpair"><label>Level<select id="rL">'+LEVELS.map(function(_,k){return '<option value="'+k+'"'+(k===l?' selected':'')+'>Level '+(k+1)+'</option>'}).join("")+'</select></label>'
     +'<label>Target<select id="rT">'+Array.apply(null,{length:LEVELS[l]}).map(function(_,t){var n=LVS[l]+t+1;return '<option value="'+n+'"'+(n===RX?' selected':'')+'>T'+(t+1)+'</option>'}).join("")+'</select></label></div>'}
-  else b+='<label class="rgap"><span class="sr-only">Item number and Surah</span><select id="rI" aria-label="Item number and Surah">'+rItems()+'</select></label>'}
- h+=rStep(3,b,1);var IS=RK==="m"&&rMode()==="is";
+  else b+='<div class="rgap">'+rBox("rI","Item number and Surah","Type a surah or item number",RI?SUR[+RI.slice(1)]:"")+'</div>'}
+ var IS=RK==="m"&&rMode()==="is";h+=rStep(3,b,!IS||!!RI);
  h+=rStep(4,'<p class="rl">Score</p><div class="rsc" role="group" aria-label="Score out of 5">'+QC.map(function(c,k){return '<button type="button" data-sc="'+k+'" style="--c:'+c+'" aria-pressed="'+(RSC===k)+'">'+k+'</button>'}).join("")+'</div>'
-  +'<div class="racts"><button type="button" class="btn primary" data-r="ok"'+(RSC<0||IS&&RI==="f"?' disabled':'')+'>Passed</button><button type="button" class="btn" data-r="no"'+(RSC<0?' disabled':'')+'>Not passed</button>'
-  +(RK==="m"&&(!IS||RI.charAt(0)==="b")?'<button type="button" class="btn quiet" data-r="t">Set as current target, no test</button>':'')+'</div>'
-  +'<p class="cap">'+(IS&&RI==="f"?'Fail is recorded with Not passed, against '+esc(fn(s))+'\'s current target.':'A pass is logged as a pass, with no house points. Give house points on the House points tab.')+'</p>',RSC>=0);
+  +'<div class="racts"><button type="button" class="btn primary" data-r="ok"'+(RSC<0||IS&&!RI?' disabled':'')+'>Passed</button><button type="button" class="btn" data-r="no"'+(RSC<0||IS&&!RI?' disabled':'')+'>Not passed</button>'
+  +(RK==="m"&&!IS?'<button type="button" class="btn quiet" data-r="t">Set as current target, no test</button>':'')+'</div>',RSC>=0);
  refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o))}
 function rDone(o,msg){persist(o.c);if(o.c===CID)render();recPage();toast(msg)}
 function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now(),d=dk(now);if(!s.tests)s.tests=[];if(!s.bp)s.bp=[];
@@ -576,11 +568,10 @@ function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now
   if(t.k==="m"&&!t.ok)s.fl.pop();
   if(t.tk){var j=s.tb.lastIndexOf(t.tk);if(j>=0)s.tb.splice(j,1)}
   RX=0;rDone(o,"Level test taken back for "+nm);return}
- if(RK==="m"&&rMode()==="is"){if(!RI)return;var sur=RI.charAt(0)==="s"?SUR[+RI.slice(1)]:"",n=RI.charAt(0)==="b"?+RI.slice(1):s.target;
-  if(k==="t"){if(RI.charAt(0)!=="b")return;s.target=n;RI="";rDone(o,nm+"'s target set to "+bl(n));return}
-  if(RSC<0||(k==="ok"&&RI==="f"))return;var pass=k==="ok",ti={d:d,k:"m",n:n,sc:RSC,ok:pass};if(sur)ti.x=sur;
-  if(pass){s.passes++;s.log.push(now);s.lt.push(n);s.lx.push(sur);if(!sur)s.target=Math.min(n+1,NB);s.hit=now}
-  else{s.fl.push(now);if(RI.charAt(0)==="b")s.target=n}
+ if(RK==="m"&&rMode()==="is"){var sur=RI&&SUR[+RI.slice(1)],n=s.target;
+  if(!sur||RSC<0||k==="t")return;var pass=k==="ok",ti={d:d,k:"m",n:n,sc:RSC,ok:pass};if(sur)ti.x=sur;
+  if(pass){s.passes++;s.log.push(now);s.lt.push(n);s.lx.push(sur);s.hit=now}
+  else s.fl.push(now);
   s.tests.push(ti);s.q[d]=RSC;RSC=-1;RI="";
   rDone(o,nm+(pass?" passed ":" did not pass ")+tLab(ti)+" with "+ti.sc+"/5"+(pass?", logged as a pass":""));return}
  var x=RX;if(!x)return;
@@ -599,39 +590,54 @@ $("recF").addEventListener("click",function(e){var b=e.target.closest("button");
  if(b.dataset.h){if(HPOFF)return;RH=RH===b.dataset.h?"":b.dataset.h;recPage();var n=$("recF").querySelector('[data-h="'+b.dataset.h+'"]');if(n)n.focus();return}
  if(b.dataset.r)recAct(b.dataset.r,+b.dataset.t)});
 $("recF").addEventListener("change",function(e){var t=e.target;
- if(t.id==="rL")RX=LVS[+t.value]+1;else if(t.id==="rI")RI=t.value;else if(t.id==="rT"||t.id==="rQ")RX=+t.value;else return;
+ if(t.id==="rL")RX=LVS[+t.value]+1;else if(t.id==="rT"||t.id==="rQ")RX=+t.value;else return;
  recPage();var n=$(t.id);if(n)n.focus()});
 
 function rLab(o){return o.s.name.trim()+" ("+o.b+")"}
+/* The two search boxes on Record: rS (the student) and rI (a surah, under "Item number and Surah"). Each has the
+   list it searches (v: value, a: main text, b: grey text in brackets, k: what typing matches), its chosen value, what
+   picking does, and what the box shows for a value. Typing matches every word anywhere; items whose text starts
+   with what was typed come first, then those with a word starting with it, and the typed part is highlighted. */
+function skey(t){return nkey(String(t).replace(/[^A-Za-z0-9]+/g," "))}
+var RBX={rS:{L:function(){return RL.map(function(o){return {v:o.v,a:o.s.name.trim(),b:o.b,k:o.k}})},cur:function(){return RS},
+  lab:function(v){var o=RL.filter(function(x){return x.v===v})[0];return o?rLab(o):""},none:"No student matches",
+  pick:function(v){if(v!==RS){RS=v;RM="";RX=0;RI="";RSC=-1;RH="";RB=""}},clear:function(){RS="";RM="";RX=0;RI="";RSC=-1;RH="";RB=""}},
+ rI:{L:function(){return SUR.map(function(x,k){return {v:"s"+k,a:x,k:skey(x)}})},cur:function(){return RI},
+  lab:function(v){return v?SUR[+v.slice(1)]||"":""},none:"No surah matches",pick:function(v){RI=v},clear:function(){RI=""}}};
+function rBox(id,aria,ph,val,off){return '<div class="rpick"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>'
+  +'<input type="text" id="'+id+'" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="'+id+'L" autocomplete="off" autocapitalize="words" spellcheck="false" enterkeyhint="go"'+(aria?' aria-label="'+aria+'"':'')+' placeholder="'+ph+'" value="'+esc(val)+'"'+(off?' disabled':'')+'>'
+  +'<button type="button" class="rpx" data-x="'+id+'" aria-label="Clear"'+(val?'':' hidden')+'><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>'
+  +'<div class="csm rsl" id="'+id+'L" role="listbox" aria-label="'+(aria||"Students")+'" hidden></div></div>'}
 var RSA=-1;
-function rsBox(){return $("rSL")}
-function rsShow(q){var L=rsBox(),I=$("rS");if(!L||!I)return;q=nkey(q);var ch=RL.filter(function(x){return x.v===RS})[0];if(ch&&q===nkey(rLab(ch)))q="";
- var W=q.split(" ").filter(Boolean),R=RL.filter(function(o){return W.every(function(w){return o.k.indexOf(w)>=0})});
- if(q){var nm=function(o){var n=nkey(o.s.name);return n.indexOf(q)===0?0:(" "+n).indexOf(" "+W[0])>=0?1:2};R=R.map(function(o,k){return [nm(o),k,o]}).sort(function(a,b){return a[0]-b[0]||a[1]-b[1]}).map(function(x){return x[2]})}
- var was=L.hidden;L.innerHTML=R.length?R.map(function(o,k){return '<div class="cso" role="option" id="rso'+k+'" data-v="'+esc(o.v)+'" aria-selected="'+(o.v===RS)+'"><span>'+qhl(o.s.name.trim(),q)+' <span class="rsb">('+qhl(o.b,q)+')</span></span></div>'}).join("")
-  :'<p class="rsn">No student matches “'+esc(I.value.trim())+'”.</p>';
+function rsShow(id,q){var X=RBX[id],L=$(id+"L"),I=$(id);if(!L||!I)return;var cur=X.cur();q=skey(q);if(cur&&q===skey(X.lab(cur)))q="";
+ var W=q.split(" ").filter(Boolean),R=X.L().filter(function(o){return W.every(function(w){return o.k.indexOf(w)>=0})});
+ if(q){var nm=function(o){var n=skey(o.a);return n.indexOf(q)===0?0:(" "+n).indexOf(" "+W[0])>=0?1:2};R=R.map(function(o,k){return [nm(o),k,o]}).sort(function(a,b){return a[0]-b[0]||a[1]-b[1]}).map(function(x){return x[2]})}
+ var hq=nkey(I.value);if(cur&&hq===nkey(X.lab(cur)))hq="";
+ var was=L.hidden;L.innerHTML=R.length?R.map(function(o,k){return '<div class="cso" role="option" id="'+id+'o'+k+'" data-v="'+esc(o.v)+'" aria-selected="'+(o.v===cur)+'"><span>'+qhl(o.a,hq)+(o.b?' <span class="rsb">('+qhl(o.b,hq)+')</span>':'')+'</span></div>'}).join("")
+  :'<p class="rsn">'+X.none+' “'+esc(I.value.trim())+'”.</p>';
  L.hidden=false;I.setAttribute("aria-expanded","true");
- var k0=R.findIndex(function(o){return o.v===RS});rsAct(q?0:Math.max(0,k0),!q);
+ var k0=R.findIndex(function(o){return o.v===cur});rsAct(id,q?0:Math.max(0,k0),!q);
  if(was&&L.animate&&!QM.matches)L.animate([{opacity:0,transform:"translateY(-4px) scale(.98)"},{opacity:1,transform:"none"}],{duration:170,easing:"cubic-bezier(.22,1,.36,1)"})}
-function rsAct(k,center){var L=rsBox(),I=$("rS");if(!L)return;var O=L.querySelectorAll(".cso");if(!O.length){RSA=-1;I.removeAttribute("aria-activedescendant");return}
+function rsAct(id,k,center){var L=$(id+"L"),I=$(id);if(!L)return;var O=L.querySelectorAll(".cso");if(!O.length){RSA=-1;I.removeAttribute("aria-activedescendant");return}
  RSA=Math.max(0,Math.min(O.length-1,k));O.forEach(function(e,j){e.classList.toggle("act",j===RSA)});var on=O[RSA];I.setAttribute("aria-activedescendant",on.id);
  var t=on.offsetTop,b=t+on.offsetHeight;if(center)L.scrollTop=t-L.clientHeight/2+on.offsetHeight/2;else if(t<L.scrollTop)L.scrollTop=t-4;else if(b>L.scrollTop+L.clientHeight)L.scrollTop=b-L.clientHeight+4}
-function rsClose(keep){var L=rsBox(),I=$("rS");if(!L||L.hidden)return;L.hidden=true;RSA=-1;I.setAttribute("aria-expanded","false");I.removeAttribute("aria-activedescendant");
- if(!keep){var ch=RL.filter(function(x){return x.v===RS})[0];I.value=ch?rLab(ch):""}}
-function rsPick(v){rsClose(1);if(v!==RS){RS=v;RM="";RX=0;RI="";RSC=-1;RH="";RB=""}recPage();var I=$("rS");if(I)I.focus()}
-$("recF").addEventListener("input",function(e){if(e.target.id==="rS")rsShow(e.target.value)});
-$("recF").addEventListener("focusin",function(e){if(e.target.id==="rS"&&RS)e.target.select()});
+function rsClose(id,keep){var L=$(id+"L"),I=$(id);if(!L||L.hidden)return;L.hidden=true;RSA=-1;I.setAttribute("aria-expanded","false");I.removeAttribute("aria-activedescendant");
+ if(!keep)I.value=RBX[id].lab(RBX[id].cur())}
+function rsPick(id,v){rsClose(id,1);RBX[id].pick(v);recPage();var I=$(id);if(I)I.focus()}
+function rsId(e){var t=e.target;return t&&RBX[t.id]?t.id:""}
+$("recF").addEventListener("input",function(e){var id=rsId(e);if(id)rsShow(id,e.target.value)});
+$("recF").addEventListener("focusin",function(e){var id=rsId(e);if(id&&RBX[id].cur())e.target.select()});
 $("recF").addEventListener("mousedown",function(e){if(e.target.closest(".rsl"))e.preventDefault()});
-$("recF").addEventListener("click",function(e){var o=e.target.closest(".rsl .cso");if(o){rsPick(o.dataset.v);return}
- if(e.target.id==="rS"&&rsBox().hidden){var ch=RL.filter(function(x){return x.v===RS})[0];if(ch&&e.target.value===rLab(ch)){var I=e.target;setTimeout(function(){I.select()},0)}rsShow(e.target.value)}
- if(e.target.closest(".rpx")){RS="";RM="";RX=0;RI="";RSC=-1;RH="";RB="";recPage();var I=$("rS");if(I){I.focus();rsShow("")}}});
-$("recF").addEventListener("mousemove",function(e){var o=e.target.closest(".rsl .cso");if(o){var O=Array.prototype.indexOf.call(rsBox().querySelectorAll(".cso"),o);if(O!==RSA)rsAct(O)}});
-$("recF").addEventListener("focusout",function(e){if(e.target.id==="rS")rsClose()});
-$("recF").addEventListener("keydown",function(e){if(e.target.id!=="rS")return;var L=rsBox(),k=e.key,open=!L.hidden;
- if(k==="ArrowDown"||k==="ArrowUp"){e.preventDefault();if(!open){rsShow(e.target.value);return}rsAct(RSA+(k==="ArrowDown"?1:-1))}
- else if((k==="PageDown"||k==="PageUp")&&open){e.preventDefault();rsAct(RSA+(k==="PageDown"?8:-8))}
- else if(k==="Enter"){e.preventDefault();var O=L.querySelectorAll(".cso");if(open&&O[RSA])rsPick(O[RSA].dataset.v);else if(!open)rsShow(e.target.value)}
- else if(k==="Escape"&&open){e.preventDefault();e.stopPropagation();rsClose()}});
+$("recF").addEventListener("click",function(e){var o=e.target.closest(".rsl .cso");if(o){rsPick(o.closest(".rsl").id.slice(0,-1),o.dataset.v);return}
+ var id=rsId(e);if(id&&$(id+"L").hidden){var X=RBX[id],I=e.target;if(X.cur()&&I.value===X.lab(X.cur()))setTimeout(function(){I.select()},0);rsShow(id,I.value)}
+ var x=e.target.closest(".rpx");if(x){var xi=x.dataset.x;RBX[xi].clear();recPage();var J=$(xi);if(J){J.focus();rsShow(xi,"")}}});
+$("recF").addEventListener("mousemove",function(e){var o=e.target.closest(".rsl .cso");if(o){var L=o.closest(".rsl"),O=Array.prototype.indexOf.call(L.querySelectorAll(".cso"),o);if(O!==RSA)rsAct(L.id.slice(0,-1),O)}});
+$("recF").addEventListener("focusout",function(e){var id=rsId(e);if(id)rsClose(id)});
+$("recF").addEventListener("keydown",function(e){var id=rsId(e);if(!id)return;var L=$(id+"L"),k=e.key,open=!L.hidden;
+ if(k==="ArrowDown"||k==="ArrowUp"){e.preventDefault();if(!open){rsShow(id,e.target.value);return}rsAct(id,RSA+(k==="ArrowDown"?1:-1))}
+ else if((k==="PageDown"||k==="PageUp")&&open){e.preventDefault();rsAct(id,RSA+(k==="PageDown"?8:-8))}
+ else if(k==="Enter"){e.preventDefault();var O=L.querySelectorAll(".cso");if(open&&O[RSA])rsPick(id,O[RSA].dataset.v);else if(!open)rsShow(id,e.target.value)}
+ else if(k==="Escape"&&open){e.preventDefault();e.stopPropagation();rsClose(id)}});
 
 /* ---------- Class: Progress ---------- */
 function qavg(s){var v=Object.keys(s.q).map(function(k){return s.q[k]});return avg(marks(v))}
