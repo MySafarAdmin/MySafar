@@ -1202,6 +1202,11 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .rpair{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;max-width:440px}
 .rpair label{display:flex;flex-direction:column;gap:6px;font-weight:650;flex:1 1 140px}
 .racts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+/* The tester's feedback on a Memo test (optional), shown on the memo board and in the student's level tests. */
+.rl.rfb{margin:18px 0 8px;font-size:1rem}.rl.rfb span{font-weight:500;color:var(--mute)}
+#rF{display:block;width:100%;max-width:520px;min-height:64px;font:inherit;font-size:.9375rem;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:10px 12px;resize:vertical}
+#rF:focus-visible{border-color:var(--focus)}
+.rfbx{display:block;color:var(--mute);font-size:.8125rem;margin-top:2px;font-style:italic}
 .rside{min-width:0;background:var(--bg);border-radius:var(--r-lg);padding:20px}
 .rside h2{margin:0;font-family:var(--font-display);font-weight:800;font-size:1.25rem;line-height:1.25;color:var(--navy);overflow-wrap:anywhere}
 .rside.empty h2{color:var(--ink)}
@@ -1830,6 +1835,7 @@ html.fresh #vM .hrq{animation:none}body.enter #vM .hrq{animation-delay:1.3s}
   <button class="nav" id="nL" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>Classes</button>
   <button class="nav" id="nH" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5v10z"/><path d="M14 3.2A8.5 8.5 0 0 1 20.8 10H14z"/></svg>House points</button>
   <button class="nav" id="nK" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.5 4"/><path d="M17 6h2.5a2.5 2.5 0 0 1-2.5 4"/></svg>Rankings</button>
+  <a class="nav" id="nB" href="/board" hidden title="Every student's memorisation progress, for staff and for the whiteboard"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 12l3-3 2 2 4-4"/><path d="M12 16v4"/><path d="M8 20h8"/></svg>Memo board</a>
   <button class="nav" id="nU" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11.2v4.3c1.5 1.5 3.4 2.2 5.5 2.2s4-.7 5.5-2.2v-4.3"/><path d="M21.5 9v5"/></svg>Students</button>
   <div id="adminNav"></div>
   <a class="nav j2j j2jb" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer" title="Registers, homework and classroom learning"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></svg><span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
@@ -2280,7 +2286,7 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
    Memo's "Item number and Surah" choice is a search box over the school's numbered surahs in SUR, written exactly as
    the school writes them (book targets are chosen under "Level and target"). A surah pass is kept as the pass's label
    (s.lx and the test's x) and leaves the target where it is. */
-var QAIDAH=20,QBOOK=13,HPOFF=0,RK="m",RS="",RM="",RX=0,RI="",RSC=-1,RH="",RB="";
+var QAIDAH=20,QBOOK=13,HPOFF=0,RK="m",RS="",RM="",RX=0,RI="",RSC=-1,RH="",RB="",RF="";
 var SUR=["197. Surah An-Naba'","198. Surah An-Nazi'aat","199. Surah Abasa","200. Surah At-Takwir","201. Surah Al-Infitaar",
  "202. Surah Al-Mutaffifin","203. Surah Al-Inshiqaq","204. Surah Al-Burooj","205. Surah At-Tariq","206. Surah Al-A'la",
  "207. Surah Al-Ghaashiyah","208. Surah Al-Fajr","209. Surah Al-Balad","210. Surah Ash-Shams","211. Surah Al-Lail",
@@ -2322,7 +2328,7 @@ function rSide(o){var s=o&&o.s;if(!s)return '<aside class="rside empty"><h2>No s
  return '<aside class="rside" aria-label="'+esc(s.name)+'"><h2>'+esc(s.name)+'</h2><p class="rcls">'+esc(cname(ST[o.c].name))+(s.house?' <span class="hdot '+esc(s.house)+'"></span>'+esc(s.house):'')+'</p>'
   +'<dl class="rfacts"><div><dt>Memo target</dt><dd>'+esc(ct(s))+'</dd></div><div><dt>Quran level</dt><dd>'+(s.qa?qaLab(s.qa):'No level yet')+'</dd></div></dl>'
   +'<section class="rlast"><div class="mod-h"><h3>Level tests</h3>'+(T.length?'<button type="button" class="btn sm quiet" data-r="u">Take back the latest</button>':'')+'</div>'
-  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+(t.sc==null?'':t.sc+'/5, ')+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok" title="Given before house points moved to physical coins"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
+  +(T.length?'<ul class="feed">'+T.map(function(t){return '<li><span class="d">'+qlab(t.d)+'</span><span class="x'+(t.ok?'':' fail')+'">'+esc(tLab(t))+', '+(t.sc==null?'':t.sc+'/5, ')+(t.ok?'passed':'not passed')+(t.tk?'<span class="rtok" title="Given before house points moved to physical coins"><span class="tdot b" aria-hidden="true"></span>Blue token</span>':'')+(t.fb?'<span class="rfbx">'+esc(t.fb)+'</span>':'')+'</span></li>'}).join("")+'</ul>':'<p class="none">No level tests yet.</p>')+'</section></aside>'}
 /* Step 2 is a search box: typing part of a name (or a teacher's name) narrows the list under it to the students who
    match, names starting with what was typed first, and clicking the box with nothing typed opens everyone, A to Z.
    Each student shows their teacher in brackets ("Adam Or (Ustadh Faeez)"); if two students with the same name share
@@ -2363,6 +2369,7 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
   else b+='<div class="rgap">'+rBox("rI","Item number and Surah","Type a surah or item number",RI?SUR[+RI.slice(1)]:"")+'</div>'}
  var IS=RK==="m"&&rMode()==="is";h+=rStep(3,b,!IS||!!RI);
  h+=rStep(4,'<p class="rl">Score</p><div class="rsc" role="group" aria-label="Score out of 5">'+QC.map(function(c,k){return '<button type="button" data-sc="'+k+'" style="--c:'+c+'" aria-pressed="'+(RSC===k)+'">'+k+'</button>'}).join("")+'</div>'
+  +(RK==="m"?'<label class="rl rfb" for="rF">Feedback <span>(optional)</span></label><textarea id="rF" rows="2" maxlength="300" placeholder="For example, strong on tajwid, revise the last five ayat">'+esc(RF)+'</textarea>':'')
   +'<div class="racts"><button type="button" class="btn primary" data-r="ok"'+(RSC<0||IS&&!RI?' disabled':'')+'>Passed</button><button type="button" class="btn" data-r="no"'+(RSC<0||IS&&!RI?' disabled':'')+'>Not passed</button>'
   +(RK==="m"&&!IS?'<button type="button" class="btn quiet" data-r="t">Set as current target, no test</button>':'')+'</div>',RSC>=0);
  refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o))}
@@ -2381,26 +2388,27 @@ function recAct(k,arg){var o=rStu();if(!o)return;var s=o.s,nm=fn(s),now=Date.now
   if(t.tk){var j=s.tb.lastIndexOf(t.tk);if(j>=0)s.tb.splice(j,1)}
   RX=0;rDone(o,"Level test taken back for "+nm);return}
  if(RK==="m"&&rMode()==="is"){var sur=RI&&SUR[+RI.slice(1)],n=s.target;
-  if(!sur||RSC<0||k==="t")return;var pass=k==="ok",ti={d:d,k:"m",n:n,sc:RSC,ok:pass};if(sur)ti.x=sur;
+  if(!sur||RSC<0||k==="t")return;var pass=k==="ok",ti={d:d,k:"m",n:n,sc:RSC,ok:pass};if(sur)ti.x=sur;if(RF.trim())ti.fb=RF.trim().slice(0,300);RF="";
   if(pass){s.passes++;s.log.push(now);s.lt.push(n);s.lx.push(sur);s.hit=now}
   else s.fl.push(now);
   s.tests.push(ti);s.q[d]=RSC;RSC=-1;RI="";
   rDone(o,nm+(pass?" passed ":" did not pass ")+tLab(ti)+" with "+ti.sc+"/5"+(pass?", logged as a pass":""));return}
  var x=RX;if(!x)return;
  if(k==="t"){s.target=x;RX=0;rDone(o,nm+"'s target set to "+bl(x));return}
- if(RSC<0)return;var ok=k==="ok",t={d:d,k:RK,n:x,sc:RSC,ok:ok};
+ if(RSC<0)return;var ok=k==="ok",t={d:d,k:RK,n:x,sc:RSC,ok:ok};if(RK==="m"&&RF.trim())t.fb=RF.trim().slice(0,300);RF="";
  if(RK==="q"){t.pq=s.qa||0;if(ok)s.qa=x}
  else if(ok){s.passes++;s.log.push(now);s.lt.push(x);s.lx.push("");s.target=Math.min(x+1,NB);s.hit=now}
  else{s.fl.push(now);s.target=x}
  s.tests.push(t);s.q[d]=RSC;RSC=-1;RX=0;
  rDone(o,nm+(ok?" passed ":" did not pass ")+tLab(t)+" with "+t.sc+"/5"+(ok?", logged as a pass":""))}
 $("recF").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
- var g=b.closest(".seg");if(g&&g.id==="rK"){RK=b.dataset.v;RM="";RX=0;RI="";RH="";RB="";recPage();return}
+ var g=b.closest(".seg");if(g&&g.id==="rK"){RK=b.dataset.v;RM="";RX=0;RI="";RH="";RB="";RF="";recPage();return}
  if(g&&g.id==="rB"){RB=RB===b.dataset.v?"":b.dataset.v;recPage();var nb=$("rB");if(nb)nb.querySelector('[data-v="'+b.dataset.v+'"]').focus();return}
  if(g&&g.id==="rM"){RM=b.dataset.v;RI="";recPage();return}
  if(b.dataset.sc){RSC=+b.dataset.sc;recPage();return}
  if(b.dataset.h){if(HPOFF)return;RH=RH===b.dataset.h?"":b.dataset.h;recPage();var n=$("recF").querySelector('[data-h="'+b.dataset.h+'"]');if(n)n.focus();return}
  if(b.dataset.r)recAct(b.dataset.r,+b.dataset.t)});
+$("recF").addEventListener("input",function(e){if(e.target.id==="rF")RF=e.target.value});
 $("recF").addEventListener("change",function(e){var t=e.target;
  if(t.id==="rL")RX=LVS[+t.value]+1;else if(t.id==="rT"||t.id==="rQ")RX=+t.value;else return;
  recPage();var n=$(t.id);if(n)n.focus()});
@@ -2413,7 +2421,7 @@ function rLab(o){return o.s.name.trim()+" ("+o.b+")"}
 function skey(t){return nkey(String(t).replace(/[^A-Za-z0-9]+/g," "))}
 var RBX={rS:{L:function(){return RL.map(function(o){return {v:o.v,a:o.s.name.trim(),b:o.b,k:o.k}})},cur:function(){return RS},
   lab:function(v){var o=RL.filter(function(x){return x.v===v})[0];return o?rLab(o):""},none:"No student matches",
-  pick:function(v){if(v!==RS){RS=v;RM="";RX=0;RI="";RSC=-1;RH="";RB=""}},clear:function(){RS="";RM="";RX=0;RI="";RSC=-1;RH="";RB=""}},
+  pick:function(v){if(v!==RS){RS=v;RM="";RX=0;RI="";RSC=-1;RH="";RB="";RF=""}},clear:function(){RS="";RM="";RX=0;RI="";RSC=-1;RH="";RB="";RF=""}},
  rI:{L:function(){return SUR.map(function(x,k){return {v:"s"+k,a:x,k:skey(x)}})},cur:function(){return RI},
   lab:function(v){return v?SUR[+v.slice(1)]||"":""},none:"No surah matches",pick:function(v){RI=v},clear:function(){RI=""}}};
 function rBox(id,aria,ph,val,off){return '<div class="rpick"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>'
@@ -2892,7 +2900,7 @@ function cname(n){n=String(n||"");if(CNM.hasOwnProperty(n))return CNM[n];var g=/
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?cname(n.name):PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):PAGE==="H"?"House points":PAGE==="K"?"Rankings":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  // The Presenter (the TV's scenes for one class) is served by the Railway server, in this tab.
- $("pres").hidden=!n||!window.RAILWAY;if(n)$("pres").href="/presenter/"+encodeURIComponent(CID);
+ $("pres").hidden=!n||!window.RAILWAY;$("nB").hidden=!window.RAILWAY;if(n)$("pres").href="/presenter/"+encodeURIComponent(CID);
  document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+(PAGE==="K"?"Rankings · ":"")+"MySafar"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":"C";closeDrawer();$("figP").hidden=!M;if(!M)$("figP").open=false;

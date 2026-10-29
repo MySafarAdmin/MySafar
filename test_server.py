@@ -1176,6 +1176,89 @@ class DashboardTests:
         self.assertEqual(anonymous.get(link + "/data").status_code, 404)
         self.assertIn("No TV links yet", self.client.get("/admin/tv").get_data(as_text=True))
 
+    def test_memo_board_figures(self):
+        import memo_board
+        now = datetime(2026, 10, 29, 12, tzinfo=auth.LONDON)  # a Thursday
+        ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
+        fb = {"d": "2026-10-20", "k": "m", "n": 3, "sc": 2, "ok": False, "fb": "Revise the last page"}
+        rows = [{"id": "yr3-a", "json": json.dumps({"name": "Yr3-A-QM-Br Ahmed", "L": [9, 9], "Q": 37, "S": [
+                    self.tv_student("Amina Rahman", target=4, passes=3, log=[ms(2026, 10, 1, 9), ms(2026, 10, 13, 9), ms(2026, 10, 27, 9)],
+                                    lt=[1, 2, 12], lx=["", "", ""], fl=[ms(2026, 10, 20, 9)],
+                                    tests=[fb, {"d": "2026-10-27", "k": "m", "n": 12, "sc": 4, "ok": True}]),
+                    self.tv_student("Bilal Hussain", target=20, passes=1, log=[ms(2026, 10, 14, 9)], lt=[19],
+                                    lx=["197. Surah An-Naba'"]),
+                    self.tv_student("Hana Ali", target=3, passes=1, log=[ms(2026, 9, 1, 9)], lt=[2], lx=[""],
+                                    fl=[ms(2026, 10, 2, 9)] * 2),
+                    self.tv_student("Musa Khan")]})},
+                {"id": "yr8-b", "json": json.dumps({"name": "Yr8-B", "L": [9], "S": [
+                    self.tv_student("Zara Noor", fl=[ms(2026, 10, 6, 9)])]})}]
+        data = memo_board.board(rows, now)
+        by = {s["name"]: s for s in data["students"]}
+        a = by["Amina Rahman"]
+        self.assertEqual((a["status"], a["weeks"], a["passes"], a["fails"], a["rate"]), ("on", 0, 3, 1, 75))
+        self.assertEqual((a["level"], a["levelDate"], a["tested"], a["failDate"], a["target"]),
+                         ("L2 T3", "2026-10-27", "2026-10-27", "2026-10-20", "L1 T4"))
+        self.assertEqual((a["feedback"], a["feedbackDate"], a["feedbackOk"]), ("Revise the last page", "2026-10-20", False))
+        # Two weeks since a surah pass: slowing down; the surah is written as chosen on Record.
+        self.assertEqual((by["Bilal Hussain"]["status"], by["Bilal Hussain"]["weeks"], by["Bilal Hussain"]["level"],
+                          by["Bilal Hussain"]["target"]), ("slow", 2, "197. Surah An-Naba'", "Item 199"))
+        self.assertEqual((by["Hana Ali"]["status"], by["Hana Ali"]["weeks"], by["Hana Ali"]["rate"]), ("behind", 8, 33))
+        self.assertEqual((by["Musa Khan"]["status"], by["Musa Khan"]["target"], by["Musa Khan"]["rate"]), ("none", None, None))
+        self.assertEqual((by["Zara Noor"]["status"], by["Zara Noor"]["weeks"], by["Zara Noor"]["stage"], by["Zara Noor"]["year"]),
+                         ("behind", None, "secondary", 8))
+        self.assertEqual([c["label"] for c in data["classes"]], ["Yr3A Ustadh Ahmed", "Yr8B"])
+        self.assertEqual(memo_board.target_label(56, [9, 9], 37), "Quran complete")
+        # A link: short names, one stage, and without fails or feedback when made that way.
+        short = memo_board.board(rows, now, short=True, fails=False, scope="primary")
+        self.assertEqual([s["name"] for s in short["students"]], ["Amina R.", "Bilal H.", "Hana A.", "Musa K."])
+        self.assertNotIn("fails", short["students"][0])
+        self.assertNotIn("Revise", json.dumps(short))
+
+    def test_memo_board_pages_and_links(self):
+        student = self.tv_student("Aisha Khan", target=2, passes=1, log=[time.time() * 1000], lt=[1], lx=[""],
+                                  tests=[{"d": "2026-10-27", "k": "m", "n": 1, "sc": 5, "ok": True, "fb": "Lovely"}])
+        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
+        self.assertEqual(self.write("Yr4-B", class_id="yr4-b", state=dict(self.state, S=[self.tv_student("Omar Ali")])).status_code, 200)
+        # Feedback has a length limit.
+        long = dict(student, tests=[dict(student["tests"][0], fb="x" * 301)])
+        self.assertEqual(self.write(state=dict(self.state, S=[long]), revision=1).status_code, 400)
+        anonymous = self.app.test_client()
+        self.assertEqual(anonymous.get("/board").status_code, 302)
+        self.assertEqual(anonymous.get("/api/board").status_code, 401)
+        self.assertEqual(anonymous.get("/board/not-a-link").status_code, 404)
+        self.assertEqual(anonymous.get("/board/not-a-link/data").status_code, 404)
+        page = self.client.get("/board")
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("script-src 'self' 'unsafe-inline'", page.headers["Content-Security-Policy"])
+        data = self.client.get("/api/board").get_json()
+        self.assertTrue(data["admin"])
+        self.assertEqual([s["name"] for s in data["students"]], ["Aisha Khan", "Omar Ali"])
+        self.assertEqual(data["students"][0]["feedback"], "Lovely")
+        # Teachers see their own classes and can't make links.
+        self.add_user("t@example.com", classes=["yr4-b"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        mine = teacher.get("/api/board").get_json()
+        self.assertEqual(([s["name"] for s in mine["students"]], mine["admin"]), (["Omar Ali"], False))
+        self.assertEqual(teacher.get("/admin/board").status_code, 403)
+        page = self.form(self.client, "/admin/board", "/admin/board/new", name="Yr3 whiteboard", scope="class:yr3-a").get_data(as_text=True)
+        link = re.search(r'value="http://localhost(/board/[^"]+)"', page).group(1)
+        self.assertIn("without fails or feedback", page)
+        self.assertEqual(anonymous.get(link).status_code, 200)
+        shown = anonymous.get(link + "/data").get_json()
+        self.assertEqual(([s["name"] for s in shown["students"]], shown["fails"], shown["title"], shown["fixedClass"]),
+                         (["Aisha K."], False, "Yr3 whiteboard", True))
+        self.assertNotIn("Lovely", json.dumps(shown))
+        for path in ("/", "/api/classes", "/api/board", "/admin/board"):
+            self.assertIn(anonymous.get(path).status_code, (302, 401))
+        bad = self.form(self.client, "/admin/board", "/admin/board/new", name="x", scope="class:nope")
+        self.assertEqual(bad.status_code, 400)
+        self.form(self.client, "/admin/board", "/admin/board/new", name="Hall", scope="", fails="1")
+        self.assertIn("Made a memo board link", self.client.get("/admin/activity").get_data(as_text=True))
+        link_id = self.query("SELECT id FROM board_links WHERE name = 'Yr3 whiteboard'")[0]["id"]
+        self.form(self.client, "/admin/board", f"/admin/board/{link_id}/off")
+        self.assertEqual(anonymous.get(link).status_code, 404)
+        self.assertEqual(anonymous.get(link + "/data").status_code, 404)
+
     def test_shared_styles_and_fonts(self):
         anonymous = self.app.test_client()
         css = anonymous.get("/auth.css").get_data(as_text=True)

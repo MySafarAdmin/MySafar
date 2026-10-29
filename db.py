@@ -181,8 +181,25 @@ def _m9_tutorial_again(db, postgres):
     db.execute("UPDATE users SET tour_done = NULL")
 
 
+def _m10_board_links(db, postgres):
+    t = _types(postgres)
+    # Read-only links to the memorisation progress board (see memo_board.py). The token is stored only as a SHA-256
+    # hash. scope: "" (whole school), "primary", "secondary" or "class:<classroom id>"; fails: 0 leaves out fails and
+    # tester feedback.
+    db.execute(f"""CREATE TABLE board_links (
+        id {t['id']},
+        name TEXT NOT NULL,
+        token_hash TEXT NOT NULL UNIQUE,
+        scope TEXT NOT NULL DEFAULT '',
+        fails INTEGER NOT NULL DEFAULT 1,
+        created_by {t['ref']} REFERENCES users (id) ON DELETE SET NULL,
+        created_at BIGINT NOT NULL,
+        last_seen_at BIGINT,
+        revoked_at BIGINT)""")
+
+
 MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
-              _m7_avatars, _m8_tutorial, _m9_tutorial_again]
+              _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links]
 
 
 class Database:
