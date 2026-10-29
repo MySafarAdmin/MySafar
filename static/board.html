@@ -145,10 +145,50 @@ body.wb .scroll{max-height:calc(100vh - 21vh);max-height:calc(100dvh - 21vh)}
  td.fbc{grid-column:1/-1}
  .fb{max-width:none}
 }
-@media (prefers-reduced-motion:reduce){tbody tr.in,.bd{animation:none}.rate s i{transition:none}}
+/* ---------- Students view: one tile per student, in groups by their last pass, the most recent first ---------- */
+.view{display:inline-flex;background:var(--sunk);border-radius:var(--r-pill);padding:3px;gap:2px;align-self:flex-end}
+.view button{all:unset;cursor:pointer;padding:8px 16px;border-radius:var(--r-pill);font-weight:700;font-size:.9375rem;color:var(--mute);transition:background .2s,color .2s,box-shadow .2s}
+.view button[aria-pressed="true"]{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(28,34,48,.12)}
+.view button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.eb{background:#fff;border-radius:var(--r-lg);box-shadow:var(--shadow)}
+.groups{display:flex;flex-direction:column;gap:26px}
+.grp h2{display:flex;align-items:baseline;gap:10px;margin:0 0 12px;font-size:1.25rem;font-weight:800;color:var(--ink)}
+.grp h2 i{align-self:center;width:12px;height:12px;border-radius:50%;flex:none}
+.grp h2 small{font-size:.9375rem;font-weight:600;color:var(--mute)}
+.grp.on h2 i{background:var(--on-dot)}.grp.slow h2 i{background:var(--slow-dot)}.grp.behind h2 i{background:var(--behind-dot)}.grp.none h2 i{background:var(--none-dot)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.tile{display:flex;flex-direction:column;gap:10px;background:var(--tb);border-radius:18px;padding:16px 18px;min-width:0;box-shadow:inset 0 0 0 1px var(--tl)}
+.grp.on .tile{--tb:var(--on);--tl:var(--on-2);--ti:var(--on-ink)}
+.grp.slow .tile{--tb:var(--slow);--tl:var(--slow-2);--ti:var(--slow-ink)}
+.grp.behind .tile{--tb:var(--behind);--tl:var(--behind-2);--ti:var(--behind-ink)}
+.grp.none .tile{--tb:#fff;--tl:var(--line);--ti:var(--none-ink)}
+.tile .tn{font-size:1.1875rem;font-weight:800;color:var(--ink);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tile .tc{display:block;font-size:.8125rem;font-weight:500;color:var(--mute);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .tf{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:auto}
+.tile .tlv{display:flex;flex-direction:column;gap:2px;min-width:0}
+.tile .tlv b{display:inline-block;align-self:flex-start;background:#fff;color:var(--ti);border-radius:var(--r-pill);padding:3px 11px;font-size:.9375rem;font-weight:800;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.tile .tlv span{font-size:.8125rem;color:var(--ink-2);padding-left:2px}
+.tile .tp{text-align:right;line-height:1;flex:none}
+.tile .tp b{display:block;font-size:1.75rem;font-weight:850;color:var(--ti);font-variant-numeric:tabular-nums}
+.tile .tp span{font-size:.75rem;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.98)}}
+.tile.in{animation:pop .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d,0s)}
+body.sv .tcard,body.sv #chips,body.dv #cards{display:none}
+body.wb .view{display:none}
+body.wb .tiles{grid-template-columns:repeat(auto-fill,minmax(max(210px,12.5vw),1fr));gap:1vw}
+body.wb .tile{padding:1.4vh 1.1vw;border-radius:1.4vw}
+body.wb .tile .tn{font-size:clamp(1.1rem,1.35vw,2rem)}
+body.wb .tile .tlv b{font-size:clamp(.9rem,1vw,1.5rem)}
+body.wb .tile .tlv span,body.wb .tile .tc{font-size:clamp(.8rem,.85vw,1.2rem)}
+body.wb .tile .tp b{font-size:clamp(1.6rem,2vw,3rem)}
+body.wb .grp h2{font-size:clamp(1.2rem,1.5vw,2.2rem)}
+body.wb .grp h2 small{font-size:.7em}
+@media (max-width:820px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.tile{padding:12px 13px;border-radius:14px}.tile .tn{font-size:1rem}
+ .tile .tlv b{font-size:.8125rem;padding:2px 9px}.tile .tp b{font-size:1.375rem}.tile .tf{flex-wrap:wrap}.grp h2{font-size:1.0625rem}.view{width:100%}.view button{flex:1;text-align:center}}
+@media (prefers-reduced-motion:reduce){tbody tr.in,.bd,.tile.in{animation:none}.rate s i{transition:none}}
 </style>
 </head>
-<body>
+<body class="sv">
 <div class="bd" id="app" aria-busy="true">
  <div class="top">
   <a class="mark" id="home" href="/"><span class="badge"><img src="/logo.png" alt="" width="34" height="34"></span><b class="wm" translate="no">My<span>Safar</span></b></a>
@@ -165,8 +205,10 @@ body.wb .scroll{max-height:calc(100vh - 21vh);max-height:calc(100dvh - 21vh)}
   <label id="fStageL">Stage<select id="fStage"><option value="">All years</option><option value="primary">Primary Years</option><option value="secondary">Secondary Years</option></select></label>
   <label id="fYearL">Year group<select id="fYear"></select></label>
   <label class="q">Search<input id="fQ" type="search" placeholder="Type a name" autocomplete="off"></label>
+  <div class="view" role="group" aria-label="Show"><button type="button" data-v="s" aria-pressed="true">Students</button><button type="button" data-v="d" aria-pressed="false">Details</button></div>
   <span class="count" id="count" role="status" aria-live="polite"></span>
  </div>
+ <div class="groups" id="cards"></div>
  <div class="tcard"><div class="scroll" id="scroll"><table>
   <thead><tr id="head"></tr></thead>
   <tbody id="rows"></tbody>
@@ -178,7 +220,10 @@ body.wb .scroll{max-height:calc(100vh - 21vh);max-height:calc(100dvh - 21vh)}
 "use strict";
 var $=function(id){return document.getElementById(id)};
 var LINK=location.pathname!=="/board",SRC=LINK?location.pathname.replace(/\/$/,"")+"/data":"/api/board";
-var D=null,F={status:"",cls:"",stage:"",year:"",q:""},SORT={k:"name",dir:1},FIRST=true;
+var D=null,F={status:"",cls:"",stage:"",year:"",q:""},SORT={k:"levelDate",dir:-1},FIRST=true,VIEW="s";
+/* The Students view's groups, in order: by the weeks since the last pass, then no pass yet. */
+var GROUPS=[["on","This week",function(w){return w===0}],["on","Last week",function(w){return w===1}],["slow","2 weeks ago",function(w){return w===2}],
+ ["behind","3 or more weeks ago",function(w){return w!=null&&w>=3}],["none","No pass yet",function(w){return w==null}]];
 var STATUS=[["on","On track","Passed this week or last week"],["slow","Slowing down","Last pass two weeks ago"],
  ["behind","Needs support","No pass for three weeks or more, or no pass yet"],["none","Not started","Nothing recorded yet"]];
 var LABEL={};STATUS.forEach(function(s){LABEL[s[0]]=s[1]});
@@ -202,6 +247,18 @@ function cols(){var C=[
  if(D.fails)C.push(["failDate","Date of last fail",0,function(s){return day(s.failDate)}],
   ["feedback","Last tester feedback",0,function(s){return s.feedback?'<div class="fb">'+esc(s.feedback)+'<small>'+(s.feedbackOk?"Passed":"Not passed")+', '+day(s.feedbackDate).replace(/<[^>]+>/g,"")+'</small></div>':'<span class="dash">–</span>'},"fbc"]);
  return C}
+/* A tile holds the key points: name, the last target or surah passed and when, and the total passes. */
+function tiles(A){var n=0,many=showClass();
+ var h=GROUPS.map(function(g){var L=A.filter(function(s){return g[2](s.weeks)}).sort(function(a,b){return (b.levelDate||"").localeCompare(a.levelDate||"")||a.name.localeCompare(b.name)});
+  if(!L.length)return "";
+  return '<section class="grp '+g[0]+'"><h2><i aria-hidden="true"></i>'+g[1]+' <small>'+L.length+(L.length===1?" student":" students")+'</small></h2><ul class="tiles">'+L.map(function(s){var i=n++;
+   var last=s.level?'<b>'+esc(s.level)+'</b><span>'+(s.weeks>=3?weeks(s.weeks)+" ago":day(s.levelDate).replace(/<[^>]+>/g,""))+'</span>'
+    :'<b>'+esc(s.target?"Working on "+s.target:"Ready to start")+'</b>';
+   return '<li class="tile'+(FIRST?' in':'')+'"'+(FIRST&&i<48?' style="--d:'+(i*0.02).toFixed(3)+'s"':'')+'><div><div class="tn">'+esc(s.name)+'</div>'+(many?'<span class="tc">'+esc(s["class"])+'</span>':'')+'</div>'
+    +'<div class="tf"><div class="tlv">'+last+'</div><div class="tp"><b>'+s.passes+'</b><span>'+(s.passes===1?"pass":"passes")+'</span></div></div></li>'}).join("")+'</ul></section>'}).join("");
+ return h||'<div class="empty eb"><b>No students to show</b>'+(D.students.length?'Try another class or year group.':'Students appear here once they are added to a class.')+'</div>'}
+function setView(v){VIEW=v==="d"?"d":"s";document.body.classList.toggle("sv",VIEW==="s"||document.body.classList.contains("wb"));document.body.classList.toggle("dv",VIEW==="d"&&!document.body.classList.contains("wb"));
+ document.querySelectorAll(".view button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.v===VIEW)})}
 function showClass(){return !F.cls&&D.classes.length>1}
 function val(s,k){var v=s[k];if(k==="weeks")return v==null?1e9:v;if(k==="name")return v.toLowerCase();if(k==="feedback")return (v||"").toLowerCase();return v==null?"":v}
 function list(){var q=F.q.trim().toLowerCase();
@@ -220,10 +277,11 @@ function render(){var C=cols(),A=list(),counts={on:0,slow:0,behind:0,none:0};A.f
  $("rows").innerHTML=rows.length?rows.map(function(s,i){return '<tr class="'+s.status+(FIRST?' in':'')+'"'+(FIRST&&i<40?' style="--d:'+(i*0.025).toFixed(3)+'s"':'')+'>'+C.map(function(c,j){
    return (j?'<td':'<th scope="row"')+(c[2]?' class="n"':c[4]?' class="'+c[4]+'"':'')+(j?' data-l="'+c[1]+'"':'')+'>'+c[3](s)+(j?'</td>':'</th>')}).join("")+'</tr>'}).join("")
   :'<tr><td colspan="'+C.length+'" class="empty"><b>No students to show</b>'+(D.students.length?'Try another class, year group or status.':'Students appear here once they are added to a class.')+'</td></tr>';
+ $("cards").innerHTML=tiles(list().filter(function(s){return !F.status||VIEW==="s"||s.status===F.status}));
  FIRST=false;
  $("count").textContent=rows.length+(rows.length===1?" student":" students");
  var scope=F.cls||D.fixedClass?(D.classes.filter(function(c){return c.id===F.cls})[0]||D.classes[0]||{}).label:F.year!==""?yearName(+F.year):F.stage==="primary"?"Primary Years":F.stage==="secondary"?"Secondary Years":D.scope||(D.mode==="staff"&&!D.admin?"Your classes":"Whole school");
- $("sub").textContent=scope+" · updated "+D.updated;
+ $("title").textContent=scope;$("sub").textContent="Memorisation progress · updated "+D.updated;
  document.title=(scope?scope+" · ":"")+"Memo board · MySafar";
  save()}
 function fill(){var cs=$("fClass"),ys=$("fYear"),years={};
@@ -235,21 +293,20 @@ function fill(){var cs=$("fClass"),ys=$("fYear"),years={};
  if(F.cls&&!D.classes.some(function(c){return c.id===F.cls}))F.cls="";
  cs.value=F.cls;$("fStage").value=F.stage;ys.value=F.year;if(ys.value!==F.year)F.year="";$("fQ").value=F.q;
  $("share").hidden=!D.admin;$("back").hidden=LINK;$("home").href=LINK?"#":"/";if(LINK)$("home").removeAttribute("href");
- if(D.title)$("title").textContent=D.title;
- $("note").textContent="On track: passed this week or last week. Slowing down: last pass two weeks ago. Needs support: no pass for three weeks or more, or no pass yet."
+ $("note").textContent="Most recent passes first. On track: passed this week or last week. Slowing down: last pass two weeks ago. Needs support: no pass for three weeks or more, or no pass yet."
   +(D.fails?" Pass rate is passes out of every memo test, passed or not.":"")+" The board refreshes itself every two minutes."}
 /* The chosen filters and Whiteboard mode are kept in the address (#class=...&wb=1), so a bookmark opens the same view,
    and in this browser for next time. */
 var KEY="memoBoard:"+location.pathname;
 function save(){var p=[];if(F.cls)p.push("class="+encodeURIComponent(F.cls));if(F.stage)p.push("stage="+F.stage);if(F.year!=="")p.push("year="+F.year);
- if(F.status)p.push("status="+F.status);if(document.body.classList.contains("wb"))p.push("wb=1");
+ if(F.status)p.push("status="+F.status);if(VIEW==="d")p.push("view=details");if(document.body.classList.contains("wb"))p.push("wb=1");
  var h=p.length?"#"+p.join("&"):"";if(location.hash!==h)history.replaceState(null,"",location.pathname+location.search+h);
  try{localStorage.setItem(KEY,h)}catch(e){}}
 function restore(){var h=location.hash;if(!h){try{h=localStorage.getItem(KEY)||""}catch(e){h=""}}
  h.replace(/^#/,"").split("&").forEach(function(kv){var p=kv.split("="),v=decodeURIComponent(p[1]||"");
   if(p[0]==="class")F.cls=v;else if(p[0]==="stage"&&/^(primary|secondary)$/.test(v))F.stage=v;else if(p[0]==="year"&&/^\d+$/.test(v))F.year=v;
-  else if(p[0]==="status"&&LABEL[v])F.status=v;else if(p[0]==="wb"&&v==="1")document.body.classList.add("wb")});
- wbLabel()}
+  else if(p[0]==="status"&&LABEL[v])F.status=v;else if(p[0]==="view"&&v==="details")VIEW="d";else if(p[0]==="wb"&&v==="1")document.body.classList.add("wb")});
+ wbLabel();setView(VIEW)}
 function wbLabel(){var on=document.body.classList.contains("wb");$("wbBtn").querySelector("span").textContent=on?"Exit whiteboard":"Whiteboard";$("wbBtn").setAttribute("aria-pressed",on)}
 function load(){fetch(SRC,{credentials:"same-origin",headers:{Accept:"application/json"}}).then(function(r){
   if(r.status===401){location.href="/login?next="+encodeURIComponent("/board");throw 0}
@@ -265,13 +322,15 @@ $("fClass").addEventListener("change",function(){F.cls=this.value;render()});
 $("fStage").addEventListener("change",function(){F.stage=this.value;render()});
 $("fYear").addEventListener("change",function(){F.year=this.value;render()});
 $("fQ").addEventListener("input",function(){F.q=this.value;render()});
-$("wbBtn").addEventListener("click",function(){var on=document.body.classList.toggle("wb");wbLabel();save();
+document.querySelector(".view").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;setView(b.dataset.v);render()});
+$("wbBtn").addEventListener("click",function(){var on=document.body.classList.toggle("wb");wbLabel();setView(VIEW);save();
  try{if(on&&document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(function(){});
   else if(!on&&document.fullscreenElement)document.exitFullscreen()}catch(e){}});
-document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.body.classList.contains("wb")&&!document.fullscreenElement){document.body.classList.remove("wb");wbLabel();save()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&document.body.classList.contains("wb")&&!document.fullscreenElement){document.body.classList.remove("wb");wbLabel();setView(VIEW);save()}});
 /* On a whiteboard nobody scrolls, so a board taller than the screen turns its own pages: every 12 seconds it moves on
    a screenful, and after the last it goes back to the top. */
-setInterval(function(){if(!document.body.classList.contains("wb"))return;var el=$("scroll"),head=$("head").offsetHeight,step=el.clientHeight-head-8;
+setInterval(function(){if(!document.body.classList.contains("wb"))return;var sv=document.body.classList.contains("sv"),el=sv?document.scrollingElement:$("scroll"),
+  step=sv?innerHeight-120:el.clientHeight-$("head").offsetHeight-8;
  if(el.scrollHeight-el.clientHeight<4)return;var smooth=!matchMedia("(prefers-reduced-motion: reduce)").matches?"smooth":"auto";
  el.scrollTo({top:el.scrollTop+el.clientHeight>=el.scrollHeight-4?0:el.scrollTop+step,behavior:smooth})},12000);
 var T=setInterval(load,120000);
