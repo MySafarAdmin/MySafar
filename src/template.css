@@ -848,6 +848,11 @@ button.mc:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--focus)}
 .rpair{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;max-width:440px}
 .rpair label{display:flex;flex-direction:column;gap:6px;font-weight:650;flex:1 1 140px}
 .racts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+/* The tester's feedback on a Memo test (optional), shown on the memo board and in the student's level tests. */
+.rl.rfb{margin:18px 0 8px;font-size:1rem}.rl.rfb span{font-weight:500;color:var(--mute)}
+#rF{display:block;width:100%;max-width:520px;min-height:64px;font:inherit;font-size:.9375rem;color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r);padding:10px 12px;resize:vertical}
+#rF:focus-visible{border-color:var(--focus)}
+.rfbx{display:block;color:var(--mute);font-size:.8125rem;margin-top:2px;font-style:italic}
 .rside{min-width:0;background:var(--bg);border-radius:var(--r-lg);padding:20px}
 .rside h2{margin:0;font-family:var(--font-display);font-weight:800;font-size:1.25rem;line-height:1.25;color:var(--navy);overflow-wrap:anywhere}
 .rside.empty h2{color:var(--ink)}

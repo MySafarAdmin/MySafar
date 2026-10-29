@@ -62,7 +62,8 @@ ACTIONS = {
     "email.test": "Sent a test email", "export.downloaded": "Downloaded the school spreadsheet",
     "help.sent": "Sent a Help or Requests message", "help.replied": "Replied on FAQs",
     "help.deleted": "Deleted a FAQs message", "avatar.changed": "Changed their profile picture",
-    "avatar.removed": "Removed their profile picture",
+    "avatar.removed": "Removed their profile picture", "board.created": "Made a memo board link",
+    "board.revoked": "Turned off a memo board link",
 }
 
 

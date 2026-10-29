@@ -32,6 +32,7 @@ import house_extra
 import quran_coins
 import memo_import
 import helpdesk
+import memo_board
 import tv
 from db import DB_ERRORS, Database
 from mailer import Mailer
@@ -44,6 +45,7 @@ DETAILS = ("sid", "fid", "gender", "year", "sy", "ist", "dob")
 STUDENT_NUMBER = re.compile(r"SE(\d+)", re.IGNORECASE)
 MAX_CLASSES = 500
 HOUSES = ("Makkah", "Al-Aqsa", "Madinah")
+FEEDBACK_MAX = 300  # keep in step with maxlength on the Record page's feedback box (src/page.html)
 QAIDAH_LEVELS = 20  # keep in step with QAIDAH in src/page.html; 1 to 13 are the Qaidah Book, 14 to 20 the Tajweed Book
 BOOKS = ("q", "t")  # book passes: Qaidah Book, Tajweed Book (BOOKS in src/page.html)
 # House tokens: each student's list of award times per token. Keep in step with TOK in src/page.html.
@@ -56,7 +58,7 @@ PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js"
 # for text and titles alike (see DESIGN.md).
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
 # /tv/<token> is a TV screen link; tv.py checks the token.
-PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/")
+PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/board/", "/fonts/")
 
 
 def coins(state):
@@ -118,7 +120,7 @@ def valid_state(state):
             return False
         # Level tests from the Record page: day, Quran ("q") or Memo ("m"), level or target, 0 to 5 score (none for one
         # imported from a sheet without scores), passed, for a pass, when its blue token was given, and for a surah
-        # chosen by item number, the surah as written.
+        # chosen by item number, the surah as written, and the tester's feedback on a Memo test ("fb", optional).
         tests = student.get("tests", [])
         if not isinstance(tests, list) or not all(
                 isinstance(x, dict) and isinstance(x.get("d"), str) and DAY.fullmatch(x["d"]) and x.get("k") in ("q", "m")
@@ -126,6 +128,7 @@ def valid_state(state):
                 and type(x.get("ok")) is bool and type(x.get("pq", 0)) is int and 0 <= x.get("pq", 0) <= QAIDAH_LEVELS
                 and type(x.get("tk", 0)) in (int, float) and x.get("tk", 0) >= 0
                 and isinstance(x.get("x", ""), str) and len(x.get("x", "")) <= 80
+                and isinstance(x.get("fb", ""), str) and len(x.get("fb", "")) <= FEEDBACK_MAX
                 for x in tests):
             return False
         # Star of the week: the Monday of each week the student was chosen.
@@ -260,6 +263,7 @@ def create_app(test_config=None):
     app.register_blueprint(quran_coins.bp)
     app.register_blueprint(memo_import.bp)
     app.register_blueprint(helpdesk.bp)
+    app.register_blueprint(memo_board.bp)
     if not app.config.get("TESTING"):
         helpdesk.start_summary_thread(app)
     pruned = {"at": 0}
@@ -308,7 +312,7 @@ def create_app(test_config=None):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
-        dashboard = request.path in ("/", "/tv") or (request.path.startswith(("/tv/", "/presenter/"))
+        dashboard = request.path in ("/", "/tv", "/board") or (request.path.startswith(("/tv/", "/presenter/", "/board/"))
                                                         and response.mimetype == "text/html" and response.status_code == 200)
         response.headers["Content-Security-Policy"] = DASHBOARD_CSP if dashboard else \
             EMAIL_PREVIEW_CSP if request.path.startswith("/admin/email/preview/") else \
