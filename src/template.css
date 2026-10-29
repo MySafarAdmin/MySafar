@@ -1462,3 +1462,111 @@ html.fresh #vM .hrq{animation:none}body.enter #vM .hrq{animation-delay:1.3s}
 .tour-card p{margin:0;font-size:.9375rem;line-height:1.5;color:var(--ink-2)}
 .tour-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
 .tour-acts .btn[hidden]{display:none}
+
+/* ---------- A student's own page (#student/…) ----------
+   Back to Students above the name, a line of class, year and age with the house and any concern, then the figures
+   and white cards on the canvas: Details (edited in place), Quran, Memorisation, House points and Family. At
+   1280x720 the figures and the first row of cards are in view. */
+.crumb{display:inline-flex;align-items:center;gap:2px;margin:0 0 2px -6px;padding:4px 10px 4px 4px;border:0;border-radius:999px;background:none;color:var(--primary-ink);font:inherit;font-size:.875rem;font-weight:650;cursor:pointer;transition:background-color .15s ease}
+.crumb .ic{width:18px;height:18px}
+.crumb:hover{background:var(--primary-soft)}
+.spsub{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin:6px 0 14px;font-size:.9375rem;color:var(--ink-2)}
+.spsub .lk{font-weight:650;min-height:0}
+.spln{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 0}
+.spdot{margin:0 8px;color:var(--line-2)}
+.sptags{display:inline-flex;flex-wrap:wrap;gap:6px}
+.sphs .hdot{width:8px;height:8px}
+/* The initials in the house's colour, pale, as the default staff avatar is. */
+.spav{flex:none;display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#dcebfb;color:var(--primary-ink);font-weight:800;font-size:.9375rem;letter-spacing:.02em}
+.spav.Makkah{background:color-mix(in srgb,var(--makkah) 18%,#fff);color:#7a5806}
+.spav.Al-Aqsa{background:color-mix(in srgb,var(--aqsa) 16%,#fff);color:#155b8f}
+.spav.Madinah{background:color-mix(in srgb,var(--madinah) 16%,#fff);color:#13684a}
+.spav.sm{width:32px;height:32px;font-size:.75rem}
+.spg{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+.spg>.card{padding:18px 20px;min-width:0}
+.spg>.card+.card{margin-top:0}
+@media (min-width:760px){.spg{grid-template-columns:repeat(2,minmax(0,1fr))}.spg>.spfigs,.spg>.sph{grid-column:1/-1}}
+@media (min-width:1180px){.spg{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr)}.spg>.sph{grid-column:2/span 2}}
+.spch{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;margin-bottom:12px;min-height:32px}
+.spch h2{font-size:1.0625rem}
+.spch .cap{margin:0;font-size:.8125rem;color:var(--mute)}
+.spg h3{display:flex;align-items:center;gap:8px;font-size:.875rem;margin:16px 0 6px}
+.spg .none{margin:0;color:var(--mute);font-size:.9375rem}
+.spg .cap{font-size:.8125rem;color:var(--mute)}
+/* Figures: one strip of eight on wide screens, four by two on tablets, two across on phones. */
+.spfigs{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));padding:0!important;overflow:hidden}
+.spfg{display:flex;flex-direction:column;gap:2px;padding:14px 16px;min-width:0;border-left:1px solid var(--line)}
+.spfg:first-child{border-left:0}
+.spfl{font-size:.75rem;font-weight:650;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spfg b{font-size:1.375rem;font-weight:800;line-height:1.2;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.spfg b .nc{font-size:.875rem;margin:3px 0 1px;vertical-align:middle}
+.spfg b .zero{font-size:1rem;font-weight:650}
+.spfg small{font-size:.75rem;color:var(--mute);line-height:1.35;display:flex;flex-wrap:wrap;gap:0 8px}
+.spfg.warn b{color:var(--warn-ink)}
+.spcoin{white-space:nowrap}.spcoin .tdot{width:7px;height:7px;margin-right:4px}
+@media (max-width:1279.98px){.spfigs{grid-template-columns:repeat(4,minmax(0,1fr))}.spfg:nth-child(4n+1){border-left:0}.spfg:nth-child(n+5){border-top:1px solid var(--line)}}
+@media (max-width:519.98px){.spfigs{grid-template-columns:repeat(2,minmax(0,1fr))}.spfg{padding:12px 14px}.spfg:nth-child(odd){border-left:0}.spfg:nth-child(even){border-left:1px solid var(--line)}.spfg:nth-child(n+3){border-top:1px solid var(--line)}.spfg b{font-size:1.25rem}}
+/* Details */
+.spdl{display:grid;grid-template-columns:minmax(0,1fr);margin:0}
+.spdl>div{display:grid;grid-template-columns:minmax(0,8.5em) minmax(0,1fr);gap:12px;padding:7px 8px;margin:0 -8px;border-radius:10px;border-bottom:1px solid var(--line);font-size:.9375rem}
+.spdl>div:last-child{border-bottom:0}
+.spdl dt{color:var(--mute);font-size:.875rem}
+@media (max-width:479.98px){.spdl>div{grid-template-columns:minmax(0,1fr);gap:0}}
+.spdl dd{margin:0;overflow-wrap:anywhere;font-weight:600}
+.spdl dd .zero{font-weight:500}
+.spdl .lk{min-height:0;font-weight:600}
+.spdl .hn{display:inline-flex;align-items:center;gap:6px}
+.spsaved{margin:-4px 0 8px;font-size:.875rem;font-weight:650;color:var(--ok-ink)}
+.spok{background:var(--ok-soft)}
+@media (prefers-reduced-motion:no-preference){.spok{animation:spok 2.4s ease-out forwards}.spsaved{animation:spsv 4s ease forwards}}
+@keyframes spok{0%,40%{background:var(--ok-soft)}100%{background:rgba(237,243,238,0)}}
+@keyframes spsv{0%{opacity:0;transform:translateY(-3px)}8%,80%{opacity:1;transform:none}100%{opacity:0}}
+.spef{display:flex;flex-direction:column;gap:12px}
+.spef .spch{margin-bottom:0}
+.spef .cap{margin:-6px 0 0}
+.spef .pf2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.spef .pf2 input,.spef .pf2 select{min-width:0;width:100%}
+.spef .naerr:empty{display:none}
+.spef .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:2px}
+@media (max-width:420px){.spef .pf2{grid-template-columns:1fr}}
+/* Quran */
+.spqs{list-style:none;margin:0 0 8px;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px 6px}
+.spqs li{display:flex;flex-direction:column;align-items:center;gap:3px}
+.spqb{display:grid;place-items:center;width:100%;max-width:44px;aspect-ratio:1;border-radius:10px;font-weight:800;color:#13243a}
+.spqs small{font-size:.6875rem;color:var(--mute);white-space:nowrap}
+.sptl{list-style:none;margin:0;padding:0}
+.sptl li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.875rem}
+.sptl li:last-child{border-bottom:0}
+.sptl .spx{font-weight:600;overflow-wrap:anywhere}.sptl .spx small{display:block;font-weight:500;font-size:.75rem;color:var(--mute)}
+/* Memorisation */
+.spnow{display:flex;flex-direction:column;gap:1px;padding:12px 14px;border-radius:14px;background:var(--surface-2)}
+.spnow small{font-size:.75rem;font-weight:650;color:var(--mute)}
+.spnow b{font-size:1.25rem;font-weight:800;color:var(--navy)}
+.spnow .cap{margin:0}
+.sppl li{border-bottom:1px solid var(--line);padding:6px 0;font-size:.875rem}
+.sppl li:last-child{border-bottom:0}
+.spfail{background:var(--bad-soft);color:var(--bad-ink)}
+.spmore{margin-top:8px}
+/* House points and family */
+.spbk{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+.sph .hpl{margin:0}
+.spfl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.spfo{display:flex;align-items:center;gap:10px;width:100%;padding:8px;margin:0 -8px;width:calc(100% + 16px);border:0;border-radius:12px;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;transition:background-color .15s ease}
+.spfo:hover{background:var(--surface-2)}
+.spfo b{display:block;font-size:.9375rem}
+.spfo small{display:block;font-size:.8125rem;color:var(--mute)}
+@media (max-width:959.98px){.spsub{margin-bottom:12px}.spg>.card{padding:16px}}
+/* The confirm dialog's list of changes: what each detail was and what it will be. */
+.dlg.wide .card{max-width:540px}
+.dlgb{max-height:min(52vh,420px);overflow:auto}
+.chg{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:14px}
+.chg li{display:grid;grid-template-columns:minmax(0,10em) minmax(0,1fr);gap:4px 12px;padding:10px 14px;border-top:1px solid var(--line);font-size:.9375rem}
+.chg li:first-child{border-top:0}
+.chk{color:var(--mute);font-size:.875rem}
+.chv{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;overflow-wrap:anywhere}
+.chv .was{color:var(--mute);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.chv .arr{color:var(--mute)}
+.chv b{font-weight:700;color:var(--ink)}
+.chv i{font-style:normal;color:var(--mute)}
+.chn{margin:10px 0 0!important;font-size:.875rem!important;font-weight:500!important;color:var(--ink-2)}
+@media (max-width:479.98px){.chg li{grid-template-columns:1fr}}

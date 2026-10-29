@@ -30,8 +30,10 @@
 <div class="work">
 <main><div class="content" id="main" tabindex="-1">
 <div class="head" id="band">
+ <button type="button" class="crumb" id="spBk" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>Students</button>
  <div class="head-top"><h1 id="ttl">School overview</h1><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button><a class="btn ghost sm swc pres" id="pres" href="#" hidden title="Show this class's tops for the month on the big screen">Presenter</a><span class="save" id="st" role="status" aria-live="polite"></span><details class="figpop" id="figP"><summary class="ibtn" aria-label="Figures" title="Figures"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><path d="M8.5 16v-4M12.5 16V8M16.5 16v-6"/></svg></summary><div class="figs" id="figs"></div></details></div>
  <div class="hello" id="hello" hidden></div>
+ <div class="spsub" id="spSub" hidden></div>
  <div class="tabs hide" id="sub" role="tablist" aria-label="Class pages">
   <button id="tQ" role="tab" aria-controls="vQ" aria-selected="true">Quran</button><button id="tT" role="tab" aria-controls="vT" aria-selected="false" tabindex="-1">Memo</button><button id="tD" role="tab" aria-controls="vD" aria-selected="false" tabindex="-1">Progress</button><button id="tS" role="tab" aria-controls="vS" aria-selected="false" tabindex="-1">Settings</button>
  </div>
@@ -53,6 +55,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 <section id="vR" class="ws hide" aria-labelledby="ttl"><div class="recf" id="recF"></div></section>
 <section id="vH" class="ws hide" aria-labelledby="ttl"><div id="hpW"></div></section>
 <section id="vK" class="ws hide" aria-labelledby="ttl"><div id="rkW"></div></section>
+<section id="vP" class="hide" aria-labelledby="ttl"><div id="spW"></div></section>
 
 <section id="vQ" class="ws hide" role="tabpanel" aria-labelledby="tQ">
  <div class="toolbar qbar">
@@ -114,7 +117,7 @@ ST002,Yusuf Ali,Male,Year 4,Yr4-B-QM-Sr Zainab,Yr4-B-AI-Br Idris</div>
 </div>
 <div id="drw" class="drawer" role="dialog" aria-modal="true" aria-labelledby="drwT" hidden><div class="dpanel"><div class="dhead"><h2 id="drwT"></h2><button class="btn sm" id="drwX" type="button">Close</button></div><div class="dbody" id="drwB"></div></div></div>
 <div id="yc" class="ycal hide" role="dialog" aria-modal="true" aria-labelledby="ycT"><div class="ycard"><div class="ychead"><h2 id="ycT">Go to a class day</h2><div class="ycyr"><button type="button" class="ibtn" id="ycP" aria-label="Previous year"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button><b id="ycY" aria-live="polite"></b><button type="button" class="ibtn" id="ycN" aria-label="Next year"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button></div><button type="button" class="btn sm" id="ycX">Close</button></div><div class="ycgrid" id="ycG"></div><p class="yckey"><span><i class="k cls"></i>Class day</span><span><i class="k dot"></i>Scores recorded</span><span><i class="k now"></i>Today</span><span><i class="k on"></i>Showing</span></p></div></div>
-<div id="dlg" class="dlg hide" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="card"><p id="dlgT"></p><input id="dlgI" class="hide" maxlength="60" autocomplete="off" aria-labelledby="dlgT"><div class="acts"><button class="btn" id="dlgN" type="button">Cancel</button><button class="btn p" id="dlgY" type="button">OK</button></div></div></div>
+<div id="dlg" class="dlg hide" role="dialog" aria-modal="true" aria-labelledby="dlgT"><div class="card"><p id="dlgT"></p><div id="dlgB" class="dlgb" hidden></div><input id="dlgI" class="hide" maxlength="60" autocomplete="off" aria-labelledby="dlgT"><div class="acts"><button class="btn" id="dlgN" type="button">Cancel</button><button class="btn p" id="dlgY" type="button">OK</button></div></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
 var LEVELS=[9,9,9,9,10,10,10,12,15,14]; /* TARGETS IN EACH LEVEL, L1 to L10. If a level has more or fewer targets, change its number here; saved records are moved across automatically. */
@@ -213,15 +216,15 @@ function newId(name){var b=nkey(name).normalize("NFKD").replace(/[^a-z0-9]+/g,"-
 function changed(c){navL();
  if(CID&&!ST[CID]){go("M");toast("That classroom was deleted",1);return}
  var h=fromHash(HASH);if(h){HASH="";go(h[0],h[1]);return}
- if(CID){if(c===undefined||c===CID)setClass(CID)}else if(PAGE==="R")recPage();else master()}
-/* #classes, #students, #house-points, #rankings, #record, a class's id, or #tab-Q (and T, D, H, S) for a page of the class used last: the admin and
+ if(CID){if(c===undefined||c===CID)setClass(CID)}else if(PAGE==="R")recPage();else if(PAGE==="P"){if(!SPE){spPage();head()}}else master()}
+/* #classes, #students, #student/<class id>/<name>, #house-points, #rankings, #record, a class's id, or #tab-Q (and T, D, H, S) for a page of the class used last: the admin and
    account pages link to these from their own dock. */
 var TOURQ=false;
 function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];
  /* From Account: "Retake the tutorial" (the Tutorial, near the end). */
  if(h==="tour"){TOURQ=true;return ["M"]}
  /* From the Import page: Classes with "Upload students from a CSV file" open. */
- if(h==="upload-students"&&!TEACHER){setTimeout(function(){var u=$("up");if(u){u.open=true;u.scrollIntoView({block:"start"})}},0);return ["L"]}if(h==="students")return ["U"];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="rankings")return [TEACHER?"M":"K"];if(h==="record")return [TEACHER?"M":"R"];
+ if(h==="upload-students"&&!TEACHER){setTimeout(function(){var u=$("up");if(u){u.open=true;u.scrollIntoView({block:"start"})}},0);return ["L"]}if(h==="students")return ["U"];var sm=/^student\/(.+)$/.exec(h);if(sm)return TEACHER?["M"]:["P",sm[1]];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="rankings")return [TEACHER?"M":"K"];if(h==="record")return [TEACHER?"M":"R"];
  var m=/^tab-([QTDHS])$/.exec(h);if(m){var c=lastC();return c?[c,m[1]]:CIDS.length||LOADED?["L"]:null}return ST[h]?[h]:null}
 function setSt(t,s){var e=document.getElementById("st");if(e){e.textContent=t;e.setAttribute("data-s",s||(/couldn|can't|not saved|signed out|could not/i.test(t)?"bad":/saving|loading/i.test(t)?"busy":"ok"))}}
 function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
@@ -345,9 +348,11 @@ $("drwX").onclick=closeDrawer;
 $("drw").addEventListener("click",function(e){if(e.target===this)closeDrawer()});
 var AK=null,AF=null;
 /* A confirm or text-entry dialog. val prefills the text box. */
-function ask(msg,ok,cb,inp,danger,val){$("dlgT").textContent=msg;var i=$("dlgI"),y=$("dlgY");
+function ask(msg,ok,cb,inp,danger,val){$("dlgT").textContent=msg;$("dlgB").hidden=true;$("dlgB").innerHTML="";$("dlg").classList.remove("wide");var i=$("dlgI"),y=$("dlgY");
  i.classList.toggle("hide",!inp);i.value=val||"";i.placeholder=inp||"";y.textContent=ok;y.className="btn "+(danger?"x solid":"p");AK=cb;AF=document.activeElement;
  var was=$("dlg").classList.contains("hide");$("dlg").classList.remove("hide");(inp?i:y).focus();if(inp&&val)i.select();if(was)fxIn($("dlg"),"dialog")}
+/* A confirm dialog with more under the question, such as the list of changes about to be saved. */
+function askList(msg,html,ok,cb){ask(msg,ok,cb);$("dlgB").innerHTML=html;$("dlgB").hidden=false;$("dlg").classList.add("wide")}
 function closeAsk(){if(!$("dlg").classList.contains("hide"))fxOut($("dlg"),"dialog",function(){$("dlg").classList.add("hide")});AK=null;if(AF&&document.contains(AF))AF.focus();AF=null}
 $("dlgN").onclick=closeAsk;
 $("dlgY").onclick=function(){var cb=AK,i=$("dlgI"),v=i.value.trim();if(!i.classList.contains("hide")&&!v){i.focus();return}closeAsk();if(cb)cb(v)};
@@ -1045,7 +1050,7 @@ if(PHN.addEventListener)PHN.addEventListener("change",noSheet);else PHN.addListe
 /* ---------- Navigation ---------- */
 /* The rail has no list of classes: Classes opens the class cards, and stays marked while a class is open. */
 function navL(){
- $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");if(PAGE==="M")hello();$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false");$("nL").setAttribute("aria-current",PAGE==="L"||PAGE==="C"?"page":"false");$("nU").setAttribute("aria-current",PAGE==="U"?"page":"false");$("nH").setAttribute("aria-current",PAGE==="H"?"page":"false");$("nK").setAttribute("aria-current",PAGE==="K"?"page":"false");dockSet()}
+ $("nM").setAttribute("aria-current",PAGE==="M"?"page":"false");if(PAGE==="M")hello();$("nR").setAttribute("aria-current",PAGE==="R"?"page":"false");$("nL").setAttribute("aria-current",PAGE==="L"||PAGE==="C"?"page":"false");$("nU").setAttribute("aria-current",PAGE==="U"||PAGE==="P"?"page":"false");$("nH").setAttribute("aria-current",PAGE==="H"?"page":"false");$("nK").setAttribute("aria-current",PAGE==="K"?"page":"false");dockSet()}
 /* The phone dock (tokens.css): a teacher always has Home and their class pages; an admin has Home, Classes and
    Record, and the class pages while a class is open, with Classes first to get back. Class pages tapped from
    elsewhere open the class used last. Everything else is under More, the full menu. */
@@ -1078,21 +1083,28 @@ function cname(n){n=String(n||"");if(CNM.hasOwnProperty(n))return CNM[n];var g=/
  if(g){l=/^\s*-?\s*([A-Z])\b/.exec(n.slice(g.index+g[0].length));y="Yr"+g[1].replace(/\s+/g,"")+(l?l[1]:"")}else if(/\breception\b/i.test(n))y="Reception";
  return CNM[n]=[y,cteach(n)].filter(Boolean).join(" ")||n}
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
- $("ttl").textContent=n?cname(n.name):PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):PAGE==="H"?"House points":PAGE==="K"?"Rankings":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
+ $("ttl").textContent=n?cname(n.name):PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):PAGE==="H"?"House points":PAGE==="K"?"Rankings":PAGE==="P"?(SP?SP.n:"Student"):TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
+ $("spBk").hidden=PAGE!=="P";$("band").classList.toggle("stu",PAGE==="P");if(PAGE!=="P")$("spSub").hidden=true;
  // The Presenter (the TV's scenes for one class) is served by the Railway server, in this tab.
  $("pres").hidden=!n||!window.RAILWAY;if(n)$("pres").href="/presenter/"+encodeURIComponent(CID);
- document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+(PAGE==="K"?"Rankings · ":"")+"MySafar"}
+ document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="P"&&SP?SP.n+" · Students · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+(PAGE==="K"?"Rankings · ":"")+"MySafar"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
-function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":"C";closeDrawer();$("figP").hidden=!M;if(!M)$("figP").open=false;
- $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("vL").classList.toggle("hide",!L);$("vU").classList.toggle("hide",!U);$("vH").classList.toggle("hide",!H);$("vK").classList.toggle("hide",!K);$("sub").classList.toggle("hide",M||R||L||U||H||K);
- if(K){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();rkPage()}
+function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K"||c==="P")&&TEACHER)c="M";
+ /* Leaving a student's page with unsaved edits asks first. */
+ if(PAGE==="P"&&SPE&&c!=="P"){spLeave(function(){go(c,keepTab)});return}
+ var from=PAGE;if(c==="P"){var f=spFind(keepTab);if(f){if(!SP||SP.c!==f.c||nkey(SP.n)!==nkey(f.n))SPX={};SP=f;SPE=false;SPPUSH=from==="U"}else{if(LOADED)toast("That student isn't on the dashboard any more.",1);c="U"}}
+ if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&c!=="P"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K",P=c==="P";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":P?"P":"C";closeDrawer();$("figP").hidden=!M;if(!M)$("figP").open=false;
+ $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("vL").classList.toggle("hide",!L);$("vU").classList.toggle("hide",!U);$("vH").classList.toggle("hide",!H);$("vK").classList.toggle("hide",!K);$("vP").classList.toggle("hide",!P);$("sub").classList.toggle("hide",M||R||L||U||H||K||P);
+ if(P){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();spPage();swapIn($("spW").firstChild)}
+ else if(K){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();rkPage()}
  else if(H){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();hpPage()}
  else if(U){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();stuPage()}
  else if(L){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();dirTab()}
  else if(R){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();recPage()}
  else if(M){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();master()}
  else{setClass(c);tab(keepTab||"Q")}
- try{history.replaceState(null,"",M||R?location.pathname+location.search:L?"#classes":U?"#students":H?"#house-points":K?"#rankings":"#"+c)}catch(e){}
+ /* A student's page opened from the list is a new step in the browser's history, so its Back returns to the list. */
+ try{var url=M||R?location.pathname+location.search:L?"#classes":U?"#students":H?"#house-points":K?"#rankings":P?"#"+spHash(SP.c,SP.n):"#"+c;if(P&&SPPUSH)history.pushState(null,"",url);else history.replaceState(null,"",url)}catch(e){}
  $("navt").checked=false;navL();window.scrollTo(0,0)}
 function switcher(){drawer("Switch class",'<input type="search" id="swQ" class="dsearch" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><ul class="swl" id="swL">'+CIDS.map(function(c){return '<li data-q="'+esc(nkey(ST[c].name+" "+cname(ST[c].name)))+'"><button type="button" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+'>'+esc(cname(ST[c].name))+'<small>'+plural(ST[c].S.length,"student")+'</small></button></li>'}).join("")+'</ul>');
  $("swQ").addEventListener("input",function(){var q=nkey(this.value);Array.prototype.forEach.call($("swL").children,function(li){li.hidden=!!q&&li.dataset.q.indexOf(q)<0})})}
@@ -1304,60 +1316,158 @@ $("drwB").addEventListener("submit",function(e){if(e.target.id!=="suF")return;e.
  var s=blank(n),yr=safarYear(ST[c].name);if(h)s.house=h;if(id)s.sid=id;if(yr)s.year=yr;L.push(s);persist(c);closeDrawer();
  SQ="";if($("stuQ"))$("stuQ").value="";if(SC&&SC!==c)SC="";
  var k=0;stuAll().some(function(o,i){k=i;return o.s===s});PG.stu=Math.floor(k/SPG);SNEW=s;stuPage();toast(n+" added to "+cname(ST[c].name))});
-/* A student's profile, opened from their row on Students: every detail the school keeps about them, to fill in
-   or correct. A detail changed here is remembered in s.ed, and a later CSV upload leaves it as it is (its preview
-   lists any the file disagrees with). A changed Student ID or name is kept in s.xid or s.xn, so the upload still
-   recognises the student. Students with the same Family ID are listed as their family. */
-var SPF=[["name","Name"],["sid","Student ID"],["fid","Family ID"],["dob","Date of birth"],["gender","Gender"],["sy","Year group"],["house","House"],["ist","Arabic and Islamic Studies Class"]];
 function yrs(a,b){var L=[];for(var n=a;n<=b;n++)L.push("Year "+n);return L}
 function opts(L,v,none){var A=L.slice();if(v&&A.indexOf(v)<0)A.unshift(v);return '<option value="">'+none+'</option>'+A.map(function(x){return '<option'+(x===v?' selected':'')+'>'+esc(x)+'</option>'}).join("")}
 function isoDay(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
 function ageOn(dob){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(dob||"");if(!m)return null;var n=new Date(),a=n.getFullYear()-m[1];if(n.getMonth()+1<+m[2]||n.getMonth()+1===+m[2]&&n.getDate()<+m[3])a--;return a}
 function dobText(dob,bare){var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(dob||"");if(!m)return "";var a=ageOn(dob);return (+m[3])+" "+"Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ")[m[2]-1]+" "+m[1]+(a>=0&&!bare?" (age "+a+")":"")}
 function family(s){var k=nkey(s.fid),L=[];if(!k)return L;CIDS.forEach(function(c){ST[c].S.forEach(function(o){if(o!==s&&nkey(o.fid)===k)L.push({s:o,c:c})})});return L}
-var SPS=null;
 /* Arabic and Islamic Studies classes aren't classrooms here: each student carries theirs from the CSV, so the
    choices are every one found on the dashboard. */
 function aiClasses(){var D={};CIDS.forEach(function(c){ST[c].S.forEach(function(o){if(o.ist)D[o.ist]=1})});
  return Object.keys(D).sort(function(a,b){return a.localeCompare(b,undefined,{numeric:true,sensitivity:"base"})})}
-function stuProfile(c,s){SPS={c:c,s:s};var AIL=aiClasses();var fam=family(s),a=ageOn(s.dob),sub=[cname(ST[c].name)];if(a>=0&&a!==null)sub.push("Age "+a);if(s.house)sub.push(s.house);
- drawer(s.name,'<form class="addf spf" id="spF" novalidate><p class="cap">'+esc(sub.join(" · "))+'. Only the name is needed; every other detail can be left blank.</p>'
-  +'<label>Name<input id="spname" maxlength="60" autocomplete="off" required value="'+esc(s.name)+'"></label>'
-  +'<label>Quran and Memorisation Class<select id="spcls">'+CIDS.map(function(k){return '<option value="'+esc(k)+'"'+(k===c?' selected':'')+'>'+esc(cname(ST[k].name))+'</option>'}).join("")+'</select></label>'
-  +'<label>Arabic and Islamic Studies Class'+(AIL.length?'<select id="spist"><option value="">Not set</option>'+AIL.map(function(x){return '<option value="'+esc(x)+'"'+(x===(s.ist||"")?' selected':'')+'>'+esc(cname(x))+'</option>'}).join("")+'</select>':'<input id="spist" maxlength="80" autocomplete="off" value="">')+'</label>'
-  +'<div class="pf2"><label>Student ID<input id="spsid" maxlength="40" autocomplete="off" placeholder="SE…" value="'+esc(s.sid||"")+'"></label>'
-  +'<label>Family ID<input id="spfid" maxlength="40" autocomplete="off" placeholder="SP…" value="'+esc(s.fid||"")+'"></label>'
-  +'<div class="spdob"><label>Date of birth<input id="spdob" type="date" max="'+isoDay(new Date())+'" value="'+esc(s.dob||"")+'"></label><button type="button" class="lk" id="spdobX"'+(s.dob?'':' hidden')+'>Clear date of birth</button></div>'
-  +'<label>Gender<select id="spgender">'+opts(["Female","Male"],s.gender||"","Not recorded")+'</select></label>'
-  +'<label>Year group<select id="spsy">'+opts(["Reception"].concat(yrs(1,13)),s.sy||"","Not recorded")+'</select></label>'
-  +'<label>House<select id="sphouse">'+opts(HOUSES,s.house||"","Not set yet")+'</select></label>'
-  +'</div>'
-  +'<div class="spfam"><b>Family</b>'+(fam.length?'<ul>'+fam.map(function(o){return '<li><button type="button" class="lk" data-sp="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(o.s)+'">'+esc(o.s.name)+'</button> <span class="cap">'+esc(cname(ST[o.c].name))+(o.s.house?' · '+esc(o.s.house):'')+'</span></li>'}).join("")+'</ul>':'<span class="cap">'+(s.fid?'No one else has Family ID '+esc(s.fid)+'.':'Add a Family ID to see their brothers and sisters here.')+'</span>')+'</div>'
-  +'<p class="cap">Details you change here stay as you set them when a CSV is uploaded again; its preview lists any the file disagrees with. A student moves class with all of their records.</p>'
-  +'<div class="acts"><p class="naerr" id="spE" role="alert"></p><button type="submit" class="btn p">Save changes</button></div></form>');
- $("spname").focus()}
-function spSame(){return SPS&&ST[SPS.c]&&ST[SPS.c].S.indexOf(SPS.s)>=0}
-$("drwB").addEventListener("click",function(e){if(e.target.id==="spdobX"){$("spdob").value="";e.target.hidden=true;$("spdob").focus();return}var b=e.target.closest("[data-sp]");if(!b)return;var c=b.dataset.sp,s=ST[c]&&ST[c].S[+b.dataset.i];if(s)stuProfile(c,s)});
-$("drwB").addEventListener("input",function(e){if(e.target.id==="spdob"&&$("spdobX"))$("spdobX").hidden=!e.target.value});
-$("drwB").addEventListener("submit",function(e){if(e.target.id!=="spF")return;e.preventDefault();var err=$("spE");
- if(!spSame()){err.textContent="This student has been changed or removed elsewhere. Close this and open them again.";return}
- var c=SPS.c,s=SPS.s,v={},dup=null,to=$("spcls").value;SPF.forEach(function(f){v[f[0]]=$("sp"+f[0]).value.replace(/\s+/g," ").trim()});
- if(!ST[to]){err.textContent="That class no longer exists. Choose another.";$("spcls").focus();return}
- if(!v.name){err.textContent="Enter the student's name.";$("spname").focus();return}
- if(ST[to].S.some(function(o){return o!==s&&nkey(o.name)===nkey(v.name)})){err.textContent="There is already a student called "+v.name+" in "+cname(ST[to].name)+".";$("spname").focus();return}
+/* ---------- A student's own page ----------
+   Opened from a student's row on Students (administrators only), at #student/<class id>/<name>: names are unique
+   within a class, so the address finds the student again after a reload, and the browser's Back returns to the list.
+   Everything the dashboard keeps about the student is on one page: their details, figures, Quran scores and level
+   tests, Memo passes and fails, house points and family. Edit details turns the Details card into a form, and Save
+   changes first lists every change in a dialog: nothing is saved until it is confirmed. A detail changed here is
+   remembered in s.ed, and a later CSV upload leaves it as it is (its preview lists any the file disagrees with). A
+   changed Student ID or name is kept in s.xid or s.xn, so the upload still recognises the student. */
+var SPF=[["name","Name"],["sid","Student ID"],["fid","Family ID"],["dob","Date of birth"],["gender","Gender"],["sy","Year group"],["house","House"],["ist","Arabic and Islamic Studies Class"]];
+/* SP: the student on the page as {c: class id, n: name}. Records are replaced whenever the server sends a newer
+   copy, so the student is found again by class and name each time rather than kept as an object. SPE: Edit details
+   is open. SPPUSH: the page was opened from the list, so Back can go back in the browser's history. SPOK: the
+   details saved last, picked out for a moment. SPX: lists showing every entry. */
+var SP=null,SPE=false,SPPUSH=false,SPOK=null,SPX={};
+function spKey(c,n){return encodeURIComponent(c)+"/"+encodeURIComponent(n)}
+function spHash(c,n){return "student/"+spKey(c,n)}
+function spFind(k){var p=String(k||"").split("/"),c,n;if(p.length<2)return null;try{c=decodeURIComponent(p[0]);n=decodeURIComponent(p.slice(1).join("/"))}catch(e){return null}
+ return ST[c]&&ST[c].S.some(function(s){return nkey(s.name)===nkey(n)})?{c:c,n:n}:null}
+function spGet(){var s=null;if(SP&&ST[SP.c])ST[SP.c].S.some(function(o){if(nkey(o.name)===nkey(SP.n)){s=o;return true}});return s}
+function spOpen(c,s){go("P",spKey(c,s.name))}
+/* The list behind Back keeps its search, filters and page. Unsaved edits are only dropped once that is confirmed. */
+function spBack(){spLeave(function(){if(SPPUSH){SPPUSH=false;history.back()}else go("U")})}
+function spLeave(cb){var s=spGet();if(SPE&&s&&spDiff(s,SP.c,spVals()).length){ask("Leave without saving your changes to "+s.name+"'s details?","Discard changes",function(){SPE=false;cb()},null,1);return}SPE=false;cb()}
+function spIni(n){var w=String(n||"").trim().split(/\s+/);return ((w[0]||"").charAt(0)+(w.length>1?w[w.length-1].charAt(0):"")).toUpperCase()}
+function spFig(v,l,sub,tone){return '<div class="spfg'+(tone?' '+tone:'')+'"><span class="spfl">'+l+'</span><b>'+v+'</b><small>'+(sub||"&nbsp;")+'</small></div>'}
+function spMore(k,n,lim){return n>lim?'<button type="button" class="btn sm quiet spmore" data-spx="'+k+'" aria-expanded="'+!!SPX[k]+'">'+(SPX[k]?'Show fewer':'Show all '+n)+'</button>':''}
+function spNone(t){return '<span class="zero">'+t+'</span>'}
+/* The line under the name: class, year group and age, then the house and anything that needs attention. */
+function spHead(){var s=spGet(),el=$("spSub");if(!s){el.hidden=true;return}var c=SP.c,a=ageOn(s.dob),bits=[opener(c,esc(cname(ST[c].name)))];
+ if(s.sy)bits.push(esc(s.sy));if(a!==null&&a>=0)bits.push("Age "+a);
+ var tags=(s.house?'<span class="pill sphs"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="pill grey">No house yet</span>')
+  +(s.warn?wl(s.warn):'')+(late(s)&&!nod(s)?'<span class="pill red">'+(s.passes?'No Memo pass in 3+ weeks':'No Memo passes yet')+'</span>':'')
+  +(qStarOf(s)?'<span class="pill lead">Star of the week</span>':'');
+ el.hidden=false;el.innerHTML='<span class="spav '+esc(s.house||"")+'" aria-hidden="true">'+esc(spIni(s.name))+'</span><span class="spln">'+bits.join('<span class="spdot" aria-hidden="true">·</span>')+'</span><span class="sptags">'+tags+'</span>'}
+function spPage(){var s=spGet(),W=$("spW");if(!s){W.innerHTML='<div class="empty"><b>This student isn\'t on the dashboard any more</b><button type="button" class="btn sm p" data-sback="1">Back to Students</button></div>';spHead();return}
+ var c=SP.c,q=Object.keys(s.q).sort(),qm=q.filter(function(k){return k>=dk(ms0())}),qa=avg(marks(qm.map(function(k){return s.q[k]}))),qall=avg(marks(q.map(function(k){return s.q[k]}))),
+  coins=TOK.map(function(k){var n=(s[k[0]]||[]).length;return n?'<span class="spcoin"><span class="tdot '+k[1]+'" aria-hidden="true"></span>'+n+' '+k[2].toLowerCase()+'</span>':''}).join(""),t=mLast(s);
+ var figs='<section class="spfigs card" aria-label="Figures">'
+  +spFig(nod(s)?'<span class="zero">No data</span>':chip(lc(s.target),esc(bl(s.target))),"Memo target",t?"Last pass "+ago(t).toLowerCase():"No pass yet")
+  +spFig(s.passes,"Memo passes",plural(mpc(s),"pass","passes")+" this month")
+  +spFig(s.fl.length,"Memo fails",s.fl.length?"Last "+dm(s.fl[s.fl.length-1]):"None yet")
+  +spFig(s.qa?"Level "+s.qa:'<span class="zero">None yet</span>',"Quran level",s.qa?(s.qa>QBOOK?"Tajweed Book":"Qaidah Book"):"No level test passed")
+  +spFig(qa||qall||'<span class="zero">–</span>',"Quran average",qa?"Out of 5, this month":qall?"Out of 5, all time":"No scores yet")
+  +spFig(hp(s),"House points",coins||"No coins yet")
+  +spFig(s.merits,"Merits",plural(mmc(s),"merit")+" this month")
+  +spFig(s.warn?WL[s.warn]:"None","Warnings",s.warn?"Set on the Quran tab":"Nothing to follow up",s.warn?"warn":"")
+  +'</section>';
+ W.innerHTML='<div class="spg">'+figs+'<section class="card spdet" aria-labelledby="spDH">'+spDetails(s,c)+'</section>'+spQuran(s,q)+spMemo(s)+spFamily(s)+spHouse(s)+'</div>';
+ spHead()}
+function spDetails(s,c){if(SPE)return spForm(s,c);var ok=SPOK||[];SPOK=null;
+ function row(k,l,v){return '<div'+(ok.indexOf(k)>=0?' class="spok"':'')+'><dt>'+l+'</dt><dd>'+v+'</dd></div>'}
+ return '<div class="spch"><h2 id="spDH">Details</h2><button type="button" class="btn sm" id="spEd"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="m13.5 6.5 4 4"/></svg>Edit details</button></div>'
+  +(ok.length?'<p class="spsaved" role="status">Saved. '+esc(ok.length===1?"1 detail changed.":ok.length+" details changed.")+'</p>':'')
+  +'<dl class="spdl">'+row("name","Name",esc(s.name))+row("class","QM class",opener(c,esc(cname(ST[c].name))))+row("ist","AI class",s.ist?esc(cname(s.ist)):spNone("Not set"))
+  +row("sid","Student ID",s.sid?esc(s.sid):spNone("None"))+row("fid","Family ID",s.fid?esc(s.fid):spNone("None"))
+  +row("dob","Date of birth",s.dob?esc(dobText(s.dob)):spNone("Not recorded"))+row("gender","Gender",s.gender?esc(s.gender):spNone("Not recorded"))
+  +row("sy","Year group",s.sy?esc(s.sy):spNone("Not recorded"))+row("house","House",s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':spNone("Not set yet"))+'</dl>'}
+function spForm(s,c){var AIL=aiClasses();
+ return '<form class="addf spef" id="spEF" novalidate><div class="spch"><h2 id="spDH">Edit details</h2></div><p class="cap">Only the name is needed. Nothing is saved until you check your changes and confirm them.</p>'
+  +'<label>Name<input id="spename" maxlength="60" autocomplete="off" required value="'+esc(s.name)+'"></label>'
+  +'<label>Quran and Memorisation Class<select id="specls">'+CIDS.map(function(k){return '<option value="'+esc(k)+'"'+(k===c?' selected':'')+'>'+esc(cname(ST[k].name))+'</option>'}).join("")+'</select></label>'
+  +'<label>Arabic and Islamic Studies Class'+(AIL.length?'<select id="speist"><option value="">Not set</option>'+AIL.map(function(x){return '<option value="'+esc(x)+'"'+(x===(s.ist||"")?' selected':'')+'>'+esc(cname(x))+'</option>'}).join("")+'</select>':'<input id="speist" maxlength="80" autocomplete="off" value="">')+'</label>'
+  +'<div class="pf2"><label>Student ID<input id="spesid" maxlength="40" autocomplete="off" placeholder="SE…" value="'+esc(s.sid||"")+'"></label>'
+  +'<label>Family ID<input id="spefid" maxlength="40" autocomplete="off" placeholder="SP…" value="'+esc(s.fid||"")+'"></label>'
+  +'<div class="spdob"><label>Date of birth<input id="spedob" type="date" max="'+isoDay(new Date())+'" value="'+esc(s.dob||"")+'"></label><button type="button" class="lk" id="spedobX"'+(s.dob?'':' hidden')+'>Clear date of birth</button></div>'
+  +'<label>Gender<select id="spegender">'+opts(["Female","Male"],s.gender||"","Not recorded")+'</select></label>'
+  +'<label>Year group<select id="spesy">'+opts(["Reception"].concat(yrs(1,13)),s.sy||"","Not recorded")+'</select></label>'
+  +'<label>House<select id="spehouse">'+opts(HOUSES,s.house||"","Not set yet")+'</select></label></div>'
+  +'<p class="naerr" id="speE" role="alert"></p>'
+  +'<div class="acts"><button type="button" class="btn" id="spCx">Cancel</button><button type="submit" class="btn p" id="spSv">Save changes</button></div></form>'}
+/* Quran: the latest recorded days as score boxes, the averages and the level tests. */
+function spQuran(s,q){var last=q.slice(-12),T=(s.tests||[]).filter(function(t){return t.k==="q"}).slice().reverse(),ab=q.filter(function(k){return s.q[k]<0}).length,lim=4;
+ return '<section class="card spq" aria-labelledby="spQH"><div class="spch"><h2 id="spQH">Quran</h2><span class="cap">'+(s.qa?esc(qaLab(s.qa)):'No level yet')+'</span></div>'
+  +(last.length?'<ol class="spqs" aria-label="Latest Quran scores">'+last.map(function(k){var v=s.q[k];return '<li><span class="spqb" style="background:'+qcol(v)+'">'+qtxt(v)+'</span><small>'+dm(qDate(k).getTime())+'</small><span class="sr-only">'+(v<0?"Absent":v+" out of 5")+'</span></li>'}).join("")+'</ol>'
+   +'<p class="cap">'+plural(q.length,"class day")+' scored'+(ab?', '+ab+' absent':'')+'. The latest '+last.length+' are shown.</p>':'<p class="none">No Quran scores yet.</p>')
+  +'<h3>Level tests <span class="mct">'+T.length+'</span></h3>'
+  +(T.length?'<ul class="sptl">'+(SPX.qt?T:T.slice(0,lim)).map(function(t){return '<li><span class="mpd">'+ds(qDate(t.d).getTime())+'</span><span class="spx">'+esc(tLab(t))+(t.sc!=null&&t.sc!==""?' <small>'+t.sc+' out of 5</small>':'')+'</span>'+(t.ok?'<span class="pill green">Passed</span>':'<span class="pill red">Not passed</span>')+'</li>'}).join("")+'</ul>'+spMore("qt",T.length,lim):'<p class="none">No Quran level tests yet.</p>')
+  +'</section>'}
+/* Memorisation: where the student is now, then every pass and fail, newest first. */
+function spMemo(s){var E=s.log.map(function(t,k){return {t:t,k:k}}).concat(s.fl.map(function(t){return {t:t,f:1}})).sort(function(a,b){return b.t-a.t}),lim=6,t=mLast(s);
+ return '<section class="card spm" aria-labelledby="spMH"><div class="spch"><h2 id="spMH">Memorisation</h2>'+(s.target<=BL?'<span class="cap">Level '+(lv(s.target)+1)+'</span>':'')+'</div>'
+  +'<div class="spnow"><small>Working on</small><b>'+(nod(s)?'No data yet':esc(bl(s.target)))+'</b><span class="cap">'+(t?'Last pass '+ds(t)+', '+ago(t).toLowerCase():'No pass yet')+'</span></div>'
+  +'<h3>Passes and fails <span class="mct">'+E.length+'</span></h3>'
+  +(E.length?'<ul class="mpl sppl">'+(SPX.m?E:E.slice(0,lim)).map(function(e){return '<li><span class="mpd">'+ds(e.t)+'</span>'+(e.f?'<span class="nc spfail">Fail</span>':chip(lc(s.lt[e.k]),esc(pl(s,e.k))))+'</li>'}).join("")+'</ul>'+spMore("m",E.length,lim):'<p class="none">Nothing recorded yet.</p>')
+  +'</section>'}
+/* House points: every coin with what it was for (as on the House points page), and the books finished. */
+function spHouse(s){var L=hpAll().filter(function(o){return o.s===s}).sort(function(a,b){return b.t-a.t}),B=(s.bp||[]).slice().reverse(),lim=5;
+ return '<section class="card sph" aria-labelledby="spHH"><div class="spch"><h2 id="spHH">House points</h2><span class="cap">'+plural(hp(s),"point")+(s.house?' for '+esc(s.house):'')+'</span></div>'
+  +(B.length?'<p class="spbk">'+B.map(function(b){return '<span class="pill lead">'+esc(bkName(b.b))+' finished '+dm(b.t)+'</span>'}).join("")+'</p>':'')
+  +(L.length?hpList(SPX.h?L:L.slice(0,lim),0)+spMore("h",L.length,lim):'<p class="none">No house points yet.</p>')
+  +'</section>'}
+function spFamily(s){var fam=family(s);
+ return '<section class="card spfm" aria-labelledby="spFH"><div class="spch"><h2 id="spFH">Family</h2>'+(s.fid?'<span class="cap">'+esc(s.fid)+'</span>':'')+'</div>'
+  +(fam.length?'<ul class="spfl">'+fam.map(function(o){return '<li><button type="button" class="spfo" data-spo="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(o.s)+'"><span class="spav sm '+esc(o.s.house||"")+'" aria-hidden="true">'+esc(spIni(o.s.name))+'</span><span><b>'+esc(o.s.name)+'</b><small>'+esc(cname(ST[o.c].name))+(o.s.sy?' · '+esc(o.s.sy):'')+'</small></span></button></li>'}).join("")+'</ul>'
+   :'<p class="none">'+(s.fid?'No one else has Family ID '+esc(s.fid)+'.':'Add a Family ID to see their brothers and sisters here.')+'</p>')
+  +'</section>'}
+/* ---------- Editing ---------- */
+function spVals(){var v={};SPF.forEach(function(f){var e=$("spe"+f[0]);v[f[0]]=e?e.value.replace(/\s+/g," ").trim():""});v.cls=$("specls")?$("specls").value:SP.c;return v}
+function spShow(k,x){if(!x)return "";if(k==="dob")return dobText(x,1);if(k==="ist")return cname(x);return x}
+/* Every change as [key, label, before, after], in the form's order. */
+function spDiff(s,c,v){var D=[];SPF.forEach(function(f){var k=f[0];if(v[k]!==(s[k]||""))D.push([k,f[1],spShow(k,s[k]||""),spShow(k,v[k])]);
+ if(k==="name"&&v.cls!==c)D.push(["class","Quran and Memorisation Class",cname(ST[c].name),ST[v.cls]?cname(ST[v.cls].name):""])});return D}
+function spCheck(s,c,v){var dup=null,to=v.cls;
+ if(!ST[to])return ["That class no longer exists. Choose another.","specls"];
+ if(!v.name)return ["Enter the student's name.","spename"];
+ if(ST[to].S.some(function(o){return o!==s&&nkey(o.name)===nkey(v.name)}))return ["There is already a student called "+v.name+" in "+cname(ST[to].name)+".","spename"];
  if(v.sid)CIDS.forEach(function(k){ST[k].S.forEach(function(o){if(!dup&&o!==s&&o.sid&&nkey(o.sid)===nkey(v.sid))dup=[o,k]})});
- if(dup){err.textContent="Student ID "+v.sid+" already belongs to "+dup[0].name+" in "+cname(ST[dup[1]].name)+".";$("spsid").focus();return}
- if(v.dob&&(!/^\d{4}-\d{2}-\d{2}$/.test(v.dob)||v.dob>isoDay(new Date()))){err.textContent="Enter a date of birth that isn't in the future.";$("spdob").focus();return}
- var mv=to!==c;
- var n=0;SPF.forEach(function(f){var k=f[0],was=s[k]||"";if(v[k]===was)return;n++;
-  if(k==="sid"&&was||k==="name"){var x=k==="sid"?"xid":"xn";s[x]=(s[x]||[]).filter(function(y){return nkey(y)!==nkey(was)}).concat([was]).slice(-10)}
+ if(dup)return ["Student ID "+v.sid+" already belongs to "+dup[0].name+" in "+cname(ST[dup[1]].name)+".","spesid"];
+ if(v.dob&&(!/^\d{4}-\d{2}-\d{2}$/.test(v.dob)||v.dob>isoDay(new Date())))return ["Enter a date of birth that isn't in the future.","spedob"];
+ return null}
+function spErr(x){$("speE").textContent=x[0];var f=$(x[1]);if(f)f.focus()}
+/* Save changes: check the form, then list every change and ask before anything is saved. */
+function spSubmit(){var s=spGet();if(!s){$("speE").textContent="This student has been changed or removed elsewhere. Go back to Students and open them again.";return}
+ var c=SP.c,v=spVals(),x=spCheck(s,c,v);if(x){spErr(x);return}$("speE").textContent="";
+ var D=spDiff(s,c,v);if(!D.length){SPE=false;spPage();$("spEd").focus();return}
+ var mv=v.cls!==c;
+ askList("Save "+(D.length===1?"this change":"these "+D.length+" changes")+" to "+s.name+"?",
+  '<ul class="chg">'+D.map(function(d){return '<li><span class="chk">'+esc(d[1])+'</span><span class="chv"><span class="was">'+(d[2]?esc(d[2]):'<i>Not set</i>')+'</span><span class="arr" aria-label="changes to">→</span><b>'+(d[3]?esc(d[3]):'<i>Not set</i>')+'</b></span></li>'}).join("")+'</ul>'
+  +(mv?'<p class="chn">'+esc(fn(s))+' moves to '+esc(cname(ST[v.cls].name))+' with all of their passes, Quran scores, merits, warnings and house points.</p>':'')
+  +'<p class="chn">Details changed here stay as you set them when a CSV is uploaded again.</p>',"Yes, save changes",function(){spApply(v)})}
+function spApply(v){var s=spGet();if(!s){toast("This student has been changed or removed elsewhere. Nothing was saved.",1);SPE=false;spPage();return}
+ var c=SP.c,x=spCheck(s,c,v);if(x){if($("speE"))spErr(x);else toast(x[0],1);return}
+ var D=spDiff(s,c,v),to=v.cls,mv=to!==c;
+ SPF.forEach(function(f){var k=f[0],was=s[k]||"";if(v[k]===was)return;
+  if(k==="sid"&&was||k==="name"){var y=k==="sid"?"xid":"xn";s[y]=(s[y]||[]).filter(function(z){return nkey(z)!==nkey(was)}).concat([was]).slice(-10)}
   if(v[k]||k==="name")s[k]=v[k];else delete s[k];
-  s.ed=(s.ed||[]).filter(function(y){return y!==k}).concat([k])});
+  s.ed=(s.ed||[]).filter(function(z){return z!==k}).concat([k])});
  // A move also takes the new class's Safar year, which the TV uses to group classes; it isn't shown here.
- if(mv){var yr=safarYear(ST[to].name,s.ist);if(yr)s.year=yr;ST[c].S.splice(ST[c].S.indexOf(s),1);ST[to].S.push(s);s.ed=(s.ed||[]).filter(function(y){return y!=="class"}).concat(["class"]);persist(to)}
- if(!n&&!mv){closeDrawer();return}
- persist(c);if(c===CID||to===CID)render();closeDrawer();if($("stuL"))stuRows();
- toast(mv?s.name+" moved to "+cname(ST[to].name):n===1?"Detail saved for "+s.name:n+" details saved for "+s.name)});
+ if(mv){var yr=safarYear(ST[to].name,s.ist);if(yr)s.year=yr;ST[c].S.splice(ST[c].S.indexOf(s),1);ST[to].S.push(s);s.ed=(s.ed||[]).filter(function(z){return z!=="class"}).concat(["class"]);persist(to)}
+ persist(c);SP={c:to,n:s.name};SPE=false;SPOK=D.map(function(d){return d[0]});
+ try{history.replaceState(null,"","#"+spHash(to,s.name))}catch(e){}
+ head();spPage();var b=$("spEd");if(b)b.focus()}
+$("vP").addEventListener("click",function(e){var t=e.target;
+ if(t.closest("[data-sback]")){spBack();return}
+ if(t.closest("#spEd")){SPE=true;spPage();$("spename").focus();return}
+ if(t.closest("#spCx")){spLeave(function(){spPage();var b=$("spEd");if(b)b.focus()});return}
+ if(t.id==="spedobX"){$("spedob").value="";t.hidden=true;$("spedob").focus();return}
+ var x=t.closest("[data-spx]");if(x){var k=x.dataset.spx;SPX[k]=!SPX[k];spPage();var n=$("spW").querySelector('[data-spx="'+k+'"]');if(n)n.focus();return}
+ var f=t.closest("[data-spo]");if(f){var c=f.dataset.spo,o=ST[c]&&ST[c].S[+f.dataset.i];if(o)spLeave(function(){SPX={};SP={c:c,n:o.name};try{history.replaceState(null,"","#"+spHash(c,o.name))}catch(e){}head();spPage();window.scrollTo(0,0)})}});
+$("vP").addEventListener("submit",function(e){if(e.target.id!=="spEF")return;e.preventDefault();spSubmit()});
+$("vP").addEventListener("input",function(e){if(e.target.id==="spedob")$("spedobX").hidden=!e.target.value});
+$("spBk").onclick=spBack;
 $("vU").addEventListener("input",function(e){if(e.target.id==="stuQ"){SQ=e.target.value;PG.stu=0;stuRows()}});
 $("vU").addEventListener("change",function(e){if(e.target.dataset.sf){sfSet(e.target.dataset.sf,e.target.value);PG.stu=0;stuFilters();stuRows()}});
 document.addEventListener("click",function(e){var P=$("stuP");if(P&&!P.hidden&&!e.target.closest(".sfw")&&!e.target.closest(".csm"))sfOpen(false)});
@@ -1369,7 +1479,7 @@ $("vU").addEventListener("click",function(e){if(e.target.closest("#stuA,#stuA2")
  if(e.target.id==="stuX"||e.target.id==="stuX2"){Object.keys(SF).forEach(function(k){SF[k]=""});SC="";PG.stu=0;stuFilters();stuRows();if(e.target.id==="stuX")$("stuFB").focus();return}
  if(e.target.closest(".sfw"))return;
  var b=e.target.closest(".srm"),r=e.target.closest(".stul tbody tr");
- if(!b&&r&&!e.target.closest("[data-open]")){var rs=ST[r.dataset.c]&&ST[r.dataset.c].S[+r.dataset.i];if(rs)stuProfile(r.dataset.c,rs);return}
+ if(!b&&r&&!e.target.closest("[data-open]")){var rs=ST[r.dataset.c]&&ST[r.dataset.c].S[+r.dataset.i];if(rs)spOpen(r.dataset.c,rs);return}
  if(!b)return;var tr=b.closest("tr"),c=tr.dataset.c,s=ST[c]&&ST[c].S[+tr.dataset.i];if(!s)return;
  ask("Remove "+s.name+" from "+cname(ST[c].name)+"? Their passes, merits, warnings, house points and Quran scores are removed with them. This can't be undone.","Remove student",function(){
   function done(){var i=ST[c]?ST[c].S.indexOf(s):-1;if(i<0){toast("That student has already changed. Try again.",1);stuRows();return}
