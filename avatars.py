@@ -18,8 +18,11 @@ import auth
 AVATAR_SIZE = 256
 # The browser sends a cropped 512px picture, far below this; a photo sent without the cropper is resized here.
 MAX_BYTES = 2 * 1024 * 1024
-MAX_PIXELS = 40_000_000
-FORMATS = {"JPEG", "PNG", "WEBP", "GIF"}
+# A picture is decoded whole before it is resized, at up to 4 bytes a pixel and a copy or two on the way; this keeps
+# one upload to a few hundred MB at most. A phone photo is 12 to 50 million pixels, but a JPEG is decoded at a smaller
+# size (draft below), so only very large PNG, WebP and GIF files are refused.
+MAX_PIXELS = 16_000_000
+FORMATS = ("JPEG", "PNG", "WEBP", "GIF")
 
 bp = Blueprint("avatars", __name__)
 
@@ -44,7 +47,11 @@ def clean(data):
     if not data or len(data) > MAX_BYTES:
         return None
     try:
-        with Image.open(io.BytesIO(data)) as image:
+        # Only these formats' decoders ever see the file.
+        with Image.open(io.BytesIO(data), formats=FORMATS) as image:
+            if image.format == "JPEG":
+                # Decodes at 1/2, 1/4 or 1/8 size straight away, still well over AVATAR_SIZE.
+                image.draft("RGB", (AVATAR_SIZE * 2, AVATAR_SIZE * 2))
             if image.format not in FORMATS or image.width * image.height > MAX_PIXELS:
                 return None
             image.seek(0)

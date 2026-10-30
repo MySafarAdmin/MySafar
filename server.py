@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import re
+import secrets
 import time
 from collections import Counter
 from datetime import date
@@ -21,6 +22,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 from flask import Flask, Response, abort, g, jsonify, redirect, request
+from werkzeug.exceptions import HTTPException, InternalServerError
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 import auth
@@ -53,7 +55,7 @@ TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completio
 # House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
 HOUSE_POINT_REASONS = {"bk": "tr", "lv": "tb", "hw": "tg", "ec": "tg", "cp": "tg"}
 # Reachable without signing in.
-PUBLIC = {"/login", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
+PUBLIC = {"/login", "/login/code", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
 # Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Figtree
 # for text and titles alike (see DESIGN.md).
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
@@ -164,8 +166,12 @@ def valid_state(state):
 
 
 
-DASHBOARD_CSP = ("default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
-                 "font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+# The dashboard, TV and board pages each carry their script inline. Only <script> elements the server sent run: each
+# response marks its own with a new random nonce (see private_responses), so text that ever slipped into the page as
+# HTML could not run as a script.
+DASHBOARD_CSP = ("default-src 'self'; script-src 'self' 'nonce-{nonce}'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                 "font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; "
+                 "object-src 'none'")
 PAGE_CSP = ("default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; "
             "base-uri 'none'")
 # The sign-in page also runs one script of ours, /intro.js, which focuses the email field after the opening; the
@@ -180,6 +186,16 @@ EMAIL_PREVIEW_CSP = ("default-src 'none'; style-src 'unsafe-inline'; img-src 'se
 # A classroom saved again by the same person within this time updates its latest
 # history entry instead of adding one, so that history doesn't grow with every click.
 HISTORY_COALESCE = 15 * 60
+# What an error page says. Messages the app gives on purpose (auth.SHOWN_ERRORS) are shown instead; nothing from an unexpected error (a stack trace, a path, a database message) ever reaches the browser.
+ERRORS = {400: ("Something went wrong", "The request couldn't be used. Go back, reload the page and try again."),
+          401: ("Sign in again", "Your session has ended. Sign in again."),
+          403: ("Not allowed", "Your account can't open this page."),
+          404: ("Page not found", "There's nothing at this address."),
+          405: ("Not allowed", "This page can't be used that way."),
+          413: ("Too large", "That was too large to send. Files must be under 2 MB."),
+          429: ("Too many requests", "Wait a few minutes, then try again."),
+          500: ("Something went wrong", "The dashboard hit a problem. Try again in a minute; if it keeps happening, "
+                                        "tell an administrator.")}
 
 
 class RailwayProxy:
@@ -268,6 +284,29 @@ def create_app(test_config=None):
         helpdesk.start_summary_thread(app)
     pruned = {"at": 0}
 
+    @app.errorhandler(HTTPException)
+    def http_error(error):
+        """JSON for the dashboard's API calls, a plain page otherwise, in the site's own words."""
+        code = error.code or 500
+        title, message = ERRORS.get(code, ERRORS[500 if code >= 500 else 400])
+        own = error.description if error.description in auth.SHOWN_ERRORS else None
+        if wants_json():
+            response = jsonify(error=own or message)
+            response.status_code = code
+        else:
+            response = app.make_response(auth.page("error.html", code, title=title, message=own or message))
+        # Such as Allow on a 405.
+        for name, value in error.get_headers():
+            if name.lower() != "content-type":
+                response.headers[name] = value
+        return response
+
+    @app.errorhandler(Exception)
+    def unexpected_error(error):
+        # Logged in full for Railway's logs; the browser only gets the generic message.
+        app.logger.exception("Unhandled error on %s %s", request.method, request.path)
+        return http_error(InternalServerError())
+
     def wants_json():
         return request.path.startswith("/api/")
 
@@ -314,12 +353,16 @@ def create_app(test_config=None):
         response.headers["Referrer-Policy"] = "same-origin"
         dashboard = request.path in ("/", "/tv", "/board") or (request.path.startswith(("/tv/", "/presenter/", "/board/"))
                                                         and response.mimetype == "text/html" and response.status_code == 200)
-        response.headers["Content-Security-Policy"] = DASHBOARD_CSP if dashboard else \
+        if dashboard:
+            nonce = secrets.token_urlsafe(16)
+            if response.mimetype == "text/html" and not response.direct_passthrough:
+                response.set_data(response.get_data().replace(b"<script", f'<script nonce="{nonce}"'.encode()))
+        response.headers["Content-Security-Policy"] = DASHBOARD_CSP.format(nonce=nonce) if dashboard else \
             EMAIL_PREVIEW_CSP if request.path.startswith("/admin/email/preview/") else \
             ACCOUNT_CSP if request.path == "/account" else \
             LOGIN_CSP if request.path == "/login" or request.path.startswith("/admin/") else PAGE_CSP
         if app.config["COOKIE_SECURE"]:
-            response.headers["Strict-Transport-Security"] = "max-age=31536000"
+            response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         return response
 
     @app.get("/healthz")

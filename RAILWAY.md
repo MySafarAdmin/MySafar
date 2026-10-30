@@ -26,8 +26,14 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
   (**Send password reset link**). Passwords are stored only as argon2 hashes,
   so nobody, admins included, can see one. The person's old password keeps
   working until they use the link, which then signs them out everywhere else.
-- Invite and reset tokens are replaced with `[hidden]` in the request and
-  error logs, so the Railway logs can't be used to take over an account.
+- Invite, reset, TV screen and memo board tokens are replaced with `[hidden]`
+  in the request and error logs, so the Railway logs can't be used to take
+  over an account or open a screen.
+- Admins finish signing in with a 6-digit code emailed to them after their
+  password. It works once, in that browser, for 10 minutes, and 5 wrong codes
+  end it (10 wrong codes in 15 minutes block new ones). Teachers sign in with
+  their password only. Without `RESEND_API_KEY` and `MAIL_FROM` no code can be
+  sent, so admins sign in with their password and the log says so.
 - Turning off an account signs that person out everywhere at once.
 - Sign-in is limited to 5 wrong passwords per email and 20 per IP address in
   15 minutes. Closing the app signs you out: the sign-in cookie ends with the

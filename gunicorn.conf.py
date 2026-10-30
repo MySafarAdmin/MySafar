@@ -10,10 +10,10 @@ timeout = 30
 accesslog = "-"
 errorlog = "-"
 
-# Invite and reset links carry a one-time token in the path. Railway keeps these logs, so the token is
-# hidden wherever it appears in a log line: the request line, the path, and the Referer of pages it loads.
-# Keep in step with auth.hide_link_tokens, which does the same for the app's own error log.
-LINK_TOKEN = re.compile(r"(/(?:invite|reset)/)[^/?#\s\"]+")
+# Invite and reset links carry a one-time token in the path, and TV screen and memo board links a lasting one.
+# Railway keeps these logs, so the token is hidden wherever it appears in a log line: the request line, the path,
+# and the Referer of pages it loads. Keep in step with auth.LINK_TOKEN, which does the same for the app's own error log.
+LINK_TOKEN = re.compile(r"((?<!/admin)/(?:invite|reset|tv|board)/)[^/?#\s\"]+")
 
 
 class HideLinkTokens(Logger):

@@ -9,6 +9,7 @@ and a plain-text part (<name>.txt) with the same words. Subjects are here.
 |                  | accepted theirs; also from "Forgotten your password?" in that case.      |
 | reset            | Someone asks for a reset link, or an admin sends one.                   |
 | password_changed | A password is changed on the Account page or with a reset link.         |
+| login_code       | An admin types their password: the code that finishes signing in.      |
 | test             | An admin sends a test email from Manage users.                          |
 | help_reply       | An admin answers a Help or Requests message on FAQs and picks email.    |
 | help_summary     | Sundays at 12:00 London time: the week's Help or Requests (helpdesk.py). |
@@ -25,11 +26,12 @@ SUBJECTS = {
     "invite": "You're invited to the Safar Academy dashboard",
     "reset": "Reset your Safar Academy dashboard password",
     "password_changed": "Your Safar Academy dashboard password was changed",
+    "login_code": "Your Safar Academy dashboard sign-in code",
     "test": "Test email from the Safar Academy dashboard",
     "help_reply": "A reply to your message on the Safar Academy dashboard",
     "help_summary": "This week's Help or Requests on the Safar Academy dashboard",
 }
-TAGS = {"invite": "invite", "reset": "password_reset", "password_changed": "security", "test": "test",
+TAGS = {"invite": "invite", "reset": "password_reset", "password_changed": "security", "login_code": "security", "test": "test",
         "help_reply": "help_reply", "help_summary": "help_summary"}
 
 
@@ -42,7 +44,8 @@ def render(template, **context):
     context = dict(context, site=auth.public_url("/"), logo=auth.public_url("/logo.png"),
                    signin=auth.public_url("/login"), forgot=auth.public_url("/forgot"),
                    support_email=current_app.config.get("SUPPORT_EMAIL", ""),
-                   invite_hours=hours(auth.INVITE_TTL // auth.HOUR), reset_hours=hours(auth.RESET_TTL // auth.HOUR))
+                   invite_hours=hours(auth.INVITE_TTL // auth.HOUR), reset_hours=hours(auth.RESET_TTL // auth.HOUR),
+                   code_minutes=auth.LOGIN_CODE_TTL // auth.MINUTE)
     return (SUBJECTS[template], render_template(f"email/{template}.txt", **context).strip() + "\n",
             render_template(f"email/{template}.html", **context))
 
@@ -65,6 +68,7 @@ PREVIEWS = {
                       "link": auth.public_url("/reset/example-link")},
     "password_changed": lambda: {"name": "Sr Maryam", "email": "maryam@example.com", "how": "reset",
                                  "at": int(time.time())},
+    "login_code": lambda: {"name": "Br Ahmed", "email": "ahmed@example.com", "code": "482913", "at": int(time.time())},
     "test": lambda: {"name": "Br Ahmed", "email": "ahmed@example.com", "at": int(time.time())},
     "help_reply": lambda: {"name": "Sr Maryam", "kind": "Help", "asked_at": int(time.time()) - 86400,
                            "body": "How do I record a Memo pass for a student who was absent last week?",
