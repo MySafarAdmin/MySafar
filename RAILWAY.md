@@ -39,7 +39,10 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
   15 minutes. Closing the app signs you out: the sign-in cookie ends with the
   browser, and the server ends a sign-in 20 minutes after the dashboard was last
   open (an open dashboard checks in, even in a background tab), and after 12
-  hours at most. There is no "Keep me signed in".
+  hours at most. Ticking "Stay signed in for 30 days" keeps the sign-in across
+  browser restarts and new tabs for 30 days, ending sooner if the dashboard
+  isn't opened for 14 days. Signing out or having the account turned off still
+  ends it at once, and changing your password ends it on your other devices.
 
 ## Help or Requests and FAQs
 

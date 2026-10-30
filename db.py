@@ -212,8 +212,13 @@ def _m11_login_codes(db, postgres):
         fails INTEGER NOT NULL DEFAULT 0)""")
 
 
+def _m12_stay_signed_in(db, postgres):
+    # 1 for a sign-in made with "Stay signed in" (see auth.py): it lasts SESSION_STAY, not SESSION_SHORT.
+    db.execute("ALTER TABLE sessions ADD COLUMN remember INTEGER NOT NULL DEFAULT 0")
+
+
 MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
-              _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links, _m11_login_codes]
+              _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links, _m11_login_codes, _m12_stay_signed_in]
 
 
 class Database:

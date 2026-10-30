@@ -76,10 +76,12 @@ class DashboardTests:
         self.client = self.sign_in(*ADMIN)
         self.headers = {"X-Dashboard-Request": "1"}
 
-    def sign_in(self, email, password, app=None):
+    def sign_in(self, email, password, app=None, remember=False):
         client = (app or self.app).test_client()
         page = client.get("/login")
         data = {"csrf": csrf_of(page), "email": email, "password": password}
+        if remember:
+            data["remember"] = "1"
         client.last = client.post("/login", data=data)
         return client
 
@@ -456,9 +458,8 @@ class DashboardTests:
         with self.app.config["DB"].transaction() as tx:
             tx.execute("UPDATE sessions SET last_seen_at = last_seen_at - ?", (auth.SESSION_IDLE + 1,))
         self.assertEqual(client.get("/api/classes").status_code, 401)
-        # No "keep me signed in": the cookie ends with the browser, and the sign-in after 20 idle minutes.
+        # Without "Stay signed in" the cookie ends with the browser, and the sign-in after 20 idle minutes.
         self.assertEqual(auth.SESSION_IDLE, 20 * 60)
-        self.assertNotIn('name="remember"', self.app.test_client().get("/login").get_data(as_text=True))
         client = self.sign_in(*ADMIN)
         self.assertNotIn("Max-Age", client.last.headers["Set-Cookie"])
         with self.app.config["DB"].transaction() as tx:
@@ -469,6 +470,25 @@ class DashboardTests:
         with self.app.config["DB"].transaction() as tx:
             tx.execute("UPDATE sessions SET expires_at = ?", (int(time.time()) + 30 * 86400,))
         self.assertEqual(client.get("/api/classes").status_code, 401)
+
+    def test_stay_signed_in(self):
+        self.assertIn('name="remember"', self.app.test_client().get("/login").get_data(as_text=True))
+        client = self.sign_in(*ADMIN, remember=True)
+        self.assertIn(f"Max-Age={auth.SESSION_STAY}", client.last.headers["Set-Cookie"])
+        # It outlasts the 20-minute and 12-hour limits, and new tabs don't sign it out.
+        with self.app.config["DB"].transaction() as tx:
+            tx.execute("UPDATE sessions SET last_seen_at = last_seen_at - ?, expires_at = expires_at - ?",
+                       (auth.SESSION_IDLE + 1, auth.HOUR))
+        auth.prune(self.app.config["DB"], 365)
+        self.assertEqual(client.get("/api/classes").status_code, 200)
+        client.get("/")
+        self.assertIn('"stay": true', client.get("/").get_data(as_text=True))
+        # 14 days without opening the dashboard ends it.
+        with self.app.config["DB"].transaction() as tx:
+            tx.execute("UPDATE sessions SET last_seen_at = last_seen_at - ?", (auth.SESSION_STAY_IDLE,))
+        self.assertEqual(client.get("/api/classes").status_code, 401)
+        # A plain sign-in is still marked for the tab guard.
+        self.assertIn('"stay": false', self.sign_in(*ADMIN).get("/").get_data(as_text=True))
 
     def test_behind_railways_proxy(self):
         app = create_app(dict(self.config, COOKIE_SECURE=True, TRUST_PROXY=True,
@@ -1424,6 +1444,16 @@ class DashboardTests:
         # Teachers sign in with their password, as before.
         self.add_user("t@example.com")
         self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").last.status_code, 302)
+
+    def test_admins_can_stay_signed_in(self):
+        # The choice made with the password carries through the emailed code.
+        mailer = self.admin_mailer()
+        client = self.sign_in(*ADMIN, remember=True)
+        self.assertIn('name="remember" value="1"', client.last.get_data(as_text=True))
+        response = client.post("/login/code", data={"csrf": csrf_of(client.last), "code": self.code_of(mailer),
+                                                    "remember": "1"})
+        self.assertIn(f"Max-Age={auth.SESSION_STAY}", response.headers.get_all("Set-Cookie")[0])
+        self.assertIn({"remember": 1}, self.query("SELECT remember FROM sessions"))
 
     def test_wrong_sign_in_codes_are_limited(self):
         mailer = self.admin_mailer()

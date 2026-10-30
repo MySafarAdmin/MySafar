@@ -29,9 +29,12 @@ import emails
 
 MINUTE, HOUR, DAY = 60, 3600, 86400
 # A sign-in ends 20 minutes after the dashboard was last open (it checks in while open, even in a background
-# tab), so closing the app signs you out. There is no "keep me signed in": the cookie also ends with the browser.
+# tab), so closing the app signs you out: the cookie also ends with the browser. "Stay signed in" keeps the cookie
+# for SESSION_STAY instead, ending sooner if the dashboard isn't opened for SESSION_STAY_IDLE.
 SESSION_IDLE = 20 * MINUTE
 SESSION_SHORT = 12 * HOUR
+SESSION_STAY = 30 * DAY
+SESSION_STAY_IDLE = 14 * DAY
 INVITE_TTL = 72 * HOUR
 RESET_TTL = HOUR
 LOGIN_CODE_TTL = 10 * MINUTE
@@ -189,31 +192,33 @@ def load_session():
     t = now()
     with db().transaction() as tx:
         row = tx.execute(
-            "SELECT s.token_hash, s.csrf, s.last_seen_at, s.expires_at, u.id, u.email, u.name, u.role, u.must_change, "
+            "SELECT s.token_hash, s.csrf, s.last_seen_at, s.expires_at, s.remember, u.id, u.email, u.name, u.role, u.must_change, "
             "u.disabled, u.avatar_at FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token_hash = ?",
             (token_hash(token),)).fetchone()
         if not row:
             return
-        if (row["disabled"] or row["expires_at"] <= t or row["last_seen_at"] + SESSION_IDLE <= t
-                or row["expires_at"] > t + SESSION_SHORT):
+        idle, longest = (SESSION_STAY_IDLE, SESSION_STAY) if row["remember"] else (SESSION_IDLE, SESSION_SHORT)
+        if (row["disabled"] or row["expires_at"] <= t or row["last_seen_at"] + idle <= t
+                or row["expires_at"] > t + longest):
             tx.execute("DELETE FROM sessions WHERE token_hash = ?", (row["token_hash"],))
             return
         # The dashboard polls every 10 seconds; record activity at most once a minute.
         if t - row["last_seen_at"] >= MINUTE:
             tx.execute("UPDATE sessions SET last_seen_at = ? WHERE token_hash = ?", (t, row["token_hash"]))
-    g.session = {"token_hash": row["token_hash"], "csrf": row["csrf"]}
+    g.session = {"token_hash": row["token_hash"], "csrf": row["csrf"], "remember": bool(row["remember"])}
     g.user = {k: row[k] for k in ("id", "email", "name", "role", "must_change", "avatar_at")}
 
 
-def start_session(tx, user_id):
+def start_session(tx, user_id, remember=False):
     token = secrets.token_urlsafe(32)
     t = now()
-    tx.execute("INSERT INTO sessions VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    tx.execute("INSERT INTO sessions (token_hash, user_id, csrf, created_at, last_seen_at, expires_at, ip, user_agent, "
+               "remember) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                (token_hash(token), user_id, secrets.token_urlsafe(32), t, t,
-                t + SESSION_SHORT, request.remote_addr,
-                (request.user_agent.string or "")[:200]))
+                t + (SESSION_STAY if remember else SESSION_SHORT), request.remote_addr,
+                (request.user_agent.string or "")[:200], int(remember)))
     tx.execute("UPDATE users SET last_login_at = ? WHERE id = ?", (t, user_id))
-    return token, None
+    return token, (SESSION_STAY if remember else None)
 
 
 def signed_in_redirect(token, max_age, target):
@@ -341,11 +346,12 @@ def login():
     check_form_token()
     email = norm_email(request.form.get("email"))[:254]
     password = request.form.get("password", "")[:256]
+    remember = request.form.get("remember") == "1"
     with db().transaction() as tx:
         if limited(tx, "login", email, EMAIL_FAILS, IP_FAILS):
             audit(tx, "login.blocked", detail={"email": email})
             error = "Too many attempts. Wait 15 minutes, then try again."
-            return page("login.html", 429, next=target, email=email, error=error)
+            return page("login.html", 429, next=target, email=email, remember=remember, error=error)
         user = tx.execute("SELECT id, email, name, role, password_hash, disabled FROM users WHERE email = ?",
                           (email,)).fetchone()
         try:
@@ -357,17 +363,18 @@ def login():
         if not ok:
             audit(tx, "login.failed", detail={"email": email}, user_id=user["id"] if user else None)
     if not ok:
-        return page("login.html", 401, next=target, email=email, error="That email and password don't match.")
+        return page("login.html", 401, next=target, email=email, remember=remember,
+                    error="That email and password don't match.")
     if hasher.check_needs_rehash(user["password_hash"]):
         with db().transaction() as tx:
             tx.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hasher.hash(password), user["id"]))
     if user["role"] == "admin":
         if current_app.config["MAILER"].enabled:
-            return send_login_code(dict(user), target)
+            return send_login_code(dict(user), target, remember)
         current_app.logger.warning("Admin %s signed in without an emailed code: email isn't set up (RESEND_API_KEY "
                                    "and MAIL_FROM).", user["id"])
     with db().transaction() as tx:
-        token, max_age = start_session(tx, user["id"])
+        token, max_age = start_session(tx, user["id"], remember)
         audit(tx, "login", user_id=user["id"])
     return signed_in_redirect(token, max_age, target)
 
@@ -376,14 +383,14 @@ def code_hash(code):
     return token_hash("login-code:" + code)
 
 
-def send_login_code(user, target):
+def send_login_code(user, target, remember=False):
     """Emails an admin a 6-digit code and asks for it. The browser keeps a random token that the code belongs to, so
     the code only works in the browser that typed the password."""
     browser, code, t = secrets.token_urlsafe(32), f"{secrets.randbelow(10 ** 6):06d}", now()
     with db().transaction() as tx:
         if limited(tx, "code", user["email"], EMAIL_CODE_FAILS, IP_CODE_FAILS):
             audit(tx, "login.blocked", detail={"email": user["email"]}, user_id=user["id"])
-            return page("login.html", 429, next=target, email=user["email"],
+            return page("login.html", 429, next=target, email=user["email"], remember=remember,
                         error="Too many wrong sign-in codes. Wait 15 minutes, then try again.")
         # Only the latest code works.
         tx.execute("DELETE FROM login_codes WHERE user_id = ? OR expires_at < ?", (user["id"], t))
@@ -393,10 +400,10 @@ def send_login_code(user, target):
     if not emails.send("login_code", user["email"], name=user["name"], email=user["email"], code=code, at=t):
         with db().transaction() as tx:
             tx.execute("DELETE FROM login_codes WHERE token_hash = ?", (token_hash(browser),))
-        return page("login.html", 502, next=target, email=user["email"],
+        return page("login.html", 502, next=target, email=user["email"], remember=remember,
                     error="Your sign-in code couldn't be emailed. Try again in a minute, or ask another admin.")
     response = current_app.make_response(page("login_code.html", next=target, email=user["email"],
-                                               minutes=LOGIN_CODE_TTL // MINUTE))
+                                               remember=remember, minutes=LOGIN_CODE_TTL // MINUTE))
     set_cookie(response, code_cookie_name(), browser, LOGIN_CODE_TTL)
     return response
 
@@ -405,6 +412,7 @@ def send_login_code(user, target):
 def login_code():
     check_form_token()
     target = safe_next(request.form.get("next"))
+    remember = request.form.get("remember") == "1"
     browser = request.cookies.get(code_cookie_name(), "")
     typed = "".join(ch for ch in request.form.get("code", "") if ch.isdigit())[:6]
     expired = "That code has expired or was replaced by a newer one. Sign in again for a new code."
@@ -425,10 +433,10 @@ def login_code():
             if not left:
                 error = "That code isn't right, and it has now stopped working. Sign in again for a new code."
                 return page("login.html", 401, next=target, email=row["email"], error=error)
-            return page("login_code.html", 401, next=target, email=row["email"], minutes=LOGIN_CODE_TTL // MINUTE,
-                        error="That code isn't right. Check the latest email and try again.")
+            return page("login_code.html", 401, next=target, email=row["email"], remember=remember,
+                        minutes=LOGIN_CODE_TTL // MINUTE, error="That code isn't right. Check the latest email and try again.")
         tx.execute("DELETE FROM login_codes WHERE token_hash = ?", (row["token_hash"],))
-        token, max_age = start_session(tx, row["id"])
+        token, max_age = start_session(tx, row["id"], remember)
         audit(tx, "login", user_id=row["id"])
     response = signed_in_redirect(token, max_age, target)
     response.delete_cookie(code_cookie_name(), path="/", secure=current_app.config["COOKIE_SECURE"])
@@ -780,8 +788,9 @@ def prune(database, retention_days):
         tx.execute("DELETE FROM audit_log WHERE at < ?", (cutoff,))
         tx.execute("DELETE FROM classroom_history WHERE saved_at < ?", (cutoff,))
         tx.execute("DELETE FROM attempts WHERE at < ?", (t - DAY,))
-        # Also ends any 30-day sign-ins left from the old "keep me signed in" option.
-        tx.execute("DELETE FROM sessions WHERE expires_at < ? OR last_seen_at < ? OR expires_at > ?",
-                   (t, t - SESSION_IDLE, t + SESSION_SHORT))
+        # Also ends any 30-day sign-ins left from the old "keep me signed in" option, which had no remember mark.
+        tx.execute("DELETE FROM sessions WHERE expires_at < ? OR (remember = 0 AND (last_seen_at < ? OR expires_at > ?)) "
+                   "OR (remember = 1 AND (last_seen_at < ? OR expires_at > ?))",
+                   (t, t - SESSION_IDLE, t + SESSION_SHORT, t - SESSION_STAY_IDLE, t + SESSION_STAY))
         tx.execute("DELETE FROM user_tokens WHERE expires_at < ?", (t - DAY,))
         tx.execute("DELETE FROM login_codes WHERE expires_at < ?", (t,))

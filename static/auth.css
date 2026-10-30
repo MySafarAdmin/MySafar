@@ -73,7 +73,9 @@ body:has(.invite:target),body:has(.invite.open){overflow:hidden}
 .fin{position:relative;display:block}
 .fin .ic{position:absolute;right:15px;top:50%;width:20px;height:20px;margin-top:-10px;color:var(--mute);pointer-events:none}
 .solo .btn.primary{width:100%;min-height:54px;margin-top:6px;font-size:1rem;font-weight:800}
-.solo form[action="/login"] .btn.primary{letter-spacing:.08em;text-transform:uppercase}
+.solo form[action^="/login"] .btn.primary{letter-spacing:.08em;text-transform:uppercase}
+.solo label.check.stay{margin:-2px 0 12px;color:var(--mute)}
+.solo .sub{margin:18px 0 0;color:var(--mute);font-size:.875rem;line-height:1.5}
 .solo .alt{margin:22px 0 0;padding-top:0;border-top:0;font-size:.9375rem;text-align:center}
 .solo .alt p{margin:0 0 6px}
 @media (min-width:880px){

@@ -390,4 +390,5 @@ wider screens or to admins.
 **New tab, new sign-in**: opening the site in a new tab or window always starts
 at the sign-in page; refreshing a signed-in tab keeps you signed in (a
 sessionStorage mark set by the first load after signing in; see TAB_GUARD in
-server.py).
+server.py). A "Stay signed in" sign-in skips this and opens straight to the
+dashboard in any tab.
