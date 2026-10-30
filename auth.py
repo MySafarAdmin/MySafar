@@ -5,6 +5,10 @@ every account; teachers see only the classrooms an admin has assigned to them.
 
 Sessions are random tokens in a cookie; only their SHA-256 hash is stored. Invite
 and reset links work the same way. Passwords are hashed with argon2id.
+
+Admins see every child's record, so their sign-in has a second step when email is
+set up: after the password, a 6-digit code is emailed to them, and the session
+starts once they type it (LOGIN_CODE_TTL, LOGIN_CODE_FAILS).
 """
 import hashlib
 import hmac
@@ -14,6 +18,7 @@ import secrets
 import time
 from datetime import datetime
 from functools import wraps
+from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 
 from argon2 import PasswordHasher
@@ -29,6 +34,11 @@ SESSION_IDLE = 20 * MINUTE
 SESSION_SHORT = 12 * HOUR
 INVITE_TTL = 72 * HOUR
 RESET_TTL = HOUR
+LOGIN_CODE_TTL = 10 * MINUTE
+# Wrong codes allowed for one emailed code; after that the admin signs in again for a new one. Across codes, wrong
+# ones are limited per email and per IP address within LIMIT_WINDOW, so new codes can't be asked for to keep guessing.
+LOGIN_CODE_FAILS = 5
+EMAIL_CODE_FAILS, IP_CODE_FAILS = 10, 30
 LIMIT_WINDOW = 15 * MINUTE
 # Failed sign-ins allowed per email and per IP address within LIMIT_WINDOW.
 EMAIL_FAILS, IP_FAILS = 5, 20
@@ -63,7 +73,8 @@ ACTIONS = {
     "help.sent": "Sent a Help or Requests message", "help.replied": "Replied on FAQs",
     "help.deleted": "Deleted a FAQs message", "avatar.changed": "Changed their profile picture",
     "avatar.removed": "Removed their profile picture", "board.created": "Made a memo board link",
-    "board.revoked": "Turned off a memo board link",
+    "board.revoked": "Turned off a memo board link", "login.code_sent": "Was emailed a sign-in code",
+    "login.code_failed": "Typed a wrong sign-in code",
 }
 
 
@@ -105,8 +116,14 @@ def password_problem(password, email=""):
 
 
 def safe_next(target):
-    """Only same-site paths, so a sign-in link can't send someone to another website."""
-    if not target or not target.startswith("/") or target.startswith("//") or "\\" in target:
+    """Only same-site paths, so a sign-in link can't send someone to another website. Browsers drop tabs and line
+    breaks from an address and read a backslash as a slash ("/\t/evil.example" goes to evil.example), so a path with
+    any of those, a space or another control character is refused too."""
+    if not target or not target.startswith("/") or target.startswith("//") or "\\" in target \
+            or any(ord(ch) <= 32 or ord(ch) == 127 for ch in target):
+        return "/"
+    parts = urlsplit(target)
+    if parts.scheme or parts.netloc:
         return "/"
     return target
 
@@ -133,6 +150,11 @@ def fresh_cookie_name():
     return "__Host-safar-in" if current_app.config["COOKIE_SECURE"] else "safar-in"
 
 
+def code_cookie_name():
+    """Holds the browser's half of an admin's emailed sign-in code (see send_login_code)."""
+    return "__Host-safar-code" if current_app.config["COOKIE_SECURE"] else "safar-code"
+
+
 def pre_cookie_name():
     return "__Host-safar-form" if current_app.config["COOKIE_SECURE"] else "safar-form"
 
@@ -142,11 +164,12 @@ def set_cookie(response, name, value, max_age=None):
                         httponly=True, samesite="Lax")
 
 
-LINK_TOKEN = re.compile(r"(/(?:invite|reset)/)[^/?#\s\"]+")
+# The admin pages' own addresses (/admin/tv/3/off) carry no token, so they are left as they are.
+LINK_TOKEN = re.compile(r"((?<!/admin)/(?:invite|reset|tv|board)/)[^/?#\s\"]+")
 
 
 def hide_link_tokens(text):
-    """Takes the one-time token out of invite and reset links, so they can be written to a log."""
+    """Takes the secret token out of invite, reset, TV screen and memo board links, so they can be written to a log."""
     return LINK_TOKEN.sub(r"\1[hidden]", text)
 
 
@@ -214,11 +237,16 @@ def form_token():
     return token
 
 
+FORM_EXPIRED = "This form has expired. Go back, reload the page and try again."
+# Error messages written for people, shown on the error page as they are (see server.ERRORS).
+SHOWN_ERRORS = {FORM_EXPIRED}
+
+
 def check_form_token():
     sent = request.form.get("csrf", "")
     expected = g.session["csrf"] if g.get("session") else request.cookies.get(pre_cookie_name(), "")
     if not expected or not hmac.compare_digest(sent.encode(), expected.encode()):
-        abort(400, "This form has expired. Go back, reload the page and try again.")
+        abort(400, FORM_EXPIRED)
 
 
 @bp.after_app_request
@@ -304,9 +332,9 @@ def find_link(tx, token, purpose):
 @bp.route("/login", methods=["GET", "POST"])
 def login():
     target = safe_next(request.values.get("next"))
-    if g.user and request.method == "GET":
+    if g.user and request.method in ("GET", "HEAD"):
         return redirect(target)
-    if request.method == "GET":
+    if request.method in ("GET", "HEAD"):
         notice = "You've signed out." if request.args.get("out") else None
         # The opening titles play when someone arrives fresh, not after signing out.
         return page("login.html", next=target, notice=notice, intro=not notice)
@@ -318,7 +346,8 @@ def login():
             audit(tx, "login.blocked", detail={"email": email})
             error = "Too many attempts. Wait 15 minutes, then try again."
             return page("login.html", 429, next=target, email=email, error=error)
-        user = tx.execute("SELECT id, password_hash, disabled FROM users WHERE email = ?", (email,)).fetchone()
+        user = tx.execute("SELECT id, email, name, role, password_hash, disabled FROM users WHERE email = ?",
+                          (email,)).fetchone()
         try:
             ok = hasher.verify(user["password_hash"] if user and user["password_hash"] else DUMMY_HASH, password)
         except (VerificationError, InvalidHashError):
@@ -329,12 +358,81 @@ def login():
             audit(tx, "login.failed", detail={"email": email}, user_id=user["id"] if user else None)
     if not ok:
         return page("login.html", 401, next=target, email=email, error="That email and password don't match.")
-    with db().transaction() as tx:
-        if hasher.check_needs_rehash(user["password_hash"]):
+    if hasher.check_needs_rehash(user["password_hash"]):
+        with db().transaction() as tx:
             tx.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hasher.hash(password), user["id"]))
+    if user["role"] == "admin":
+        if current_app.config["MAILER"].enabled:
+            return send_login_code(dict(user), target)
+        current_app.logger.warning("Admin %s signed in without an emailed code: email isn't set up (RESEND_API_KEY "
+                                   "and MAIL_FROM).", user["id"])
+    with db().transaction() as tx:
         token, max_age = start_session(tx, user["id"])
         audit(tx, "login", user_id=user["id"])
     return signed_in_redirect(token, max_age, target)
+
+
+def code_hash(code):
+    return token_hash("login-code:" + code)
+
+
+def send_login_code(user, target):
+    """Emails an admin a 6-digit code and asks for it. The browser keeps a random token that the code belongs to, so
+    the code only works in the browser that typed the password."""
+    browser, code, t = secrets.token_urlsafe(32), f"{secrets.randbelow(10 ** 6):06d}", now()
+    with db().transaction() as tx:
+        if limited(tx, "code", user["email"], EMAIL_CODE_FAILS, IP_CODE_FAILS):
+            audit(tx, "login.blocked", detail={"email": user["email"]}, user_id=user["id"])
+            return page("login.html", 429, next=target, email=user["email"],
+                        error="Too many wrong sign-in codes. Wait 15 minutes, then try again.")
+        # Only the latest code works.
+        tx.execute("DELETE FROM login_codes WHERE user_id = ? OR expires_at < ?", (user["id"], t))
+        tx.execute("INSERT INTO login_codes (token_hash, user_id, code_hash, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
+                   (token_hash(browser), user["id"], code_hash(code), t, t + LOGIN_CODE_TTL))
+        audit(tx, "login.code_sent", user_id=user["id"])
+    if not emails.send("login_code", user["email"], name=user["name"], email=user["email"], code=code, at=t):
+        with db().transaction() as tx:
+            tx.execute("DELETE FROM login_codes WHERE token_hash = ?", (token_hash(browser),))
+        return page("login.html", 502, next=target, email=user["email"],
+                    error="Your sign-in code couldn't be emailed. Try again in a minute, or ask another admin.")
+    response = current_app.make_response(page("login_code.html", next=target, email=user["email"],
+                                               minutes=LOGIN_CODE_TTL // MINUTE))
+    set_cookie(response, code_cookie_name(), browser, LOGIN_CODE_TTL)
+    return response
+
+
+@bp.post("/login/code")
+def login_code():
+    check_form_token()
+    target = safe_next(request.form.get("next"))
+    browser = request.cookies.get(code_cookie_name(), "")
+    typed = "".join(ch for ch in request.form.get("code", "") if ch.isdigit())[:6]
+    expired = "That code has expired or was replaced by a newer one. Sign in again for a new code."
+    if not browser or len(browser) > 100:
+        return page("login.html", 400, next=target, error=expired)
+    t = now()
+    with db().transaction() as tx:
+        row = tx.execute("SELECT c.token_hash, c.code_hash, c.expires_at, c.fails, u.id, u.email, u.disabled "
+                         "FROM login_codes c JOIN users u ON u.id = c.user_id WHERE c.token_hash = ?",
+                         (token_hash(browser),)).fetchone()
+        if not row or row["expires_at"] <= t or row["fails"] >= LOGIN_CODE_FAILS or row["disabled"]:
+            return page("login.html", 400, next=target, error=expired)
+        if len(typed) != 6 or not hmac.compare_digest(code_hash(typed), row["code_hash"]):
+            tx.execute("UPDATE login_codes SET fails = fails + 1 WHERE token_hash = ?", (row["token_hash"],))
+            record_attempt(tx, "code", row["email"], False)
+            audit(tx, "login.code_failed", user_id=row["id"])
+            left = LOGIN_CODE_FAILS - row["fails"] - 1
+            if not left:
+                error = "That code isn't right, and it has now stopped working. Sign in again for a new code."
+                return page("login.html", 401, next=target, email=row["email"], error=error)
+            return page("login_code.html", 401, next=target, email=row["email"], minutes=LOGIN_CODE_TTL // MINUTE,
+                        error="That code isn't right. Check the latest email and try again.")
+        tx.execute("DELETE FROM login_codes WHERE token_hash = ?", (row["token_hash"],))
+        token, max_age = start_session(tx, row["id"])
+        audit(tx, "login", user_id=row["id"])
+    response = signed_in_redirect(token, max_age, target)
+    response.delete_cookie(code_cookie_name(), path="/", secure=current_app.config["COOKIE_SECURE"])
+    return response
 
 
 @bp.post("/logout")
@@ -500,6 +598,7 @@ def users_page(status=200, **context):
 
 
 EMAIL_PREVIEWS = (("invite", "Invite"), ("reset", "Password reset"), ("password_changed", "Password changed"),
+                  ("login_code", "Admin sign-in code"),
                   ("test", "Test email"), ("help_reply", "FAQs reply"), ("help_summary", "Weekly Help or Requests summary"))
 
 
@@ -685,3 +784,4 @@ def prune(database, retention_days):
         tx.execute("DELETE FROM sessions WHERE expires_at < ? OR last_seen_at < ? OR expires_at > ?",
                    (t, t - SESSION_IDLE, t + SESSION_SHORT))
         tx.execute("DELETE FROM user_tokens WHERE expires_at < ?", (t - DAY,))
+        tx.execute("DELETE FROM login_codes WHERE expires_at < ?", (t,))

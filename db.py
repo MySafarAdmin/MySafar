@@ -198,8 +198,22 @@ def _m10_board_links(db, postgres):
         revoked_at BIGINT)""")
 
 
+def _m11_login_codes(db, postgres):
+    t = _types(postgres)
+    # The emailed code an admin types after their password (see auth.py). token_hash is the SHA-256 hash of the random
+    # token in that browser's cookie, code_hash the code's; fails counts wrong codes, and the code stops working at
+    # LOGIN_CODE_FAILS.
+    db.execute(f"""CREATE TABLE login_codes (
+        token_hash TEXT PRIMARY KEY,
+        user_id {t['ref']} NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        code_hash TEXT NOT NULL,
+        created_at BIGINT NOT NULL,
+        expires_at BIGINT NOT NULL,
+        fails INTEGER NOT NULL DEFAULT 0)""")
+
+
 MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
-              _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links]
+              _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links, _m11_login_codes]
 
 
 class Database:

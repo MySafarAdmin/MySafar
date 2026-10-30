@@ -25,6 +25,7 @@ from psycopg.conninfo import make_conninfo
 
 import auth
 import helpdesk
+import server
 import tv
 from server import create_app, valid_state
 
@@ -1125,7 +1126,7 @@ class DashboardTests:
         teacher = self.sign_in("t@example.com", "teacher-password-1")
         page = teacher.get("/presenter/yr3-a")
         self.assertEqual(page.status_code, 200)
-        self.assertIn("script-src 'self' 'unsafe-inline'", page.headers["Content-Security-Policy"])
+        self.assertIn("script-src 'self' 'nonce-", page.headers["Content-Security-Policy"])
         self.assertEqual(teacher.get("/api/presenter/yr3-a").get_json()["class"], "Yr3A")
         self.assertEqual(teacher.get("/presenter/yr4-b").status_code, 404)
         self.assertEqual(teacher.get("/api/presenter/yr4-b").status_code, 404)
@@ -1154,7 +1155,7 @@ class DashboardTests:
                                     (auth.token_hash(link[4:]),))[0]["n"], 1)
         response = anonymous.get(link)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("script-src 'self' 'unsafe-inline'", response.headers["Content-Security-Policy"])
+        self.assertIn("script-src 'self' 'nonce-", response.headers["Content-Security-Policy"])
         data = anonymous.get(link + "/data").get_json()
         self.assertEqual(data["houses"][0]["points"], 5)
         # The link opens nothing else.
@@ -1229,7 +1230,7 @@ class DashboardTests:
         self.assertEqual(anonymous.get("/board/not-a-link/data").status_code, 404)
         page = self.client.get("/board")
         self.assertEqual(page.status_code, 200)
-        self.assertIn("script-src 'self' 'unsafe-inline'", page.headers["Content-Security-Policy"])
+        self.assertIn("script-src 'self' 'nonce-", page.headers["Content-Security-Policy"])
         data = self.client.get("/api/board").get_json()
         self.assertTrue(data["admin"])
         self.assertEqual([s["name"] for s in data["students"]], ["Aisha Khan", "Omar Ali"])
@@ -1363,6 +1364,148 @@ class DashboardTests:
         page = anonymous.get("/forgot").get_data(as_text=True)
         self.assertIn('href="mailto:office@example.com?subject=', page)
 
+    # --- Security fixes ---------------------------------------------------------------
+
+    def test_sign_in_never_follows_addresses_browsers_rewrite(self):
+        # Browsers drop tabs and line breaks from an address, so "/\t/evil.example" would go to evil.example.
+        for target in ("/\t/evil.example", "/\n/evil.example", "/\r/evil.example", "/ /evil.example", "/\x00/evil.example",
+                       "/\x7f/evil.example", "/\\evil.example"):
+            client = self.app.test_client()
+            page = client.get("/login")
+            response = client.post("/login", data={"csrf": csrf_of(page), "email": ADMIN[0], "password": ADMIN[1],
+                                                   "next": target})
+            self.assertEqual(response.headers["Location"], "/", repr(target))
+        # Someone already signed in is sent on straight away, so the same check applies.
+        self.assertEqual(self.client.get("/login?next=/%09/evil.example").headers["Location"], "/")
+        self.assertEqual(self.client.get("/login?next=/admin/users%3Fa=1").headers["Location"], "/admin/users?a=1")
+        self.assertEqual(self.app.test_client().head("/login").status_code, 200)
+
+    def test_spreadsheet_keeps_formula_like_text_as_text(self):
+        from io import BytesIO
+        from openpyxl import load_workbook
+        t = 1760000000000
+        student = {"name": "=HYPERLINK(\"https://evil.example\",\"Open\")", "sid": "=1+1", "target": 1, "passes": 0,
+                   "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [], "ml": [], "q": {}}
+        self.write(state=dict(self.state, S=[student]), name="=cmd|' /C calc'!A0")
+        book = load_workbook(BytesIO(self.client.get("/admin/export.xlsx").data))
+        row = [c for c in book["Students"][2]]
+        self.assertEqual((row[0].value, row[1].value, row[2].value),
+                         ("=cmd|' /C calc'!A0", "=1+1", "=HYPERLINK(\"https://evil.example\",\"Open\")"))
+        self.assertTrue(all(c.data_type == "s" for c in row[:3]))
+
+    def admin_mailer(self):
+        mailer = FakeMailer()
+        self.app.config["MAILER"] = mailer
+        return mailer
+
+    def code_of(self, mailer):
+        return re.search(r"\b(\d{6})\b", mailer.sent[-1][2]).group(1)
+
+    def test_admins_finish_signing_in_with_an_emailed_code(self):
+        mailer = self.admin_mailer()
+        client = self.sign_in(*ADMIN)
+        # The password alone doesn't sign an admin in.
+        self.assertEqual(client.last.status_code, 200)
+        self.assertIn("Check your email", client.last.get_data(as_text=True))
+        self.assertEqual(client.get("/api/classes").status_code, 401)
+        self.assertEqual((mailer.sent[-1][0], mailer.tags[-1]), (ADMIN[0], "security"))
+        code = self.code_of(mailer)
+        # The code only works in the browser that typed the password.
+        other = self.app.test_client()
+        page = other.get("/login")
+        self.assertEqual(other.post("/login/code", data={"csrf": csrf_of(page), "code": code}).status_code, 400)
+        response = client.post("/login/code", data={"csrf": csrf_of(client.last), "code": code[:3] + " " + code[3:],
+                                                     "next": "/admin/users"})
+        self.assertEqual(response.headers["Location"], "/admin/users")
+        self.assertEqual(client.get("/api/classes").status_code, 200)
+        # It works once.
+        page = client.get("/account")
+        self.assertEqual(client.post("/login/code", data={"csrf": csrf_of(page), "code": code}).status_code, 400)
+        # Teachers sign in with their password, as before.
+        self.add_user("t@example.com")
+        self.assertEqual(self.sign_in("t@example.com", "teacher-password-1").last.status_code, 302)
+
+    def test_wrong_sign_in_codes_are_limited(self):
+        mailer = self.admin_mailer()
+        client = self.sign_in(*ADMIN)
+        code = self.code_of(mailer)
+        wrong = "000000" if code != "000000" else "111111"
+        for attempt in range(auth.LOGIN_CODE_FAILS):
+            response = client.post("/login/code", data={"csrf": csrf_of(client.last), "code": wrong})
+            self.assertEqual(response.status_code, 401)
+            client.last = response if attempt < auth.LOGIN_CODE_FAILS - 1 else client.get("/login")
+        # After too many wrong codes, even the right one no longer works.
+        page = client.get("/login")
+        self.assertEqual(client.post("/login/code", data={"csrf": csrf_of(page), "code": code}).status_code, 400)
+        self.assertEqual(client.get("/api/classes").status_code, 401)
+        # Across new codes too: ten wrong codes in a quarter of an hour block new ones.
+        for _ in range(2):
+            client = self.sign_in(*ADMIN)
+            for _ in range(auth.LOGIN_CODE_FAILS):
+                client.post("/login/code", data={"csrf": csrf_of(client.get("/login")), "code": wrong})
+        sent = len(mailer.sent)
+        self.assertEqual(self.sign_in(*ADMIN).last.status_code, 429)
+        self.assertEqual(len(mailer.sent), sent)
+
+    def test_sign_in_code_that_cannot_be_emailed(self):
+        mailer = self.admin_mailer()
+        mailer.send = lambda *args, **kwargs: False
+        client = self.sign_in(*ADMIN)
+        self.assertEqual(client.last.status_code, 502)
+        self.assertEqual(client.get("/api/classes").status_code, 401)
+        self.assertEqual(self.query("SELECT COUNT(*) AS n FROM login_codes")[0]["n"], 0)
+
+    def test_dashboard_scripts_carry_a_nonce(self):
+        for path in ("/", "/tv", "/board"):
+            response = self.client.get(path)
+            nonce = re.search(r"'nonce-([^']+)'", response.headers["Content-Security-Policy"]).group(1)
+            self.assertNotIn("unsafe-inline", response.headers["Content-Security-Policy"].split("style-src")[0])
+            body = response.get_data(as_text=True)
+            self.assertEqual(body.count("<script"), body.count(f'<script nonce="{nonce}"'), path)
+            self.assertNotEqual(nonce, re.search(r"'nonce-([^']+)'", self.client.get(path).headers["Content-Security-Policy"]).group(1))
+        self.assertIn("includeSubDomains", self.client.get("/").headers.get("Strict-Transport-Security", "includeSubDomains"))
+
+    def test_errors_never_show_internal_details(self):
+        app = create_app(dict(self.config, DATA_DIR=Path(self.temp.name) / "errors"))
+
+        @app.get("/api/boom")
+        @app.get("/boom")
+        def boom():
+            raise RuntimeError("secret detail /app/server.py SELECT * FROM users")
+
+        with app.config["DB"].transaction() as tx:
+            tx.execute("UPDATE users SET must_change = 0")
+        client = self.sign_in(*ADMIN, app=app)
+        with self.assertLogs(app.logger, "ERROR") as logs:
+            for path in ("/boom", "/api/boom"):
+                response = client.get(path)
+                self.assertEqual(response.status_code, 500)
+                self.assertNotIn("secret detail", response.get_data(as_text=True))
+                self.assertNotIn("Traceback", response.get_data(as_text=True))
+        self.assertIn("secret detail", logs.output[0])
+        self.assertEqual(client.get("/api/boom").get_json(), {"error": server.ERRORS[500][1]})
+        # API errors are JSON with their status; pages get the site's own error page.
+        self.assertEqual(client.get("/api/nothing-here").get_json(), {"error": server.ERRORS[404][1]})
+        self.assertIn("Page not found", client.get("/nothing-here").get_data(as_text=True))
+        bad = client.put("/api/classes/yr3-a", data="{not json", content_type="application/json", headers=self.headers)
+        self.assertEqual((bad.status_code, bad.get_json()), (400, {"error": server.ERRORS[400][1]}))
+        # A message written for people is still shown.
+        self.assertIn(auth.FORM_EXPIRED, html.unescape(client.post("/account/signout-others").get_data(as_text=True)))
+        self.assertEqual(client.delete("/healthz").headers.get("Allow", "").count("GET"), 1)
+
+    def test_profile_picture_limits(self):
+        from PIL import Image
+        # Too many pixels, even though the file is small.
+        out = io.BytesIO()
+        Image.new("L", (5000, 4000)).save(out, "PNG", optimize=True)
+        self.assertLess(len(out.getvalue()), 2 * 1024 * 1024)
+        self.assertEqual(self.upload_picture(self.client, out.getvalue()).status_code, 400)
+        # Formats Pillow could open but we don't accept never reach their decoders.
+        for fmt in ("TIFF", "BMP", "ICO"):
+            self.assertEqual(self.upload_picture(self.client, self.picture(fmt=fmt)).status_code, 400, fmt)
+        # A large JPEG photo is still fine.
+        self.assertEqual(self.upload_picture(self.client, self.picture(size=(4000, 3000), fmt="JPEG")).status_code, 200)
+
 
 class MailerTests(unittest.TestCase):
     def response(self, status=200):
@@ -1457,6 +1600,23 @@ class LogTests(unittest.TestCase):
         self.assertNotIn(self.token, json.dumps(atoms))
         self.assertEqual(atoms["r"], "POST /reset/[hidden]?x=1 HTTP/1.1")
         self.assertEqual(atoms["{referer}i"], "https://example.com/invite/[hidden]")
+
+    def test_access_log_hides_tv_and_board_tokens(self):
+        from datetime import timedelta
+        from types import SimpleNamespace
+
+        from gunicorn.config import Config
+        conf = runpy.run_path(str(Path(__file__).with_name("gunicorn.conf.py")))
+        logger = conf["logger_class"](Config())
+        for path, shown in ((f"/tv/{self.token}/data", "/tv/[hidden]/data"), (f"/board/{self.token}", "/board/[hidden]"),
+                            ("/admin/tv/3/off", "/admin/tv/3/off"), ("/admin/board/4/off", "/admin/board/4/off")):
+            environ = {"REQUEST_METHOD": "GET", "RAW_URI": path, "PATH_INFO": path, "QUERY_STRING": "",
+                       "SERVER_PROTOCOL": "HTTP/1.1", "REMOTE_ADDR": "203.0.113.5"}
+            response = SimpleNamespace(status="200", response_length=0, sent=0, headers=[])
+            atoms = logger.atoms(response, SimpleNamespace(headers=[]), environ, timedelta(seconds=1))
+            self.assertNotIn(self.token, json.dumps(atoms))
+            self.assertEqual(atoms["r"], f"GET {shown} HTTP/1.1")
+        self.assertEqual(auth.hide_link_tokens(f"/tv/{self.token}"), "/tv/[hidden]")
 
     def test_error_log_hides_link_tokens(self):
         temp = tempfile.TemporaryDirectory()

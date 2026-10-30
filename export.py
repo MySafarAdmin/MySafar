@@ -233,6 +233,15 @@ def _fit(sheet, columns, rows):
         sheet.column_dimensions[get_column_letter(i + 1)].width = min(longest, 48)
 
 
+def plain_text(cells):
+    """openpyxl saves any text that starts with "=" as a formula. Names and other details come from staff, so a
+    student named "=HYPERLINK(...)" would become a live link or a formula in the admin's spreadsheet; they are kept
+    as the text that was typed."""
+    for cell in cells:
+        if cell.data_type == "f" and isinstance(cell.value, str):
+            cell.data_type, cell.quotePrefix = "s", True
+
+
 def build(sheets, figures, made_at, made_by):
     book = Workbook()
     book.properties.creator = "MySafar"
@@ -284,6 +293,7 @@ def build(sheets, figures, made_at, made_by):
         formats = [fmt for _, _, fmt in s.columns]
         for row in s.rows:
             ws.append(row)
+            plain_text(ws[ws.max_row])
         for i, fmt in enumerate(formats, 1):
             if fmt:
                 for (cell,) in ws.iter_rows(min_row=2, min_col=i, max_col=i):
