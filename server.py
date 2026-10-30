@@ -212,9 +212,10 @@ class RailwayProxy:
 # Opening the site in a new tab or window always starts at the sign-in page. A tab that has just signed in is
 # marked in sessionStorage (which lasts for that tab only, through refreshes); a dashboard loaded in a tab without
 # the mark signs out and goes to the sign-in page. If sessionStorage is blocked, the 20-minute idle limit still applies.
+# A "Stay signed in" sign-in (ME.stay) is meant to carry over to new tabs, so it is left alone.
 TAB_GUARD = ("(function(){try{var k='mysafar.tab';if(ME.fresh){document.documentElement.classList.add('fresh');"
              "sessionStorage.setItem(k,'1');return}"
-             "if(sessionStorage.getItem(k))return;window.SIGNING_OUT=true;"
+             "if(ME.stay||sessionStorage.getItem(k))return;window.SIGNING_OUT=true;"
              "document.documentElement.style.visibility='hidden';var f=new FormData();f.append('csrf',ME.csrf);"
              "fetch('/logout',{method:'POST',body:f,credentials:'same-origin'}).then(go,go);"
              "function go(){location.replace('/login')}}catch(e){}})();")
@@ -421,7 +422,7 @@ def create_app(test_config=None):
         with database.transaction() as tx:
             toured = tx.execute("SELECT tour_done FROM users WHERE id = ?", (g.user["id"],)).fetchone()["tour_done"]
         me = {"name": g.user["name"], "email": g.user["email"], "role": g.user["role"], "csrf": g.session["csrf"],
-              "fresh": fresh, "initial": avatars.initial(g.user["name"]),
+              "fresh": fresh, "stay": g.session["remember"], "initial": avatars.initial(g.user["name"]),
               "avatar": avatars.url(g.user["id"], g.user["avatar_at"]),
               "tour": not toured}
         html = (ROOT / "Master_Dashboard_standalone.html").read_text(encoding="utf-8")

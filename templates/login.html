@@ -12,6 +12,7 @@
     <input type="hidden" name="next" value="{{ next }}">
     <label class="field">Email<span class="fin"><input type="email" name="email" value="{{ email or '' }}" autocomplete="username" spellcheck="false" required{% if not intro %} autofocus{% endif %}>{{ icon("person") }}</span></label>
     <label class="field">Password<span class="fin"><input type="password" name="password" autocomplete="current-password" required>{{ icon("lock") }}</span></label>
+    <label class="check stay"><input type="checkbox" name="remember" value="1"{% if remember %} checked{% endif %}>Stay signed in for 30 days</label>
     <button class="btn primary">Sign in</button>
     {% if intro %}</fieldset>{% endif %}
   </form>
