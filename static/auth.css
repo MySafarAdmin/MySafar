@@ -81,8 +81,11 @@ body:has(.invite:target),body:has(.invite.open){overflow:hidden}
 @media (min-width:880px){
  .solo{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:1fr auto}
  .solo-band{display:none}
- .welcome{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;background:var(--navy);color:#fff;padding:28px 40px 0;position:relative;overflow:hidden;
-  background-image:radial-gradient(circle at 85% 12%,rgba(255,255,255,.08) 0 90px,transparent 91px),radial-gradient(circle at 8% 80%,rgba(255,255,255,.06) 0 140px,transparent 141px)}
+ .welcome{grid-column:2;grid-row:1/3;display:flex;flex-direction:column;background:var(--navy);color:#fff;padding:28px 40px 0;position:relative;overflow:hidden;isolation:isolate}
+ /* two soft circles of light behind the panel's content (elements, so they can grow in after the opening) */
+ .welcome::before,.welcome::after{content:"";position:absolute;z-index:-1;border-radius:50%;pointer-events:none}
+ .welcome::before{left:calc(85% - 90px);top:calc(12% - 90px);width:180px;height:180px;background:rgba(255,255,255,.08)}
+ .welcome::after{left:calc(8% - 140px);top:calc(80% - 140px);width:280px;height:280px;background:rgba(255,255,255,.06)}
  .solo main{grid-column:1;grid-row:1}
 }
 .wmark{display:flex;align-items:center;gap:12px}
@@ -147,7 +150,8 @@ details.tvset .field{margin:0}
 /* The page arrives as the stage folds away, so nothing simply appears. The card floats up out of a soft blur, then
    its heading, line, each field, the tick box, the button (with one slow sheen across it) and the link rise in
    turn. Once the stage has cleared from over the welcome panel (.landed), its tab pops in, the quote and its
-   source rise, the star pattern and the arches draw themselves, the moon fades up and the small stars blink on. */
+   source rise, the two circles of light grow, the star turns into place, its ring and the arches draw themselves, the moon fades up and
+   the small stars blink on. On a phone the navy band along the top draws across. */
 .cine.reveal main>.card,.cine.reveal main>.notice,.cine.reveal main>.error{animation:i-settle 1.3s cubic-bezier(.16,1,.3,1) .1s backwards}
 .cine.reveal .card>h1,.cine.reveal .card>.lede,.cine.reveal .card .field,.cine.reveal .card .stay,.cine.reveal .card .btn,.cine.reveal .card>.alt
  {animation:i-rise .9s cubic-bezier(.16,1,.3,1) backwards}
@@ -159,13 +163,14 @@ details.tvset .field{margin:0}
 .cine.reveal .card .btn{position:relative;overflow:hidden}
 .cine.reveal .card .btn::after{content:"";position:absolute;inset:0;pointer-events:none;
  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);transform:translateX(-120%);animation:i-sheen 1.1s ease 1.35s both}
-.cine.filming .welcome>.wquote,.cine.filming .welcome>.wart{opacity:0}
+.cine.wait .welcome>.wquote,.cine.wait .welcome>.wart,.cine.wait .wsky,.cine.wait .welcome::before,.cine.wait .welcome::after{opacity:0}
 .cine.landed .wtab{animation:i-tab .7s cubic-bezier(.34,1.56,.64,1) .05s backwards}
 .cine.landed .wquote{animation:i-settle 1.1s cubic-bezier(.16,1,.3,1) backwards}
 .cine.landed .wquote p{animation:i-rise 1s cubic-bezier(.16,1,.3,1) .15s backwards}
 .cine.landed .wquote figcaption{animation:i-rise 1s cubic-bezier(.16,1,.3,1) .3s backwards}
 .cine.landed .wart [pathLength]{stroke-dasharray:1;animation:i-draw 1.6s cubic-bezier(.65,0,.35,1) .35s backwards}
 .cine.landed .wart circle[pathLength]{animation-delay:.75s}
+.cine.landed .wart .wstar{transform-box:fill-box;transform-origin:center;animation:i-star 1.6s cubic-bezier(.16,1,.3,1) .3s backwards}
 .cine.landed .wart .warc{animation-delay:.6s}
 .cine.landed .wart .wmoon{animation:i-fade-in 1.2s ease .9s backwards}
 .cine.landed .wart .wdots circle{animation:i-pop .5s cubic-bezier(.34,1.56,.64,1) backwards;transform-box:fill-box;transform-origin:center}
@@ -173,6 +178,12 @@ details.tvset .field{margin:0}
 .cine.landed .wart .wdots circle:nth-child(3){animation-delay:1.2s}.cine.landed .wart .wdots circle:nth-child(4){animation-delay:1.3s}
 .cine.landed .wart .wdots circle:nth-child(5){animation-delay:1.4s}
 .cine.landed .wsky{animation:i-fade-in 1.5s ease .4s backwards}
+.cine.landed .welcome::before{animation:i-orb 1.6s cubic-bezier(.16,1,.3,1) backwards}
+.cine.landed .welcome::after{animation:i-orb 1.8s cubic-bezier(.16,1,.3,1) .12s backwards}
+.cine.reveal .solo-band{transform-origin:0 50%;animation:i-band .9s cubic-bezier(.65,0,.35,1) .1s backwards}
+@keyframes i-star{from{opacity:0;transform:rotate(-60deg) scale(.5)}}
+@keyframes i-orb{from{opacity:0;transform:scale(.4)}}
+@keyframes i-band{from{transform:scaleX(0)}}
 @keyframes i-tab{from{opacity:0;transform:translateX(-50%) scale(.6)}to{opacity:1;transform:translateX(-50%)}}
 @keyframes i-pop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
 @keyframes i-sheen{to{transform:translateX(120%)}}

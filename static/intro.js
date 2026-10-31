@@ -38,10 +38,10 @@
   var ctx = canvas.getContext("2d");
   if (!ctx) { stage.remove(); ready(); return; }
   stage.classList.add("live");
-  body.classList.add("filming");
+  body.classList.add("filming", "wait");   // "wait" keeps the welcome panel's quote and art hidden until they come in
 
   // --- Timeline (seconds) ---------------------------------------------------------------------------------------
-  var T = {bloom: .55, sweep: .9, swirl: 2.25, land: 3.55, crack: 3.9, split: 4.2, rejoin: 4.9, joined: 5.4,
+  var T = {bloom: .55, sweep: .9, swirl: 2.25, land: 3.55, crack: 3.9, split: 4.2, rejoin: 5.18, joined: 5.4,
            draw: 5.95, domLogo: 6.7, lock: 7.1, out: 8.4, end: 9.55};
 
   // --- Small helpers --------------------------------------------------------------------------------------------
@@ -235,10 +235,11 @@
   function moonAndLogo(t) {
     var f = smooth((t - T.land + .25) / .4), gone = 1 - smooth((t - T.domLogo - .15) / .2);
     if (f <= 0 || gone <= 0) return;
-    // Apart: the halves ease away and hang there, turning a touch, as if held. Back together: a small pull back
-    // (the hand taking hold), then they swing in along a curve, speeding up, into an exact join.
-    var up = outCubic((t - T.split) / .55), bx = clamp((t - T.rejoin) / (T.joined - T.rejoin));
-    var back = 2.6 * bx * bx * bx - 1.6 * bx * bx;   // ease-in with a little wind-up
+    // Apart: the halves drift slowly out to the sides, turning a touch. Back together: a quick swing in along a
+    // curve, speeding up, into an exact join.
+    // They float apart slowly (.85s) and come back together much faster (.22s), speeding up into the click.
+    var up = outCubic((t - T.split) / .85), bx = clamp((t - T.rejoin) / (T.joined - T.rejoin));
+    var back = Math.pow(bx, 2.2);
     var sp = up * (1 - back) * (1 + .03 * Math.sin((t - T.split) * 3.2) * (1 - bx));
     if (t >= T.joined) sp = 0;
     var s0 = t - T.joined;
@@ -419,7 +420,7 @@
         stage.animate([{opacity: 1}, {opacity: 0}], {duration: dur, easing: "ease", fill: "forwards"}).onfinish = end;
       } else end();
       body.classList.remove("filming");
-      body.classList.add("landed");
+      body.classList.add("landed"); body.classList.remove("wait");
       ready();
       return;
     }
@@ -437,8 +438,11 @@
     var clipTo = "inset(" + Math.max(0, pr.top) + "px " + Math.max(0, innerWidth - pr.right) + "px " + Math.max(0, innerHeight - pr.bottom) + "px " + pr.left + "px)";
     stage.animate([{clipPath: "inset(0px 0px 0px 0px)"}, {clipPath: clipTo}], {duration: 1050, easing: ease, fill: "forwards"}).onfinish = function () {
       body.classList.remove("filming");
-      body.classList.add("landed");   // the welcome panel's quote and art come in as the stage clears from over them
-      stage.animate([{opacity: 1}, {opacity: 0}], {duration: 350, easing: "ease", fill: "forwards"}).onfinish = end;
+      // the stage melts off the panel, and only then does the panel's quote and art come in, so it's seen arriving
+      stage.animate([{opacity: 1}, {opacity: 0}], {duration: 260, easing: "ease", fill: "forwards"}).onfinish = function () {
+        body.classList.add("landed"); body.classList.remove("wait");
+        end();
+      };
       ready();
     };
   }
@@ -496,14 +500,6 @@
       o.start(); o.stop(base + stopAt);
       return o;
     }
-    function hiss(base, filter, f0, f1, t0, t1, pts, dry, wet, q) {
-      var s = ac.createBufferSource(); s.buffer = noise; s.loop = true;
-      var f = ac.createBiquadFilter(); f.type = filter; f.Q.value = q || 1;
-      var now = ac.currentTime, a0 = Math.max(now, base + t0);
-      f.frequency.setValueAtTime(f0, a0); f.frequency.exponentialRampToValueAtTime(f1, Math.max(a0 + .05, base + t1));
-      s.connect(f); var g = out(f, dry, wet); env(g, pts, base);
-      s.start(); s.stop(base + t1 + .2);
-    }
     // A soft swell: a few detuned saws through a slowly opening low-pass filter, like a string section.
     function pad(base, freqs, t0, t1, peak, cut0, cut1, wet) {
       var now = ac.currentTime, a0 = Math.max(now, base + t0);
@@ -555,51 +551,30 @@
       g.gain.exponentialRampToValueAtTime(.0001, base + t1);
       s.start(a0); s.stop(base + t1 + .1);
     }
-    // The score, in D: a slow string swell under the stars, an air swell as they swirl in, a deep bloom as the moon
-    // forms, a held breath while it is apart, a rush as it is pulled back, a weighty knock when it joins with the
-    // chord opening up over it, a brush of air as the design is drawn, and the chord resolving as the page arrives.
+    // The score, in D, kept spare so each sound marks one moment: a low swell under the stars, air drawn in as they
+    // swirl into the moon, a soft whoosh as it parts, a quick rush back into one weighty knock with the chord
+    // opening over it, and a single breath as the page arrives.
     function score() {
       var base = ac.currentTime - t;
-      // under everything, a low D that you feel more than hear
-      tone("sine", 36.71, base, [Math.max(t, 0), 0, 2, .16, T.joined, .2, T.out + .6, .12, T.end + 1.5, 0], 1, .1, T.end + 1.6);
-      // the night: a dark string chord rising slowly as the stars come out
-      pad(base, [73.42, 110, 146.83, 220], Math.max(0, t), T.land + .4, .09, 260, 900, .5);
-      // a wind of fine air across the sky
-      hiss(base, "bandpass", 500, 1400, Math.max(t, 0), T.swirl + .5, [Math.max(t, 0), 0, 1.5, .03, T.swirl - .3, .035, T.swirl + .5, 0], 1, .6, .6);
-      // the stars let go: air rising and gathering pace into the moon
-      whoosh(base, T.swirl - .3, T.land - .05, T.land + .5, 220, 2600, 500, .2, .55);
-      // the moon forms: a deep bloom, and the chord opens a little
-      boom(base + T.land, 70, 38, 3.2, .45, .45);
-      burst(base + T.land, "lowpass", 400, .7, .9, .12, .7);
-      pad(base, [73.42, 110, 146.83, 185, 293.66], T.land - .2, T.split + .2, .07, 300, 1100, .55);
-      // the cut drawn down the moon: a thin bright string held under tension
-      pad(base, [587.33, 880], T.crack - .1, T.split + .25, .022, 1500, 3200, .8);
-      // the split: a heavy whoosh apart and a low hit
-      whoosh(base, T.split - .15, T.split + .05, T.split + .9, 300, 1100, 160, .22, .45);
-      boom(base + T.split, 62, 40, 1.4, .35, .35);
-      burst(base + T.split, "bandpass", 900, 1.2, .25, .1, .5);
-      // held apart: a low, uneasy note while they hang there
-      pad(base, [73.42, 77.78, 146.83], T.split, T.rejoin + .15, .06, 220, 520, .5);
-      // pulled back: air drawn in, faster and faster, cut dead at the join
-      whoosh(base, T.rejoin - .1, T.joined - .01, T.joined + .03, 180, 2200, 2000, .26, .3);
-      // the join: a firm knock with weight, a clean click on top, a deep boom, and a long hall tail
+      // the night: a low D and a dark string chord, rising slowly as the stars come out and holding to the end
+      tone("sine", 36.71, base, [Math.max(t, 0), 0, 2.5, .12, T.joined, .14, T.out + .6, .08, T.end + 1.2, 0], 1, .1, T.end + 1.3);
+      pad(base, [73.42, 110, 146.83, 220], Math.max(0, t), T.land + .6, .06, 240, 800, .5);
+      // the stars let go and gather: air drawn in, landing in a soft low bloom as the moon forms
+      whoosh(base, T.swirl - .2, T.land - .05, T.land + .6, 220, 2000, 400, .14, .55);
+      boom(base + T.land, 66, 40, 2.6, .28, .5);
+      // the split: one soft whoosh as the halves part
+      whoosh(base, T.split - .1, T.split + .15, T.split + 1, 260, 900, 180, .12, .5);
+      // the quick rush back, cut dead at the join, then the knock: a clean click, a body, a deep hit and the hall
+      whoosh(base, T.rejoin - .12, T.joined - .01, T.joined + .03, 200, 2200, 2000, .2, .3);
       var J = base + T.joined;
-      burst(J, "bandpass", 3200, 2.5, .05, .35, .35);   // the click of the edges meeting
-      burst(J, "lowpass", 900, .8, .18, .35, .4);       // the knock's body
-      boom(J, 150, 70, .35, .4, .3);
-      boom(J, 58, 32, 3.4, .55, .5);
-      // as it swings on: two soft knocks of the sway, much quieter
-      boom(J + .29, 110, 70, .25, .08, .4);
-      boom(J + .57, 110, 70, .25, .04, .4);
-      // and the chord opens up over it, D major, full and warm
-      pad(base, [73.42, 146.83, 220, 293.66, 369.99, 440], T.joined, T.out + 1.6, .11, 400, 1900, .6);
-      // the design drawn on: a brush of bright air following the pen round
-      whoosh(base, T.draw - .05, T.draw + .4, T.draw + .85, 1800, 5200, 3000, .05, .7);
-      // the name: a soft lift of air as the letters arrive
-      whoosh(base, T.lock, T.lock + .45, T.lock + 1.3, 600, 2400, 1200, .06, .7);
-      // the hand-over: a long descending breath, and a low warm hit as the page lands
-      whoosh(base, T.out - .25, T.out + .2, T.out + 1.5, 2400, 1200, 240, .12, .55);
-      boom(base + T.out + .95, 55, 38, 2.4, .25, .5);
+      burst(J, "bandpass", 3000, 2.5, .05, .3, .35);
+      burst(J, "lowpass", 900, .8, .16, .3, .4);
+      boom(J, 150, 70, .3, .35, .3);
+      boom(J, 58, 32, 3.2, .5, .5);
+      // the chord opens over it, D major, and carries through to the page
+      pad(base, [73.42, 146.83, 220, 293.66, 369.99, 440], T.joined, T.out + 1.6, .08, 400, 1600, .6);
+      // the page arrives: one long breath of air settling
+      whoosh(base, T.out - .2, T.out + .3, T.out + 1.6, 2000, 1000, 240, .07, .55);
     }
     function start() {
       if (!ac && !setup()) return false;
