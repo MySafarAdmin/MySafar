@@ -1,6 +1,6 @@
 // The sign-in page's opening, drawn live on a canvas (no video to download). Stars come out one by one on a deep
 // night-blue sky as it slowly turns towards us. Then the stars let go: they swirl inward like a galaxy and gather
-// into a full moon. A straight line cuts the moon in two; one half rises and the other sinks, then they click back
+// into a full moon. A straight line cuts the moon in two; the halves drift apart sideways, then they click back
 // together with a flash and a ring of light, the moon settles to the logo's size, and the Safar design is drawn on.
 // The logo (a real element from then on) moves aside for "MySafar", then, on a computer, the stage folds into
 // the navy welcome panel as the logo lands on the panel's own; on a phone it lifts away. Skip, Escape, or a tap
@@ -104,11 +104,11 @@
     var g = moonSpr.getContext("2d"), c = SPR / 2, cr = seeded(4), k;
     g.save(); g.beginPath(); g.arc(c, c, c - 1, 0, 6.283); g.clip();
     var gr = g.createRadialGradient(c - 30, c - 34, 6, c, c, c);
-    gr.addColorStop(0, "#f6f3ea"); gr.addColorStop(.55, "#e6e4dd"); gr.addColorStop(.88, "#c9cbd1"); gr.addColorStop(1, "#a9aebb");
+    gr.addColorStop(0, "#fffdf6"); gr.addColorStop(.55, "#f3f1ea"); gr.addColorStop(.88, "#dfe2ea"); gr.addColorStop(1, "#c4cbdb");
     g.fillStyle = gr; g.fillRect(0, 0, SPR, SPR);
     function blob(x, y, r, a) {
       var bg = g.createRadialGradient(x, y, 0, x, y, r);
-      bg.addColorStop(0, "rgba(112,118,134," + a + ")"); bg.addColorStop(.6, "rgba(118,124,140," + (a * .7) + ")"); bg.addColorStop(1, "rgba(130,136,150,0)");
+      bg.addColorStop(0, "rgba(118,124,140," + (a * .8) + ")"); bg.addColorStop(.6, "rgba(124,130,146," + (a * .55) + ")"); bg.addColorStop(1, "rgba(130,136,150,0)");
       g.fillStyle = bg; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
     }
     // the seas, roughly where they sit on the real moon's face
@@ -132,7 +132,7 @@
     g.fillStyle = "rgba(255,255,250,.85)"; g.beginPath(); g.arc(tx, ty, 4, 0, 6.283); g.fill();
     // the rim falls into shadow on the side away from the light
     var sh = g.createRadialGradient(c - 40, c - 44, c * .7, c, c, c * 1.02);
-    sh.addColorStop(0, "rgba(40,55,90,0)"); sh.addColorStop(.8, "rgba(40,55,90,.08)"); sh.addColorStop(1, "rgba(30,45,80,.32)");
+    sh.addColorStop(0, "rgba(40,55,90,0)"); sh.addColorStop(.85, "rgba(40,55,90,.04)"); sh.addColorStop(1, "rgba(30,45,80,.18)");
     g.fillStyle = sh; g.fillRect(0, 0, SPR, SPR);
     g.restore();
   })();
@@ -228,7 +228,7 @@
     ctx.globalAlpha = 1;
   }
   // The moon: formed by the motes, a straight line of light cuts it top to bottom and it splits in two: the left
-  // half rises and the right half sinks, turning a little as if held. Then, as if taken in hand, they swing back
+  // half drifts left and the right half drifts right, each turning slowly outward. Then, as if taken in hand, they swing back
   // along a curve into an exact join with a click; the joined moon sways on a few damped swings to rest, settles
   // to the logo's size and whitens,
   // and the Safar design is drawn onto it in one sweep, a point of gold light leading the way.
@@ -248,30 +248,36 @@
     var snap = s0 > 0 ? 1 + .025 * Math.exp(-s0 * 12) * Math.sin(s0 * 50) : 1;
     var white = smooth((s0 - .35) / .35);
     // a thin halo, just enough to light the sky round it
-    ctx.globalAlpha = f * gone * (.75 + Math.min(sp, 1) * .25);
-    ctx.fillStyle = radial(cx, cy, rad * .95, rad * (1.9 + sp * .6), [0, "rgba(190,210,245,.2)", .4, "rgba(170,195,240,.07)", 1, "rgba(140,170,230,0)"]);
+    ctx.globalAlpha = f * gone;
+    ctx.fillStyle = radial(cx, cy, rad * .9, rad * 2.6, [0, "rgba(215,228,255,.5)", .18, "rgba(190,210,250,.22)", .5, "rgba(160,190,240,.07)", 1, "rgba(140,170,230,0)"]);
     ctx.fillRect(cx - rad * 3, cy - rad * 3, rad * 6, rad * 6);
     // the swing hangs from a point above the moon, so the moon sways sideways as it turns
     var Lp = rad * 3;
     ctx.save();
     ctx.translate(cx + Math.sin(swing) * Lp, cy - Lp + Math.cos(swing) * Lp); ctx.rotate(swing); ctx.translate(-cx, -cy);
-    var gap = rad * (.04 * sp + .2 * Math.sin(clamp(sp) * Math.PI)), slide = sp * rad * .95, tilt = .16 * sp;
+    // the halves drift straight out to the sides, as two pieces pushed apart in space would, each turning slowly
+    // outward; a slight curve in the path keeps the float and the swing back from looking mechanical
+    var gap = sp * rad * .36, slide = rad * .08 * Math.sin(clamp(sp) * Math.PI), tilt = .1 * sp;
     if (sp > .001) {
       // a soft light in the cut
       ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = f * gone * Math.min(1, sp) * .4;
-      ctx.save(); ctx.translate(cx, cy); ctx.scale(Math.max(.12, gap / rad + .08), 1);
+      ctx.globalAlpha = f * gone * Math.min(1, sp) * .22;
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(.14, 1);
       ctx.fillStyle = radial(0, 0, 0, rad * 1.5, [0, "rgba(255,246,225,.9)", .4, "rgba(255,225,170,.3)", 1, "rgba(255,210,140,0)"]);
       ctx.fillRect(-rad * 1.5, -rad * 1.5, rad * 3, rad * 3); ctx.restore();
       ctx.globalCompositeOperation = "source-over";
     }
     ctx.globalAlpha = f * gone;
     for (var k = 0; k < 2; k++) {
-      var side = k ? 1 : -1;   // left half rises, right half sinks
+      var side = k ? 1 : -1;   // left half drifts left, right half drifts right
       ctx.save();
-      ctx.translate(cx + side * gap, cy + side * slide); ctx.rotate(-side * tilt); ctx.scale(rad * snap, rad * snap);
+      ctx.translate(cx + side * gap, cy - side * slide); ctx.rotate(side * tilt); ctx.scale(rad * snap, rad * snap);
       ctx.beginPath(); ctx.rect(k ? 0 : -1.1, -1.1, 1.1, 2.2); ctx.clip();
       ctx.drawImage(moonSpr, -1, -1, 2, 2);
+      ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = f * gone * .22;   // the face's own glow
+      ctx.fillStyle = radial(-.25, -.3, 0, 1.1, [0, "rgba(255,250,235,1)", .7, "rgba(220,230,255,.5)", 1, "rgba(200,215,255,.2)"]);
+      ctx.beginPath(); ctx.arc(0, 0, 1, 0, 6.283); ctx.fill();
+      ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = f * gone;
       if (white > 0) { ctx.globalAlpha = f * gone * white; ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(0, 0, 1, 0, 6.283); ctx.fill(); ctx.globalAlpha = f * gone; }
       if (sp > .01) {   // the cut face catches the light
         ctx.strokeStyle = "rgba(255,236,200," + Math.min(.7, sp * 1.5).toFixed(3) + ")"; ctx.lineWidth = 1.6 / rad;
