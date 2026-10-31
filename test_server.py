@@ -1300,6 +1300,11 @@ class DashboardTests:
         self.assertIn('<fieldset class="hold" disabled>', login.get_data(as_text=True))
         script = anonymous.get("/intro.js")
         self.assertEqual((script.status_code, script.mimetype), (200, "text/javascript"))
+        # The emailed code page runs /code.js, the animated code boxes, which sends the code with fetch.
+        script = anonymous.get("/code.js")
+        self.assertEqual((script.status_code, script.mimetype), (200, "text/javascript"))
+        self.assertIn("connect-src 'self'", anonymous.post("/login/code", data={}).headers["Content-Security-Policy"])
+        self.assertNotIn("connect-src", self.client.get("/admin/users").headers["Content-Security-Policy"])
         self.assertNotIn("script-src", anonymous.get("/forgot").headers["Content-Security-Policy"])
         self.assertEqual(self.client.get("/admin/users").headers["Cache-Control"], "no-store")
 
@@ -1434,6 +1439,7 @@ class DashboardTests:
     def test_admins_finish_signing_in_with_an_emailed_code(self):
         mailer = self.admin_mailer()
         client = self.sign_in(*ADMIN)
+        self.assertIn('src="/code.js"', client.last.get_data(as_text=True))
         # The password alone doesn't sign an admin in.
         self.assertEqual(client.last.status_code, 200)
         self.assertIn("Check your email", client.last.get_data(as_text=True))
