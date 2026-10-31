@@ -55,7 +55,7 @@ TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completio
 # House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
 HOUSE_POINT_REASONS = {"bk": "tr", "lv": "tb", "hw": "tg", "ec": "tg", "cp": "tg"}
 # Reachable without signing in.
-PUBLIC = {"/login", "/login/code", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
+PUBLIC = {"/login", "/login/code", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/glass.js", "/favicon.png", "/favicon.ico"}
 # Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Figtree
 # for text and titles alike (see DESIGN.md).
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
@@ -176,10 +176,11 @@ PAGE_CSP = ("default-src 'none'; style-src 'self'; img-src 'self'; font-src 'sel
             "base-uri 'none'")
 # The sign-in page also runs one script of ours, /intro.js, which focuses the email field after the opening; the
 # signed-in admin and account pages run /nav.js, which glides the menu's hover highlight as the dashboard does.
-LOGIN_CSP = PAGE_CSP + "; script-src 'self'"
+# /glass.js (the glass welcome quote) draws its displacement map as a data: SVG image, hence data: in img-src.
+LOGIN_CSP = PAGE_CSP.replace("img-src 'self'", "img-src 'self' data:") + "; script-src 'self'"
 # The Account page runs /avatar.js, the profile picture cropper, which shows the chosen photo from a blob: address
 # and sends the cropped picture with fetch.
-ACCOUNT_CSP = PAGE_CSP.replace("img-src 'self'", "img-src 'self' blob:") + "; script-src 'self'; connect-src 'self'"
+ACCOUNT_CSP = PAGE_CSP.replace("img-src 'self'", "img-src 'self' blob: data:") + "; script-src 'self'; connect-src 'self'"
 # Email previews are styled inline, as emails must be; they have no scripts or forms.
 EMAIL_PREVIEW_CSP = ("default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'none'; "
                      "frame-ancestors 'none'; base-uri 'none'")
@@ -404,6 +405,10 @@ def create_app(test_config=None):
     def intro_js():
         return Response((ROOT / "static" / "intro.js").read_text(encoding="utf-8"), mimetype="text/javascript")
 
+    @app.get("/glass.js")
+    def glass_js():
+        return Response((ROOT / "static" / "glass.js").read_text(encoding="utf-8"), mimetype="text/javascript")
+
     @app.get("/avatar.js")
     def avatar_js():
         return Response((ROOT / "static" / "avatar.js").read_text(encoding="utf-8"), mimetype="text/javascript")
@@ -431,7 +436,7 @@ def create_app(test_config=None):
         html = (ROOT / "Master_Dashboard_standalone.html").read_text(encoding="utf-8")
         html = html.replace("<script>", f"<script>window.RAILWAY=true;window.ME={script_json(me)};{TAB_GUARD}</script>\n<script>", 1)
         html = html.replace("<header>", "<header inert>").replace("<main>", "<main inert>")
-        html = html.replace("</body>", '<script src="/railway-storage.js"></script></body>')
+        html = html.replace("</body>", '<script src="/railway-storage.js"></script><script src="/glass.js" defer></script></body>')
         response = Response(html, mimetype="text/html")
         if fresh:
             response.delete_cookie(auth.fresh_cookie_name(), path="/", secure=app.config["COOKIE_SECURE"])
