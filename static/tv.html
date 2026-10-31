@@ -93,6 +93,16 @@ footer i.run{width:100%;transition:width linear}
 @keyframes float{50%{transform:translateY(-1vh)}}
 @keyframes bob{50%{transform:translateY(-.8vh) rotate(-4deg)}}
 @keyframes twinkle{0%,100%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1)}}
+/* Quran: five stars on each step, filled to the average. */
+.meter{position:relative;display:block;height:3.4vh;width:18.5vh;margin-top:1vh}
+.meter>i{position:absolute;left:0;top:0;bottom:0;display:flex;gap:.4vh;overflow:hidden;white-space:nowrap}
+.meter svg{flex:none;width:3.4vh;height:3.4vh;fill:currentColor}
+.meter .mt{opacity:.2}
+.meter .mf{animation:fill 1.4s both cubic-bezier(.3,.8,.3,1)}
+.p1 .meter .mf{animation-delay:.9s}.p2 .meter .mf{animation-delay:2.1s}.p3 .meter .mf{animation-delay:3.3s}
+.qs .step b{font-size:7.6vh}.qs .p3 .step b{font-size:6.6vh}
+.qs .p1 .step{height:26vh}.qs .p2 .step{height:21.5vh}.qs .p3 .step{height:19vh}
+@keyframes fill{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
 /* ---------- Memorisation and book passes board ----------
    One navy board. Each rank is a band: its place and score on the left, then the students in a grid of boxes that
    are all the same size. A month too full for the board scrolls band by band (fitRanks). */
@@ -115,6 +125,14 @@ footer i.run{width:100%;transition:width linear}
 .hp .pc .pn{font-size:5.4vh}.hp .p1 .pc .pn{font-size:6.4vh}
 .hp .step b{font-size:8vh}.hp .step span{font-size:3.2vh}
 .hp .p1 .step{height:26vh}.hp .p2 .step{height:20vh}.hp .p3 .step{height:16.5vh}
+/* The House race (Presenter): each house's top earners in the class under its name, so the logo is smaller. */
+.hp .ern{display:flex;flex-direction:column;gap:.5vh;margin-top:1.2vh;padding-top:1.2vh;border-top:.25vh solid #e6edf4;font-size:3vh}
+.hp .ern>span{display:flex;justify-content:space-between;gap:1vw;font-weight:700;color:var(--ink);animation:pop .6s both}
+.hp .ern b{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hp .ern em{font-style:normal;font-weight:800;color:#2b1d00;background:color-mix(in srgb,var(--hc) 22%,#fff);border-radius:99px;padding:0 1vh}
+.hp .ern .none{justify-content:center;color:var(--mute);font-weight:600}
+.hp .pc:has(.ern) .logo{width:9vh;height:9vh;margin-bottom:.6vh}.hp .p1 .pc:has(.ern) .logo{width:11vh;height:11vh}
+.hp .pc:has(.ern) .pn{font-size:4.4vh}.hp .p1 .pc:has(.ern) .pn{font-size:5vh}
 /* ---------- Scenery parts ---------- */
 .ph{transform-box:fill-box;transform-origin:50% 0}.ph.b{transform-origin:50% 100%}
 .float{transform-box:fill-box;transform-origin:50% 80%}
@@ -567,10 +585,13 @@ function cards(who,max){var h=who.slice(0,max).map(function(w){
   var t=/^(.*?)\s*\b(Ustadha? .+)$/.exec(w.class||""),c=w.name?[w.name,w.class]:t&&t[1]?[t[2],t[1]]:[w.class];return '<div class="pc '+(w.name?"":"cls ")+esc(w.house||"")+'"><span class="pn">'+esc(c[0])+'</span>'+(c[1]?'<span class="pcl">'+esc(c[1])+'</span>':'')+'</div>'}).join("");
  return h+(who.length>max?'<div class="more">and '+(who.length-max)+' more</div>':'')}
 var CROWN='<div class="crown"><svg viewBox="0 0 100 70"><path d="M8 62 L4 16 L30 38 L50 6 L70 38 L96 16 L92 62Z" fill="#ffd23f" stroke="#c68a00" stroke-width="4" stroke-linejoin="round"/><circle cx="50" cy="44" r="7" fill="#ff5d73"/></svg></div>';
-function podium(steps,unit,empty,fmt){if(!steps.length)return '<div class="empty">'+empty+'<small>Who will be first?</small></div>';
+/* Five stars filled to a Quran average (out of 5), drawn on its step. */
+var STAR='<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>';
+function meter(n){var five=rep(5,function(){return STAR});return '<i class="meter" role="img" aria-label="'+n.toFixed(1)+' out of 5"><i class="mt">'+five+'</i><i class="mf" style="width:'+Math.max(0,Math.min(100,n*20)).toFixed(1)+'%">'+five+'</i></i>'}
+function podium(steps,unit,empty,fmt,stars){if(!steps.length)return '<div class="empty">'+empty+'<small>Who will be first?</small></div>';
  var by={};steps.forEach(function(s){by[s.place]=s});
- return '<div class="podium">'+[2,1,3].map(function(p){var s=by[p];return '<div class="col p'+p+'"><div class="who">'+(s?(p===1?CROWN+'<i class="spark" style="left:-2vh;top:10%"></i><i class="spark" style="right:-2vh;top:40%;animation-delay:-1s"></i>':'')+cards(s.who,2):'')+'</div>'
-  +'<div class="step'+(s?'':' none')+'"><b>'+p+'</b>'+(s?'<span>'+(fmt?fmt(s.n):plural(s.n,unit))+'</span>':'')+'</div></div>'}).join("")+'</div>'}
+ return '<div class="podium'+(stars?' qs':'')+'">'+[2,1,3].map(function(p){var s=by[p];return '<div class="col p'+p+'"><div class="who">'+(s?(p===1?CROWN+'<i class="spark" style="left:-2vh;top:10%"></i><i class="spark" style="right:-2vh;top:40%;animation-delay:-1s"></i>':'')+cards(s.who,2):'')+'</div>'
+  +'<div class="step'+(s?'':' none')+'"><b>'+p+'</b>'+(s?(stars?meter(s.n):'')+'<span>'+(fmt?fmt(s.n):plural(s.n,unit))+'</span>':'')+'</div></div>'}).join("")+'</div>'}
 function ord(n){var t=n%100,u=n%10;return n+(t>10&&t<14?"th":u===1?"st":u===2?"nd":u===3?"rd":"th")}
 /* Bands on one board, each with its heading on the left and everyone on it in boxes of one size: first place for
    memorisation passes (everyone tied on the most), then everyone who finished a book this month. */
@@ -579,8 +600,8 @@ function qaidahBands(){var B=[],q=(data.qaidah||[]).filter(function(s){return s.
  if(q)B.push({cls:"m1",head:"1st",sub:plural(q.n,"level"),who:q.who});
  if(data.books&&data.books.length)B.push({cls:"bk",head:"Books",sub:data.books.length+" finished",who:data.books});
  return B}
-function memoBands(){var B=[],m=(data.memo||[]).filter(function(s){return s.place===1})[0];
- if(m)B.push({cls:"m1",head:"1st",sub:plural(m.n,"pass"),who:m.who});
+/* The Presenter's memorisation board: first, second and third place (ties share a band), then the book passes. */
+function memoBands(){var B=(data.memo||[]).filter(function(s){return s.place<=3}).map(function(m){return {cls:"m"+m.place,head:ord(m.place),sub:plural(m.n,"pass"),who:m.who}});
  if(data.books&&data.books.length)B.push({cls:"bk",head:"Books",sub:data.books.length+" finished",who:data.books});
  return B}
 function ranks(bands,empty){if(!bands.length)return '<div class="empty">'+empty+'<small>Who will be first?</small></div>';
@@ -610,11 +631,13 @@ function logo(h){return LOGO[h]?'<svg class="logo" viewBox="0 0 100 100" aria-hi
 function houseBoard(H,unit){H=H.slice().sort(function(a,b){return b.n-a.n});
  H.forEach(function(h){h.rank=1+H.filter(function(o){return o.n>h.n}).length});
  var at=[1,0,2];return '<div class="podium hp">'+at.map(function(i){var h=H[i];if(!h)return '<div class="col"></div>';var p=Math.min(h.rank,3);
-  return '<div class="col p'+p+'"><div class="who">'+(h.rank===1&&h.n?CROWN:'')+'<div class="pc '+esc(h.house)+'">'+logo(h.house)+'<span class="pn">'+esc(h.house)+'</span></div></div>'
+  return '<div class="col p'+p+'"><div class="who">'+(h.rank===1&&h.n?CROWN:'')+'<div class="pc '+esc(h.house)+'">'+logo(h.house)+'<span class="pn">'+esc(h.house)+'</span>'+(h.top?earned(h.top):'')+'</div></div>'
    +'<div class="step"><b>'+ord(h.rank)+'</b><span>'+plural(h.n,unit)+'</span></div></div>'}).join("")+'</div>'}
+/* Under a house's name on the House race: the class's top earners for it, with their points. */
+function earned(L){return '<span class="ern">'+(L.length?L.map(function(e,i){return '<span style="animation-delay:'+(1.2+i*.25)+'s"><b>'+esc(e.name)+'</b><em>'+e.n+'</em></span>'}).join(""):'<span class="none">No points yet</span>')+'</span>'}
 function schoolHouses(){return data.houses.map(function(h){return {house:h.house,n:h.points}})}
 function classHouses(){var n={};(data.houses||[]).forEach(function(s){s.who.forEach(function(w){n[w.house]=s.n})});
- return ["Makkah","Al-Aqsa","Madinah"].map(function(h){return {house:h,n:n[h]||0}})}
+ var E=data.earners;return ["Makkah","Al-Aqsa","Madinah"].map(function(h){return {house:h,n:n[h]||0,top:E?E[h]||[]:null}})}
 /* The podium sits below the title and above the base, so names on a step (ties included) shrink to fit the space
    over it instead of rising behind the title. */
 function fitPodium(el){var z=1,W=[];[].forEach.call(el.querySelectorAll(".podium .col"),function(c){var w=c.querySelector(".who"),st=c.querySelector(".step");if(!w||!st)return;
@@ -632,11 +655,11 @@ var SLIDES=[
  {id:"houses",world:"festival",kind:"all",title:"House points",sub:function(){return "The house leaderboard"},board:schoolHouses,unit:"point"}];
 /* A class's Presenter: this month's tops in the class. */
 var PSLIDES=[
- {id:"quran",world:"makkah",kind:"all",title:"Quran",sub:function(){return "Best average score in "+month()},steps:function(){return data.quran},fmt:function(n){return n.toFixed(1)+" average"},empty:"Not enough Quran scores yet this month."},
- {id:"memo",world:"hira",kind:"all",title:"Memorisation and book passes",sub:function(){return "Most memorisation passes in "+month()+", and every book finished"},ranks:memoBands,empty:"No memorisation or book passes yet this month."},
+ {id:"quran",world:"makkah",kind:"all",title:"Quran",sub:function(){return "Best average lesson score in "+month()},steps:function(){return data.quran},fmt:function(n){return n.toFixed(1)+" out of 5"},stars:1,empty:"Not enough Quran scores yet this month."},
+ {id:"memo",world:"hira",kind:"all",title:"Memorisation and book passes",sub:function(){return "Top three for memorisation passes in "+month()+", and every book finished"},ranks:memoBands,empty:"No memorisation or book passes yet this month."},
  {id:"qaidah",world:"madinah",kind:"all",title:"Qaidah level passes",sub:function(){return "Most levels passed in "+month()},steps:function(){return data.qaidah},unit:"level",empty:"No Qaidah levels passed yet this month."},
  {id:"points",world:"aqsa",kind:"all",title:"House points",sub:function(){return "Most points earned in "+month()},steps:function(){return data.points},unit:"point",empty:"No house points earned yet this month."},
- {id:"houses",world:"festival",kind:"all",title:"House race",sub:function(){return "Points this class earned for each house in "+month()},board:classHouses,unit:"point"},
+ {id:"houses",world:"festival",kind:"all",title:"House race",sub:function(){return "Points this class earned for each house in "+month()+", and who earned the most"},board:classHouses,unit:"point"},
  {id:"merits",world:"thawr",kind:"all",title:"Merits",sub:function(){return "Most merits in "+month()},steps:function(){return data.merits},unit:"merit",empty:"No merits yet this month."},
  {id:"stars",world:"moon",kind:"all",title:"Stars of the week",sub:function(){return month()+", up to the end of last week"},list:function(){return data.stars},empty:"No stars of the week yet this month.",week:1,one:1}];
 if(PRESENT)SLIDES=PSLIDES;
@@ -645,7 +668,7 @@ function playing(){if(PIN){var p=SLIDES.filter(function(s){return s.id===PIN});i
  var f=focusNow(),L=SLIDES.filter(function(s){return !f||f.indexOf(s.kind)>=0});
  var full=L.filter(function(s){return (s.steps?s.steps():s.ranks?s.ranks():s.board?s.board():s.list()).length});return full.length?full:L}
 function build(s){s.w=typeof s.world==="string"?s.world:s.world[(s.turn=(s.turn||0)+1)%s.world.length];var w=W[s.w],el=document.createElement("section");el.className="slide";el.style.background=w.sky;
- var body=s.steps?podium(s.steps(),s.unit,s.empty,s.fmt):s.ranks?ranks(s.ranks(),s.empty):s.board?houseBoard(s.board(),s.unit):'<div class="cycle"></div>';
+ var body=s.steps?podium(s.steps(),s.unit,s.empty,s.fmt,s.stars):s.ranks?ranks(s.ranks(),s.empty):s.board?houseBoard(s.board(),s.unit):'<div class="cycle"></div>';
  el.innerHTML='<div class="scene">'+w.html()+'</div><div class="carriers"></div><div class="content"><div class="title"><h2>'+esc(s.title)+'<span class="pg"></span></h2>'+(s.stage?'<span class="stage">'+esc(s.stage)+'</span>':'')+'<p>'+esc(s.sub())+'</p></div>'+body+'</div>';
  return el}
 /* A list takes turns a page at a time so everyone is seen within the slide's 30 seconds:
