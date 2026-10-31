@@ -1419,8 +1419,8 @@ class DashboardTests:
         return mailer
 
     def test_admins_sign_in_without_a_code_while_codes_are_off(self):
-        # LOGIN_CODES is off by default, so admins sign in with their password even when email works.
-        self.assertFalse(create_app(dict(self.config, DATA_DIR=Path(self.temp.name) / "codes")).config["LOGIN_CODES"])
+        # LOGIN_CODES is on by default; LOGIN_CODES=off lets admins sign in with their password even when email works.
+        self.assertTrue(create_app(dict(self.config, DATA_DIR=Path(self.temp.name) / "codes")).config["LOGIN_CODES"])
         mailer = FakeMailer()
         self.app.config.update(MAILER=mailer, LOGIN_CODES=False)
         client = self.sign_in(*ADMIN)
