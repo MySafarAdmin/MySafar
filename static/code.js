@@ -1,7 +1,7 @@
 // The emailed sign-in code page: six animated code boxes over the real code field. Our own take on the
 // CodeSlots component from React Bits (no React, no libraries). Each digit's fill springs out from the middle of
 // its box as the digit rises in; a wrong code drains the boxes last to first in red; a right one merges them into
-// one navy wash with a tick before the dashboard opens.
+// one pastel green wash with a tick before the dashboard opens.
 //
 // The real <input name="code"> stays in the form, invisible on top of the boxes, so typing, pasting, phone keyboards
 // and the "one-time-code" autofill all work as before. When the sixth digit lands the form is sent with fetch, so
