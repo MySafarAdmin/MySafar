@@ -269,11 +269,12 @@
       ctx.globalCompositeOperation = "source-over";
     }
     ctx.globalAlpha = f * gone;
-    for (var k = 0; k < 2; k++) {
+    // whole unless it is apart, so no hairline of the cut ever shows through
+    for (var k = 0, halves = sp > 0 ? 2 : 1; k < halves; k++) {
       var side = k ? 1 : -1;   // left half drifts left, right half drifts right
       ctx.save();
       ctx.translate(cx + side * gap, cy - side * slide); ctx.rotate(side * tilt); ctx.scale(rad * snap, rad * snap);
-      ctx.beginPath(); ctx.rect(k ? 0 : -1.1, -1.1, 1.1, 2.2); ctx.clip();
+      if (halves === 2) { ctx.beginPath(); ctx.rect(k ? 0 : -1.1, -1.1, 1.1, 2.2); ctx.clip(); }
       ctx.drawImage(moonSpr, -1, -1, 2, 2);
       ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = f * gone * .22;   // the face's own glow
       ctx.fillStyle = radial(-.25, -.3, 0, 1.1, [0, "rgba(255,250,235,1)", .7, "rgba(220,230,255,.5)", 1, "rgba(200,215,255,.2)"]);
@@ -433,6 +434,11 @@
     var to = "translate(" + tx + "px," + ty + "px) scale(" + sc + ")";
     var ease = "cubic-bezier(.7,0,.2,1)";
     lock.animate([{transform: from}, {transform: to}], {duration: 1050, easing: ease, fill: "forwards"});
+    // the panel's badge holds its logo a little smaller within the white circle; ease into exactly that, so the
+    // hand-over at the end is invisible
+    var bi = badge.querySelector("img"), li = logoEl.querySelector("img");
+    if (bi && li) li.animate([{transform: "scale(1)"}, {transform: "scale(" + (bi.getBoundingClientRect().width / br.width * 112 / 97).toFixed(4) + ")"}],
+                             {duration: 1050, easing: ease, fill: "forwards"});
     logoEl.animate([{boxShadow: "0 0 0 1px rgba(255,255,255,.4),0 0 60px 8px rgba(150,190,255,.28)"}, {boxShadow: "0 0 0 0 rgba(255,255,255,0),0 0 0 0 rgba(150,190,255,0)"}],
                    {duration: 900, easing: "ease", fill: "forwards"});
     var clipTo = "inset(" + Math.max(0, pr.top) + "px " + Math.max(0, innerWidth - pr.right) + "px " + Math.max(0, innerHeight - pr.bottom) + "px " + pr.left + "px)";

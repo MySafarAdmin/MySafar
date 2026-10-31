@@ -131,8 +131,8 @@ details.tvset .field{margin:0}
 .ilogo{flex:none;width:112px;height:112px;border-radius:50%;background:#fff;display:grid;place-items:center;
  box-shadow:0 0 0 1px rgba(255,255,255,.4),0 0 60px 8px rgba(150,190,255,.28)}
 .ilogo img{width:97px;height:97px;border-radius:50%}
-.iname{font-size:2.6rem;line-height:1;white-space:nowrap;color:#fff;letter-spacing:-.01em}
-.iname .ch{display:inline-block;opacity:0;will-change:transform,opacity,filter}
+.iname{font-size:calc(1.0625rem * 112 / 46);line-height:1;white-space:nowrap;color:#fff;letter-spacing:-.01em}
+.iname .ch{font-weight:inherit;display:inline-block;opacity:0;will-change:transform,opacity,filter}
 .ictl{position:absolute;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));display:flex;gap:8px;
  animation:i-fade-in .6s ease .5s both}
 .ibtn{font:inherit;font-size:.875rem;font-weight:700;letter-spacing:.04em;color:rgba(255,255,255,.86);background:rgba(8,20,48,.42);
