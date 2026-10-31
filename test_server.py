@@ -1133,6 +1133,8 @@ class DashboardTests:
         self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["points"]],
                          [(70, ["Bilal H."]), (10, ["Hana A."]), (5, ["Amina R."])])
         self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["houses"]], [(70, ["Madinah"]), (15, ["Makkah"])])
+        self.assertEqual({h: [(e["name"], e["n"]) for e in L] for h, L in data["earners"].items()},
+                         {"Makkah": [("Hana A.", 10), ("Amina R.", 5)], "Madinah": [("Bilal H.", 70)], "Al-Aqsa": []})
         self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["merits"]], [(2, ["Bilal H."])])
         self.assertEqual([b["name"] for b in data["books"]], ["Bilal H."])
         self.assertEqual([(s["label"], s["name"]) for s in data["stars"]],

@@ -251,6 +251,7 @@ def class_summary(row, now=None):
     class_name = state.get("name") or row["id"]
     tops = {k: [] for k in ("quran", "memo", "qaidah", "points", "merits")}
     houses, books, students = dict.fromkeys(HOUSES, 0), [], []
+    earners = {h: [] for h in HOUSES}
     for s in state.get("S", []):
         name = short_name(s.get("name", ""))
         if not name:
@@ -261,6 +262,8 @@ def class_summary(row, now=None):
         points = sum(since(s.get(k, []), month) * v for k, v in TOKEN_POINTS.items())
         if house in houses:
             houses[house] += points
+            if points:
+                earners[house].append(dict(entry, n=points))
         for key, n in (("quran", round(sum(scores) / len(scores), 1) if len(scores) >= QURAN_DAYS else 0),
                        ("memo", since(s.get("log", []), month)), ("qaidah", levels_passed(s, month_key, today_key)),
                        ("points", points), ("merits", since(s.get("ml", []), month))):
@@ -281,6 +284,8 @@ def class_summary(row, now=None):
         "class": class_label(class_name),
         **{k: podium(v, places=None if k == "memo" else 3) for k, v in tops.items()},
         "houses": podium([{"name": h, "house": h, "n": p} for h, p in houses.items()]),
+        # The House race shows who earned the most for each house: up to three, highest first.
+        "earners": {h: sorted(e, key=lambda e: (-e["n"], natural(e["name"])))[:3] for h, e in earners.items()},
         "books": sorted(books, key=lambda b: b["name"]),
         "stars": stars,
         "riders": sorted({n for _, n, _ in students}),
