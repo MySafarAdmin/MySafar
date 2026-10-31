@@ -1,7 +1,7 @@
 // The sign-in page's opening, drawn live on a canvas (no video to download). Stars come out one by one on a deep
 // night-blue sky as it slowly turns towards us. Then the stars let go: they swirl inward like a galaxy and gather
-// into a full moon. The moon cracks and splits into pieces with light pouring from between them, pulls back
-// together with a flash and a ring of light, settles to the logo's size, and the Safar design is drawn onto it.
+// into a full moon. A straight line cuts the moon in two; one half rises and the other sinks, then they click back
+// together with a flash and a ring of light, the moon settles to the logo's size, and the Safar design is drawn on.
 // The logo (a real element from then on) moves aside for "MySafar", then, on a computer, the stage folds into
 // the navy welcome panel as the logo lands on the panel's own; on a phone it lifts away. Skip, Escape, or a tap
 // anywhere goes straight to the form.
@@ -41,8 +41,8 @@
   body.classList.add("filming");
 
   // --- Timeline (seconds) ---------------------------------------------------------------------------------------
-  var T = {bloom: .55, sweep: .9, swirl: 2.25, land: 3.55, crack: 3.95, split: 4.15, rejoin: 4.85, joined: 5.27,
-           draw: 5.5, domLogo: 6.35, lock: 6.75, out: 8.05, end: 9.2};
+  var T = {bloom: .55, sweep: .9, swirl: 2.25, land: 3.55, crack: 3.9, split: 4.2, rejoin: 4.95, joined: 5.3,
+           draw: 5.6, domLogo: 6.35, lock: 6.75, out: 8.05, end: 9.2};
 
   // --- Small helpers --------------------------------------------------------------------------------------------
   function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
@@ -111,34 +111,6 @@
       g.fillStyle = cg; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
     }
   })();
-  // The pieces: cuts run from a point a little off the middle out to the rim, each with a few jags.
-  var shards = [];
-  (function () {
-    var sr = seeded(29), n = 7, ox = .1, oy = -.07, cuts = [], k, j;
-    for (k = 0; k < n; k++) {
-      var a = (k + .2 + sr() * .6) / n * 6.283, pts = [[ox, oy]];
-      for (j = 1; j <= 3; j++) {
-        var f = j / 4, aa = a + (sr() - .5) * .35;
-        pts.push([mix(ox, Math.cos(aa), f) + (sr() - .5) * .05, mix(oy, Math.sin(aa), f) + (sr() - .5) * .05]);
-      }
-      pts.push([Math.cos(a) * 1.02, Math.sin(a) * 1.02]);
-      cuts.push({a: a, pts: pts});
-    }
-    for (k = 0; k < n; k++) {
-      var c0 = cuts[k], c1 = cuts[(k + 1) % n], a1 = c1.a < c0.a ? c1.a + 6.283 : c1.a, mid = (c0.a + a1) / 2;
-      shards.push({c0: c0.pts, c1: c1.pts, a0: c0.a, a1: a1, dx: Math.cos(mid), dy: Math.sin(mid),
-                   spin: (sr() - .5) * .8, far: .55 + sr() * .35});
-    }
-    shards.cuts = cuts;
-  })();
-  function shardPath(s) {
-    ctx.beginPath();
-    var j;
-    for (j = 0; j < s.c0.length; j++) ctx.lineTo(s.c0[j][0], s.c0[j][1]);
-    ctx.arc(0, 0, 1.02, s.a0, s.a1);
-    for (j = s.c1.length - 1; j >= 0; j--) ctx.lineTo(s.c1[j][0], s.c1[j][1]);
-    ctx.closePath();
-  }
   function logoReady() { return logoImg && logoImg.complete && logoImg.naturalWidth > 0; }
   // Dust in the air, catching the light.
   var dust = [];
@@ -230,62 +202,59 @@
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
   }
-  // The moon: formed by the motes, it cracks (lines of light run out from near its middle), splits into pieces
-  // that drift apart with light pouring from between them, then pulls back together with a flash and a ring of
-  // light. It settles to the logo's size and whitens, and the Safar design is drawn onto it in one sweep, a point
-  // of gold light leading the way.
+  // The moon: formed by the motes, a straight line of light cuts it top to bottom and it splits in two: the left
+  // half rises and the right half sinks, sliding along the cut with light pouring from between them. Then they
+  // snap back together with a click, a flash and a ring of light; the moon settles to the logo's size and whitens,
+  // and the Safar design is drawn onto it in one sweep, a point of gold light leading the way.
   function moonAndLogo(t) {
     var f = smooth((t - T.land + .25) / .4), gone = 1 - smooth((t - T.domLogo - .15) / .2);
     if (f <= 0 || gone <= 0) return;
-    var up = outCubic((t - T.split) / .5), down = inOut((t - T.rejoin) / .42), sp = up * (1 - down);
-    var shrink = inOut((t - T.joined) / .4), rad = mix(Rm, R, shrink);
-    var snap = t > T.joined ? 1 + .05 * Math.exp(-(t - T.joined) * 9) * Math.sin((t - T.joined) * 40) : 1;
-    rad *= snap;
-    var white = smooth((t - T.joined - .05) / .35);
+    // apart: eases out; back together: accelerates into the click
+    var up = outCubic((t - T.split) / .55), back = Math.pow(clamp((t - T.rejoin) / (T.joined - T.rejoin)), 3), sp = up * (1 - back);
+    var shrink = inOut((t - T.joined - .12) / .4), rad = mix(Rm, R, shrink);
+    var snap = t > T.joined ? 1 + .06 * Math.exp(-(t - T.joined) * 10) * Math.sin((t - T.joined) * 46) : 1;
+    var white = smooth((t - T.joined - .1) / .35);
     // glow behind
-    ctx.globalAlpha = f * gone * (.8 + sp * .6);
+    ctx.globalAlpha = f * gone * (.8 + sp * .5);
     ctx.fillStyle = radial(cx, cy, rad * .6, rad * (3 + sp * 2), [0, "rgba(170,205,255,.42)", 1, "rgba(120,160,240,0)"]);
     ctx.fillRect(cx - rad * 5, cy - rad * 5, rad * 10, rad * 10);
+    var gap = sp * rad * .14, slide = sp * rad * .95;
     if (sp > .001) {
-      // the light inside, showing between the pieces
+      // the light in the cut, a tall bright beam
       ctx.globalCompositeOperation = "lighter";
       ctx.globalAlpha = f * gone * sp;
-      ctx.fillStyle = radial(cx, cy, 0, rad * 1.3, [0, "rgba(255,240,205,1)", .4, "rgba(255,214,140,.6)", 1, "rgba(255,200,120,0)"]);
-      ctx.fillRect(cx - rad * 1.3, cy - rad * 1.3, rad * 2.6, rad * 2.6);
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(Math.max(.15, gap / rad + .12), 1);
+      ctx.fillStyle = radial(0, 0, 0, rad * 2.2, [0, "rgba(255,244,215,1)", .35, "rgba(255,218,150,.55)", 1, "rgba(255,200,120,0)"]);
+      ctx.fillRect(-rad * 2.2, -rad * 2.2, rad * 4.4, rad * 4.4); ctx.restore();
       ctx.globalCompositeOperation = "source-over";
     }
     ctx.globalAlpha = f * gone;
-    for (var k = 0; k < shards.length; k++) {
-      var s = shards[k], d = sp * s.far * rad;
+    for (var k = 0; k < 2; k++) {
+      var side = k ? 1 : -1;   // left half rises, right half sinks
       ctx.save();
-      ctx.translate(cx + s.dx * d, cy + s.dy * d); ctx.rotate(s.spin * sp); ctx.scale(rad, rad);
-      shardPath(s); ctx.clip();
+      ctx.translate(cx + side * gap, cy + side * slide); ctx.scale(rad * snap, rad * snap);
+      ctx.beginPath(); ctx.rect(k ? 0 : -1.1, -1.1, 1.1, 2.2); ctx.clip();
       ctx.drawImage(moonSpr, -1, -1, 2, 2);
-      if (white > 0) { ctx.globalAlpha = f * gone * white; ctx.fillStyle = "#fff"; ctx.fillRect(-1.1, -1.1, 2.2, 2.2); ctx.globalAlpha = f * gone; }
-      if (sp > .01) {   // the broken edges catch the light
-        ctx.strokeStyle = "rgba(255,226,170," + Math.min(1, sp * 2).toFixed(3) + ")"; ctx.lineWidth = 2.2 / rad;
-        shardPath(s); ctx.stroke();
+      if (white > 0) { ctx.globalAlpha = f * gone * white; ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(0, 0, 1, 0, 6.283); ctx.fill(); ctx.globalAlpha = f * gone; }
+      if (sp > .01) {   // the cut face catches the light
+        ctx.globalCompositeOperation = "lighter";
+        ctx.strokeStyle = "rgba(255,226,170," + Math.min(1, sp * 2).toFixed(3) + ")"; ctx.lineWidth = 2.4 / rad;
+        ctx.beginPath(); ctx.moveTo(0, -1); ctx.lineTo(0, 1); ctx.stroke();
+        ctx.globalCompositeOperation = "source-over";
       }
       ctx.restore();
     }
-    // the cracks running out before it splits
-    var cr = clamp((t - T.crack) / (T.split - T.crack + .05)), crf = 1 - smooth((t - T.split) / .2);
+    // the straight cut drawing itself from top to bottom before it splits
+    var cr = clamp((t - T.crack) / (T.split - T.crack)), crf = 1 - smooth((t - T.split - .05) / .2);
     if (cr > 0 && crf > 0) {
-      ctx.save(); ctx.translate(cx, cy); ctx.scale(rad, rad);
       ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = f * crf;
-      ctx.strokeStyle = "#ffe6b0"; ctx.lineWidth = 2 / rad; ctx.lineJoin = "round";
-      shards.cuts.forEach(function (c) {
-        var n = c.pts.length - 1, upto = cr * n;
-        ctx.beginPath(); ctx.moveTo(c.pts[0][0], c.pts[0][1]);
-        for (var j = 1; j <= n; j++) {
-          var q = clamp(upto - (j - 1));
-          if (q <= 0) break;
-          ctx.lineTo(mix(c.pts[j - 1][0], c.pts[j][0], q), mix(c.pts[j - 1][1], c.pts[j][1], q));
-        }
-        ctx.stroke();
-      });
-      ctx.restore(); ctx.globalCompositeOperation = "source-over";
+      var y0 = cy - rad * 1.08, y1 = mix(y0, cy + rad * 1.08, inOut(cr));
+      ctx.strokeStyle = "#fff0cc"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(cx, y0); ctx.lineTo(cx, y1); ctx.stroke();
+      ctx.fillStyle = radial(cx, y1, 0, 14, [0, "rgba(255,240,200,1)", 1, "rgba(255,220,150,0)"]); ctx.fillRect(cx - 14, y1 - 14, 28, 28);
+      ctx.globalCompositeOperation = "source-over";
     }
+    rad *= snap;
     // the Safar design, drawn on in a sweep with a point of gold light leading
     var dr = inOut((t - T.draw) / .75);
     if (dr > 0 && logoReady()) {
@@ -522,10 +491,15 @@
       for (k = 0; k < 18; k++) { var at2 = T.swirl + gr() * (T.land - T.swirl), f2 = notes[5 + Math.floor(gr() * 6)]; ping(base + at2, f2 * 2, f2 * 2, .4, .012 + gr() * .012, .9); }
       // the moon forms; it cracks and splits; it rejoins with a low bloom and a bell; the design is drawn on
       bell(base + T.land, 880, .07);
-      [0, .06, .11, .19].forEach(function (d, j) { ping(base + T.crack + d, 3200 - j * 300, 1400, .07, .05, .5, "triangle"); });
-      hiss(base, "highpass", 1800, 600, T.split - .02, T.split + .5, [T.split - .02, 0, T.split + .02, .3, T.split + .5, 0], 1, .6, .7);
-      ping(base + T.split, 90, 50, .8, .25, .4);
-      if (t < T.joined) hiss(base, "bandpass", 500, 2600, Math.max(t, T.rejoin), T.joined, [Math.max(t, T.rejoin), 0, T.joined - .05, .18, T.joined, 0], 1, .4, 2);
+      // the cut: a bright rising zing; the halves sliding apart: a low rush
+      if (t < T.split) tone("sine", 1400, base, [Math.max(t, T.crack), 0, T.crack + .05, .05, T.split, .06, T.split + .15, 0], .6, .8, T.split + .2);
+      hiss(base, "bandpass", 900, 250, T.split, T.split + .6, [T.split, 0, T.split + .08, .22, T.split + .6, 0], 1, .5, 1.2);
+      ping(base + T.split, 90, 50, .8, .22, .4);
+      // rushing back together, then the click: a sharp tick and a short knock
+      if (t < T.joined) hiss(base, "bandpass", 300, 2400, Math.max(t, T.rejoin), T.joined, [Math.max(t, T.rejoin), 0, T.joined - .03, .2, T.joined, 0], 1, .3, 2);
+      hiss(base, "highpass", 5000, 4000, T.joined - .005, T.joined + .03, [T.joined - .005, 0, T.joined, .5, T.joined + .03, 0], 1, .2, .7);
+      ping(base + T.joined, 1900, 1200, .05, .25, .2, "triangle");
+      ping(base + T.joined, 240, 120, .12, .3, .2);
       ping(base + T.joined, 110, 46, 1.4, .3, .4);
       bell(base + T.joined, 587.33, .17);
       if (t < T.draw + .8) tone("sine", 1174.66, base, [Math.max(t, T.draw), 0, T.draw + .3, .02, T.draw + .8, 0], .5, 1, T.draw + .9);
