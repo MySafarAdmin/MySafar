@@ -41,8 +41,8 @@
   body.classList.add("filming");
 
   // --- Timeline (seconds) ---------------------------------------------------------------------------------------
-  var T = {bloom: .55, sweep: .9, swirl: 2.25, land: 3.55, crack: 3.9, split: 4.2, rejoin: 4.95, joined: 5.3,
-           draw: 5.6, domLogo: 6.35, lock: 6.75, out: 8.05, end: 9.2};
+  var T = {bloom: .55, sweep: .9, swirl: 2.25, land: 3.55, crack: 3.9, split: 4.2, rejoin: 4.9, joined: 5.4,
+           draw: 5.95, domLogo: 6.7, lock: 7.1, out: 8.4, end: 9.55};
 
   // --- Small helpers --------------------------------------------------------------------------------------------
   function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
@@ -99,17 +99,42 @@
   })();
   var moonSpr = offscreen(SPR, SPR);
   (function () {
-    var g = moonSpr.getContext("2d"), c = SPR / 2;
-    var gr = g.createRadialGradient(c - 34, c - 38, 8, c, c, c);
-    gr.addColorStop(0, "#ffffff"); gr.addColorStop(.65, "#eef3fc"); gr.addColorStop(1, "#cdd9ee");
-    g.fillStyle = gr; g.beginPath(); g.arc(c, c, c - 1, 0, 6.283); g.fill();
-    var cr = seeded(4);
-    for (var k = 0; k < 14; k++) {
-      var a = cr() * 6.283, d = Math.sqrt(cr()) * c * .78, r = 5 + cr() * 22, x = c + Math.cos(a) * d, y = c + Math.sin(a) * d;
-      var cg = g.createRadialGradient(x - r * .25, y - r * .25, 0, x, y, r);
-      cg.addColorStop(0, "rgba(150,170,205,.28)"); cg.addColorStop(.8, "rgba(160,180,212,.18)"); cg.addColorStop(1, "rgba(255,255,255,0)");
-      g.fillStyle = cg; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
+    // A real-looking full moon: pale grey-cream, darker toward the rim, with the grey "seas" (maria) and craters
+    // whose rims catch the light from the upper left.
+    var g = moonSpr.getContext("2d"), c = SPR / 2, cr = seeded(4), k;
+    g.save(); g.beginPath(); g.arc(c, c, c - 1, 0, 6.283); g.clip();
+    var gr = g.createRadialGradient(c - 30, c - 34, 6, c, c, c);
+    gr.addColorStop(0, "#f6f3ea"); gr.addColorStop(.55, "#e6e4dd"); gr.addColorStop(.88, "#c9cbd1"); gr.addColorStop(1, "#a9aebb");
+    g.fillStyle = gr; g.fillRect(0, 0, SPR, SPR);
+    function blob(x, y, r, a) {
+      var bg = g.createRadialGradient(x, y, 0, x, y, r);
+      bg.addColorStop(0, "rgba(112,118,134," + a + ")"); bg.addColorStop(.6, "rgba(118,124,140," + (a * .7) + ")"); bg.addColorStop(1, "rgba(130,136,150,0)");
+      g.fillStyle = bg; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
     }
+    // the seas, roughly where they sit on the real moon's face
+    [[.36, .30, .20, .5], [.50, .26, .14, .45], [.30, .50, .18, .42], [.62, .38, .16, .5], [.70, .54, .11, .45], [.44, .44, .12, .35],
+     [.58, .62, .10, .38], [.24, .66, .12, .3], [.40, .62, .09, .3], [.76, .40, .08, .4]].forEach(function (m) {
+      blob(m[0] * SPR, m[1] * SPR, m[2] * SPR, m[3]);
+      for (var j = 0; j < 3; j++) blob(m[0] * SPR + (cr() - .5) * m[2] * SPR, m[1] * SPR + (cr() - .5) * m[2] * SPR, m[2] * SPR * (.4 + cr() * .4), m[3] * .5);
+    });
+    // craters: a shaded floor, a dark inner edge toward the light and a bright rim away from it
+    for (k = 0; k < 34; k++) {
+      var a = cr() * 6.283, d = Math.sqrt(cr()) * c * .86, r = 2 + Math.pow(cr(), 2.5) * 13, x = c + Math.cos(a) * d, y = c + Math.sin(a) * d;
+      g.fillStyle = "rgba(120,124,138,.22)"; g.beginPath(); g.arc(x, y, r, 0, 6.283); g.fill();
+      g.lineWidth = Math.max(1, r * .22);
+      g.strokeStyle = "rgba(95,100,116,.35)"; g.beginPath(); g.arc(x, y, r * .85, Math.PI * .9, Math.PI * 1.75); g.stroke();
+      g.strokeStyle = "rgba(255,253,245,.55)"; g.beginPath(); g.arc(x, y, r, -.2, Math.PI * .75); g.stroke();
+    }
+    // one bright young crater low on the face, with faint rays
+    var tx = c * .92, ty = c * 1.62;
+    g.strokeStyle = "rgba(255,255,250,.16)"; g.lineWidth = 1.4;
+    for (k = 0; k < 9; k++) { var ra = cr() * 6.283, rl = 25 + cr() * 60; g.beginPath(); g.moveTo(tx, ty); g.lineTo(tx + Math.cos(ra) * rl, ty + Math.sin(ra) * rl); g.stroke(); }
+    g.fillStyle = "rgba(255,255,250,.85)"; g.beginPath(); g.arc(tx, ty, 4, 0, 6.283); g.fill();
+    // the rim falls into shadow on the side away from the light
+    var sh = g.createRadialGradient(c - 40, c - 44, c * .7, c, c, c * 1.02);
+    sh.addColorStop(0, "rgba(40,55,90,0)"); sh.addColorStop(.8, "rgba(40,55,90,.08)"); sh.addColorStop(1, "rgba(30,45,80,.32)");
+    g.fillStyle = sh; g.fillRect(0, 0, SPR, SPR);
+    g.restore();
   })();
   function logoReady() { return logoImg && logoImg.complete && logoImg.naturalWidth > 0; }
   // Dust in the air, catching the light.
@@ -203,44 +228,54 @@
     ctx.globalAlpha = 1;
   }
   // The moon: formed by the motes, a straight line of light cuts it top to bottom and it splits in two: the left
-  // half rises and the right half sinks, sliding along the cut with light pouring from between them. Then they
-  // snap back together with a click, a flash and a ring of light; the moon settles to the logo's size and whitens,
+  // half rises and the right half sinks, turning a little as if held. Then, as if taken in hand, they swing back
+  // along a curve into an exact join with a click; the joined moon sways on a few damped swings to rest, settles
+  // to the logo's size and whitens,
   // and the Safar design is drawn onto it in one sweep, a point of gold light leading the way.
   function moonAndLogo(t) {
     var f = smooth((t - T.land + .25) / .4), gone = 1 - smooth((t - T.domLogo - .15) / .2);
     if (f <= 0 || gone <= 0) return;
-    // apart: eases out; back together: accelerates into the click
-    var up = outCubic((t - T.split) / .55), back = Math.pow(clamp((t - T.rejoin) / (T.joined - T.rejoin)), 3), sp = up * (1 - back);
-    var shrink = inOut((t - T.joined - .12) / .4), rad = mix(Rm, R, shrink);
-    var snap = t > T.joined ? 1 + .06 * Math.exp(-(t - T.joined) * 10) * Math.sin((t - T.joined) * 46) : 1;
-    var white = smooth((t - T.joined - .1) / .35);
-    // glow behind
-    ctx.globalAlpha = f * gone * (.8 + sp * .5);
-    ctx.fillStyle = radial(cx, cy, rad * .6, rad * (3 + sp * 2), [0, "rgba(170,205,255,.42)", 1, "rgba(120,160,240,0)"]);
-    ctx.fillRect(cx - rad * 5, cy - rad * 5, rad * 10, rad * 10);
-    var gap = sp * rad * .14, slide = sp * rad * .95;
+    // Apart: the halves ease away and hang there, turning a touch, as if held. Back together: a small pull back
+    // (the hand taking hold), then they swing in along a curve, speeding up, into an exact join.
+    var up = outCubic((t - T.split) / .55), bx = clamp((t - T.rejoin) / (T.joined - T.rejoin));
+    var back = 2.6 * bx * bx * bx - 1.6 * bx * bx;   // ease-in with a little wind-up
+    var sp = up * (1 - back) * (1 + .03 * Math.sin((t - T.split) * 3.2) * (1 - bx));
+    if (t >= T.joined) sp = 0;
+    var s0 = t - T.joined;
+    // After the click the joined moon swings on, like something just let go of: a few damped swings to rest.
+    var swing = s0 > 0 ? .085 * Math.exp(-s0 * 3.4) * Math.sin(s0 * 11) : 0;
+    var shrink = inOut((s0 - .35) / .45), rad = mix(Rm, R, shrink);
+    var snap = s0 > 0 ? 1 + .025 * Math.exp(-s0 * 12) * Math.sin(s0 * 50) : 1;
+    var white = smooth((s0 - .35) / .35);
+    // a thin halo, just enough to light the sky round it
+    ctx.globalAlpha = f * gone * (.75 + Math.min(sp, 1) * .25);
+    ctx.fillStyle = radial(cx, cy, rad * .95, rad * (1.9 + sp * .6), [0, "rgba(190,210,245,.2)", .4, "rgba(170,195,240,.07)", 1, "rgba(140,170,230,0)"]);
+    ctx.fillRect(cx - rad * 3, cy - rad * 3, rad * 6, rad * 6);
+    // the swing hangs from a point above the moon, so the moon sways sideways as it turns
+    var Lp = rad * 3;
+    ctx.save();
+    ctx.translate(cx + Math.sin(swing) * Lp, cy - Lp + Math.cos(swing) * Lp); ctx.rotate(swing); ctx.translate(-cx, -cy);
+    var gap = rad * (.04 * sp + .2 * Math.sin(clamp(sp) * Math.PI)), slide = sp * rad * .95, tilt = .16 * sp;
     if (sp > .001) {
-      // the light in the cut, a tall bright beam
+      // a soft light in the cut
       ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = f * gone * sp;
-      ctx.save(); ctx.translate(cx, cy); ctx.scale(Math.max(.15, gap / rad + .12), 1);
-      ctx.fillStyle = radial(0, 0, 0, rad * 2.2, [0, "rgba(255,244,215,1)", .35, "rgba(255,218,150,.55)", 1, "rgba(255,200,120,0)"]);
-      ctx.fillRect(-rad * 2.2, -rad * 2.2, rad * 4.4, rad * 4.4); ctx.restore();
+      ctx.globalAlpha = f * gone * Math.min(1, sp) * .4;
+      ctx.save(); ctx.translate(cx, cy); ctx.scale(Math.max(.12, gap / rad + .08), 1);
+      ctx.fillStyle = radial(0, 0, 0, rad * 1.5, [0, "rgba(255,246,225,.9)", .4, "rgba(255,225,170,.3)", 1, "rgba(255,210,140,0)"]);
+      ctx.fillRect(-rad * 1.5, -rad * 1.5, rad * 3, rad * 3); ctx.restore();
       ctx.globalCompositeOperation = "source-over";
     }
     ctx.globalAlpha = f * gone;
     for (var k = 0; k < 2; k++) {
       var side = k ? 1 : -1;   // left half rises, right half sinks
       ctx.save();
-      ctx.translate(cx + side * gap, cy + side * slide); ctx.scale(rad * snap, rad * snap);
+      ctx.translate(cx + side * gap, cy + side * slide); ctx.rotate(-side * tilt); ctx.scale(rad * snap, rad * snap);
       ctx.beginPath(); ctx.rect(k ? 0 : -1.1, -1.1, 1.1, 2.2); ctx.clip();
       ctx.drawImage(moonSpr, -1, -1, 2, 2);
       if (white > 0) { ctx.globalAlpha = f * gone * white; ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(0, 0, 1, 0, 6.283); ctx.fill(); ctx.globalAlpha = f * gone; }
       if (sp > .01) {   // the cut face catches the light
-        ctx.globalCompositeOperation = "lighter";
-        ctx.strokeStyle = "rgba(255,226,170," + Math.min(1, sp * 2).toFixed(3) + ")"; ctx.lineWidth = 2.4 / rad;
+        ctx.strokeStyle = "rgba(255,236,200," + Math.min(.7, sp * 1.5).toFixed(3) + ")"; ctx.lineWidth = 1.6 / rad;
         ctx.beginPath(); ctx.moveTo(0, -1); ctx.lineTo(0, 1); ctx.stroke();
-        ctx.globalCompositeOperation = "source-over";
       }
       ctx.restore();
     }
@@ -275,16 +310,17 @@
       }
     }
     ctx.globalAlpha = 1;
+    ctx.restore();
     // the flash and ring of light as the pieces meet
     var w = t - T.joined;
     if (w > 0 && w < 1.2) {
       var rr = rad + outExpo(w / 1.2) * D * .55;
       ctx.globalCompositeOperation = "lighter";
-      ctx.globalAlpha = .55 * (1 - w / 1.2);
-      ctx.strokeStyle = "#cfe2ff"; ctx.lineWidth = 2 + 10 * (1 - w / 1.2);
+      ctx.globalAlpha = .35 * (1 - w / 1.2);
+      ctx.strokeStyle = "#cfe2ff"; ctx.lineWidth = 1.5 + 6 * (1 - w / 1.2);
       ctx.beginPath(); ctx.arc(cx, cy, rr, 0, 6.283); ctx.stroke();
-      ctx.globalAlpha = .4 * Math.exp(-w * 6);
-      ctx.fillStyle = radial(cx, cy, 0, D * .5, [0, "rgba(200,225,255,.8)", 1, "rgba(200,225,255,0)"]); ctx.fillRect(0, 0, W, H);
+      ctx.globalAlpha = .18 * Math.exp(-w * 6);
+      ctx.fillStyle = radial(cx, cy, 0, D * .4, [0, "rgba(200,225,255,.8)", 1, "rgba(200,225,255,0)"]); ctx.fillRect(0, 0, W, H);
       ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
     }
   }
@@ -377,6 +413,7 @@
         stage.animate([{opacity: 1}, {opacity: 0}], {duration: dur, easing: "ease", fill: "forwards"}).onfinish = end;
       } else end();
       body.classList.remove("filming");
+      body.classList.add("landed");
       ready();
       return;
     }
@@ -394,6 +431,7 @@
     var clipTo = "inset(" + Math.max(0, pr.top) + "px " + Math.max(0, innerWidth - pr.right) + "px " + Math.max(0, innerHeight - pr.bottom) + "px " + pr.left + "px)";
     stage.animate([{clipPath: "inset(0px 0px 0px 0px)"}, {clipPath: clipTo}], {duration: 1050, easing: ease, fill: "forwards"}).onfinish = function () {
       body.classList.remove("filming");
+      body.classList.add("landed");   // the welcome panel's quote and art come in as the stage clears from over them
       stage.animate([{opacity: 1}, {opacity: 0}], {duration: 350, easing: "ease", fill: "forwards"}).onfinish = end;
       ready();
     };
@@ -407,9 +445,8 @@
   }
 
   // --- Sound ------------------------------------------------------------------------------------------------------
-  // All synthesised, at a gentle level: a low pad throughout, a rising harp as the stars come out, a rush of air and scattered high
-  // notes as the light swirls in, a low bloom and a bell as the logo lands, soft ticks for the letters, and a last
-  // breath of air with a chord as the page arrives.
+  // All synthesised, at a gentle level, and scored like a film rather than a computer: string-like swells, air,
+  // deep hits and a hall reverb, with no beeps (see score() for the cue list).
   var sound = (function () {
     var KEY = "mysafar-film-sound", ac = null, master = null, verb = null, noise = null, on = false;
     var button = stage.querySelector(".isnd");
@@ -423,10 +460,12 @@
       comp.connect(ac.destination);
       master = ac.createGain(); master.gain.value = 0; master.connect(comp);
       verb = ac.createConvolver();
-      var len = ac.sampleRate * 2.8, ir = ac.createBuffer(2, len, ac.sampleRate);
-      for (var ch = 0; ch < 2; ch++) { var d = ir.getChannelData(ch); for (var j = 0; j < len; j++) d[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / len, 3.2); }
+      // a large, dark hall: a long smooth tail with the top rolled off
+      var len = ac.sampleRate * 3.6, ir = ac.createBuffer(2, len, ac.sampleRate);
+      for (var ch = 0; ch < 2; ch++) { var d = ir.getChannelData(ch); for (var j = 0; j < len; j++) d[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / len, 2.6) * Math.min(1, j / (ac.sampleRate * .02)); }
       verb.buffer = ir;
-      var wet = ac.createGain(); wet.gain.value = .5; verb.connect(wet); wet.connect(master);
+      var dark = ac.createBiquadFilter(); dark.type = "lowpass"; dark.frequency.value = 3800;
+      var wet = ac.createGain(); wet.gain.value = .55; verb.connect(dark); dark.connect(wet); wet.connect(master);
       noise = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
       var nd = noise.getChannelData(0); for (j = 0; j < nd.length; j++) nd[j] = Math.random() * 2 - 1;
       return true;
@@ -459,55 +498,102 @@
       s.connect(f); var g = out(f, dry, wet); env(g, pts, base);
       s.start(); s.stop(base + t1 + .2);
     }
-    function ping(at, f0, f1, len, level, wet, type) {
-      if (at < ac.currentTime) return;
-      var o = ac.createOscillator(); o.type = type || "sine";
-      o.frequency.setValueAtTime(f0, at); o.frequency.exponentialRampToValueAtTime(f1, at + len * .7);
-      var g = out(o, 1, wet);
-      g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(level, at + .006); g.gain.exponentialRampToValueAtTime(.0001, at + len);
-      o.start(at); o.stop(at + len + .05);
-    }
-    function bell(at, f, level) {
-      [[1, 1], [2, .35], [2.76, .3], [5.4, .12], [8.9, .05]].forEach(function (p) {
-        ping(at, f * p[0], f * p[0] * .999, 3.2 / Math.sqrt(p[0]), level * p[1], .7);
+    // A soft swell: a few detuned saws through a slowly opening low-pass filter, like a string section.
+    function pad(base, freqs, t0, t1, peak, cut0, cut1, wet) {
+      var now = ac.currentTime, a0 = Math.max(now, base + t0);
+      if (base + t1 <= now) return;
+      var f = ac.createBiquadFilter(); f.type = "lowpass"; f.Q.value = .5;
+      f.frequency.setValueAtTime(cut0, a0); f.frequency.linearRampToValueAtTime(cut1, Math.max(a0 + .1, base + (t0 + t1) / 2));
+      f.frequency.linearRampToValueAtTime(cut0, base + t1);
+      var g = out(f, .8, wet);
+      g.gain.setValueAtTime(0, a0); g.gain.linearRampToValueAtTime(peak, Math.max(a0 + .05, base + mix(t0, t1, .45)));
+      g.gain.linearRampToValueAtTime(0, base + t1);
+      freqs.forEach(function (fr) {
+        [-6, 5].forEach(function (cents) {
+          var o = ac.createOscillator(); o.type = "sawtooth"; o.frequency.value = fr; o.detune.value = cents;
+          var lv = ac.createGain(); lv.gain.value = 1 / freqs.length; o.connect(lv); lv.connect(f);
+          o.start(a0); o.stop(base + t1 + .1);
+        });
       });
     }
+    // A low hit: a sine falling in pitch with a long decay, felt more than heard.
+    function boom(at, f0, f1, len, level, wet) {
+      if (at < ac.currentTime) return;
+      var o = ac.createOscillator(); o.type = "sine";
+      o.frequency.setValueAtTime(f0, at); o.frequency.exponentialRampToValueAtTime(f1, at + len * .6);
+      var g = out(o, 1, wet);
+      g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(level, at + .012); g.gain.exponentialRampToValueAtTime(.0001, at + len);
+      o.start(at); o.stop(at + len + .05);
+    }
+    // A short burst of filtered noise: the body of a knock, a click, a breath of air.
+    function burst(at, type, f, q, len, level, wet) {
+      if (at < ac.currentTime) return;
+      var s = ac.createBufferSource(); s.buffer = noise;
+      var fl = ac.createBiquadFilter(); fl.type = type; fl.frequency.value = f; fl.Q.value = q;
+      s.connect(fl); var g = out(fl, 1, wet);
+      g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(level, at + .003); g.gain.exponentialRampToValueAtTime(.0001, at + len);
+      s.start(at, Math.random()); s.stop(at + len + .05);
+    }
+    // A whoosh: noise swept through a band-pass, swelling up to its peak and falling away.
+    function whoosh(base, t0, peakAt, t1, f0, fp, f1, level, wet) {
+      var now = ac.currentTime;
+      if (base + t1 <= now) return;
+      var s = ac.createBufferSource(); s.buffer = noise; s.loop = true;
+      var fl = ac.createBiquadFilter(); fl.type = "bandpass"; fl.Q.value = .9;
+      var a0 = Math.max(now, base + t0);
+      fl.frequency.setValueAtTime(f0, a0); fl.frequency.exponentialRampToValueAtTime(fp, Math.max(a0 + .02, base + peakAt));
+      fl.frequency.exponentialRampToValueAtTime(f1, base + t1);
+      s.connect(fl); var g = out(fl, 1, wet);
+      g.gain.setValueAtTime(.0001, a0);   // an exponential ramp can't start from zero
+      if (base + peakAt > a0) g.gain.exponentialRampToValueAtTime(level, base + peakAt); else g.gain.setValueAtTime(level * .5, a0);
+      g.gain.exponentialRampToValueAtTime(.0001, base + t1);
+      s.start(a0); s.stop(base + t1 + .1);
+    }
+    // The score, in D: a slow string swell under the stars, an air swell as they swirl in, a deep bloom as the moon
+    // forms, a held breath while it is apart, a rush as it is pulled back, a weighty knock when it joins with the
+    // chord opening up over it, a brush of air as the design is drawn, and the chord resolving as the page arrives.
     function score() {
-      var base = ac.currentTime - t, E = T.end + 2;
-      if (t < T.out) {
-        tone("sine", 73.42, base, [Math.max(t, 0), 0, 1.2, .1, T.land, .14, T.land + .1, .2, T.out + .5, .12, E, 0], 1, .25, E);
-        tone("sine", 110, base, [Math.max(t, 0), 0, 1.6, .07, T.land + .1, .13, T.out + .5, .08, E, 0], 1, .35, E);
-        var o = tone("triangle", 220.5, base, [Math.max(t, 0), 0, 2, .025, T.land + .1, .04, E, 0], .6, .6, E); o.detune.value = 7;
-      }
-      // the stars coming out: a rising harp of D major pentatonic notes
-      var notes = [293.66, 329.63, 369.99, 440, 493.88, 587.33, 659.25, 739.99, 880, 987.77, 1174.66];
-      for (var k = 0; k < 22; k++) {
-        var at = .2 + k * .075 + (k > 6 ? (k - 6) * .01 : 0), f = notes[Math.min(notes.length - 1, Math.floor(k / 2))];
-        ping(base + at, f, f, 1.6, .05 * (1 - k / 30), .85, k % 3 ? "sine" : "triangle");
-      }
-      // the light letting go and swirling in
-      if (t < T.land) hiss(base, "bandpass", 300, 4200, Math.max(t, T.swirl - .2), T.land, [Math.max(t, T.swirl - .2), 0, T.land - .15, .22, T.land, 0], 1, .45, 2.2);
-      var gr = seeded(77);
-      for (k = 0; k < 18; k++) { var at2 = T.swirl + gr() * (T.land - T.swirl), f2 = notes[5 + Math.floor(gr() * 6)]; ping(base + at2, f2 * 2, f2 * 2, .4, .012 + gr() * .012, .9); }
-      // the moon forms; it cracks and splits; it rejoins with a low bloom and a bell; the design is drawn on
-      bell(base + T.land, 880, .07);
-      // the cut: a bright rising zing; the halves sliding apart: a low rush
-      if (t < T.split) tone("sine", 1400, base, [Math.max(t, T.crack), 0, T.crack + .05, .05, T.split, .06, T.split + .15, 0], .6, .8, T.split + .2);
-      hiss(base, "bandpass", 900, 250, T.split, T.split + .6, [T.split, 0, T.split + .08, .22, T.split + .6, 0], 1, .5, 1.2);
-      ping(base + T.split, 90, 50, .8, .22, .4);
-      // rushing back together, then the click: a sharp tick and a short knock
-      if (t < T.joined) hiss(base, "bandpass", 300, 2400, Math.max(t, T.rejoin), T.joined, [Math.max(t, T.rejoin), 0, T.joined - .03, .2, T.joined, 0], 1, .3, 2);
-      hiss(base, "highpass", 5000, 4000, T.joined - .005, T.joined + .03, [T.joined - .005, 0, T.joined, .5, T.joined + .03, 0], 1, .2, .7);
-      ping(base + T.joined, 1900, 1200, .05, .25, .2, "triangle");
-      ping(base + T.joined, 240, 120, .12, .3, .2);
-      ping(base + T.joined, 110, 46, 1.4, .3, .4);
-      bell(base + T.joined, 587.33, .17);
-      if (t < T.draw + .8) tone("sine", 1174.66, base, [Math.max(t, T.draw), 0, T.draw + .3, .02, T.draw + .8, 0], .5, 1, T.draw + .9);
-      chars.forEach(function (c, j) { ping(base + T.lock + .26 + j * .062 + .1, 1150 + j * 70, 1050 + j * 70, .09, .045, .5, "triangle"); });
-      if (t < T.out + 1) {
-        hiss(base, "lowpass", 2400, 260, Math.max(t, T.out - .1), T.out + 1.2, [Math.max(t, T.out - .1), 0, T.out + .3, .12, T.out + 1.2, 0], 1, .4, .7);
-        [293.66, 369.99, 440, 587.33].forEach(function (f, j) { ping(base + T.out + .25 + j * .07, f, f, 2.8, .045, .8); });
-      }
+      var base = ac.currentTime - t;
+      // under everything, a low D that you feel more than hear
+      tone("sine", 36.71, base, [Math.max(t, 0), 0, 2, .16, T.joined, .2, T.out + .6, .12, T.end + 1.5, 0], 1, .1, T.end + 1.6);
+      // the night: a dark string chord rising slowly as the stars come out
+      pad(base, [73.42, 110, 146.83, 220], Math.max(0, t), T.land + .4, .09, 260, 900, .5);
+      // a wind of fine air across the sky
+      hiss(base, "bandpass", 500, 1400, Math.max(t, 0), T.swirl + .5, [Math.max(t, 0), 0, 1.5, .03, T.swirl - .3, .035, T.swirl + .5, 0], 1, .6, .6);
+      // the stars let go: air rising and gathering pace into the moon
+      whoosh(base, T.swirl - .3, T.land - .05, T.land + .5, 220, 2600, 500, .2, .55);
+      // the moon forms: a deep bloom, and the chord opens a little
+      boom(base + T.land, 70, 38, 3.2, .45, .45);
+      burst(base + T.land, "lowpass", 400, .7, .9, .12, .7);
+      pad(base, [73.42, 110, 146.83, 185, 293.66], T.land - .2, T.split + .2, .07, 300, 1100, .55);
+      // the cut drawn down the moon: a thin bright string held under tension
+      pad(base, [587.33, 880], T.crack - .1, T.split + .25, .022, 1500, 3200, .8);
+      // the split: a heavy whoosh apart and a low hit
+      whoosh(base, T.split - .15, T.split + .05, T.split + .9, 300, 1100, 160, .22, .45);
+      boom(base + T.split, 62, 40, 1.4, .35, .35);
+      burst(base + T.split, "bandpass", 900, 1.2, .25, .1, .5);
+      // held apart: a low, uneasy note while they hang there
+      pad(base, [73.42, 77.78, 146.83], T.split, T.rejoin + .15, .06, 220, 520, .5);
+      // pulled back: air drawn in, faster and faster, cut dead at the join
+      whoosh(base, T.rejoin - .1, T.joined - .01, T.joined + .03, 180, 2200, 2000, .26, .3);
+      // the join: a firm knock with weight, a clean click on top, a deep boom, and a long hall tail
+      var J = base + T.joined;
+      burst(J, "bandpass", 3200, 2.5, .05, .35, .35);   // the click of the edges meeting
+      burst(J, "lowpass", 900, .8, .18, .35, .4);       // the knock's body
+      boom(J, 150, 70, .35, .4, .3);
+      boom(J, 58, 32, 3.4, .55, .5);
+      // as it swings on: two soft knocks of the sway, much quieter
+      boom(J + .29, 110, 70, .25, .08, .4);
+      boom(J + .57, 110, 70, .25, .04, .4);
+      // and the chord opens up over it, D major, full and warm
+      pad(base, [73.42, 146.83, 220, 293.66, 369.99, 440], T.joined, T.out + 1.6, .11, 400, 1900, .6);
+      // the design drawn on: a brush of bright air following the pen round
+      whoosh(base, T.draw - .05, T.draw + .4, T.draw + .85, 1800, 5200, 3000, .05, .7);
+      // the name: a soft lift of air as the letters arrive
+      whoosh(base, T.lock, T.lock + .45, T.lock + 1.3, 600, 2400, 1200, .06, .7);
+      // the hand-over: a long descending breath, and a low warm hit as the page lands
+      whoosh(base, T.out - .25, T.out + .2, T.out + 1.5, 2400, 1200, 240, .12, .55);
+      boom(base + T.out + .95, 55, 38, 2.4, .25, .5);
     }
     function start() {
       if (!ac && !setup()) return false;
