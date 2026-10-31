@@ -1,6 +1,6 @@
 Assalamu alaikum, {{ name }}
 
-{{ by if by else "An administrator" }} has given you an account on MyMadrasah, the Safar Academy staff dashboard, where we record each student's Quran progress, merits and house points.
+{{ by if by else "An administrator" }} has given you an account on the Safar Academy staff dashboard, where we record each student's Quran progress, merits and house points.
 
 Choose your password here:
 {{ link }}

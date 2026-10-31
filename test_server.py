@@ -196,7 +196,6 @@ class DashboardTests:
         self.assertEqual(anonymous.get("/api/classes").status_code, 401)
         self.assertEqual(anonymous.get("/login").status_code, 200)
         self.assertEqual(anonymous.get("/logo.png").mimetype, "image/png")
-        self.assertEqual(anonymous.get("/logo-sage.png").mimetype, "image/png")
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"window.RAILWAY=true", response.data)
@@ -692,7 +691,7 @@ class DashboardTests:
         # Names are escaped in the HTML part.
         self.assertIn("Sr &lt;b&gt;Maryam&lt;/b&gt;", html)
         self.assertNotIn("<b>Maryam", html)
-        self.assertIn('src="https://mysafar.example/logo-sage.png"', html)
+        self.assertIn('src="https://mysafar.example/logo.png"', html)
         self.assertIn("72 hours", html)
         # The admin who sent it is named.
         self.assertIn("Administrator has given you an account", text)
@@ -1284,7 +1283,7 @@ class DashboardTests:
     def test_shared_styles_and_fonts(self):
         anonymous = self.app.test_client()
         css = anonymous.get("/auth.css").get_data(as_text=True)
-        self.assertIn("--navy:#4a6e5a", css)  # the shared tokens, also inlined in the dashboard
+        self.assertIn("--navy:#003b6b", css)  # the shared tokens, also inlined in the dashboard
         self.assertIn("details.user", css)
         font = anonymous.get("/fonts/atkinson-next-latin.woff2")
         self.assertEqual((font.status_code, font.mimetype), (200, "font/woff2"))

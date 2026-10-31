@@ -5,7 +5,7 @@
 {% block heading %}Email is working{% endblock %}
 {% block content %}
 {% call p() %}Assalamu alaikum {{ name }},{% endcall %}
-{% call p() %}This test came from Manage users on MyMadrasah. If you can read it, invites and password reset links will reach staff by email.{% endcall %}
+{% call p() %}This test came from Manage users on the Safar Academy dashboard. If you can read it, invites and password reset links will reach staff by email.{% endcall %}
 {{ facts([("Sent to", email), ("Sent", at|when ~ " (UK time)")]) }}
 {% call p(True) %}Didn't arrive in the inbox straight away? Check the spam or junk folder, and mark it as not spam so later emails arrive normally.{% endcall %}
 {{ button(signin, "Open the dashboard") }}

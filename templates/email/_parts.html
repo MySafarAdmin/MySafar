@@ -4,7 +4,7 @@
 
 {% macro button(href, label) -%}
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0 8px">
-  <tr><td bgcolor="#4a6e5a" style="background-color:#4a6e5a;border-radius:999px;mso-padding-alt:14px 28px">
+  <tr><td bgcolor="#003b6b" style="background-color:#003b6b;border-radius:999px;mso-padding-alt:14px 28px">
     <a href="{{ href }}" target="_blank" style="display:inline-block;padding:14px 28px;font-family:{{ sans }};font-size:15px;font-weight:700;line-height:20px;color:#ffffff;text-decoration:none;border-radius:999px">{{ label }}</a>
   </td></tr>
 </table>
@@ -12,7 +12,7 @@
 
 {% macro fallback(href) -%}
 <p style="margin:18px 0 0;font-family:{{ sans }};font-size:13px;line-height:1.5;color:#5a6375">If the button doesn't work, copy this link into your browser:<br>
-<a href="{{ href }}" style="color:#33543f;word-break:break-all">{{ href }}</a></p>
+<a href="{{ href }}" style="color:#0b4a82;word-break:break-all">{{ href }}</a></p>
 {%- endmacro %}
 
 {% macro p(muted=False) -%}
