@@ -1,6 +1,6 @@
 // The sign-in page's opening, drawn live on a canvas (no video to download). Stars come out one by one on a deep
-// night-blue sky as it slowly turns towards us. Then the stars let go: they gather into a turning galaxy of
-// light with spiral arms, which draws in and falls together into a full moon. A straight line cuts the moon in two; the halves drift apart sideways, then they click back
+// night-blue sky as it slowly turns towards us. Then the stars let go and pour into a whirlpool of fine
+// light, turning faster towards its heart, which closes into a full moon. A straight line cuts the moon in two; the halves drift apart sideways, then they click back
 // together with a flash and a ring of light, the moon settles to the logo's size, and the Safar design is drawn on.
 // The logo (a real element from then on) moves aside for "MySafar", then, on a computer, the stage folds into
 // the navy welcome panel as the logo lands on the panel's own; on a phone it lifts away. Skip, Escape, or a tap
@@ -201,24 +201,42 @@
   }
   // The motes: each star leaves its place in the sky and, as a point of light, spirals in round the centre and
   // settles on its place in the moon.
-  // The stars gather into a turning galaxy of light with three spiral arms, which spins faster as it draws in,
-  // then falls together into the disc of the moon, each point landing on its own place.
-  var ARMS = 3, TWIST = 2.6;
+  // The stars let go and pour into a whirlpool of light: a dense, smooth vortex of fine particles in which the inner
+  // rings turn faster than the outer, so the whole sky seems to be drawn round and in. Fine dust that was never a
+  // star joins the flow and is swallowed at the centre. Then the whirl closes into the moon, each star landing on
+  // its own place.
   function frac(x) { return x - Math.floor(x); }
   function turnTo(a, b, w) { var d = b - a; d -= 6.2832 * Math.round(d / 6.2832); return a + d * w; }
+  function whirl(rad, s0) { return s0 * (.9 + 3.4 * Math.pow(Rm / (rad + Rm * .4), 1.1)) + s0 * s0 * .5; }   // inner turns faster
   function motesAt(m, t) {
     var e = clamp((t - T.swirl - m.del) / (T.land - T.swirl - m.del - .1));
     var st = toScreen(m.px, m.py, Math.min(t, T.swirl + m.del)), sx = st[0] - cx, sy = st[1] - cy;
     var r0 = Math.hypot(sx, sy), a0 = Math.atan2(sy, sx), r1 = Math.hypot(m.tx, m.ty), a1 = Math.atan2(m.ty, m.tx);
-    var u = Math.pow(frac(m.ph * 7.13), 1.4), gR = Rm * (.55 + 3.4 * u) * (S < 600 ? .75 : 1);
-    var e1 = smooth(e / .5), e2 = Math.pow(smooth((e - .55) / .45), 1.4);
-    var rad = e > .55 ? mix(gR, r1, e2) : mix(r0, gR, e1);
-    var s0 = t - T.swirl, spin = s0 * 1.1 + s0 * s0 * .55;   // the galaxy turns, faster and faster
-    var arm = Math.floor(frac(m.ph * 1.91) * ARMS) * 6.2832 / ARMS + (frac(m.ph * 3.7) - .5) * (.5 + .6 * u);
-    var gA = arm - TWIST * Math.log(1 + rad / Rm) + spin;
-    var ang = turnTo(a0 + s0 * .4, gA, e1);
-    ang = turnTo(ang, a1 + spin * .15 * (1 - e2), e2);
-    return [cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad * mix(.9, 1, e2), e, rad];   // seen a little from above
+    var oR = Rm * (.7 + 2.6 * Math.pow(frac(m.ph * 7.13), 1.2)) * (S < 600 ? .8 : 1);
+    var e1 = smooth(e / .55), e2 = Math.pow(smooth((e - .5) / .5), 1.6);
+    var rad = e > .5 ? mix(mix(r0, oR, e1), r1, e2) : mix(r0, oR, e1);
+    var s0 = Math.max(0, t - T.swirl - m.del);
+    var ang = a0 + whirl(rad, s0);
+    ang = turnTo(ang, a1, e2);
+    return [cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad * mix(.86, 1, e2), e, rad];
+  }
+  // the fine dust: born in the whirl, spiralling in and fading at the centre, round and round
+  var dust2 = [];
+  (function () { var dr = seeded(23); for (var k = 0; k < (W < 700 ? 700 : 1300); k++) dust2.push({a: dr() * 6.283, r: .3 + dr() * 3.4, sp: .35 + dr() * .5, ph: dr(), b: .25 + dr() * .5}); })();
+  function drawDust(t) {
+    var on = smooth((t - T.swirl - .2) / .7) * (1 - smooth((t - T.land + .45) / .35));
+    if (on <= 0) return;
+    var s0 = t - T.swirl;
+    for (var k = 0; k < dust2.length; k++) {
+      var d = dust2[k], life = frac(d.ph + s0 * d.sp * .45);   // each mote falls from the rim to the centre, then begins again
+      var rad = Rm * (.25 + d.r * (1 - life)) * (S < 600 ? .8 : 1);
+      var ang = d.a + whirl(rad, s0) * 1.05;
+      var a = on * d.b * Math.sin(Math.PI * life);
+      if (a <= .01) continue;
+      ctx.globalAlpha = a;
+      var r = .9 + d.b;
+      ctx.drawImage(dotSpr, cx + Math.cos(ang) * rad - r * 2, cy + Math.sin(ang) * rad * .86 - r * 2, r * 4, r * 4);
+    }
   }
   // a soft round point of light, drawn once and stamped for every mote
   var dotSpr = offscreen(32, 32);
@@ -226,6 +244,13 @@
     var g = dotSpr.getContext("2d"), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16);
     gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(.12, "rgba(255,255,255,.95)"); gr.addColorStop(.3, "rgba(200,220,255,.35)");
     gr.addColorStop(.6, "rgba(160,190,255,.08)"); gr.addColorStop(1, "rgba(160,190,255,0)");
+    g.fillStyle = gr; g.fillRect(0, 0, 32, 32);
+  })();
+  var goldSpr = offscreen(32, 32);   // a few points of warm gold among the white
+  (function () {
+    var g = goldSpr.getContext("2d"), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gr.addColorStop(0, "rgba(255,248,230,1)"); gr.addColorStop(.12, "rgba(255,226,170,.95)"); gr.addColorStop(.3, "rgba(240,190,110,.35)");
+    gr.addColorStop(.6, "rgba(233,180,92,.08)"); gr.addColorStop(1, "rgba(233,180,92,0)");
     g.fillStyle = gr; g.fillRect(0, 0, 32, 32);
   })();
   function drawMotes(t) {
@@ -239,6 +264,7 @@
       ctx.fillStyle = radial(cx, cy, 0, Rm * 2.6, [0, "rgba(220,232,255,.6)", .3, "rgba(170,195,255,.22)", 1, "rgba(120,150,240,0)"]);
       ctx.fillRect(cx - Rm * 2.6, cy - Rm * 2.6, Rm * 5.2, Rm * 5.2);
     }
+    drawDust(t);
     for (var k = 0; k < motes.length; k++) {
       var m = motes[k];
       if (t < T.swirl + m.del) continue;
@@ -248,8 +274,15 @@
       var a = m.b * (1 - settle * .9) * (.75 + .25 * Math.sin(t * 9 + m.ph * 2)) * (.7 + .5 * heat);
       if (a <= .01) continue;
       var r = (m.big ? 3.4 : 1.6 + m.b * 2) * mix(1, .7, e) * (.85 + .3 * heat);
+      var spr = frac(m.ph * 5.3) < .1 ? goldSpr : dotSpr;
+      // a few fading echoes behind each point show which way the whirl is turning, without drawing a line
+      for (var g = 3; g >= 1; g--) {
+        var q = motesAt(m, t - g * .028), gr = r * (1 - g * .17);
+        ctx.globalAlpha = Math.min(1, a) * (.5 - g * .13) * (1 - settle);
+        ctx.drawImage(spr, q[0] - gr * 2, q[1] - gr * 2, gr * 4, gr * 4);
+      }
       ctx.globalAlpha = Math.min(1, a);
-      ctx.drawImage(dotSpr, p[0] - r * 2, p[1] - r * 2, r * 4, r * 4);
+      ctx.drawImage(spr, p[0] - r * 2, p[1] - r * 2, r * 4, r * 4);
     }
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
