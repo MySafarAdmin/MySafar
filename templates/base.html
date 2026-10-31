@@ -82,15 +82,17 @@
 </div>
 {% else %}
 {% if intro %}
-{# Opening titles on a fresh visit to the sign-in page: a dark stage, the eight-point star drawing itself,
-   the logo and name, then the stage folds into the navy welcome panel and the form rises in. CSS only. #}
-<div class="intro" aria-hidden="true">
-  <div class="istars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="icore">
-    <svg class="istar" viewBox="0 0 200 200" focusable="false"><g fill="none" stroke-width="2.2" stroke-linejoin="round"><rect class="isq a" x="45" y="45" width="110" height="110" rx="4"/><rect class="isq b" x="45" y="45" width="110" height="110" rx="4" transform="rotate(45 100 100)"/><circle class="iring" cx="100" cy="100" r="62"/></g></svg>
-    <span class="ilogo"><img src="/logo.png" alt="" width="84" height="84"></span>
+{# Opening film on a fresh visit to the sign-in page (static/intro.js draws it on the canvas): down from space
+   through the clouds, past the Kaaba, into a well whose moonlit reflection becomes the logo; the logo moves aside
+   for the name, then the stage folds into the navy welcome panel and the form rises in. Skip, or tap anywhere, to
+   go straight to the form; sound is off until the speaker button is pressed. Not shown under reduced motion. #}
+<div class="intro" role="dialog" aria-label="Opening">
+  <canvas class="ifilm" aria-hidden="true"></canvas>
+  <div class="ilock" aria-hidden="true" translate="no"><span class="ilogo"><img src="/logo.png?v=3" alt="" width="97" height="97"></span><b class="iname wm">My<span>Safar</span></b></div>
+  <div class="ictl">
+    <button type="button" class="ibtn isnd" aria-pressed="false" aria-label="Sound">{{ icon("sound") }}</button>
+    <button type="button" class="ibtn iskip">Skip<span aria-hidden="true"> ›</span></button>
   </div>
-  <p class="iname" translate="no"><b class="wm">My<span>Safar</span></b></p>
 </div>
 {% endif %}
 <div class="solo-band"></div>
