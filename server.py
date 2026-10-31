@@ -55,7 +55,7 @@ TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completio
 # House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
 HOUSE_POINT_REASONS = {"bk": "tr", "lv": "tb", "hw": "tg", "ec": "tg", "cp": "tg"}
 # Reachable without signing in.
-PUBLIC = {"/login", "/login/code", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
+PUBLIC = {"/login", "/login/code", "/forgot", "/healthz", "/logo.png", "/logo-sage.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
 # Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Figtree
 # for text and titles alike (see DESIGN.md).
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
@@ -348,7 +348,7 @@ def create_app(test_config=None):
         # A profile picture sets its own (private) caching, as its address changes with the picture.
         if not (request.path.startswith("/avatar/") and response.status_code == 200):
             response.headers["Cache-Control"] = "public, max-age=604800" if (request.path.startswith("/fonts/")
-            or request.path in ("/logo.png", "/favicon.png", "/favicon.ico")) and response.status_code == 200 else "no-store"
+            or request.path in ("/logo.png", "/logo-sage.png", "/favicon.png", "/favicon.ico")) and response.status_code == 200 else "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
@@ -384,7 +384,12 @@ def create_app(test_config=None):
         response = Response(logo["png"], mimetype="image/png")
         return response
 
-    # The browser tab icon: the logo on a white disc, so it reads as a circle on light and dark tabs alike.
+    # The sage copy of the logo, for white surfaces (the card pages, the memo board, emails); /logo.png is white.
+    @app.get("/logo-sage.png")
+    def logo_sage_png():
+        return Response((ROOT / "static" / "logo-sage.png").read_bytes(), mimetype="image/png")
+
+    # The browser tab icon: the sage book on its own, with no disc.
     @app.get("/favicon.png")
     @app.get("/favicon.ico")
     def favicon():

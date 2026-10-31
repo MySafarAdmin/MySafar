@@ -23,13 +23,13 @@ from flask import current_app, render_template
 import auth  # auth imports this module too; only use auth's names inside functions
 
 SUBJECTS = {
-    "invite": "You're invited to the Safar Academy dashboard",
-    "reset": "Reset your Safar Academy dashboard password",
-    "password_changed": "Your Safar Academy dashboard password was changed",
-    "login_code": "Your Safar Academy dashboard sign-in code",
-    "test": "Test email from the Safar Academy dashboard",
-    "help_reply": "A reply to your message on the Safar Academy dashboard",
-    "help_summary": "This week's Help or Requests on the Safar Academy dashboard",
+    "invite": "You're invited to MyMadrasah",
+    "reset": "Reset your MyMadrasah password",
+    "password_changed": "Your MyMadrasah password was changed",
+    "login_code": "Your MyMadrasah sign-in code",
+    "test": "Test email from MyMadrasah",
+    "help_reply": "A reply to your message on MyMadrasah",
+    "help_summary": "This week's Help or Requests on MyMadrasah",
 }
 TAGS = {"invite": "invite", "reset": "password_reset", "password_changed": "security", "login_code": "security", "test": "test",
         "help_reply": "help_reply", "help_summary": "help_summary"}
@@ -41,7 +41,7 @@ def hours(n):
 
 def render(template, **context):
     """Returns (subject, text, html) for one email. The context's `name` is the recipient's name."""
-    context = dict(context, site=auth.public_url("/"), logo=auth.public_url("/logo.png"),
+    context = dict(context, site=auth.public_url("/"), logo=auth.public_url("/logo-sage.png"),
                    signin=auth.public_url("/login"), forgot=auth.public_url("/forgot"),
                    support_email=current_app.config.get("SUPPORT_EMAIL", ""),
                    invite_hours=hours(auth.INVITE_TTL // auth.HOUR), reset_hours=hours(auth.RESET_TTL // auth.HOUR),

@@ -6,20 +6,20 @@
 @font-face{font-family:"Figtree";src:url(/fonts/figtree-latin-ext.woff2) format("woff2");font-weight:300 900;font-display:swap;
  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
- /* Brand: Safar navy from the logo (#003B6B). Reserved for the brand, selected indicators and the one primary action. */
- --navy:#003b6b;--navy-2:#002c52;--navy-soft:#e9eff6;
- /* Navigation: a Safar navy rail, as Journey2Jannah carries its own colour in its rail. The selected item is a
-    white tab with navy type. */
- --rail-bg:#003b6b;--rail-ink:#e6eef6;--rail-mute:#a9c0d6;--rail-line:rgba(255,255,255,.14);--rail-hover:rgba(255,255,255,.1);--rail-on:#fff;
- /* Surfaces and text: a soft, cool canvas (a touch of blue in the grey), floating white cards, deep slate type */
- --bg:#f2f4f8;--surface:#fff;--surface-2:#f6f7fb;--sunk:#eef0f5;--line:#e4e7ee;--line-2:#cbd1dc;
+ /* Brand: MyMadrasah sage green (#4A6E5A; navy until 2026-10-31). Reserved for the brand, selected indicators and the one primary action. */
+ --navy:#4a6e5a;--navy-2:#3b5948;--navy-soft:#eaf1ec;
+ /* Navigation: a sage green rail, as Journey2Jannah carries its own colour in its rail. The selected item is a
+    white tab with sage type. (The --navy names are kept so older rules follow the brand colour.) */
+ --rail-bg:#4a6e5a;--rail-ink:#eef4f0;--rail-mute:#d0ddd4;--rail-line:rgba(255,255,255,.14);--rail-hover:rgba(255,255,255,.1);--rail-on:#fff;
+ /* Surfaces and text: a soft, neutral canvas (a touch of green in the grey), floating white cards, deep slate type */
+ --bg:#f3f5f3;--surface:#fff;--surface-2:#f6f8f6;--sunk:#eef1ee;--line:#e4e7ee;--line-2:#cbd1dc;
  --ink:#1c2230;--ink-2:#3c4557;--mute:#5a6375;
  /* Actions and status. Every colour that carries white text is at least 4.5:1. */
- --primary:#003b6b;--primary-hover:#002c52;--primary-soft:#e9eff6;--primary-ink:#0b4a82;
+ --primary:#4a6e5a;--primary-hover:#3b5948;--primary-soft:#eaf1ec;--primary-ink:#33543f;
  --ok:#4e7d5b;--ok-soft:#edf3ee;--ok-ink:#2f5a3b;
  --warn:#b45309;--warn-soft:#fbf3e8;--warn-ink:#874006;
  --bad:#b42318;--bad-soft:#fcefed;--bad-ink:#8f1d14;
- --focus:#2563a8;
+ --focus:#2f6b4a;
  /* Restrained accents: sage for healthy states, gold for achievement. The sky and teal names stay for
     older rules but now resolve to the same quiet family, so no tinted panels remain. */
  --sage:#5e8a69;--sage-soft:#eef3ef;--sage-ink:#2f5a3b;
@@ -57,7 +57,7 @@ h2{font-size:1.125rem;font-weight:800;letter-spacing:-.005em}
 h3{font-size:1rem;font-weight:750}
 p{margin:0 0 .75rem}
 a{color:var(--primary-ink);text-underline-offset:.18em}
-button,a,summary,label,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,59,107,.12)}
+button,a,summary,label,input,select,textarea{touch-action:manipulation;-webkit-tap-highlight-color:rgba(74,110,90,.12)}
 a:hover{color:var(--primary-hover)}
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 .skip{position:absolute;left:12px;top:-60px;z-index:200;background:#fff;color:var(--navy);font-weight:700;padding:10px 14px;border-radius:var(--r)}
@@ -75,11 +75,11 @@ a:hover{color:var(--primary-hover)}
 .rail{background:var(--rail-bg);color:var(--rail-ink);display:flex;flex-direction:column;z-index:20}
 .rail a,.rail button{color:inherit}
 .rail .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;padding:16px 16px 12px;min-width:0}
-/* The navy logo sits on a white disc so it stays visible on the graphite rail. */
-.badge{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff}
-.badge img{width:34px;height:34px;display:block}
+/* The logo stands on its own: a white book on the sage rail, with no disc around it. */
+.badge{flex:none;display:grid;place-items:center;width:40px;height:40px}
+.badge img{width:40px;height:40px;display:block}
 .brand b{display:block;font-size:1.0625rem;font-weight:750;line-height:1.15}
-/* The MySafar wordmark: "My" in a light weight, "Safar" in the heavy weight. */
+/* The MyMadrasah wordmark: "My" in a light weight, "Madrasah" in the heavy weight. */
 .wm{font-weight:400!important;letter-spacing:-.01em}
 .wm span{font-weight:850}
 .rail .brand .wm{font-size:1.25rem}
@@ -91,10 +91,10 @@ a:hover{color:var(--primary-hover)}
 .navh{margin:14px 10px 4px;font-size:.8125rem;font-weight:700;color:var(--rail-mute)}
 .nav{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;padding:8px 12px;border-radius:var(--r);border:0;background:none;font:inherit;font-size:.9375rem;text-align:left;text-decoration:none;cursor:pointer;color:var(--rail-ink)}
 .nav:hover{background:var(--rail-hover);color:#fff}
-.nav[aria-current="page"],.nav[aria-current="true"]{background:var(--rail-on);color:var(--navy);font-weight:800;box-shadow:0 4px 14px rgba(0,20,40,.22)}
+.nav[aria-current="page"],.nav[aria-current="true"]{background:var(--rail-on);color:var(--navy);font-weight:800;box-shadow:0 4px 14px rgba(20,34,26,.22)}
 .nav[aria-current="page"]:hover,.nav[aria-current="true"]:hover{color:var(--navy)}
 .nav:focus-visible{outline-color:#fff}
-.nav[aria-current]:focus-visible{outline-color:#9cc3e8}
+.nav[aria-current]:focus-visible{outline-color:#cfe3d5}
 .nav .ic{flex:none;width:18px;height:18px}
 .nav .ext{margin-left:auto;opacity:.75}
 .nav.j2j .dot{width:8px;height:8px;border-radius:50%;background:var(--sage);flex:none;margin:0 5px}
@@ -130,7 +130,7 @@ a:hover{color:var(--primary-hover)}
  :root{--dock-h:64px;--dock-gap:calc(10px + env(safe-area-inset-bottom,0px))}
  .rail{position:relative;flex-direction:row;flex-wrap:wrap;align-items:center;box-shadow:0 1px 0 rgba(0,0,0,.2)}
  .rail .brand{padding:8px 12px;flex:1}
- .badge{width:34px;height:34px}.badge img{width:28px;height:28px}
+ .badge{width:34px;height:34px}.badge img{width:34px;height:34px}
  .content{padding:16px 16px calc(var(--dock-h) + 40px + env(safe-area-inset-bottom,0px))}
 
  /* The dock: the main items, always within thumb reach, as a floating bar of icons at the bottom of the screen.
@@ -156,12 +156,12 @@ a:hover{color:var(--primary-hover)}
  @keyframes dkPop{0%{transform:scale(.7) rotate(-8deg)}60%{transform:scale(1.12) rotate(3deg)}100%{transform:none}}
  .dk:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
  /* Each item's own pastel, from the greeting chips and the Quran score colours */
- .dk.dk-home{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
- .dk.dk-classes{--dk-bg:#e3eefb;--dk-ink:#0b4a82}
+ .dk.dk-home{--dk-bg:#e4efe7;--dk-ink:#33543f}
+ .dk.dk-classes{--dk-bg:#e4efe7;--dk-ink:#33543f}
  .dk.dk-record{--dk-bg:#fbf0d6;--dk-ink:#664a0b}
  .dk.dk-quran{--dk-bg:#dff1e6;--dk-ink:#2f5a3b}
  .dk.dk-memo{--dk-bg:#fbf0d6;--dk-ink:#7a5608}
- .dk.dk-more{--dk-bg:#e9eff6;--dk-ink:#003b6b}
+ .dk.dk-more{--dk-bg:var(--navy-soft);--dk-ink:var(--navy-2)}
  .navt:checked~.dock .dk.dk-more,.rail .dk.dk-more.on{color:var(--navy);font-weight:800}
  .navt:checked~.dock .dk.dk-more .dki{background:var(--navy);color:#fff}
  .dk.dk-more .ic{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
@@ -175,7 +175,7 @@ a:hover{color:var(--primary-hover)}
  .menu-btn{display:none}
  .navw{display:flex;flex-direction:column;position:fixed;z-index:82;left:10px;right:10px;bottom:calc(var(--dock-gap) + var(--dock-h) + 10px);
   max-width:500px;margin:0 auto;max-height:calc(100dvh - var(--dock-h) - 40px);overflow-y:auto;overscroll-behavior:contain;
-  background:var(--rail-bg);border-radius:24px;box-shadow:0 20px 50px rgba(0,20,40,.35);padding:8px 0 0;
+  background:var(--rail-bg);border-radius:24px;box-shadow:0 20px 50px rgba(20,34,26,.35);padding:8px 0 0;
   opacity:0;visibility:hidden;transform:translateY(16px) scale(.97);transform-origin:50% 100%;
   transition:opacity .2s,transform .3s cubic-bezier(.2,.9,.3,1.1),visibility 0s .3s}
  .navt:checked~.navw{opacity:1;visibility:visible;transform:none;transition:opacity .2s,transform .35s cubic-bezier(.2,.9,.3,1.1),visibility 0s}
@@ -232,7 +232,7 @@ a:hover{color:var(--primary-hover)}
 .seg{display:inline-flex;gap:2px;padding:3px;border:0;border-radius:var(--r-pill);background:var(--sunk)}
 .seg button{font:inherit;font-size:.875rem;font-weight:650;border:0;border-radius:var(--r-pill);background:none;color:var(--ink-2);padding:6px 14px;min-height:34px;cursor:pointer}
 .seg button:hover{color:var(--ink);background:rgba(255,255,255,.6)}
-.seg button[aria-pressed="true"]{background:var(--surface);color:var(--navy);font-weight:800;box-shadow:0 1px 3px rgba(28,34,48,.12),0 0 0 1px rgba(0,59,107,.12)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--navy);font-weight:800;box-shadow:0 1px 3px rgba(28,34,48,.12),0 0 0 1px rgba(74,110,90,.12)}
 .seg button:focus-visible{outline-offset:-3px}
 /* Contextual help: a ? that opens the rules for the screen, by keyboard, touch or pointer */
 .help{position:relative;display:inline-block}
@@ -280,7 +280,7 @@ select:not([multiple]){-webkit-appearance:none;appearance:none;padding-right:40p
  background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);
  background-position:calc(100% - 20px) 52%,calc(100% - 15px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
 select:not([multiple]):disabled{cursor:default;opacity:.6}
-select:not([multiple])[aria-expanded="true"]{border-color:var(--navy);box-shadow:0 0 0 3px rgba(0,59,107,.1)}
+select:not([multiple])[aria-expanded="true"]{border-color:var(--navy);box-shadow:0 0 0 3px rgba(74,110,90,.1)}
 input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:0;border-color:var(--focus)}
 input[type=checkbox],input[type=radio]{min-height:0;width:18px;height:18px;accent-color:var(--primary)}
 input[type=file]{padding:7px 10px}
@@ -336,7 +336,7 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 .rail{view-transition-name:rail}.rail .navs{view-transition-name:navs}
 .navi,.navsel{view-transition-name:navsel}
 .nav:has(>.navsel){position:relative;isolation:isolate;background:none;box-shadow:none}
-.navsel{position:absolute;inset:0;z-index:-1;border-radius:var(--r);background:var(--rail-on);box-shadow:0 4px 14px rgba(0,20,40,.22)}
+.navsel{position:absolute;inset:0;z-index:-1;border-radius:var(--r);background:var(--rail-on);box-shadow:0 4px 14px rgba(20,34,26,.22)}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.24s;animation-timing-function:ease}
 ::view-transition-group(navsel){animation-duration:.34s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
 ::view-transition-group(rail),::view-transition-old(rail),::view-transition-new(rail){animation-duration:.2s}

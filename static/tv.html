@@ -13,7 +13,7 @@
    Masjid an-Nabawi, Al-Aqsa, Cave Hira, Cave Thawr, the Ark, the parting of the sea, the split moon) that keeps moving
    while it is on: washing and trees in the wind, water, light. On the Presenter the class's students ride through by name. Slides change every
    30 seconds with a crossfade and a slow push in, so the screen never cuts. Everything is sized in vh for a 16:9 TV. */
-:root{--navy:#002848;--ink:#0b2340;--mute:#5b7089;--gold:#f5c542;--gold2:#d99a00;--silver:#dfe6ee;--silver2:#9fb0c2;--bronze:#efaa72;--bronze2:#b86a2e;
+:root{--navy:#3b5948;--ink:#1c2e24;--mute:#5b7089;--gold:#f5c542;--gold2:#d99a00;--silver:#dfe6ee;--silver2:#9fb0c2;--bronze:#efaa72;--bronze2:#b86a2e;
  --makkah:#e9a400;--aqsa:#2a9fe6;--madinah:#1fae72;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;overflow:hidden;background:var(--navy);color:#fff;font-family:"Atkinson Next",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
@@ -30,9 +30,9 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--navy);color:#fff
 .content{position:absolute;inset:13vh 3vw 3.4vh;display:flex;flex-direction:column}
 /* ---------- Header ---------- */
 header{position:fixed;z-index:5;top:2.2vh;left:2.4vw;right:2.4vw;display:flex;align-items:center;gap:1.4vw;pointer-events:none}
-.brand{display:flex;align-items:center;gap:1vw;background:var(--navy);border-radius:99px;padding:.8vh 2vw .8vh .8vh;box-shadow:0 .6vh 0 rgba(0,20,40,.25)}
-.badge{width:7vh;height:7vh;border-radius:50%;background:#fff;display:grid;place-items:center}
-.badge img{width:6vh;height:6vh}
+.brand{display:flex;align-items:center;gap:1vw;background:var(--navy);border-radius:99px;padding:.8vh 2vw .8vh .8vh;box-shadow:0 .6vh 0 rgba(20,34,26,.25)}
+.badge{width:7vh;height:7vh;display:grid;place-items:center}
+.badge img{width:7vh;height:7vh}
 .brand h1{margin:0;font-size:3.4vh;font-weight:800;line-height:1.05;letter-spacing:-.01em}
 .brand h1 small{display:block;font-size:1.9vh;font-weight:600;color:#bcd2e8;letter-spacing:0}
 .mode{background:var(--gold);color:#2b1d00;font-weight:800;font-size:2.3vh;border-radius:99px;padding:.9vh 1.6vw}
@@ -41,12 +41,12 @@ header{position:fixed;z-index:5;top:2.2vh;left:2.4vw;right:2.4vw;display:flex;al
 .dots{display:flex;gap:.9vh;background:var(--navy);border-radius:99px;padding:1.1vh 1.2vw}
 .dots i{width:1.4vh;height:1.4vh;border-radius:50%;background:rgba(255,255,255,.35);transition:background .6s,transform .6s}
 .dots i.on{background:var(--gold);transform:scale(1.35)}
-.clock{font-size:4.4vh;font-weight:800;background:var(--navy);border-radius:99px;padding:.6vh 1.6vw;box-shadow:0 .6vh 0 rgba(0,20,40,.25)}
-footer{position:fixed;z-index:5;left:0;right:0;bottom:0;height:.9vh;background:rgba(0,40,72,.5)}
+.clock{font-size:4.4vh;font-weight:800;background:var(--navy);border-radius:99px;padding:.6vh 1.6vw;box-shadow:0 .6vh 0 rgba(20,34,26,.25)}
+footer{position:fixed;z-index:5;left:0;right:0;bottom:0;height:.9vh;background:rgba(36,56,45,.5)}
 footer i{display:block;height:100%;width:0;background:var(--gold)}
 footer i.run{width:100%;transition:width linear}
 /* ---------- Titles ---------- */
-.title{align-self:flex-start;background:var(--navy);border-radius:2.4vh;padding:1.4vh 2.6vw 1.5vh;box-shadow:0 .8vh 0 rgba(0,20,40,.25);animation:drop 1s .35s both cubic-bezier(.2,.9,.3,1.2)}
+.title{align-self:flex-start;background:var(--navy);border-radius:2.4vh;padding:1.4vh 2.6vw 1.5vh;box-shadow:0 .8vh 0 rgba(20,34,26,.25);animation:drop 1s .35s both cubic-bezier(.2,.9,.3,1.2)}
 .title h2{margin:0;font-size:6.4vh;font-weight:800;letter-spacing:-.015em;line-height:1.05}
 .title .stage{display:block;font-size:4.8vh;font-weight:800;color:var(--gold);line-height:1.1;margin-top:.3vh}
 .title p{margin:.6vh 0 0;font-size:3.3vh;font-weight:700;color:#e3eef8}
@@ -60,16 +60,16 @@ footer i.run{width:100%;transition:width linear}
 .p1.col{padding-top:6.6vh} /* room for the crown */
 .col>.who,.col>.step{flex:none}
 .who{display:flex;flex-direction:column;gap:1vh;align-items:stretch;margin-bottom:1.6vh;position:relative}
-.pc{background:#fff;color:var(--ink);border-radius:2vh;padding:1.4vh 1vw 1.5vh;text-align:center;box-shadow:0 .7vh 0 rgba(0,20,40,.22);border-bottom:.7vh solid var(--hc,#c9d6e3);animation:pop .7s both cubic-bezier(.3,1.6,.5,1)}
+.pc{background:#fff;color:var(--ink);border-radius:2vh;padding:1.4vh 1vw 1.5vh;text-align:center;box-shadow:0 .7vh 0 rgba(20,34,26,.22);border-bottom:.7vh solid var(--hc,#c9d6e3);animation:pop .7s both cubic-bezier(.3,1.6,.5,1)}
 .pc .pn{display:block;font-size:4.2vh;font-weight:800;line-height:1.1;overflow-wrap:anywhere}
 .pc .pcl{display:block;font-size:2.3vh;font-weight:600;color:var(--mute);margin-top:.3vh}
 .p1 .pc .pn{font-size:5vh}
 /* A class card celebrates its teacher: their name is the big line, the year group sits under it. */
 .pc.cls .pn{font-size:5.2vh;white-space:nowrap;overflow-wrap:normal}.p1 .pc.cls .pn{font-size:6.2vh}
 .pc.cls .pcl{font-size:3vh;font-weight:700;color:var(--mute)}
-.more{text-align:center;font-weight:800;font-size:2.4vh;background:rgba(0,40,72,.8);border-radius:99px;padding:.6vh 1vw;animation:pop .7s both}
+.more{text-align:center;font-weight:800;font-size:2.4vh;background:rgba(36,56,45,.8);border-radius:99px;padding:.6vh 1vw;animation:pop .7s both}
 .step{position:relative;border-radius:2vh 2vh 0 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:1.6vh;color:#2b1d00;overflow:hidden;
- box-shadow:inset 0 1.4vh 0 rgba(255,255,255,.35),inset 0 -2.2vh 0 rgba(0,0,0,.1),0 .8vh 0 rgba(0,20,40,.22);animation:rise 1.1s both cubic-bezier(.2,.9,.25,1.1);transform-origin:bottom}
+ box-shadow:inset 0 1.4vh 0 rgba(255,255,255,.35),inset 0 -2.2vh 0 rgba(0,0,0,.1),0 .8vh 0 rgba(20,34,26,.22);animation:rise 1.1s both cubic-bezier(.2,.9,.25,1.1);transform-origin:bottom}
 .step b{font-size:9vh;font-weight:800;line-height:1}
 .step span{font-size:2.6vh;font-weight:800;margin-top:.4vh;opacity:.85}
 .p1 .step{height:24vh;background:var(--gold)}
@@ -96,7 +96,7 @@ footer i.run{width:100%;transition:width linear}
 /* ---------- Memorisation and book passes board ----------
    One navy board. Each rank is a band: its place and score on the left, then the students in a grid of boxes that
    are all the same size. A month too full for the board scrolls band by band (fitRanks). */
-.ranks{flex:0 1 auto;min-height:0;margin:2.6vh 0 3vh;position:relative;overflow:hidden;font-size:3.6vh;background:var(--navy);border-radius:2.4vh;border:.5vh solid var(--navy);box-shadow:0 .8vh 0 rgba(0,20,40,.25);animation:pop .8s .3s both cubic-bezier(.3,1.4,.5,1)}
+.ranks{flex:0 1 auto;min-height:0;margin:2.6vh 0 3vh;position:relative;overflow:hidden;font-size:3.6vh;background:var(--navy);border-radius:2.4vh;border:.5vh solid var(--navy);box-shadow:0 .8vh 0 rgba(20,34,26,.25);animation:pop .8s .3s both cubic-bezier(.3,1.4,.5,1)}
 .rk-in{will-change:transform}
 .rk{display:grid;grid-template-columns:5.2em 1fr;gap:.5em;padding:.5em .55em;border-bottom:.12em solid rgba(255,255,255,.12)}
 .rk:last-child{border-bottom:0}
@@ -144,13 +144,13 @@ footer i.run{width:100%;transition:width linear}
 @keyframes flag{from{transform:rotate(-7deg)}to{transform:rotate(7deg)}}
 .fall{position:absolute;top:-4vh;width:1.1vh;height:1.7vh;border-radius:.25vh;animation:fall linear infinite}
 @keyframes fall{to{transform:translate(4vw,112vh) rotate(720deg)}}
-.empty{margin:auto;background:rgba(0,40,72,.82);border-radius:3vh;padding:4vh 4vw;font-size:4.4vh;font-weight:800;text-align:center;animation:pop .9s .6s both}
+.empty{margin:auto;background:rgba(36,56,45,.82);border-radius:3vh;padding:4vh 4vw;font-size:4.4vh;font-weight:800;text-align:center;animation:pop .9s .6s both}
 .empty small{display:block;font-size:2.6vh;color:#cfe0f0;font-weight:600;margin-top:1vh}
 /* ---------- Names that take turns ---------- */
 .cycle{flex:1;min-height:0;position:relative;margin:0 0 7vh}
 .names{position:absolute;inset:0;display:grid;gap:2vh 1.6vw;align-content:center;justify-content:center}
 .names.leave .nc{animation:leave .6s both ease-in}
-.nc{background:#fff;color:var(--ink);border-radius:2.4vh;padding:2.2vh 2vw 2.4vh;box-shadow:0 .8vh 0 rgba(0,20,40,.22);border-left:1vh solid var(--hc,#c9d6e3);min-width:0;animation:pop .75s both cubic-bezier(.3,1.5,.5,1)}
+.nc{background:#fff;color:var(--ink);border-radius:2.4vh;padding:2.2vh 2vw 2.4vh;box-shadow:0 .8vh 0 rgba(20,34,26,.22);border-left:1vh solid var(--hc,#c9d6e3);min-width:0;animation:pop .75s both cubic-bezier(.3,1.5,.5,1)}
 .nc .pn{display:block;font-size:1em;font-weight:800;line-height:1.1;overflow-wrap:anywhere}
 .nc .pcl{display:block;font-size:.5em;font-weight:600;color:var(--mute);margin-top:.4vh}
 .nc .wk{display:inline-block;font-size:.45em;font-weight:800;color:#5b4200;background:#ffe9a6;border-radius:99px;padding:.3vh .8vw;margin-top:.8vh}
@@ -159,7 +159,7 @@ footer i.run{width:100%;transition:width linear}
 .Makkah{--hc:var(--makkah)}.Al-Aqsa{--hc:var(--aqsa)}.Madinah{--hc:var(--madinah)}
 /* ---------- Teachers' names riding through ---------- */
 .rider{position:absolute;left:0;top:0;display:flex;flex-direction:column;align-items:center;will-change:transform}
-.rider .tag{background:#fff;color:var(--ink);font-weight:800;font-size:2.4vh;border-radius:99px;padding:.5vh 1.2vw;white-space:nowrap;box-shadow:0 .5vh 0 rgba(0,20,40,.3);margin-top:.4vh}
+.rider .tag{background:#fff;color:var(--ink);font-weight:800;font-size:2.4vh;border-radius:99px;padding:.5vh 1.2vw;white-space:nowrap;box-shadow:0 .5vh 0 rgba(20,34,26,.3);margin-top:.4vh}
 .rider .tag:empty{display:none}
 .rider .art{display:block}
 .rider .art{transform-origin:50% 50%;will-change:transform}
@@ -213,7 +213,7 @@ footer i.run{width:100%;transition:width linear}
 .confetti{position:absolute;width:1.2vh;height:1.8vh;border-radius:.3vh;pointer-events:none}
 #ctl{position:fixed;z-index:8;right:2vw;bottom:3vh;display:flex;gap:.8vw;opacity:0;transition:opacity .4s}
 #ctl.on,#ctl:focus-within{opacity:1}
-#ctl button{font:inherit;font-size:2.2vh;font-weight:800;color:#fff;background:var(--navy);border:0;border-radius:99px;padding:1.1vh 1.6vw;cursor:pointer;box-shadow:0 .5vh 0 rgba(0,20,40,.3)}
+#ctl button{font:inherit;font-size:2.2vh;font-weight:800;color:#fff;background:var(--navy);border:0;border-radius:99px;padding:1.1vh 1.6vw;cursor:pointer;box-shadow:0 .5vh 0 rgba(20,34,26,.3)}
 #ctl button.ico{display:grid;place-items:center;width:6vh;height:6vh;padding:0}
 #ctl .ico svg{width:3vh;height:3vh}
 #ctl .ico .fs-off,#ctl .ico.full .fs-on{display:none}#ctl .ico.full .fs-off{display:block}

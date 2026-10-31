@@ -1,6 +1,6 @@
 Assalamu alaikum {{ name }},
 
-This test came from Manage users on the Safar Academy dashboard. If you can read it, invites and password reset links will reach staff by email.
+This test came from Manage users on MyMadrasah. If you can read it, invites and password reset links will reach staff by email.
 
 Sent to: {{ email }}
 Sent: {{ at|when }} (UK time)
