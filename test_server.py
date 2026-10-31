@@ -691,7 +691,7 @@ class DashboardTests:
         # Names are escaped in the HTML part.
         self.assertIn("Sr &lt;b&gt;Maryam&lt;/b&gt;", html)
         self.assertNotIn("<b>Maryam", html)
-        self.assertIn('src="https://mysafar.example/logo.png"', html)
+        self.assertIn('src="https://mysafar.example/logo.png?v=3"', html)
         self.assertIn("72 hours", html)
         # The admin who sent it is named.
         self.assertIn("Administrator has given you an account", text)
@@ -1415,8 +1415,18 @@ class DashboardTests:
 
     def admin_mailer(self):
         mailer = FakeMailer()
-        self.app.config["MAILER"] = mailer
+        self.app.config.update(MAILER=mailer, LOGIN_CODES=True)
         return mailer
+
+    def test_admins_sign_in_without_a_code_while_codes_are_off(self):
+        # LOGIN_CODES is on by default; LOGIN_CODES=off lets admins sign in with their password even when email works.
+        self.assertTrue(create_app(dict(self.config, DATA_DIR=Path(self.temp.name) / "codes")).config["LOGIN_CODES"])
+        mailer = FakeMailer()
+        self.app.config.update(MAILER=mailer, LOGIN_CODES=False)
+        client = self.sign_in(*ADMIN)
+        self.assertEqual(client.last.status_code, 302)
+        self.assertEqual(client.get("/api/classes").status_code, 200)
+        self.assertEqual(mailer.sent, [])
 
     def code_of(self, mailer):
         return re.search(r"\b(\d{6})\b", mailer.sent[-1][2]).group(1)

@@ -249,6 +249,9 @@ def create_app(test_config=None):
         RESEND_API_KEY=os.environ.get("RESEND_API_KEY", ""),
         MAIL_FROM=os.environ.get("MAIL_FROM", ""),
         MAIL_REDIRECT_TO=os.environ.get("MAIL_REDIRECT_TO", ""),
+        # Admins' emailed sign-in code (it also needs RESEND_API_KEY and MAIL_FROM). On unless LOGIN_CODES=off,
+        # for a time when email can't be sent.
+        LOGIN_CODES=os.environ.get("LOGIN_CODES", "on").strip().lower() not in ("0", "off", "false", "no"),
         # Where replies to the dashboard's emails go. Defaults to SUPPORT_EMAIL.
         MAIL_REPLY_TO=os.environ.get("MAIL_REPLY_TO", "").strip(),
         RETENTION_DAYS=int(os.environ.get("RETENTION_DAYS", "14")),

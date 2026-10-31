@@ -30,7 +30,8 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
   in the request and error logs, so the Railway logs can't be used to take
   over an account or open a screen.
 - Admins finish signing in with a 6-digit code emailed to them after their
-  password. It works once, in that browser, for 10 minutes, and 5 wrong codes
+  password. Setting `LOGIN_CODES` to `off` turns it off for a time when email
+  can't be sent (admins then sign in with their password only). It works once, in that browser, for 10 minutes, and 5 wrong codes
   end it (10 wrong codes in 15 minutes block new ones). Teachers sign in with
   their password only. Without `RESEND_API_KEY` and `MAIL_FROM` no code can be
   sent, so admins sign in with their password and the log says so.
@@ -136,6 +137,7 @@ Close (or Escape) goes back to the class.
 | `ADMIN_EMAIL` | The first administrator's email. Used only when there are no accounts yet. |
 | `DASHBOARD_PASSWORD` | The first administrator's setup password. Used only when there are no accounts yet; they must choose a new one at first sign-in. Delete it from Railway once they have. |
 | `RESEND_API_KEY` | A sending-only API key from [Resend](https://resend.com), limited to `mysafar.org`. Optional. |
+| `LOGIN_CODES` | `off` stops emailing admins a sign-in code after their password. Optional; on by default. |
 | `MAIL_FROM` | The sender: `Safar Academy <dashboard@mysafar.org>`. Its domain must be verified in Resend. |
 | `MAIL_REPLY_TO` | Where replies to the emails go. Optional; defaults to `SUPPORT_EMAIL`. Without either, replies go to the sending address, which doesn't receive mail. |
 | `MAIL_REDIRECT_TO` | Testing only: every email goes to this address instead of the real recipient. Remove it to go live. |
