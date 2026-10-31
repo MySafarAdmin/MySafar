@@ -691,7 +691,7 @@ class DashboardTests:
         # Names are escaped in the HTML part.
         self.assertIn("Sr &lt;b&gt;Maryam&lt;/b&gt;", html)
         self.assertNotIn("<b>Maryam", html)
-        self.assertIn('src="https://mysafar.example/logo.png"', html)
+        self.assertIn('src="https://mysafar.example/logo.png?v=3"', html)
         self.assertIn("72 hours", html)
         # The admin who sent it is named.
         self.assertIn("Administrator has given you an account", text)
