@@ -23,7 +23,7 @@ body{background:var(--bg);min-height:100vh}
 /* ---------- Top ---------- */
 .top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
 .mark{display:flex;align-items:center;gap:10px;color:var(--navy);text-decoration:none;flex:none}
-.mark .badge{width:40px;height:40px;background:#fff;box-shadow:var(--shadow)}
+.mark .badge{width:40px;height:40px}
 .mark .wm{font-size:1.2rem}
 .ttl{flex:1 1 280px;min-width:0}
 .ttl h1{font-size:1.6rem}
@@ -151,7 +151,7 @@ body.wb .scroll{max-height:calc(100vh - 21vh);max-height:calc(100dvh - 21vh)}
 <body>
 <div class="bd" id="app" aria-busy="true">
  <div class="top">
-  <a class="mark" id="home" href="/"><span class="badge"><img src="/logo.png" alt="" width="34" height="34"></span><b class="wm" translate="no">My<span>Madrasah</span></b></a>
+  <a class="mark" id="home" href="/"><span class="badge"><img src="/logo-sage.png" alt="" width="40" height="40"></span><b class="wm" translate="no">My<span>Madrasah</span></b></a>
   <div class="ttl"><h1 id="title">Memorisation progress</h1><p id="sub">Loading…</p></div>
   <div class="acts">
    <button type="button" class="btn" id="wbBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4"/><path d="M8 20h8"/></svg><span>Whiteboard</span></button>

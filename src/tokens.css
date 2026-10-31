@@ -75,9 +75,9 @@ a:hover{color:var(--primary-hover)}
 .rail{background:var(--rail-bg);color:var(--rail-ink);display:flex;flex-direction:column;z-index:20}
 .rail a,.rail button{color:inherit}
 .rail .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff;padding:16px 16px 12px;min-width:0}
-/* The logo sits on a white disc so it stays visible on the sage rail. */
-.badge{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#fff}
-.badge img{width:34px;height:34px;display:block}
+/* The logo stands on its own: a white book on the sage rail, with no disc around it. */
+.badge{flex:none;display:grid;place-items:center;width:40px;height:40px}
+.badge img{width:40px;height:40px;display:block}
 .brand b{display:block;font-size:1.0625rem;font-weight:750;line-height:1.15}
 /* The MyMadrasah wordmark: "My" in a light weight, "Madrasah" in the heavy weight. */
 .wm{font-weight:400!important;letter-spacing:-.01em}
@@ -130,7 +130,7 @@ a:hover{color:var(--primary-hover)}
  :root{--dock-h:64px;--dock-gap:calc(10px + env(safe-area-inset-bottom,0px))}
  .rail{position:relative;flex-direction:row;flex-wrap:wrap;align-items:center;box-shadow:0 1px 0 rgba(0,0,0,.2)}
  .rail .brand{padding:8px 12px;flex:1}
- .badge{width:34px;height:34px}.badge img{width:28px;height:28px}
+ .badge{width:34px;height:34px}.badge img{width:34px;height:34px}
  .content{padding:16px 16px calc(var(--dock-h) + 40px + env(safe-area-inset-bottom,0px))}
 
  /* The dock: the main items, always within thumb reach, as a floating bar of icons at the bottom of the screen.

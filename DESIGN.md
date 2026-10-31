@@ -135,8 +135,8 @@ upload under them. A card opens that class with every tab, Settings included; th
 Classes marked while a class is open, and Switch class sits by the title.
 
 The name is MyMadrasah (renamed from MySafar on 2026-10-31), set as a wordmark with "My" in the regular weight and
-"Madrasah" in the heavy weight. The logo is a dark sage (#3b5948) line-art book with Arabic letters on its cover; the browser tab icon (`/favicon.png`) is that logo
-on a white disc.
+"Madrasah" in the heavy weight. The logo is a line-art book with Arabic letters on its cover, standing on its own with no disc: white on sage
+surfaces (`/logo.png`) and dark sage #3b5948 on white ones (`/logo-sage.png`, also the browser tab icon `/favicon.png`).
 
 **Overview**: one page, the Summary, with no tabs (the user removed the
 Attention, Rankings and Houses tabs on 2026-10-15). Everything they held is

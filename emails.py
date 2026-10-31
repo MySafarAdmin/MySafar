@@ -41,7 +41,7 @@ def hours(n):
 
 def render(template, **context):
     """Returns (subject, text, html) for one email. The context's `name` is the recipient's name."""
-    context = dict(context, site=auth.public_url("/"), logo=auth.public_url("/logo.png"),
+    context = dict(context, site=auth.public_url("/"), logo=auth.public_url("/logo-sage.png"),
                    signin=auth.public_url("/login"), forgot=auth.public_url("/forgot"),
                    support_email=current_app.config.get("SUPPORT_EMAIL", ""),
                    invite_hours=hours(auth.INVITE_TTL // auth.HOUR), reset_hours=hours(auth.RESET_TTL // auth.HOUR),
