@@ -1,7 +1,7 @@
 // The sign-in page's opening, drawn live on a canvas (no video to download). Stars come out one by one on a deep
-// night-blue sky as it slowly turns towards us. Then the stars let go and fall into a black hole forming at the
-// centre, a tilted disc of light round a dark core; it collapses and they gather into a full moon. A straight
-// line cuts the moon in two; the halves drift apart sideways, then they click back together with a flash and a ring of light, the moon settles to the logo's size, and the Safar design is drawn on.
+// night-blue sky as it slowly turns towards us. Then the stars let go: they swirl inward like a galaxy of particles and gather
+// into a full moon. A straight line cuts the moon in two; the halves drift apart sideways, then they click back
+// together with a flash and a ring of light, the moon settles to the logo's size, and the Safar design is drawn on.
 // The logo (a real element from then on) moves aside for "MySafar", then, on a computer, the stage folds into
 // the navy welcome panel as the logo lands on the panel's own; on a phone it lifts away. Skip, Escape, or a tap
 // anywhere goes straight to the form.
@@ -41,8 +41,8 @@
   body.classList.add("filming", "wait");   // "wait" keeps the welcome panel's quote and art hidden until they come in
 
   // --- Timeline (seconds) ---------------------------------------------------------------------------------------
-  var T = {bloom: .55, sweep: .9, swirl: 1.95, land: 3.85, crack: 4.2, split: 4.5, rejoin: 5.48, joined: 5.7,
-           draw: 6.25, domLogo: 7, lock: 7.4, out: 8.7, end: 9.85};
+  var T = {bloom: .55, sweep: .9, swirl: 2.25, land: 3.55, crack: 3.9, split: 4.2, rejoin: 5.18, joined: 5.4,
+           draw: 5.95, domLogo: 6.7, lock: 7.1, out: 8.4, end: 9.55};
 
   // --- Small helpers --------------------------------------------------------------------------------------------
   function clamp(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
@@ -199,61 +199,32 @@
     }
     ctx.globalCompositeOperation = "source-over"; ctx.globalAlpha = 1;
   }
-  // A black hole forming: each star leaves its place in the sky and falls inward, spinning faster as it goes, into
-  // a tilted disc of light circling a growing black core ringed with light. Then the core collapses and the disc
-  // falls in on itself, every point of light landing on its place in the moon.
-  var COLLAPSE = .5;   // seconds before T.land when the disc starts to fall in
+  // The motes: each star leaves its place in the sky and, as a point of light, spirals in round the centre and
+  // settles on its place in the moon.
   function motesAt(m, t) {
-    var t0 = T.swirl + m.del, tc = T.land - COLLAPSE;
-    var st = toScreen(m.px, m.py, Math.min(t, t0)), sx = st[0] - cx, sy = st[1] - cy;
+    var e = inOut((t - T.swirl - m.del) / (T.land - T.swirl - .45));
+    var st = toScreen(m.px, m.py, Math.min(t, T.swirl + m.del)), sx = st[0] - cx, sy = st[1] - cy;
     var r0 = Math.hypot(sx, sy), a0 = Math.atan2(sy, sx), r1 = Math.hypot(m.tx, m.ty), a1 = Math.atan2(m.ty, m.tx);
-    var da = a1 - a0; while (da < 0) da += 6.283; da += 6.283 * (1 + Math.floor(m.turns));
-    var E = clamp((t - t0) / (T.land - t0)), ang = a0 + da * Math.pow(E, 1.7);   // spinning faster and faster
-    var e1 = clamp((t - t0) / (tc - t0)), e2 = clamp((t - tc) / COLLAPSE);
-    var ring = Rm * (1.2 + (m.ph / 6.3) * 1.1);
-    var rr = e2 > 0 ? mix(ring, r1, e2 * e2 * e2) : mix(r0, ring, outCubic(e1));
-    var tilt = mix(mix(1, .3, smooth(e1 * 1.6)), 1, smooth(e2));   // the disc seen nearly edge-on, flattening back as it falls in
-    return [cx + Math.cos(ang) * rr, cy + Math.sin(ang) * rr * tilt, ang, rr, e2];
+    var da = a1 - a0; while (da < 0) da += 6.283; da += 6.283 * Math.floor(m.turns);
+    var ang = a0 + da * e, rad = mix(r0, r1, Math.pow(e, .8)) * (1 + .12 * Math.sin(e * Math.PI));
+    return [cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad, e];
   }
-  function holeR(t) { return Rm * .62 * smooth((t - T.swirl - .25) / .8) * (1 - smooth((t - T.land + COLLAPSE + .05) / (COLLAPSE - .05))); }
   function drawMotes(t) {
     if (!motes.length || t < T.swirl) return;
-    var settle = smooth((t - T.land + .12) / .35), hr = holeR(t);
-    for (var pass = 0; pass < 2; pass++) {   // the far side of the disc first, then the core, then the near side
-      if (pass === 1 && hr > .5) {
-        ctx.globalCompositeOperation = "source-over";
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = radial(cx, cy, hr * .9, hr * 1.9, [0, "rgba(0,0,4,.9)", 1, "rgba(0,0,4,0)"]);
-        ctx.fillRect(cx - hr * 2, cy - hr * 2, hr * 4, hr * 4);
-        ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(cx, cy, hr, 0, 6.283); ctx.fill();
-        // the ring of bent light that hugs the edge of the dark
-        ctx.globalCompositeOperation = "lighter";
-        ctx.globalAlpha = .9; ctx.strokeStyle = "rgba(255,236,205,.95)"; ctx.lineWidth = 1.6;
-        ctx.beginPath(); ctx.arc(cx, cy, hr * 1.03, 0, 6.283); ctx.stroke();
-        ctx.globalAlpha = .55;
-        ctx.fillStyle = radial(cx, cy, hr * 1.02, hr * 1.55, [0, "rgba(255,214,160,.55)", .35, "rgba(200,190,255,.18)", 1, "rgba(150,170,255,0)"]);
-        ctx.beginPath(); ctx.arc(cx, cy, hr * 1.55, 0, 6.283); ctx.moveTo(cx + hr * 1.02, cy); ctx.arc(cx, cy, hr * 1.02, 0, 6.283); ctx.fill("evenodd");
-        // light from the far side of the disc, bent up over the top of the dark and under it
-        ctx.globalAlpha = .5; ctx.strokeStyle = "rgba(255,226,190,.8)"; ctx.lineWidth = 2.2;
-        ctx.beginPath(); ctx.ellipse(cx, cy, hr * 1.2, hr * 1.12, 0, 0, 6.283); ctx.stroke();
-      }
-      ctx.globalCompositeOperation = "lighter";
-      for (var k = 0; k < motes.length; k++) {
-        var m = motes[k];
-        if (t < T.swirl + m.del) continue;
-        var p = motesAt(m, t), far = Math.sin(p[2]) < 0;
-        if ((pass === 0) !== far) continue;
-        if (far && hr > .5 && p[3] < hr * 1.1 && p[4] < .6) continue;   // gone behind the dark
-        var q = motesAt(m, t - .018);
-        // the side of the disc turning towards us is brighter, and the inner disc burns hotter
-        var dop = .55 + .45 * Math.cos(p[2] + .6);
-        var a = m.b * (1 - settle * .9) * dop * (.75 + .25 * Math.sin(t * 13 + m.ph * 2));
-        if (a <= .01) continue;
-        ctx.globalAlpha = a;
-        ctx.strokeStyle = p[3] < Rm * 1.6 ? "#ffeccc" : "#dde7ff";
-        ctx.lineWidth = m.big ? 1.6 : 1.1;
-        ctx.beginPath(); ctx.moveTo(q[0], q[1]); ctx.lineTo(p[0] + .1, p[1]); ctx.stroke();
-      }
+    var settle = smooth((t - T.land + .12) / .35);
+    ctx.globalCompositeOperation = "lighter";
+    for (var k = 0; k < motes.length; k++) {
+      var m = motes[k];
+      if (t < T.swirl + m.del) continue;
+      // each star travels as a point of light, not a streak: a bright core in a soft glow
+      var p = motesAt(m, t), e = p[2];
+      var a = m.b * (1 - settle * .9) * (.7 + .3 * Math.sin(t * 9 + m.ph * 2));
+      if (a <= .01) continue;
+      var r = (m.big ? 1.9 : .7 + m.b * 1.1) * mix(1, .8, e);
+      ctx.globalAlpha = a * .35; ctx.fillStyle = "#cfdcff";
+      ctx.beginPath(); ctx.arc(p[0], p[1], r * 2.6, 0, 6.283); ctx.fill();
+      ctx.globalAlpha = a; ctx.fillStyle = e < .5 ? "#eef3ff" : "#ffffff";
+      ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.283); ctx.fill();
     }
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
@@ -597,9 +568,7 @@
       tone("sine", 36.71, base, [Math.max(t, 0), 0, 2.5, .12, T.joined, .14, T.out + .6, .08, T.end + 1.2, 0], 1, .1, T.end + 1.3);
       pad(base, [73.42, 110, 146.83, 220], Math.max(0, t), T.land + .6, .06, 240, 800, .5);
       // the stars let go and gather: air drawn in, landing in a soft low bloom as the moon forms
-      tone("sine", 30.87, base, [Math.max(t, T.swirl), 0, T.land - .5, .22, T.land - .05, .3, T.land + .05, 0], 1, .2, T.land + .2);   // the black hole's deep pull
-      whoosh(base, T.swirl, T.land - .5, T.land - .05, 70, 260, 120, .12, .4);
-      whoosh(base, T.land - .6, T.land - .05, T.land + .6, 300, 2000, 400, .14, .55);
+      whoosh(base, T.swirl - .2, T.land - .05, T.land + .6, 220, 2000, 400, .14, .55);
       boom(base + T.land, 66, 40, 2.6, .28, .5);
       // the split: one soft whoosh as the halves part
       whoosh(base, T.split - .1, T.split + .15, T.split + 1, 260, 900, 180, .12, .5);
