@@ -5,7 +5,7 @@
 {% block heading %}{{ code }}{% endblock %}
 {% block content %}
 {% call p() %}Assalamu alaikum {{ name }},{% endcall %}
-{% call p() %}Type this code on the sign-in page to finish signing in to MyMadrasah as an administrator.{% endcall %}
+{% call p() %}Type this code on the sign-in page to finish signing in to the Safar Academy dashboard as an administrator.{% endcall %}
 {{ facts([("Code", code), ("Asked for", at|when ~ " (UK time)")]) }}
 {% call p(True) %}It works once, in the browser where you typed your password, and expires in {{ code_minutes }} minutes. Never share it: nobody from the school will ask you for it.{% endcall %}
 {% call p(True) %}<b style="color:#3c4557">Didn't just sign in?</b> Someone knows your password. Change it on the Account page straight away, or use "Forgotten your password?" on the sign-in page.{% endcall %}

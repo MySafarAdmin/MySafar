@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
-<link rel="icon" type="image/png" href="/favicon.png?v=2">
+<link rel="icon" type="image/png" href="/favicon.png?v=3">
 <link rel="stylesheet" href="/auth.css">
-<title>Memo board · MyMadrasah</title>
+<title>Memo board · MySafar</title>
 <style>
 /* The memorisation progress board (memo_board.py). One table of every student's memo record, for staff on a laptop,
    for a whiteboard or projector (Whiteboard mode: bigger type, no controls) and for phones (each student a card).
@@ -23,7 +23,7 @@ body{background:var(--bg);min-height:100vh}
 /* ---------- Top ---------- */
 .top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}
 .mark{display:flex;align-items:center;gap:10px;color:var(--navy);text-decoration:none;flex:none}
-.mark .badge{width:40px;height:40px}
+.mark .badge{width:40px;height:40px;background:#fff;box-shadow:var(--shadow)}
 .mark .wm{font-size:1.2rem}
 .ttl{flex:1 1 280px;min-width:0}
 .ttl h1{font-size:1.6rem}
@@ -151,12 +151,12 @@ body.wb .scroll{max-height:calc(100vh - 21vh);max-height:calc(100dvh - 21vh)}
 <body>
 <div class="bd" id="app" aria-busy="true">
  <div class="top">
-  <a class="mark" id="home" href="/"><span class="badge"><img src="/logo-sage.png" alt="" width="40" height="40"></span><b class="wm" translate="no">My<span>Madrasah</span></b></a>
+  <a class="mark" id="home" href="/"><span class="badge"><img src="/logo.png?v=3" alt="" width="34" height="34"></span><b class="wm" translate="no">My<span>Safar</span></b></a>
   <div class="ttl"><h1 id="title">Memorisation progress</h1><p id="sub">Loading…</p></div>
   <div class="acts">
    <button type="button" class="btn" id="wbBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4"/><path d="M8 20h8"/></svg><span>Whiteboard</span></button>
    <a class="btn hide-wb" id="share" href="/admin/board" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>Share links</a>
-   <a class="btn hide-wb" id="back" href="/" hidden>Back to MyMadrasah</a>
+   <a class="btn hide-wb" id="back" href="/" hidden>Back to MySafar</a>
   </div>
  </div>
  <ul class="chips" id="chips" aria-label="Show students who are"></ul>
@@ -224,7 +224,7 @@ function render(){var C=cols(),A=list(),counts={on:0,slow:0,behind:0,none:0};A.f
  $("count").textContent=rows.length+(rows.length===1?" student":" students");
  var scope=F.cls||D.fixedClass?(D.classes.filter(function(c){return c.id===F.cls})[0]||D.classes[0]||{}).label:F.year!==""?yearName(+F.year):F.stage==="primary"?"Primary Years":F.stage==="secondary"?"Secondary Years":D.scope||(D.mode==="staff"&&!D.admin?"Your classes":"Whole school");
  $("title").textContent=scope;$("sub").textContent="Memorisation progress · updated "+D.updated;
- document.title=(scope?scope+" · ":"")+"Memo board · MyMadrasah";
+ document.title=(scope?scope+" · ":"")+"Memo board · MySafar";
  save()}
 function fill(){var cs=$("fClass"),ys=$("fYear"),years={};
  cs.innerHTML='<option value="">'+(D.mode==="staff"&&!D.admin?"All your classes":"All classes")+'</option>'+D.classes.map(function(c){return '<option value="'+esc(c.id)+'">'+esc(c.label)+'</option>'}).join("");
