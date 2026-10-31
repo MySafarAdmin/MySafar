@@ -244,7 +244,7 @@ def plain_text(cells):
 
 def build(sheets, figures, made_at, made_by):
     book = Workbook()
-    book.properties.creator = "MySafar"
+    book.properties.creator = "MyMadrasah"
     book.properties.title = "Safar Academy Enfield records"
     head_font, head_fill = Font(name="Calibri", bold=True, color=WHITE), PatternFill("solid", fgColor=NAVY)
     head_line = Border(bottom=Side(style="thin", color=NAVY))
@@ -260,7 +260,7 @@ def build(sheets, figures, made_at, made_by):
     cover.sheet_properties.pageSetUpPr.fitToPage = True
     cover["A1"] = "Safar Academy Enfield"
     cover["A1"].font = Font(name="Calibri", bold=True, size=18, color=NAVY)
-    cover["A2"] = f"School records from MySafar, made {made_at.strftime('%-d %B %Y at %H:%M')} by {made_by}."
+    cover["A2"] = f"School records from MyMadrasah, made {made_at.strftime('%-d %B %Y at %H:%M')} by {made_by}."
     cover["A2"].font = Font(name="Calibri", color=MUTED)
     cover["A4"] = "Key figures"
     cover["A4"].font = Font(name="Calibri", bold=True, size=13, color=NAVY)
@@ -333,5 +333,5 @@ def export_download():
         sheets, figures, made_at = gather(db)
         auth.audit(db, "export.downloaded", None, {"classes": figures[0][1], "students": figures[1][1]})
     body = build(sheets, figures, made_at, g.user["name"])
-    name = f"MySafar records {made_at.strftime('%Y-%m-%d %H%M')}.xlsx"
+    name = f"MyMadrasah records {made_at.strftime('%Y-%m-%d %H%M')}.xlsx"
     return Response(body, mimetype=MIME, headers={"Content-Disposition": f'attachment; filename="{name}"'})

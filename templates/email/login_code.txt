@@ -1,6 +1,6 @@
 Assalamu alaikum {{ name }},
 
-Your sign-in code for the Safar Academy dashboard is:
+Your sign-in code for MyMadrasah is:
 
 {{ code }}
 

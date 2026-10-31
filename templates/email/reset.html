@@ -6,9 +6,9 @@
 {% block content %}
 {% call p() %}Assalamu alaikum {{ name }},{% endcall %}
 {% if by %}
-{% call p() %}{{ by }}, an administrator, has sent you a link to choose a new password for your Safar Academy dashboard account.{% endcall %}
+{% call p() %}{{ by }}, an administrator, has sent you a link to choose a new password for your MyMadrasah account.{% endcall %}
 {% else %}
-{% call p() %}Someone asked to reset the password for your Safar Academy dashboard account ({{ email }}).{% endcall %}
+{% call p() %}Someone asked to reset the password for your MyMadrasah account ({{ email }}).{% endcall %}
 {% endif %}
 {{ button(link, "Choose a new password") }}
 {% call p(True) %}The link works once and expires in {{ reset_hours }}. Your current password keeps working until you choose a new one; then you'll be signed out on your other devices.{% endcall %}

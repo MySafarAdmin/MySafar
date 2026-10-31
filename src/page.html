@@ -1,5 +1,5 @@
-<title>MySafar</title>
-<meta name="theme-color" content="#003b6b">
+<title>MyMadrasah</title>
+<meta name="theme-color" content="#4a6e5a">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
 <style>
@@ -8,7 +8,7 @@
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
 <header><div class="rail">
- <a class="brand" href="#" id="home"><span class="badge"><img alt="" width="34" height="34" src="data:image/png;base64,__LOGO__"></span><span translate="no"><b class="wm">My<span>Safar</span></b><small>Enfield</small></span></a>
+ <a class="brand" href="#" id="home"><span class="badge"><img alt="" width="34" height="34" src="data:image/png;base64,__LOGO__"></span><span translate="no"><b class="wm">My<span>Madrasah</span></b><small>Enfield</small></span></a>
  <input type="checkbox" id="navt" class="navt" aria-label="Show the menu">
  <div class="navw">
  <nav class="navs" aria-label="Main" id="nav">
@@ -726,7 +726,7 @@ function mList(){var L=$("mL");$("vT").querySelector(".mtbar .tools").appendChil
 function mPasses(){var P={},s=S[MS];if(s)s.log.forEach(function(t,k){var d=dk(t);(P[d]=P[d]||[]).push(k)});return P}
 function mKey(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)}
 function mFirst(){return mKey(sd())<mKey(today0())?mKey(sd()):mKey(today0())}
-var MPV=["#003b6b","#5e8a69"];
+var MPV=["#4a6e5a","#b98a1e"];
 function mCalHtml(){var s=S[MS],now=mKey(today0());if(!MM||MM>now)MM=now;if(MM<mFirst())MM=mFirst();
  var p=MM.split("-"),y=+p[0],m=+p[1]-1,d1=new Date(y,m,1),n=new Date(y,m+1,0).getDate(),pad=(d1.getDay()+6)%7,P=mPasses(),today=dk(Date.now());
  if(MD&&(MD.slice(0,7)!==MM||!P[MD]))MD="";
@@ -1084,7 +1084,7 @@ function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?cname(n.name):PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):PAGE==="H"?"House points":PAGE==="K"?"Rankings":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  // The Presenter (the TV's scenes for one class) is served by the Railway server, in this tab.
  $("pres").hidden=!n||!window.RAILWAY;$("nB").hidden=!window.RAILWAY;if(n)$("pres").href="/presenter/"+encodeURIComponent(CID);
- document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+(PAGE==="K"?"Rankings · ":"")+"MySafar"}
+ document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+(PAGE==="K"?"Rankings · ":"")+"MyMadrasah"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":"C";closeDrawer();$("figP").hidden=!M;if(!M)$("figP").open=false;
  $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("vL").classList.toggle("hide",!L);$("vU").classList.toggle("hide",!U);$("vH").classList.toggle("hide",!H);$("vK").classList.toggle("hide",!K);$("sub").classList.toggle("hide",M||R||L||U||H||K);
@@ -1866,7 +1866,7 @@ var TOUR=(function(){
  function cls(){return lastC()}
  // where: "M" (overview) or a class tab letter. el: a selector, or a function giving one element or several.
  var STEPS=[
-  {where:"M",t:"Welcome to MySafar",b:"A quick look at what each part of the dashboard does. It takes about a minute."},
+  {where:"M",t:"Welcome to MyMadrasah",b:"A quick look at what each part of the dashboard does. It takes about a minute."},
   {where:"M",el:function(){return phone()?$("dH"):$("nM")},t:"Overview",b:"Your home page. How your classes are doing, at a glance."},
   {where:"M",el:"#vMS .attn",t:"Needs attention",b:"Students struggling or excelling in Quran, overdue or advancing in memorisation, and anyone on a warning. Tap a box to see who."},
   {where:"M",el:"#vMS .tsr",t:"Rankings",b:"House points, most passes and most merits, for this month or all time."},

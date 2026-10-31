@@ -11,24 +11,24 @@
 <!--[if mso]><style>table,td,p,a,span,h1{font-family:'Segoe UI',Arial,sans-serif!important}</style><![endif]-->
 <style>@media (max-width:480px){.card{padding:28px 22px 24px!important}.outer{padding:20px 10px!important}}</style>
 </head>
-<body style="margin:0;padding:0;background-color:#f2f4f8;-webkit-text-size-adjust:100%">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#f2f4f8">{% block preheader %}{% endblock %}&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;</div>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#f2f4f8" style="background-color:#f2f4f8">
+<body style="margin:0;padding:0;background-color:#f3f5f3;-webkit-text-size-adjust:100%">
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#f3f5f3">{% block preheader %}{% endblock %}&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;</div>
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#f3f5f3" style="background-color:#f3f5f3">
   <tr><td class="outer" align="center" style="padding:36px 16px">
     <!--[if mso]><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="560"><tr><td><![endif]-->
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:560px">
       <tr><td style="padding:0 6px 18px">
         <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-          <td valign="middle" style="padding-right:12px"><a href="{{ site }}" target="_blank"><img src="{{ logo }}" width="44" height="44" alt="Safar Academy" style="display:block;border:0;width:44px;height:44px;border-radius:50%"></a></td>
+          <td valign="middle" style="padding-right:12px"><a href="{{ site }}" target="_blank"><img src="{{ logo }}" width="44" height="44" alt="MyMadrasah" style="display:block;border:0;width:44px;height:44px"></a></td>
           <td valign="middle" style="font-family:{{ sans }};line-height:1.25">
-            <span style="display:block;font-size:20px;font-weight:400;letter-spacing:-.01em;color:#003b6b">My<b style="font-weight:800">Safar</b></span>
+            <span style="display:block;font-size:20px;font-weight:400;letter-spacing:-.01em;color:#4a6e5a">My<b style="font-weight:800">Madrasah</b></span>
             <span style="display:block;font-size:13px;color:#5a6375">Safar Academy Enfield</span>
           </td>
         </tr></table>
       </td></tr>
       <tr><td class="card" bgcolor="#ffffff" style="background-color:#ffffff;border:1px solid #e4e7ee;border-radius:20px;padding:36px 36px 30px;box-shadow:0 1px 2px rgba(28,34,48,.04),0 6px 24px rgba(28,34,48,.06)">
         <!--TEST-->
-        {% if self.kicker() %}<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 14px"><tr><td bgcolor="#e9eff6" style="background-color:#e9eff6;border-radius:999px;padding:5px 12px;font-family:{{ sans }};font-size:12px;font-weight:700;line-height:16px;letter-spacing:.02em;color:#0b4a82">{% block kicker %}{% endblock %}</td></tr></table>{% endif %}
+        {% if self.kicker() %}<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 14px"><tr><td bgcolor="#eaf1ec" style="background-color:#eaf1ec;border-radius:999px;padding:5px 12px;font-family:{{ sans }};font-size:12px;font-weight:700;line-height:16px;letter-spacing:.02em;color:#33543f">{% block kicker %}{% endblock %}</td></tr></table>{% endif %}
         <h1 style="margin:0 0 16px;font-family:{{ sans }};font-size:26px;line-height:1.25;font-weight:800;letter-spacing:-.015em;color:#1c2230">{{ self.heading() }}</h1>
         {% block content %}{% endblock %}
       </td></tr>

@@ -1283,7 +1283,7 @@ class DashboardTests:
     def test_shared_styles_and_fonts(self):
         anonymous = self.app.test_client()
         css = anonymous.get("/auth.css").get_data(as_text=True)
-        self.assertIn("--navy:#003b6b", css)  # the shared tokens, also inlined in the dashboard
+        self.assertIn("--navy:#4a6e5a", css)  # the shared tokens, also inlined in the dashboard
         self.assertIn("details.user", css)
         font = anonymous.get("/fonts/atkinson-next-latin.woff2")
         self.assertEqual((font.status_code, font.mimetype), (200, "font/woff2"))
