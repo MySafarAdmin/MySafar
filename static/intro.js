@@ -1,6 +1,6 @@
 // The sign-in page's opening, drawn live on a canvas (no video to download). Stars come out one by one on a deep
-// night-blue sky as it slowly turns towards us. Then the stars let go: they swirl inward like a galaxy of particles and gather
-// into a full moon. A straight line cuts the moon in two; the halves drift apart sideways, then they click back
+// night-blue sky as it slowly turns towards us. Then the stars let go: they gather into a turning galaxy of
+// light with spiral arms, which draws in and falls together into a full moon. A straight line cuts the moon in two; the halves drift apart sideways, then they click back
 // together with a flash and a ring of light, the moon settles to the logo's size, and the Safar design is drawn on.
 // The logo (a real element from then on) moves aside for "MySafar", then, on a computer, the stage folds into
 // the navy welcome panel as the logo lands on the panel's own; on a phone it lifts away. Skip, Escape, or a tap
@@ -201,30 +201,55 @@
   }
   // The motes: each star leaves its place in the sky and, as a point of light, spirals in round the centre and
   // settles on its place in the moon.
+  // The stars gather into a turning galaxy of light with three spiral arms, which spins faster as it draws in,
+  // then falls together into the disc of the moon, each point landing on its own place.
+  var ARMS = 3, TWIST = 2.6;
+  function frac(x) { return x - Math.floor(x); }
+  function turnTo(a, b, w) { var d = b - a; d -= 6.2832 * Math.round(d / 6.2832); return a + d * w; }
   function motesAt(m, t) {
-    var e = inOut((t - T.swirl - m.del) / (T.land - T.swirl - .45));
+    var e = clamp((t - T.swirl - m.del) / (T.land - T.swirl - m.del - .1));
     var st = toScreen(m.px, m.py, Math.min(t, T.swirl + m.del)), sx = st[0] - cx, sy = st[1] - cy;
     var r0 = Math.hypot(sx, sy), a0 = Math.atan2(sy, sx), r1 = Math.hypot(m.tx, m.ty), a1 = Math.atan2(m.ty, m.tx);
-    var da = a1 - a0; while (da < 0) da += 6.283; da += 6.283 * Math.floor(m.turns);
-    var ang = a0 + da * e, rad = mix(r0, r1, Math.pow(e, .8)) * (1 + .12 * Math.sin(e * Math.PI));
-    return [cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad, e];
+    var u = Math.pow(frac(m.ph * 7.13), 1.4), gR = Rm * (.55 + 3.4 * u) * (S < 600 ? .75 : 1);
+    var e1 = smooth(e / .5), e2 = Math.pow(smooth((e - .55) / .45), 1.4);
+    var rad = e > .55 ? mix(gR, r1, e2) : mix(r0, gR, e1);
+    var s0 = t - T.swirl, spin = s0 * 1.1 + s0 * s0 * .55;   // the galaxy turns, faster and faster
+    var arm = Math.floor(frac(m.ph * 1.91) * ARMS) * 6.2832 / ARMS + (frac(m.ph * 3.7) - .5) * (.5 + .6 * u);
+    var gA = arm - TWIST * Math.log(1 + rad / Rm) + spin;
+    var ang = turnTo(a0 + s0 * .4, gA, e1);
+    ang = turnTo(ang, a1 + spin * .15 * (1 - e2), e2);
+    return [cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad * mix(.9, 1, e2), e, rad];   // seen a little from above
   }
+  // a soft round point of light, drawn once and stamped for every mote
+  var dotSpr = offscreen(32, 32);
+  (function () {
+    var g = dotSpr.getContext("2d"), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(.12, "rgba(255,255,255,.95)"); gr.addColorStop(.3, "rgba(200,220,255,.35)");
+    gr.addColorStop(.6, "rgba(160,190,255,.08)"); gr.addColorStop(1, "rgba(160,190,255,0)");
+    g.fillStyle = gr; g.fillRect(0, 0, 32, 32);
+  })();
   function drawMotes(t) {
     if (!motes.length || t < T.swirl) return;
     var settle = smooth((t - T.land + .12) / .35);
     ctx.globalCompositeOperation = "lighter";
+    // the heart of the swirl brightens as the light gathers, then gives way to the moon
+    var core = smooth((t - T.swirl - .3) / 1) * (1 - smooth((t - T.land + .2) / .4));
+    if (core > 0) {
+      ctx.globalAlpha = core * .5;
+      ctx.fillStyle = radial(cx, cy, 0, Rm * 2.6, [0, "rgba(220,232,255,.6)", .3, "rgba(170,195,255,.22)", 1, "rgba(120,150,240,0)"]);
+      ctx.fillRect(cx - Rm * 2.6, cy - Rm * 2.6, Rm * 5.2, Rm * 5.2);
+    }
     for (var k = 0; k < motes.length; k++) {
       var m = motes[k];
       if (t < T.swirl + m.del) continue;
-      // each star travels as a point of light, not a streak: a bright core in a soft glow
       var p = motesAt(m, t), e = p[2];
-      var a = m.b * (1 - settle * .9) * (.7 + .3 * Math.sin(t * 9 + m.ph * 2));
+      // nearer the centre the points burn brighter; each twinkles a little
+      var heat = 1 - clamp(p[3] / (Rm * 4));
+      var a = m.b * (1 - settle * .9) * (.75 + .25 * Math.sin(t * 9 + m.ph * 2)) * (.7 + .5 * heat);
       if (a <= .01) continue;
-      var r = (m.big ? 1.9 : .7 + m.b * 1.1) * mix(1, .8, e);
-      ctx.globalAlpha = a * .35; ctx.fillStyle = "#cfdcff";
-      ctx.beginPath(); ctx.arc(p[0], p[1], r * 2.6, 0, 6.283); ctx.fill();
-      ctx.globalAlpha = a; ctx.fillStyle = e < .5 ? "#eef3ff" : "#ffffff";
-      ctx.beginPath(); ctx.arc(p[0], p[1], r, 0, 6.283); ctx.fill();
+      var r = (m.big ? 3.4 : 1.6 + m.b * 2) * mix(1, .7, e) * (.85 + .3 * heat);
+      ctx.globalAlpha = Math.min(1, a);
+      ctx.drawImage(dotSpr, p[0] - r * 2, p[1] - r * 2, r * 4, r * 4);
     }
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
