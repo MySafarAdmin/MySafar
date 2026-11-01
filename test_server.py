@@ -1133,11 +1133,25 @@ class DashboardTests:
         self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["points"]],
                          [(70, ["Bilal H."]), (10, ["Hana A."]), (5, ["Amina R."])])
         self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["houses"]], [(70, ["Madinah"]), (15, ["Makkah"])])
+        self.assertEqual({h: [(e["name"], e["n"]) for e in L] for h, L in data["earners"].items()},
+                         {"Makkah": [("Hana A.", 10), ("Amina R.", 5)], "Madinah": [("Bilal H.", 70)], "Al-Aqsa": []})
         self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in data["merits"]], [(2, ["Bilal H."])])
         self.assertEqual([b["name"] for b in data["books"]], ["Bilal H."])
         self.assertEqual([(s["label"], s["name"]) for s in data["stars"]],
                          [("Week of 5 Oct", "Amina R."), ("Week of 12 Oct", "Bilal H.")])
         self.assertEqual(data["riders"], ["Amina R.", "Bilal H.", "Hana A."])
+        # The Quran ranking has everyone with 3 or more scores; the glance slide has the class's totals.
+        self.assertEqual([(s["place"], s["n"]) for s in data["quran_all"]], [(1, 4.8), (2, 4.0)])
+        self.assertEqual(data["glance"], {"students": 3, "memo": 4, "memo_students": 2, "quran": 4.6, "quran_days": 4,
+                                          "quran_students": 2, "qaidah": 0, "points": 85, "merits": 2, "books": 1})
+        # Where the class stands among its stage's classes; ties share a place (1, 1, 2), a class with nothing has none.
+        other = lambda cid, name, n, q: {"id": cid, "json": json.dumps({"name": name, "S": [  # noqa: E731
+            self.tv_student("Zaid Omar", log=[ms(2026, 10, 6, 9)] * n, q=q)]})}
+        rows = [row, other("yr4-b", "Yr4-B-QM-Br Idris", 4, {"2026-10-01": 5}), other("yr5-a", "Yr5-A-QM-Br Yusuf", 6, {}),
+                other("yr6-a", "Yr6-A-QM-Br Musa", 0, {}), other("yr8-a", "Yr8-A-QM-Br Ali", 9, {"2026-10-01": 5})]
+        self.assertEqual(tv.school_places(rows, "yr3-a", now), {"stage": "primary",
+                         "memo": {"place": 2, "of": 3, "classes": 4}, "quran": {"place": 2, "of": 2, "classes": 4}})
+        self.assertEqual(tv.school_places(rows, "yr6-a", now), {"stage": "primary"})
         self.assertNotIn("Rahman", json.dumps(data))
         # Teachers present their own classes; admins any class.
         self.write(class_id="yr3-a")
@@ -1148,11 +1162,66 @@ class DashboardTests:
         self.assertEqual(page.status_code, 200)
         self.assertIn("script-src 'self' 'nonce-", page.headers["Content-Security-Policy"])
         self.assertEqual(teacher.get("/api/presenter/yr3-a").get_json()["class"], "Yr3A")
+        self.assertIn("school", teacher.get("/api/presenter/yr3-a").get_json())
         self.assertEqual(teacher.get("/presenter/yr4-b").status_code, 404)
         self.assertEqual(teacher.get("/api/presenter/yr4-b").status_code, 404)
         self.assertEqual(self.client.get("/api/presenter/yr4-b").get_json()["class"], "Yr4B")
         self.assertEqual(self.client.get("/presenter/nope").status_code, 404)
         self.assertEqual(self.app.test_client().get("/api/presenter/yr3-a").status_code, 401)
+
+    def test_presenter_shared_by_link_and_code(self):
+        self.write("Yr3-A-QM-Br Faeez", class_id="yr3-a")
+        self.write("Yr5-B-QM-Br Faeez", class_id="yr5-b")
+        self.write("Yr4-B-QM-Sr Zainab", class_id="yr4-b")
+        self.add_user("t@example.com", classes=["yr3-a"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        share = lambda client, cid, action="open": client.post(  # noqa: E731
+            f"/api/presenter/{cid}/share", json={"action": action}, headers=self.headers)
+        self.assertEqual(share(teacher, "yr4-b").status_code, 404)  # not one of theirs
+        first = share(teacher, "yr3-a").get_json()
+        self.assertEqual(first["url"], "http://localhost/ustdfaeez")
+        self.assertRegex(first["code"], r"^[A-HJKMNP-Z2-9]{4}$")
+        self.assertEqual(share(teacher, "yr3-a").get_json()["code"], first["code"])  # the same code all day
+        # A second class of the same teacher, and an Ustadha's class.
+        self.assertEqual(share(self.client, "yr5-b").get_json()["url"], "http://localhost/ustdfaeez5b")
+        self.assertEqual(share(self.client, "yr4-b").get_json()["url"], "http://localhost/ustdhazainab")
+        # Anyone with the link is asked for the code, with no sign-in.
+        visitor = self.app.test_client()
+        page = visitor.get("/ustdfaeez")
+        self.assertEqual(page.status_code, 200)
+        self.assertIn("data-codeboxes", page.get_data(as_text=True))
+        self.assertIn("script-src 'self'", page.headers["Content-Security-Policy"])
+        self.assertEqual(visitor.get("/ustdnobody").status_code, 404)
+        self.assertEqual(visitor.get("/account").status_code, 302)  # other paths still need a sign-in
+        token = csrf_of(page)
+        code = lambda typed, client=visitor: client.post(  # noqa: E731
+            "/ustdfaeez/code", data={"csrf": token, "code": typed}, headers={"Accept": "application/json"})
+        self.assertEqual(visitor.get("/ustdfaeez/data").status_code, 401)
+        wrong = "".join("A" if c != "A" else "B" for c in first["code"])
+        self.assertEqual(code(wrong).status_code, 400)
+        right = code(first["code"].lower())
+        self.assertEqual(right.status_code, 200)
+        view = right.get_json()["next"].split("#v=")[1]
+        self.assertTrue(right.get_json()["next"].startswith("/ustdfaeez/view#v="))
+        self.assertEqual(visitor.get("/ustdfaeez/view").status_code, 200)
+        data = visitor.get("/ustdfaeez/data", headers={"X-View": view}).get_json()
+        self.assertEqual((data["class"], data["shared"]), ("Yr3A Ustadh Faeez", True))
+        self.assertEqual(visitor.get("/ustdfaeez5b/data", headers={"X-View": view}).status_code, 401)  # this class only
+        # A new code: the old one stops working, anyone watching keeps watching.
+        second = share(teacher, "yr3-a", "new").get_json()
+        self.assertNotEqual(second["url"], None)
+        self.assertEqual(visitor.get("/ustdfaeez/data", headers={"X-View": view}).status_code, 200)
+        if second["code"] != first["code"]:
+            self.assertEqual(code(first["code"]).status_code, 400)
+        # Too many wrong codes and the code stops working until the teacher makes a new one.
+        for _ in range(tv.SHARE_FAILS):
+            last = code(wrong if wrong != second["code"] else "2222")
+        self.assertEqual((last.status_code, last.get_json()["gone"]), (410, True))
+        self.assertEqual(code(second["code"]).status_code, 410)
+        # Stop sharing ends every open view and the link.
+        self.assertTrue(share(teacher, "yr3-a", "stop").get_json()["stopped"])
+        self.assertEqual(visitor.get("/ustdfaeez/data", headers={"X-View": view}).status_code, 401)
+        self.assertEqual(visitor.get("/ustdfaeez").status_code, 404)
 
     def test_tv_screen_links(self):
         student = self.tv_student("Aisha Khan", house="Makkah", tg=[1])
@@ -1196,89 +1265,6 @@ class DashboardTests:
         self.assertEqual(anonymous.get(link).status_code, 404)
         self.assertEqual(anonymous.get(link + "/data").status_code, 404)
         self.assertIn("No TV links yet", self.client.get("/admin/tv").get_data(as_text=True))
-
-    def test_memo_board_figures(self):
-        import memo_board
-        now = datetime(2026, 10, 29, 12, tzinfo=auth.LONDON)  # a Thursday
-        ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
-        fb = {"d": "2026-10-20", "k": "m", "n": 3, "sc": 2, "ok": False, "fb": "Revise the last page"}
-        rows = [{"id": "yr3-a", "json": json.dumps({"name": "Yr3-A-QM-Br Ahmed", "L": [9, 9], "Q": 37, "S": [
-                    self.tv_student("Amina Rahman", target=4, passes=3, log=[ms(2026, 10, 1, 9), ms(2026, 10, 13, 9), ms(2026, 10, 27, 9)],
-                                    lt=[1, 2, 12], lx=["", "", ""], fl=[ms(2026, 10, 20, 9)],
-                                    tests=[fb, {"d": "2026-10-27", "k": "m", "n": 12, "sc": 4, "ok": True}]),
-                    self.tv_student("Bilal Hussain", target=20, passes=1, log=[ms(2026, 10, 14, 9)], lt=[19],
-                                    lx=["197. Surah An-Naba'"]),
-                    self.tv_student("Hana Ali", target=3, passes=1, log=[ms(2026, 9, 1, 9)], lt=[2], lx=[""],
-                                    fl=[ms(2026, 10, 2, 9)] * 2),
-                    self.tv_student("Musa Khan")]})},
-                {"id": "yr8-b", "json": json.dumps({"name": "Yr8-B", "L": [9], "S": [
-                    self.tv_student("Zara Noor", fl=[ms(2026, 10, 6, 9)])]})}]
-        data = memo_board.board(rows, now)
-        by = {s["name"]: s for s in data["students"]}
-        a = by["Amina Rahman"]
-        self.assertEqual((a["status"], a["weeks"], a["passes"], a["fails"], a["rate"]), ("on", 0, 3, 1, 75))
-        self.assertEqual((a["level"], a["levelDate"], a["tested"], a["failDate"], a["target"]),
-                         ("L2 T3", "2026-10-27", "2026-10-27", "2026-10-20", "L1 T4"))
-        self.assertEqual((a["feedback"], a["feedbackDate"], a["feedbackOk"]), ("Revise the last page", "2026-10-20", False))
-        # Two weeks since a surah pass: slowing down; the surah is written as chosen on Record.
-        self.assertEqual((by["Bilal Hussain"]["status"], by["Bilal Hussain"]["weeks"], by["Bilal Hussain"]["level"],
-                          by["Bilal Hussain"]["target"]), ("slow", 2, "197. Surah An-Naba'", "Item 199"))
-        self.assertEqual((by["Hana Ali"]["status"], by["Hana Ali"]["weeks"], by["Hana Ali"]["rate"]), ("behind", 8, 33))
-        self.assertEqual((by["Musa Khan"]["status"], by["Musa Khan"]["target"], by["Musa Khan"]["rate"]), ("none", None, None))
-        self.assertEqual((by["Zara Noor"]["status"], by["Zara Noor"]["weeks"], by["Zara Noor"]["stage"], by["Zara Noor"]["year"]),
-                         ("behind", None, "secondary", 8))
-        self.assertEqual([c["label"] for c in data["classes"]], ["Yr3A Ustadh Ahmed", "Yr8B"])
-        self.assertEqual(memo_board.target_label(56, [9, 9], 37), "Quran complete")
-        # A link: short names, one stage, and without fails or feedback when made that way.
-        short = memo_board.board(rows, now, short=True, fails=False, scope="primary")
-        self.assertEqual([s["name"] for s in short["students"]], ["Amina R.", "Bilal H.", "Hana A.", "Musa K."])
-        self.assertNotIn("fails", short["students"][0])
-        self.assertNotIn("Revise", json.dumps(short))
-
-    def test_memo_board_pages_and_links(self):
-        student = self.tv_student("Aisha Khan", target=2, passes=1, log=[time.time() * 1000], lt=[1], lx=[""],
-                                  tests=[{"d": "2026-10-27", "k": "m", "n": 1, "sc": 5, "ok": True, "fb": "Lovely"}])
-        self.assertEqual(self.write(state=dict(self.state, S=[student])).status_code, 200)
-        self.assertEqual(self.write("Yr4-B", class_id="yr4-b", state=dict(self.state, S=[self.tv_student("Omar Ali")])).status_code, 200)
-        # Feedback has a length limit.
-        long = dict(student, tests=[dict(student["tests"][0], fb="x" * 301)])
-        self.assertEqual(self.write(state=dict(self.state, S=[long]), revision=1).status_code, 400)
-        anonymous = self.app.test_client()
-        self.assertEqual(anonymous.get("/board").status_code, 302)
-        self.assertEqual(anonymous.get("/api/board").status_code, 401)
-        self.assertEqual(anonymous.get("/board/not-a-link").status_code, 404)
-        self.assertEqual(anonymous.get("/board/not-a-link/data").status_code, 404)
-        page = self.client.get("/board")
-        self.assertEqual(page.status_code, 200)
-        self.assertIn("script-src 'self' 'nonce-", page.headers["Content-Security-Policy"])
-        data = self.client.get("/api/board").get_json()
-        self.assertTrue(data["admin"])
-        self.assertEqual([s["name"] for s in data["students"]], ["Aisha Khan", "Omar Ali"])
-        self.assertEqual(data["students"][0]["feedback"], "Lovely")
-        # Teachers see their own classes and can't make links.
-        self.add_user("t@example.com", classes=["yr4-b"])
-        teacher = self.sign_in("t@example.com", "teacher-password-1")
-        mine = teacher.get("/api/board").get_json()
-        self.assertEqual(([s["name"] for s in mine["students"]], mine["admin"]), (["Omar Ali"], False))
-        self.assertEqual(teacher.get("/admin/board").status_code, 403)
-        page = self.form(self.client, "/admin/board", "/admin/board/new", name="Yr3 whiteboard", scope="class:yr3-a").get_data(as_text=True)
-        link = re.search(r'value="http://localhost(/board/[^"]+)"', page).group(1)
-        self.assertIn("without fails or feedback", page)
-        self.assertEqual(anonymous.get(link).status_code, 200)
-        shown = anonymous.get(link + "/data").get_json()
-        self.assertEqual(([s["name"] for s in shown["students"]], shown["fails"], shown["title"], shown["fixedClass"]),
-                         (["Aisha K."], False, "Yr3 whiteboard", True))
-        self.assertNotIn("Lovely", json.dumps(shown))
-        for path in ("/", "/api/classes", "/api/board", "/admin/board"):
-            self.assertIn(anonymous.get(path).status_code, (302, 401))
-        bad = self.form(self.client, "/admin/board", "/admin/board/new", name="x", scope="class:nope")
-        self.assertEqual(bad.status_code, 400)
-        self.form(self.client, "/admin/board", "/admin/board/new", name="Hall", scope="", fails="1")
-        self.assertIn("Made a memo board link", self.client.get("/admin/activity").get_data(as_text=True))
-        link_id = self.query("SELECT id FROM board_links WHERE name = 'Yr3 whiteboard'")[0]["id"]
-        self.form(self.client, "/admin/board", f"/admin/board/{link_id}/off")
-        self.assertEqual(anonymous.get(link).status_code, 404)
-        self.assertEqual(anonymous.get(link + "/data").status_code, 404)
 
     def test_shared_styles_and_fonts(self):
         anonymous = self.app.test_client()
@@ -1502,7 +1488,7 @@ class DashboardTests:
         self.assertEqual(self.query("SELECT COUNT(*) AS n FROM login_codes")[0]["n"], 0)
 
     def test_dashboard_scripts_carry_a_nonce(self):
-        for path in ("/", "/tv", "/board"):
+        for path in ("/", "/tv"):
             response = self.client.get(path)
             nonce = re.search(r"'nonce-([^']+)'", response.headers["Content-Security-Policy"]).group(1)
             self.assertNotIn("unsafe-inline", response.headers["Content-Security-Policy"].split("style-src")[0])

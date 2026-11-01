@@ -18,7 +18,7 @@
   <button class="nav" id="nL" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>Classes</button>
   <button class="nav" id="nH" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13.5A8.5 8.5 0 1 1 10.5 3.5v10z"/><path d="M14 3.2A8.5 8.5 0 0 1 20.8 10H14z"/></svg>House points</button>
   <button class="nav" id="nK" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 2.5 4"/><path d="M17 6h2.5a2.5 2.5 0 0 1-2.5 4"/></svg>Rankings</button>
-  <a class="nav" id="nB" href="/board" hidden title="Every student's memorisation progress, for staff and for the whiteboard"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M7 12l3-3 2 2 4-4"/><path d="M12 16v4"/><path d="M8 20h8"/></svg>Memo board</a>
+  <button class="nav" id="nB" type="button" hidden title="Show a class's month on the big screen, in a new tab: tops, rankings and the house race"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="m10.5 7.8 4 2.2-4 2.2z"/><path d="M12 16v4"/><path d="M8 20h8"/></svg>Presenter</button>
   <button class="nav" id="nU" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11.2v4.3c1.5 1.5 3.4 2.2 5.5 2.2s4-.7 5.5-2.2v-4.3"/><path d="M21.5 9v5"/></svg>Students</button>
   <div id="adminNav"></div>
   <a class="nav j2j j2jb" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer" title="Registers, homework and classroom learning"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></svg><span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
@@ -31,7 +31,7 @@
 <div class="work">
 <main><div class="content" id="main" tabindex="-1">
 <div class="head" id="band">
- <div class="head-top"><h1 id="ttl">School overview</h1><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button><a class="btn ghost sm swc pres" id="pres" href="#" hidden title="Show this class's tops for the month on the big screen">Presenter</a><span class="save" id="st" role="status" aria-live="polite"></span><details class="figpop" id="figP"><summary class="ibtn" aria-label="Figures" title="Figures"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><path d="M8.5 16v-4M12.5 16V8M16.5 16v-6"/></svg></summary><div class="figs" id="figs"></div></details></div>
+ <div class="head-top"><h1 id="ttl">School overview</h1><button class="btn ghost sm swc" id="swc" type="button" aria-haspopup="dialog" hidden>Switch class</button><span class="save" id="st" role="status" aria-live="polite"></span><details class="figpop" id="figP"><summary class="ibtn" aria-label="Figures" title="Figures"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><path d="M8.5 16v-4M12.5 16V8M16.5 16v-6"/></svg></summary><div class="figs" id="figs"></div></details></div>
  <div class="hello" id="hello" hidden></div>
  <div class="tabs hide" id="sub" role="tablist" aria-label="Class pages">
   <button id="tQ" role="tab" aria-controls="vQ" aria-selected="true">Quran</button><button id="tT" role="tab" aria-controls="vT" aria-selected="false" tabindex="-1">Memo</button><button id="tD" role="tab" aria-controls="vD" aria-selected="false" tabindex="-1">Progress</button><button id="tS" role="tab" aria-controls="vS" aria-selected="false" tabindex="-1">Settings</button>
@@ -223,6 +223,8 @@ function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];
  if(h==="tour"){TOURQ=true;return ["M"]}
  /* From the Import page: Classes with "Upload students from a CSV file" open. */
  if(h==="upload-students"&&!TEACHER){setTimeout(function(){var u=$("up");if(u){u.open=true;u.scrollIntoView({block:"start"})}},0);return ["L"]}if(h==="students")return ["U"];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="rankings")return [TEACHER?"M":"K"];if(h==="record")return [TEACHER?"M":"R"];
+ /* From an admin page's menu: Presenter's class picker over the overview. */
+ if(h==="presenter"){setTimeout(presenter,0);return ["M"]}
  var m=/^tab-([QTDHS])$/.exec(h);if(m){var c=lastC();return c?[c,m[1]]:CIDS.length||LOADED?["L"]:null}return ST[h]?[h]:null}
 function setSt(t,s){var e=document.getElementById("st");if(e){e.textContent=t;e.setAttribute("data-s",s||(/couldn|can't|not saved|signed out|could not/i.test(t)?"bad":/saving|loading/i.test(t)?"busy":"ok"))}}
 function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
@@ -1083,7 +1085,7 @@ function cname(n){n=String(n||"");if(CNM.hasOwnProperty(n))return CNM[n];var g=/
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?cname(n.name):PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):PAGE==="H"?"House points":PAGE==="K"?"Rankings":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  // The Presenter (the TV's scenes for one class) is served by the Railway server, in this tab.
- $("pres").hidden=!n||!window.RAILWAY;$("nB").hidden=!window.RAILWAY;if(n)$("pres").href="/presenter/"+encodeURIComponent(CID);
+ $("nB").hidden=!window.RAILWAY;
  document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+(PAGE==="K"?"Rankings · ":"")+"MySafar"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":"C";closeDrawer();$("figP").hidden=!M;if(!M)$("figP").open=false;
@@ -1097,6 +1099,17 @@ function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if
  else{setClass(c);tab(keepTab||"Q")}
  try{history.replaceState(null,"",M||R?location.pathname+location.search:L?"#classes":U?"#students":H?"#house-points":K?"#rankings":"#"+c)}catch(e){}
  $("navt").checked=false;navL();window.scrollTo(0,0)}
+/* Presenter (in the menu): the open class's month on the big screen, served by the Railway server in a new tab (as
+   the TV preview is), so the dashboard stays open here. With no class open, a teacher with one class goes straight to
+   it; otherwise pick the class, the one used last first. */
+function presUrl(c){return "/presenter/"+encodeURIComponent(c)}
+function presOpen(c){var w=window.open(presUrl(c),"_blank");if(!w)location.href=presUrl(c);closeDrawer()} // a blocked pop-up opens it here instead
+function presenter(){if(!window.RAILWAY)return;var c=CID||(CIDS.length===1?CIDS[0]:null);if(c){presOpen(c);return}
+ if(!CIDS.length){toast(LOADED?"There are no classes to present yet.":"Loading classes…");return}
+ var L=CIDS.slice(),last=lastC();if(last&&L.indexOf(last)>0){L.splice(L.indexOf(last),1);L.unshift(last)}
+ drawer("Presenter",'<p class="dnote">Choose a class. Its Presenter opens in a new tab.</p><input type="search" id="swQ" class="dsearch" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><ul class="swl" id="swL">'+L.map(function(c){return '<li data-q="'+esc(nkey(ST[c].name+" "+cname(ST[c].name)))+'"><button type="button" data-pres="'+esc(c)+'">'+esc(cname(ST[c].name))+'<small>'+plural(ST[c].S.length,"student")+'</small></button></li>'}).join("")+'</ul>');
+ $("swL").addEventListener("click",function(e){var b=e.target.closest("[data-pres]");if(b)presOpen(b.getAttribute("data-pres"))});
+ $("swQ").addEventListener("input",function(){var q=nkey(this.value);Array.prototype.forEach.call($("swL").children,function(li){li.hidden=!!q&&li.dataset.q.indexOf(q)<0})})}
 function switcher(){drawer("Switch class",'<input type="search" id="swQ" class="dsearch" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><ul class="swl" id="swL">'+CIDS.map(function(c){return '<li data-q="'+esc(nkey(ST[c].name+" "+cname(ST[c].name)))+'"><button type="button" data-open="'+esc(c)+'"'+(c===CID?' aria-current="page"':'')+'>'+esc(cname(ST[c].name))+'<small>'+plural(ST[c].S.length,"student")+'</small></button></li>'}).join("")+'</ul>');
  $("swQ").addEventListener("input",function(){var q=nkey(this.value);Array.prototype.forEach.call($("swL").children,function(li){li.hidden=!!q&&li.dataset.q.indexOf(q)<0})})}
 /* ---------- Overview ---------- */
@@ -1551,7 +1564,7 @@ f.onchange=function(){if(!f.value||!CID)return;FCD=f.value;ST[CID].fcd=FCD;save(
 $("bulkA").onclick=function(){if(!CID)return;var c=CID,n=$("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);$("bulk").focus();return}
  nextSid(function(k){if(CID!==c)return;n.forEach(function(x,i){var s=blank(x);s.sid=sidFmt(k+i);S.push(s)});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added, "+(n.length>1?sidFmt(k)+" to "+sidFmt(k+n.length-1):sidFmt(k)))})};
 $("nM").onclick=function(){go("M")};$("nL").onclick=function(){go("L")};$("nU").onclick=function(){go("U")};$("nR").onclick=function(){go("R")};$("nH").onclick=function(){go("H")};$("nK").onclick=function(){go("K")};if(TEACHER){$("nR").hidden=true;$("nU").hidden=true;$("nH").hidden=true;$("nK").hidden=true}$("home").onclick=function(e){e.preventDefault();go("M")};
-$("swc").onclick=switcher;
+$("swc").onclick=switcher;$("nB").onclick=presenter;
 $("dH").onclick=function(){go("M")};$("dL").onclick=function(){go("L")};$("dR").onclick=function(){go("R")};
 Object.keys(DKC).forEach(function(id){$(id).onclick=function(){var k=DKC[id];if(PAGE==="C"){tab(k);window.scrollTo(0,0);return}var c=lastC();if(c)go(c,k);else go("L")}});
 $("nS").onclick=function(){if(PAGE!=="C")return;tab("S");$("navt").checked=false;window.scrollTo(0,0)};
@@ -1881,8 +1894,8 @@ var TOUR=(function(){
   {where:"Q",el:"#qB .qnb",t:"Student menu",b:"Tap a name for warnings, merits and the student's current target."},
   {where:"Q",el:function(){return [document.querySelector("#vQ .qnav"),$("qCal")]},t:"Class days",b:"The arrows move between class days. The calendar jumps straight to one."},
   {where:"Q",el:"#qStar",t:"Star of the week",b:"Choose your class's star of the week."},
-  {where:"Q",el:function(){return [$("swc"),$("pres")]},t:"Switch class",
-   b:function(){return phone()?"Jump to another of your classes.":"Jump to another of your classes. Presenter shows this month's top students on the big screen."}},
+  {where:"Q",el:"#swc",t:"Switch class",
+   b:function(){return phone()?"Jump to another of your classes.":"Jump to another of your classes. Presenter, in the menu, shows this class's month on the big screen."}},
   {where:"T",el:"#mL .mgrp",t:"Memo",b:"Each card is a student and their current target. Concern lists students due a pass. Tap a card for their pass calendar."},
   {where:"D",desk:true,el:"#vD .grp",t:"Progress",b:"Where each student is in the book. Pass history shows their passes week by week."},
   {where:"M",el:function(){return phone()?document.querySelector(".dock .dk-more"):$("me")},t:"Your account",
