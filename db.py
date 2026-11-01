@@ -183,8 +183,8 @@ def _m9_tutorial_again(db, postgres):
 
 def _m10_board_links(db, postgres):
     t = _types(postgres)
-    # Read-only links to the memorisation progress board (see memo_board.py). The token is stored only as a SHA-256
-    # hash. scope: "" (whole school), "primary", "secondary" or "class:<classroom id>"; fails: 0 leaves out fails and
+    # Read-only links to the memorisation progress board (the board is gone; the table is left unused). The token is
+    # stored only as a SHA-256 hash. scope: "" (whole school), "primary", "secondary" or "class:<classroom id>"; fails: 0 leaves out fails and
     # tester feedback.
     db.execute(f"""CREATE TABLE board_links (
         id {t['id']},

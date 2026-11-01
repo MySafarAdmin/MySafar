@@ -34,7 +34,6 @@ import house_extra
 import quran_coins
 import memo_import
 import helpdesk
-import memo_board
 import tv
 from db import DB_ERRORS, Database
 from mailer import Mailer
@@ -60,7 +59,7 @@ PUBLIC = {"/login", "/login/code", "/forgot", "/healthz", "/logo.png", "/auth.cs
 # for text and titles alike (see DESIGN.md).
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
 # /tv/<token> is a TV screen link; tv.py checks the token.
-PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/board/", "/fonts/")
+PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/")
 
 
 def coins(state):
@@ -289,7 +288,6 @@ def create_app(test_config=None):
     app.register_blueprint(quran_coins.bp)
     app.register_blueprint(memo_import.bp)
     app.register_blueprint(helpdesk.bp)
-    app.register_blueprint(memo_board.bp)
     if not app.config.get("TESTING"):
         helpdesk.start_summary_thread(app)
     pruned = {"at": 0}
@@ -361,7 +359,7 @@ def create_app(test_config=None):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
-        dashboard = request.path in ("/", "/tv", "/board") or (request.path.startswith(("/tv/", "/presenter/", "/board/"))
+        dashboard = request.path in ("/", "/tv") or (request.path.startswith(("/tv/", "/presenter/"))
                                                         and response.mimetype == "text/html" and response.status_code == 200)
         if dashboard:
             nonce = secrets.token_urlsafe(16)

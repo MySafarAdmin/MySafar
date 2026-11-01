@@ -243,6 +243,45 @@ def book_passed(student, start):
 QURAN_DAYS = 3  # Quran scores a student needs this month to be on the Quran podium
 
 
+def class_average(scores):
+    return round(sum(scores) / len(scores), 1) if scores else 0
+
+
+def month_scores(state, now):
+    """A class's memorisation passes and its Quran scores this month."""
+    month, month_key, today_key, _ = period(now)
+    passes, scores = 0, []
+    for s in state.get("S", []):
+        if not short_name(s.get("name", "")):
+            continue
+        passes += since(s.get("log", []), month)
+        scores += [v for d, v in (s.get("q") or {}).items() if month_key <= d <= today_key and isinstance(v, (int, float)) and v >= 0]
+    return passes, class_average(scores)
+
+
+def school_places(rows, class_id, now=None):
+    """Where a class stands in the school this month, among the classes of its own stage (Primary or Secondary Years,
+    as on the Rankings page and the TV): by memorisation passes and by Quran average. Classes on the same total share
+    a place, and the next takes the next number (1, 1, 2). A class with nothing yet has no place."""
+    now = now or datetime.now(auth.LONDON)
+    classes = []
+    for row in rows:
+        state = json.loads(row["json"])
+        class_name = state.get("name") or row["id"]
+        stage = class_stage(class_name, [x for x in (school_stage(s, class_name) for s in state.get("S", [])) if x])
+        classes.append((row["id"], stage) + month_scores(state, now))
+    me = next((c for c in classes if c[0] == class_id), None)
+    if not me:
+        return {}
+    group = [c for c in classes if c[1] == me[1]]
+    places = {"stage": me[1] or ""}
+    for key, i in (("memo", 2), ("quran", 3)):
+        if me[i]:
+            totals = sorted({c[i] for c in group if c[i]}, reverse=True)
+            places[key] = {"place": totals.index(me[i]) + 1, "of": sum(1 for c in group if c[i]), "classes": len(group)}
+    return places
+
+
 def class_summary(row, now=None):
     """What a class's Presenter shows: this month's tops in one class, and its students' names to ride through."""
     now = now or datetime.now(auth.LONDON)
@@ -252,6 +291,7 @@ def class_summary(row, now=None):
     tops = {k: [] for k in ("quran", "memo", "qaidah", "points", "merits")}
     houses, books, students = dict.fromkeys(HOUSES, 0), [], []
     earners = {h: [] for h in HOUSES}
+    all_scores, days = [], set()
     for s in state.get("S", []):
         name = short_name(s.get("name", ""))
         if not name:
@@ -259,6 +299,8 @@ def class_summary(row, now=None):
         house = s.get("house", "")
         entry = {"name": name, "house": house}
         scores = [v for d, v in (s.get("q") or {}).items() if month_key <= d <= today_key and isinstance(v, (int, float)) and v >= 0]
+        all_scores += scores
+        days.update(d for d, v in (s.get("q") or {}).items() if month_key <= d <= today_key and isinstance(v, (int, float)) and v >= 0)
         points = sum(since(s.get(k, []), month) * v for k, v in TOKEN_POINTS.items())
         if house in houses:
             houses[house] += points
@@ -278,6 +320,7 @@ def class_summary(row, now=None):
         if star:
             stars.append({"name": star[0], "house": star[1], "week": week.strftime("%Y-%m-%d"),
                           "label": "Week of " + week.strftime("%-d %b")})
+    total = {k: sum(e["n"] for e in v) for k, v in tops.items() if k != "quran"}
     return {
         "mode": "presenter",
         "id": row["id"],
@@ -288,6 +331,15 @@ def class_summary(row, now=None):
         "earners": {h: sorted(e, key=lambda e: (-e["n"], natural(e["name"])))[:3] for h, e in earners.items()},
         "books": sorted(books, key=lambda b: b["name"]),
         "stars": stars,
+        # Every student with enough Quran scores, in order (the podium shows the top three).
+        "quran_all": podium(tops["quran"], places=None),
+        # The class at a glance: only what the class has this month is shown on the slide.
+        "glance": {
+            "students": len(students),
+            "memo": total["memo"], "memo_students": len(tops["memo"]),
+            "quran": class_average(all_scores), "quran_days": len(days), "quran_students": len(tops["quran"]),
+            "qaidah": total["qaidah"], "points": total["points"], "merits": total["merits"], "books": len(books),
+        },
         "riders": sorted({n for _, n, _ in students}),
         "month": now.strftime("%B"),
     }
@@ -353,16 +405,18 @@ def staff_data():
     return data()
 
 
-def presenter_class(class_id):
-    """The class a signed-in teacher may present: one of their own; an admin may present any."""
+def presenter_class(class_id, school=False):
+    """The class a signed-in teacher may present: one of their own; an admin may present any. With school=True, also
+    every classroom, to place the class in the school."""
     with auth.db().transaction() as tx:
         if g.user["role"] != "admin" and not tx.execute(
                 "SELECT 1 FROM classroom_members WHERE class_id = ? AND user_id = ?", (class_id, g.user["id"])).fetchone():
             abort(404)
         row = tx.execute("SELECT id, json FROM classrooms WHERE id = ?", (class_id,)).fetchone()
+        rows = tx.execute("SELECT id, json FROM classrooms").fetchall() if school and row else []
     if not row:
         abort(404)
-    return row
+    return (row, rows) if school else row
 
 
 @bp.get("/presenter/<class_id>")
@@ -373,7 +427,10 @@ def presenter_page(class_id):
 
 @bp.get("/api/presenter/<class_id>")
 def presenter_data(class_id):
-    return jsonify(class_summary(presenter_class(class_id)))
+    row, rows = presenter_class(class_id, school=True)
+    result = class_summary(row)
+    result["school"] = school_places(rows, class_id)  # only the class's own places, never another class's figures
+    return jsonify(result)
 
 
 @bp.get("/tv/<token>")
