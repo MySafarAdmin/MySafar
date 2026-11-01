@@ -332,7 +332,8 @@ def create_app(test_config=None):
         if time.time() - pruned["at"] > 3600:
             pruned["at"] = time.time()
             auth.prune(database, app.config["RETENTION_DAYS"])
-        public = request.path in PUBLIC or request.path.startswith(PUBLIC_PREFIXES)
+        # A shared Presenter link (mysafar.org/ustdfaeez) asks for its own code instead of a sign-in (tv.py).
+        public = request.path in PUBLIC or request.path.startswith(PUBLIC_PREFIXES) or tv.share_path(request.path)
         if not g.user and not public:
             if wants_json() or request.method != "GET":
                 return jsonify(error="Your session has ended. Sign in again."), 401
@@ -359,7 +360,8 @@ def create_app(test_config=None):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
-        dashboard = request.path in ("/", "/tv") or (request.path.startswith(("/tv/", "/presenter/"))
+        share = tv.SHARE_PATH.fullmatch(request.path)
+        dashboard = request.path in ("/", "/tv") or ((request.path.startswith(("/tv/", "/presenter/")) or (share and share.group(2) == "view"))
                                                         and response.mimetype == "text/html" and response.status_code == 200)
         if dashboard:
             nonce = secrets.token_urlsafe(16)
@@ -368,7 +370,7 @@ def create_app(test_config=None):
         response.headers["Content-Security-Policy"] = DASHBOARD_CSP.format(nonce=nonce) if dashboard else \
             EMAIL_PREVIEW_CSP if request.path.startswith("/admin/email/preview/") else \
             ACCOUNT_CSP if request.path == "/account" else \
-            CODE_CSP if request.path in ("/login", "/login/code") else \
+            CODE_CSP if request.path in ("/login", "/login/code") or (share and share.group(2) in (None, "code")) else \
             LOGIN_CSP if request.path.startswith("/admin/") else PAGE_CSP
         if app.config["COOKIE_SECURE"]:
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"

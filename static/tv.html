@@ -265,6 +265,31 @@ footer i.run{width:100%;transition:width linear}
 #ctl .ico svg{width:3vh;height:3vh}
 #ctl .ico .fs-off,#ctl .ico.full .fs-on{display:none}#ctl .ico.full .fs-off{display:block}
 #ctl button[hidden]{display:none}
+#ctl.held{opacity:1}
+/* The share panel (Presenter): the link, copied as it opens, and today's code, each character springing into its box. */
+#sharep{position:fixed;z-index:9;right:2vw;bottom:11vh;width:min(46vh,90vw);background:#fff;color:var(--ink);border-radius:2.4vh;padding:2.6vh 2.4vh 2.4vh;box-shadow:0 1.2vh 4vh rgba(0,20,40,.35);font-family:"Figtree","Atkinson Next",system-ui,sans-serif;animation:shIn .45s both cubic-bezier(.2,.9,.3,1.15)}
+#sharep[hidden]{display:none}
+#sharep.out{animation:shOut .25s both ease-in}
+@keyframes shIn{from{opacity:0;transform:translateY(2vh) scale(.96)}}
+@keyframes shOut{to{opacity:0;transform:translateY(1.4vh) scale(.97)}}
+#sharep h3{margin:0 4vh .6vh 0;font-size:2.6vh;font-weight:800}
+#sharep .sx{position:absolute;right:1.4vh;top:1.4vh;width:4.4vh;height:4.4vh;border:0;border-radius:50%;background:#eef2f7;color:var(--ink);font-size:3vh;line-height:1;cursor:pointer}
+.shl{margin:0 0 1.4vh;font-size:1.9vh;font-weight:700;color:#1f7a4c;min-height:2.4vh}
+.shl.bad{color:#b4232c}
+.shu{display:flex;gap:.8vh}
+.shu input{flex:1;min-width:0;font:inherit;font-size:2vh;font-weight:700;color:var(--ink);background:#f2f4f8;border:0;border-radius:1.2vh;padding:1.2vh 1.4vh}
+#sharep button:not(.sx){font:inherit;font-size:1.9vh;font-weight:800;border:0;border-radius:99px;padding:1.1vh 1.8vh;cursor:pointer;background:var(--navy);color:#fff}
+#sharep .sha button{background:#eef2f7;color:var(--ink)}
+#sharep button:focus-visible,#sharep input:focus-visible{outline:.35vh solid #2a6fdb;outline-offset:.2vh}
+.shk{margin:2.2vh 0 1vh;font-size:1.7vh;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+.shcode{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2vh}
+.shcode span{position:relative;display:grid;place-items:center;aspect-ratio:1/1.15;border-radius:1.6vh;background:#f2f4f8;overflow:hidden;font-size:5.4vh;font-weight:800;color:var(--ink)}
+.shcode span i{position:absolute;inset:0;background:#dff3e6;border-radius:inherit;transform:scale(0);animation:shFill .5s both cubic-bezier(.3,1.5,.5,1)}
+.shcode span b{position:relative;animation:shRise .5s both cubic-bezier(.3,1.5,.5,1)}
+@keyframes shFill{to{transform:scale(1)}}
+@keyframes shRise{from{opacity:0;transform:translateY(1.6vh)}}
+.shs{margin:1.6vh 0 1.8vh;font-size:1.8vh;line-height:1.35;color:var(--mute)}
+.sha{display:flex;gap:1vh;flex-wrap:wrap}
 #ctl button:focus-visible{outline:.4vh solid #ffd23f;outline-offset:.3vh}
 #off{position:fixed;z-index:9;inset:0;display:none;align-items:center;justify-content:center;text-align:center;background:var(--navy);font-size:4vh;font-weight:800;padding:5vw}
 @media (prefers-reduced-motion:reduce){
@@ -278,13 +303,27 @@ footer i.run{width:100%;transition:width linear}
 <header><div class="brand"><span class="badge"><img src="/logo.png?v=3" alt="" width="80" height="80"></span><h1 id="brand">Safar Academy<small>Enfield</small></h1></div><span class="mode" id="mode"></span><span class="spacer"></span><div class="dots" id="dots"></div><div class="clock" id="clock"></div></header>
 <footer><i id="prog"></i></footer>
 <div id="off"></div>
-<nav id="ctl" hidden><button type="button" id="fs" class="ico" aria-label="Full screen" title="Full screen"><svg class="fs-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg><svg class="fs-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg></button><button type="button" id="close" hidden>Close</button></nav>
+<section id="sharep" hidden role="dialog" aria-modal="false" aria-labelledby="shH"><button type="button" class="sx" id="shX" aria-label="Close">&times;</button>
+<h3 id="shH">Share this Presenter</h3><p class="shl" id="shL" aria-live="polite"></p>
+<div class="shu"><input id="shU" readonly aria-label="Link"><button type="button" id="shC">Copy</button></div>
+<p class="shk">Today's code</p><div class="shcode" id="shK" aria-live="polite"></div>
+<p class="shs" id="shS">Anyone with the link types this code to watch, until they close the tab. It changes every day.</p>
+<div class="sha"><button type="button" id="shN">New code</button><button type="button" id="shStop">Stop sharing</button></div></section>
+<nav id="ctl" hidden><button type="button" id="share" class="ico" hidden aria-label="Share this Presenter" title="Share this Presenter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg></button><button type="button" id="fs" class="ico" aria-label="Full screen" title="Full screen"><svg class="fs-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg><svg class="fs-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg></button><button type="button" id="close" hidden>Close</button></nav>
 <script>
 (function(){
 var SLIDE_MS=30000,DATA_MS=60000;
 /* /presenter/<class> is a teacher's Presenter: the same scenes, for one class, with its students riding through. */
 var path=location.pathname.replace(/\/+$/,""),PRESENT=path.indexOf("/presenter/")===0,
- URL=path==="/tv"?"/api/tv":PRESENT?"/api"+path:path+"/data";
+ /* A shared Presenter link (/ustdfaeez/view): watched by anyone who typed the code, for as long as this tab is open.
+    The code page hands over a view token in the address's #fragment; it is kept in this tab's sessionStorage. */
+ SHARE=/^\/((?:ustd|class)[a-z0-9]*)\/view$/.exec(path),VIEW="",
+ URL=path==="/tv"?"/api/tv":PRESENT?"/api"+path:SHARE?"/"+SHARE[1]+"/data":path+"/data";
+if(SHARE){var VK="mysafar.view."+SHARE[1],vm=/^#v=([\w-]+)$/.exec(location.hash);
+ try{if(vm)sessionStorage.setItem(VK,vm[1]);VIEW=sessionStorage.getItem(VK)||""}catch(e){VIEW=vm?vm[1]:""}
+ if(vm)try{history.replaceState(null,"",location.pathname)}catch(e){}
+ if(!VIEW)location.replace("/"+SHARE[1])}
+var CLASSY=PRESENT||!!SHARE; // the class's own slides, with its students riding through
 /* Test hooks for previews: ?slide=<id> keeps one slide on, ?focus=qaidah or memo plays only those. */
 var Q=new URLSearchParams(location.search),PIN=Q.get("slide"),FOCUS=Q.get("focus");
 var RM=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -586,7 +625,7 @@ function ride(box,kind){if(RM||!box.isConnected)return;var W0=sw(),y=rnd(18,24),
  if(kind==="ball"){// Aim the throw so it peaks over the podium and lands on the sand past it.
   var peak=rnd(8,14),from=72,land=r.dir>0?W0*.93:W0*.07;r.floor=88;r.x=r.dir>0?-8:W0+8;r.y=from;
   r.vy=-Math.sqrt(2*G*(from-peak));var T=-r.vy/G+Math.sqrt(2*(r.floor-peak)/G);r.vx=(land-r.x)/T}
- el.className="rider";el.innerHTML='<span class="art">'+art(kind,sub)+'</span><span class="tag">'+(PRESENT?esc(L[teach++%L.length]):"")+'</span>';box.appendChild(el);
+ el.className="rider";el.innerHTML='<span class="art">'+art(kind,sub)+'</span><span class="tag">'+(CLASSY?esc(L[teach++%L.length]):"")+'</span>';box.appendChild(el);
  r.art=el.firstChild;r.parts={tail:el.querySelector(".tail"),wing:el.querySelector(".wing"),thrust:el.querySelector(".thrust"),wx:[].slice.call(el.querySelectorAll(".wx"))};
  RIDERS.push(r);if(!RAF){LAST=0;RAF=requestAnimationFrame(tick)}}
 function tick(now){var dt=LAST?Math.min(.05,(now-LAST)/1000):0,W0=sw(),u=innerHeight/100;LAST=now;
@@ -730,7 +769,7 @@ var PSLIDES=[
  {id:"houses",world:"festival",kind:"all",title:"House race",sub:function(){return "Points this class earned for each house in "+month()+", and who earned the most"},board:classHouses,unit:"point"},
  {id:"merits",world:"thawr",kind:"all",title:"Merits",sub:function(){return "Most merits in "+month()},steps:function(){return data.merits},unit:"merit",empty:"No merits yet this month."},
  {id:"stars",world:"moon",kind:"all",title:"Stars of the week",sub:function(){return month()+", up to the end of last week"},list:function(){return data.stars},empty:"No stars of the week yet this month.",week:1,one:1}];
-if(PRESENT)SLIDES=PSLIDES;
+if(CLASSY)SLIDES=PSLIDES;
 function focusNow(){if(FOCUS==="qaidah"||FOCUS==="memo")return [FOCUS];return data&&data.focus}
 function playing(){if(PIN){var p=SLIDES.filter(function(s){return s.id===PIN});if(p.length)return p}
  var f=focusNow(),L=SLIDES.filter(function(s){return !f||f.indexOf(s.kind)>=0});
@@ -767,14 +806,16 @@ function show(){if(!data)return;clearTimeout(ST);clearInterval(PT);clearInterval
  physOn(el);
  if(s.board)PT=setInterval(function(){confetti(el)},9000); // the house leaderboard keeps celebrating
  // Only the Presenter has riders, carrying the class's names; the TV's scenes move on their own.
- if(PRESENT){var box=el.querySelector(".carriers"),kind=W[s.w].rider;setTimeout(function(){ride(box,kind)},1800);RT=setInterval(function(){ride(box,kind)},7000)}
+ if(CLASSY){var box=el.querySelector(".carriers"),kind=W[s.w].rider;setTimeout(function(){ride(box,kind)},1800);RT=setInterval(function(){ride(box,kind)},7000)}
  var p=$("prog");p.className="";p.style.transitionDuration="0ms";void p.offsetWidth;p.style.transitionDuration=SLIDE_MS+"ms";p.className="run";
  ST=setTimeout(show,SLIDE_MS)}
-function load(){fetch(URL,{credentials:"same-origin",cache:"no-store"}).then(function(r){
+function load(){fetch(URL,{credentials:"same-origin",cache:"no-store",headers:SHARE?{"X-View":VIEW}:{}}).then(function(r){
+  // A shared view the teacher has stopped: back to the code page, which says what to do.
+  if(SHARE&&(r.status===401||r.status===404)){try{sessionStorage.removeItem(VK)}catch(e){}location.replace("/"+SHARE[1]);return null}
   if(r.status===404||r.status===401){$("off").style.display="flex";$("off").textContent=r.status===401?"Sign in to see the dashboard.":PRESENT?"This class isn't one of yours, or it has been deleted.":"This screen's link has been turned off. Ask an administrator for a new one.";return null}
   return r.ok?r.json():null}).then(function(d){if(d){var first=!data;data=d;$("off").style.display="none";
-   if(PRESENT){$("brand").innerHTML=esc(d.class)+"<small>Safar Academy</small>";document.title=d.class+" · Presenter"}if(first)show()}}).catch(function(){/* keep showing the last data */})}
-clock();setInterval(clock,1000);load();setInterval(load,DATA_MS);
+   if(CLASSY){$("brand").innerHTML=esc(d.class)+"<small>Safar Academy</small>";document.title=d.class+" · Presenter"}if(first)show()}}).catch(function(){/* keep showing the last data */})}
+clock();setInterval(clock,1000);if(!SHARE||VIEW){load();setInterval(load,DATA_MS)}
 /* The full-screen icon shows while the mouse moves, on a TV and in the Presenter. The Presenter runs on a teacher's
    screen, so it also has Close; Escape also closes. */
 (function(){var C=$("ctl"),CT=0,F=$("fs");C.hidden=false;
@@ -785,7 +826,23 @@ clock();setInterval(clock,1000);load();setInterval(load,DATA_MS);
  document.addEventListener("fullscreenchange",function(){var on=!!document.fullscreenElement,t=on?"Exit full screen":"Full screen";F.classList.toggle("full",on);F.setAttribute("aria-label",t);F.title=t});
  if(!PRESENT)return;
  function close(){location.href="/"+(data&&data.id?"#"+data.id:"")} // back to the class on the dashboard
- $("close").hidden=false;$("close").onclick=close;document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.fullscreenElement)close()})})();
+ $("close").hidden=false;$("close").onclick=close;document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.fullscreenElement){if(!$("sharep").hidden)shareClose();else close()}});
+ /* Share: the class's link is copied as the panel opens, with today's code. New code makes another (anyone already
+    watching keeps watching); Stop sharing ends the link and every open view. */
+ var P=$("sharep"),B=$("share"),cid=path.split("/")[2];B.hidden=false;
+ function say(t,bad){$("shL").textContent=t;$("shL").classList.toggle("bad",!!bad)}
+ function shareClose(){if(P.hidden)return;P.classList.add("out");C.classList.remove("held");setTimeout(function(){P.hidden=true;P.classList.remove("out")},RM?0:240);B.focus()}
+ function copy(u){var done=function(){say("Link copied. Share it with the code below.")},fail=function(){$("shU").select();say("Copy the link below.")};
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(u).then(done,fail);else{$("shU").select();try{document.execCommand("copy")?done():fail()}catch(e){fail()}}}
+ function codeBoxes(c){$("shK").innerHTML=c.split("").map(function(ch,i){var d=(.15+i*.09).toFixed(2)+"s";return '<span><i style="animation-delay:'+d+'"></i><b style="animation-delay:'+d+'">'+esc(ch)+'</b></span>'}).join("");$("shK").setAttribute("aria-label","Code "+c.split("").join(" "))}
+ function ask(action){return fetch("/api/presenter/"+cid+"/share",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-Dashboard-Request":"1"},body:JSON.stringify({action:action})})
+  .then(function(r){if(!r.ok)throw r;return r.json()})}
+ function fill(d,first){$("shU").value=d.url;codeBoxes(d.code);$("shN").disabled=$("shStop").disabled=false;if(first)copy(d.url);else say("New code ready. The link stays the same.")}
+ B.onclick=function(){if(!P.hidden){shareClose();return}P.hidden=false;C.classList.add("held");say("Making the link…");$("shK").innerHTML="";
+  ask("open").then(function(d){fill(d,true)},function(){say("Couldn't make the link. Check your connection and try again.",1)})};
+ $("shX").onclick=shareClose;$("shC").onclick=function(){if($("shU").value)copy($("shU").value)};
+ $("shN").onclick=function(){$("shN").disabled=true;ask("new").then(function(d){fill(d)},function(){$("shN").disabled=false;say("Couldn't make a new code. Try again.",1)})};
+ $("shStop").onclick=function(){$("shStop").disabled=true;ask("stop").then(function(){$("shK").innerHTML="";$("shU").value="";say("Sharing stopped. Anyone watching is sent back to the code page.");setTimeout(shareClose,1800)},function(){$("shStop").disabled=false;say("Couldn't stop sharing. Try again.",1)})}})();
 /* Pick up new versions of this page, unless the network is down. */
 setInterval(function(){fetch(location.href,{cache:"no-store"}).then(function(r){if(r.ok)location.reload()}).catch(function(){})},6*3600*1000);
 })();

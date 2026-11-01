@@ -217,8 +217,30 @@ def _m12_stay_signed_in(db, postgres):
     db.execute("ALTER TABLE sessions ADD COLUMN remember INTEGER NOT NULL DEFAULT 0")
 
 
+def _m13_presenter_shares(db, postgres):
+    t = _types(postgres)
+    # A class's Presenter shared by link (mysafar.org/ustdfaeez, see tv.py). The link stays the same for the class;
+    # its 4-character code changes every day and when the teacher asks for a new one, and stops working after
+    # SHARE_FAILS wrong tries. Each tab that typed the right code holds a random view token (stored only as a SHA-256
+    # hash) until the tab is closed or the teacher stops sharing.
+    db.execute(f"""CREATE TABLE presenter_shares (
+        class_id TEXT PRIMARY KEY REFERENCES classrooms (id) ON DELETE CASCADE,
+        slug TEXT NOT NULL UNIQUE,
+        code TEXT,
+        code_expires_at BIGINT NOT NULL DEFAULT 0,
+        fails INTEGER NOT NULL DEFAULT 0,
+        created_by {t['ref']} REFERENCES users (id) ON DELETE SET NULL,
+        created_at BIGINT NOT NULL)""")
+    db.execute("""CREATE TABLE presenter_views (
+        token_hash TEXT PRIMARY KEY,
+        class_id TEXT NOT NULL REFERENCES presenter_shares (class_id) ON DELETE CASCADE,
+        created_at BIGINT NOT NULL,
+        last_seen_at BIGINT NOT NULL)""")
+
+
 MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
-              _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links, _m11_login_codes, _m12_stay_signed_in]
+              _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links, _m11_login_codes, _m12_stay_signed_in,
+              _m13_presenter_shares]
 
 
 class Database:

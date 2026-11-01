@@ -7,12 +7,17 @@
 // and the "one-time-code" autofill all work as before. When the sixth digit lands the form is sent with fetch, so
 // the boxes can show the answer first. A redirect means the code was right (the session cookie comes with it);
 // anything else is the page the server would have shown, and its message is shown here.
+//
+// A shared Presenter link (templates/presenter_code.html) uses the same boxes for its 4-character code: its form sets
+// data-codeboxes, data-len, data-chars="alnum" (letters and numbers, shown in capitals) and data-json, which asks the
+// server for a JSON answer ({next} when right, {error, gone} when not).
 (function () {
-  var form = document.querySelector('form[action="/login/code"]');
+  var form = document.querySelector("form[data-codeboxes]") || document.querySelector('form[action="/login/code"]');
   var input = form && form.querySelector("input[name=code]");
   if (!input || !window.fetch || !window.DOMParser) return;
 
-  var N = 6, RISE = 8, SETTLE = 0.3, BOUNCE = 0.2, CASCADE = 20, SINK_FADE = 0.6;
+  var N = +form.getAttribute("data-len") || 6, ALNUM = form.getAttribute("data-chars") === "alnum",
+    JSONED = form.hasAttribute("data-json"), UNIT = ALNUM ? "characters" : "digits", RISE = 8, SETTLE = 0.3, BOUNCE = 0.2, CASCADE = 20, SINK_FADE = 0.6;
   var still = false;
   try { still = matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
 
@@ -33,6 +38,7 @@
     box.setAttribute("aria-hidden", "true");
     slots.push({box: box, fill: el("span", "cs-fill", box), digit: el("span", "cs-digit", box), t: 0, d: 0, ch: ""});
   }
+  if (N !== 6) row.style.gridTemplateColumns = "repeat(" + N + ",minmax(0,64px))";
   var wash = el("span", "cs-wash", row);
   wash.setAttribute("aria-hidden", "true");
   var check = el("span", "cs-check", wash);
@@ -114,7 +120,9 @@
 
   // --- State ---------------------------------------------------------------------------------------------------------
   var code = "", status = "idle", busy = false;
-  function digitsOf(v) { return String(v || "").replace(/\D/g, "").slice(0, N); }
+  function digitsOf(v) {
+    return (ALNUM ? String(v || "").toUpperCase().replace(/[^A-Z0-9]/g, "") : String(v || "").replace(/\D/g, "")).slice(0, N);
+  }
   function land(i, delay) {
     var s = slots[i];
     s.d = 0;
@@ -138,7 +146,7 @@
     row.toggleAttribute("data-caret", !busy && status !== "success" && code.length < N);
   }
   function announce() {
-    count.textContent = status === "success" ? "Code accepted" : code.length + " of " + N + " digits entered";
+    count.textContent = status === "success" ? "Code accepted" : code.length + " of " + N + " " + UNIT + " entered";
   }
 
   // Shows the boxes holding `next`: new digits land in a cascade, removed ones drain last to first.
@@ -204,16 +212,16 @@
     try { url = new URL(field ? field.value || "/" : "/", location.href); } catch (e) { return "/"; }
     return url.origin === location.origin ? url.pathname + url.search + url.hash : "/";
   }
-  function accepted() {
+  function accepted(next) {
     setStatus("success");
     message("");
-    if (button) button.textContent = "Signed in";
+    if (button) button.textContent = form.getAttribute("data-done") || "Signed in";
     announce();
     placeCaret();
     tween(look, "open", 1, {dur: 0.3, ease: true});
     slots.forEach(function (s, k) { tween(s, "d", 1, {dur: 0.3, delay: 60 + k * 30}); });
     tween(look, "tick", 1, {dur: 0.35, delay: 280, bounce: BOUNCE});
-    setTimeout(function () { location.replace(nextPage()); }, still ? 500 : 1100);
+    setTimeout(function () { location.replace(next || nextPage()); }, still ? 500 : 1100);
   }
   // A wrong code: the boxes drain last to first under red, then empty and wait for the next try.
   function rejected(text) {
@@ -233,7 +241,30 @@
       input.focus({preventScroll: true});
     }, still ? 300 : Math.max(0, filled.length - 1) * gap + SETTLE * 1000);
   }
+  // A code that has stopped working: the boxes stay empty and the form is closed; the message says what to do.
+  function closed(text) {
+    rejected(text);
+    setTimeout(function () {
+      busy = true;
+      input.disabled = true;
+      if (button) button.disabled = true;
+      row.removeAttribute("data-caret");
+    }, still ? 320 : 600);
+  }
+  function sendJson() {
+    checking(true);
+    fetch(form.action, {method: "POST", body: new FormData(form), credentials: "same-origin",
+                        headers: {"Accept": "application/json"}})
+      .then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (d) {
+        if (d.next) return accepted(d.next);
+        var text = d.error || "That code isn't right. Try again.";
+        return d.gone ? closed(text) : rejected(text);
+      })
+      .catch(function () { rejected("MySafar couldn't be reached. Check your connection and try again."); });
+  }
   function send() {
+    if (JSONED) return sendJson();
     checking(true);
     fetch(form.action, {method: "POST", body: new FormData(form), credentials: "same-origin", redirect: "manual"})
       .then(function (r) {
@@ -241,7 +272,7 @@
         if (r.type === "opaqueredirect" || (r.status >= 300 && r.status < 400)) return accepted();
         return r.text().then(function (html) {
           var doc = new DOMParser().parseFromString(html, "text/html");
-          var again = doc.querySelector('form[action="/login/code"]');
+          var again = doc.querySelector('form[action="' + form.getAttribute("action") + '"]');
           var said = doc.querySelector("main > .error");
           var text = said ? said.textContent.trim() : "That code isn't right. Check the latest email and try again.";
           if (again) {
@@ -269,7 +300,7 @@
     e.preventDefault();
     if (busy) return;
     if (code.length < N) {
-      message("Type all 6 digits from the email.");
+      message(ALNUM ? "Type all " + N + " characters of the code." : "Type all 6 digits from the email.");
       setStatus("error");
       input.focus({preventScroll: true});
       return;
