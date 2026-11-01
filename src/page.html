@@ -1174,10 +1174,52 @@ function summary(K){var A=K.A,all=K.all;
 /* The overview, the same for a teacher's classes and for the whole school: attention first, then the rankings (with
    house points and passes per week). The school overview splits passes into Primary Years and Secondary Years
    below: each has its highlights, its top classes and its students with the most passes this month. */
-function tSummary(K,school){
- $("mst").innerHTML='<div class="tsum'+(school?' school':'')+'"><div class="tsa">'+attnBox(K)+'</div><section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K,school)+'</section>'
+function tSummary(K,school){var tr=chaser();
+ $("mst").innerHTML='<div class="tsum'+(school?' school':'')+'"><div class="tsa">'+attnBox(K)+'</div>'+(tr?trHtml():'')+'<section class="tsr"><div class="mod-h"><h2>Rankings</h2></div>'+rankHtml(K,school)+'</section>'
   +(school?stagesHtml(K):'')+'</div>';
- $("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)})}
+ $("rP").addEventListener("click",function(e){var b=e.target.closest("button");if(b)setSeg("rP",b.dataset.p)});
+ if(tr&&$("trD"))$("trD").addEventListener("click",function(e){var b=e.target.closest("button");if(!b||b.dataset.d===QTD)return;QTD=b.dataset.d;setSeg("trD",QTD);var w=$("trW");w.innerHTML=trBody();w.classList.remove("swap");void w.offsetWidth;w.classList.add("swap")})}
+/* Quran trackers, for administrators and head teachers: which classes haven't given every student a Quran score
+   (or marked them absent) on a class day, so their teachers can be chased. Class days are the weekends. A past
+   weekend day with no Quran score anywhere in the school counts as a day with no classes and is left out, and so is
+   today until the first score of the day goes in. The overview shows one of the last two class days (the latest
+   first); the pop-up behind the title shows every class over the last six. */
+var QTD="";
+function chaser(){return !TEACHER||!!(window.ME&&/^head/i.test(ME.role||""))}
+function trDays(n){var seen={},first="",x=today0(),D=[];
+ CIDS.forEach(function(c){if(!first||ST[c].fcd<first)first=ST[c].fcd;ST[c].S.forEach(function(s){for(var k in s.q)seen[k]=1})});
+ for(var i=0;i<400&&D.length<n;i++){var k=dk(x.getTime());if(first&&k<first)break;if(x.getDay()%6===0&&seen[k])D.push(k);x=addDays(x,-1)}
+ return D}
+/* One class on one day: its students, how many have a score (absent counts), and whether the class had started. */
+function trOf(c,d){var L=ST[c].S,f=0;L.forEach(function(s){if(s.q[d]!==undefined)f++});return {c:c,n:L.length,f:f,out:!L.length||d<ST[c].fcd}}
+function trLab(k,o){return qDate(k).toLocaleDateString("en-GB",o||{weekday:"short",day:"numeric",month:"short"})}
+var TICK='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+function trHtml(){var D=trDays(2),t=dk(Date.now());
+ if(!D.length)return '<section class="tsq"><div class="mod-h"><h2>Quran trackers</h2></div><p class="none">No Quran scores yet. Once classes start scoring, any class that hasn\'t filled in its tracker shows here.</p></section>';
+ if(D.indexOf(QTD)<0)QTD=D[0];
+ return '<section class="tsq"><div class="mod-h">'+ovT("QT","Quran trackers")+(D.length>1?'<div class="seg trd" id="trD" role="group" aria-label="Class day">'+D.slice().reverse().map(function(d){return '<button type="button" data-d="'+d+'" aria-pressed="'+(d===QTD)+'">'+(d===t?'Today':trLab(d))+'</button>'}).join("")+'</div>':'')+'</div><div id="trW" class="trw">'+trBody()+'</div></section>'}
+function trBody(){var d=QTD,t=dk(Date.now()),R=CIDS.map(function(c){return trOf(c,d)}).filter(function(r){return !r.out}),T=R.filter(function(r){return r.f<r.n}),ok=R.length-T.length;
+ T.sort(function(a,b){return a.f/a.n-b.f/b.n||(b.n-b.f)-(a.n-a.f)||cname(ST[a.c].name).localeCompare(cname(ST[b.c].name),undefined,{numeric:true})});
+ var day=trLab(d,{weekday:"long",day:"numeric",month:"long"}),pc=R.length?ok/R.length*100:0;
+ var h='<div class="trs"><div class="trn"><b>'+ok+'</b><span>of '+plural(R.length,"class","classes")+' filled in<small>'+(d===t?'Today, ':'')+esc(day)+'</small></span></div>'
+  +'<div class="trbar" role="img" aria-label="'+ok+' of '+R.length+' classes filled in"><i style="width:'+pc.toFixed(1)+'%"></i></div></div>';
+ if(!T.length)return h+'<p class="trdone">'+TICK+'Every class has filled in its Quran tracker'+(d===t?' so far today.':' for '+esc(day)+'.')+'</p>';
+ return h+'<ul class="trl">'+T.map(function(r,k){var z=!r.f;
+  return '<li style="--i:'+Math.min(k,12)+'"><button type="button" class="trc '+(z?'bad':'warn')+'" data-open="'+esc(r.c)+'" data-tab="Q" data-qd="'+d+'" title="Open its Quran tab on '+esc(day)+'"><span class="trt"><b>'+esc(cname(ST[r.c].name))+'</b><span class="trp">'+(z?'Not started':(r.n-r.f)+' missing')+'</span></span>'
+   +'<span class="trm" aria-hidden="true"><i style="width:'+(r.f/r.n*100).toFixed(1)+'%"></i></span><small>'+r.f+' of '+plural(r.n,"student")+' scored</small></button></li>'}).join("")+'</ul>'}
+/* The pop-up: every class over the last six class days (three weekends), the classes that missed most first. A box per day:
+   filled in (sage), part filled (gold, with how many are missing) or not started (red). Each opens that day's sheet. */
+function trPop(){var D=trDays(6).reverse(),t=dk(Date.now());
+ if(!D.length)return '<p class="none">No Quran scores yet.</p>';
+ var R=CIDS.filter(function(c){return ST[c].S.length}).map(function(c){var X=D.map(function(d){return trOf(c,d)});return {c:c,X:X,m:X.filter(function(x){return !x.out&&x.f<x.n}).length}});
+ R.sort(function(a,b){return b.m-a.m||cname(ST[a.c].name).localeCompare(cname(ST[b.c].name),undefined,{numeric:true})});
+ return '<p class="cap">Recent class days, newest on the right. A day is filled in when every student has a score or is marked absent.</p>'
+  +'<div class="trk" aria-hidden="true"><span><i class="trx ok"></i>Filled in</span><span><i class="trx warn"></i>Part filled</span><span><i class="trx bad"></i>Not started</span></div>'
+  +'<div class="tablewrap"><table class="tbl trg"><thead><tr><th scope="col">Class</th>'+D.map(function(d,i){return '<th scope="col"'+(i<D.length-4?' class="tro"':'')+'>'+(d===t?'Today':trLab(d,{weekday:"short"}))+'<small>'+trLab(d,{day:"numeric",month:"short"})+'</small></th>'}).join("")+'<th scope="col" class="trmc">Missed</th></tr></thead><tbody>'
+  +R.map(function(r){return '<tr><th scope="row">'+opener(r.c,esc(cname(ST[r.c].name)),"Q")+'</th>'+r.X.map(function(x,i){var o=i<D.length-4?' class="tro"':'';if(x.out)return '<td'+o+'><span class="trx na" title="Not started yet"></span></td>';
+    var k=x.f>=x.n?'ok':x.f?'warn':'bad',w=k==='ok'?'filled in':k==='warn'?(x.n-x.f)+' of '+x.n+' missing':'not started';
+    return '<td'+o+'><button type="button" class="trx '+k+'" data-open="'+esc(r.c)+'" data-tab="Q" data-qd="'+D[i]+'" aria-label="'+esc(cname(ST[r.c].name)+', '+trLab(D[i])+': '+w)+'" title="'+esc(trLab(D[i])+': '+w)+'">'+(k==='warn'?x.n-x.f:'')+'</button></td>'}).join("")
+   +'<td class="trmc'+(r.m?' bad':'')+'">'+r.m+'</td></tr>'}).join("")+'</tbody></table></div>'}
 /* A first name and the first letter of the surname: Yusuf Dh reads Yusuf D. */
 function shortNm(n){var w=n.trim().split(/\s+/);return w.length>1?w[0]+" "+w[w.length-1].charAt(0):w[0]}
 /* A section title that opens the Rankings page on one stage. */
@@ -1200,10 +1242,11 @@ function stagesHtml(K){var by={p:[],s:[]},none=0;CIDS.forEach(function(c){var g=
 document.addEventListener("click",function(e){var b=e.target.closest("[data-rkg]");if(!b)return;RKF.g=b.dataset.rkg;RKF.p="m";if($("rkG")){setSeg("rkG",RKF.g);$("rkP").value="m"}go("K")});
 /* The pop-ups behind the overview's section titles: the full lists that used to be tabs of their own. */
 var OVK="";
-var OVN={A:"Needs attention",H:"House points",mp:"Most passes",mpp:"Most passes, Primary Years",mps:"Most passes, Secondary Years",mm:"Most merits",rc:"Class ranking"};
+var OVN={QT:"Quran trackers",A:"Needs attention",H:"House points",mp:"Most passes",mpp:"Most passes, Primary Years",mps:"Most passes, Secondary Years",mm:"Most merits",rc:"Class ranking"};
 function ov(k){OVK=k;drawer(OVN[k],"");DMODE="ov";ovDraw(school())}
 function ovDraw(K){var B=$("drwB"),m=RP==="m",tm=m?"this month":"in total",h;if(DMODE!=="ov")return;
  if(OVK==="A")h=attnHtml(K);
+ else if(OVK==="QT")h=trPop();
  else if(OVK==="H")h=houseHtml(K);
  else if(OVK==="rc")h='<p class="cap">Passes and merits per student, '+tm+'</p>'+rankList("rcP"+RP,classRows(RP),{limit:10,page:1,what:"classes",none:"No passes or merits yet "+tm+".",fmt:function(v){return v.toFixed(1)},zeroNote:function(z){return plural(z,"class","classes")+" with nothing yet "+tm+"."}});
  else{var mp=OVK!=="mm",g=OVK.charAt(2),L=g?K.A.filter(function(o){return cStage(o.c)===g}):K.A;if(g){m=true;tm="this month"}
@@ -1578,7 +1621,7 @@ function goPast(){if(DMODE==="side")closeDrawer();tab("D");view("D","hi");$("pas
 document.addEventListener("click",function(e){if(e.target.closest("[data-past]"))goPast()});
 /* Links between screens: open a class (and tab), switch an overview or class tab, expand a list, open a full list. */
 document.addEventListener("click",function(e){var b=e.target.closest("[data-open],[data-ct],[data-mt],[data-exp],[data-list],[data-pg]");if(!b||b.closest("#dlg"))return;
- if(b.dataset.open){e.preventDefault();go(b.dataset.open,b.dataset.tab);return}
+ if(b.dataset.open){e.preventDefault();go(b.dataset.open,b.dataset.tab);if(b.dataset.qd&&CID===b.dataset.open&&CUR==="Q")qGo(b.dataset.qd,0);return}
  if(b.dataset.pg){var pk=b.dataset.pg,pd=+b.dataset.pd;PG[pk]=(PG[pk]||0)+pd;if(CID)render();else master();var pb=document.querySelector('[data-pg="'+pk+'"][data-pd="'+pd+'"]');if(pb&&pb.disabled)pb=document.querySelector('[data-pg="'+pk+'"][data-pd="'+(-pd)+'"]');if(pb)pb.focus();return}
  if(b.dataset.ct){if(DMODE==="side")closeDrawer();tab(b.dataset.ct,1);if(b.dataset.pv)view(b.dataset.ct,b.dataset.pv);return}
  if(b.dataset.mt){ov(b.dataset.mt);return}
