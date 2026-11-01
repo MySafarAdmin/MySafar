@@ -13,7 +13,7 @@ import secrets
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from flask import Blueprint, Response, abort, current_app, g, jsonify, redirect, request
+from flask import Blueprint, Response, abort, g, jsonify, redirect, request
 
 import auth
 import house_extra
@@ -441,10 +441,92 @@ def presenter_class(class_id, school=False):
     return (row, rows) if school else row
 
 
+# --- The teacher's Presenter, opened like a TV screen's link --------------------------------------------------------
+# Pressing Presenter on the dashboard opens /presenter/<class> in a new tab, which makes a new random link
+# (/present/<token>) for that class and sends the tab there. The first tab to open the link claims it and keeps its own
+# key in sessionStorage, so the Presenter keeps working in that tab, signed in or not, until the tab is closed. The
+# link doesn't open anywhere else; pressing Presenter again makes a new one. A link nobody opens within LINK_OPEN stops
+# working, as does a tab that hasn't fetched the figures for LINK_IDLE (it has been closed, or the computer has slept
+# through the night). The link only ever shows the class while whoever made it can still present it.
+LINK_OPEN = 10 * 60
+LINK_IDLE = 12 * 3600
+LINK_ENDED = "This Presenter link has ended. Press Presenter on the dashboard to open a new one."
+
+
 @bp.get("/presenter/<class_id>")
 def presenter_page(class_id):
     presenter_class(class_id)
+    token = secrets.token_urlsafe(32)
+    with auth.db().transaction() as tx:
+        tx.execute("INSERT INTO presenter_links (token_hash, class_id, created_by, created_at) VALUES (?, ?, ?, ?)",
+                   (auth.token_hash(token), class_id, g.user["id"], auth.now()))
+    return redirect("/present/" + token)
+
+
+def live_link(tx, token):
+    """The Presenter link for this token while it still works, with the user who made it."""
+    if len(token) > 100:
+        return None
+    t = auth.now()
+    row = tx.execute("SELECT l.*, u.role, u.disabled FROM presenter_links l JOIN users u ON u.id = l.created_by "
+                     "WHERE l.token_hash = ?", (auth.token_hash(token),)).fetchone()
+    if not row or row["disabled"] or (row["tab_hash"] is None and row["created_at"] < t - LINK_OPEN) or \
+            (row["tab_hash"] is not None and (row["last_seen_at"] or 0) < t - LINK_IDLE):
+        return None
+    if row["role"] not in auth.SEES_ALL and not tx.execute("SELECT 1 FROM classroom_members WHERE class_id = ? AND user_id = ?",
+                                                 (row["class_id"], row["created_by"])).fetchone():
+        return None
+    return row
+
+
+def link_tab(tx, token):
+    """The link, when this request comes from the tab that opened it (its key in the X-View header)."""
+    row = live_link(tx, token)
+    key = request.headers.get("X-View", "")
+    if not row or not row["tab_hash"] or not key or len(key) > 100 or \
+            not secrets.compare_digest(auth.token_hash(key), row["tab_hash"]):
+        return None
+    return row
+
+
+@bp.get("/present/<token>")
+def link_page(token):
+    with auth.db().transaction() as tx:
+        row = live_link(tx, token)
+    if not row:
+        return auth.page("presenter_off.html", 404)
     return page()
+
+
+@bp.post("/present/<token>/open")
+def link_open(token):
+    """The first tab to open the link claims it: it gets a key of its own to keep in sessionStorage."""
+    with auth.db().transaction() as tx:
+        row = live_link(tx, token)
+        if not row or row["tab_hash"]:
+            return jsonify(error=LINK_ENDED if not row else
+                           "This Presenter link has already been opened. It only works in the tab that opened it, so "
+                           "press Presenter on the dashboard to open a new one."), 410
+        key, t = secrets.token_urlsafe(24), auth.now()
+        tx.execute("UPDATE presenter_links SET tab_hash = ?, last_seen_at = ? WHERE token_hash = ? AND tab_hash IS NULL",
+                   (auth.token_hash(key), t, row["token_hash"]))
+    return jsonify(key=key)
+
+
+@bp.get("/present/<token>/data")
+def link_data(token):
+    t = auth.now()
+    with auth.db().transaction() as tx:
+        row = link_tab(tx, token)
+        if not row:
+            return jsonify(error=LINK_ENDED), 410
+        if t - (row["last_seen_at"] or 0) >= 60:
+            tx.execute("UPDATE presenter_links SET last_seen_at = ? WHERE token_hash = ?", (t, row["token_hash"]))
+        room = tx.execute("SELECT id, json FROM classrooms WHERE id = ?", (row["class_id"],)).fetchone()
+        rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
+    result = class_summary(room)
+    result["school"] = school_places(rows, room["id"])
+    return jsonify(result)
 
 
 @bp.get("/api/presenter/<class_id>")
@@ -532,163 +614,3 @@ def admin_screen_settings(screen_id):
         tx.execute("UPDATE tv_screens SET settings = ? WHERE id = ?", (json.dumps(windows), screen_id))
         auth.audit(tx, "tv.settings", detail={"screen": screen_id, "name": row["name"], **windows})
     return screens_page(notice=f"Saved the settings for {row['name']}. The TV picks them up within a minute.")
-
-
-# --- Sharing a class's Presenter by link ------------------------------------------------------------------------------
-# On the Presenter a teacher can share the class: mysafar.org/ustdfaeez (the same link for the class every time) and a
-# 4-character code that changes every day. Anyone with both can watch that class's Presenter, read-only, with first
-# names and surname initials as on the TV, until they close the tab. The code stops working at midnight, when the
-# teacher makes a new one, or after SHARE_FAILS wrong tries; Stop sharing also ends every open view.
-SHARE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"  # no 0/O, 1/I/L, so a code read off a screen is typed right
-SHARE_LEN = 4
-SHARE_FAILS = 10
-SHARE_PATH = re.compile(r"/((?:ustd|class)[a-z0-9]*)(?:/(code|view|data))?")
-
-
-def share_path(path):
-    """Whether a path belongs to a shared Presenter link (public: the link itself asks for the code)."""
-    return bool(SHARE_PATH.fullmatch(path or ""))
-
-
-def share_slug(class_name, taken):
-    """The link's name: 'Yr3-A-QM-Br Faeez' -> 'ustdfaeez', an Ustadha's 'ustdhazainab'. A teacher with more than one
-    class gets the year and class letter on the end ('ustdfaeez3a'); a class with no teacher in its name, 'class3a'."""
-    parts = teacher_parts(class_name)
-    year = re.sub(r"[^a-z0-9]", "", class_label(class_name).split(" ")[0].lower().replace("yr", ""))
-    base = (("ustdha" if parts[0] == "Ustadha" else "ustd") + re.sub(r"[^a-z]", "", parts[1].lower())) if parts else "class"
-    for slug in ([base] if parts else []) + [base + year] + [base + year + str(n) for n in range(2, 100)]:
-        if slug not in taken and SHARE_PATH.fullmatch("/" + slug):
-            return slug
-    return base + secrets.token_hex(3)
-
-
-def end_of_day(now=None):
-    now = now or datetime.now(auth.LONDON)
-    return int((now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)).timestamp())
-
-
-def new_code():
-    return "".join(secrets.choice(SHARE_CHARS) for _ in range(SHARE_LEN))
-
-
-@bp.post("/api/presenter/<class_id>/share")
-def presenter_share(class_id):
-    """The teacher's share button: {"action": "open"} gives the link and today's code (making them if needed), "new"
-    a new code, "stop" ends the sharing and every open view."""
-    row = presenter_class(class_id)
-    action = (request.get_json(silent=True) or {}).get("action", "open")
-    if action not in ("open", "new", "stop"):
-        abort(400)
-    t = auth.now()
-    with auth.db().transaction() as tx:
-        share = tx.execute("SELECT * FROM presenter_shares WHERE class_id = ?", (class_id,)).fetchone()
-        if action == "stop":
-            if share:
-                tx.execute("DELETE FROM presenter_views WHERE class_id = ?", (class_id,))
-                tx.execute("DELETE FROM presenter_shares WHERE class_id = ?", (class_id,))
-                auth.audit(tx, "share.stopped", class_id)
-            return jsonify(stopped=True)
-        if not share:
-            name = json.loads(row["json"]).get("name") or class_id
-            taken = {r["slug"] for r in tx.execute("SELECT slug FROM presenter_shares").fetchall()}
-            tx.execute("INSERT INTO presenter_shares (class_id, slug, created_by, created_at) VALUES (?, ?, ?, ?)",
-                       (class_id, share_slug(name, taken), g.user["id"], t))
-            share = tx.execute("SELECT * FROM presenter_shares WHERE class_id = ?", (class_id,)).fetchone()
-        if action == "new" or not share["code"] or share["code_expires_at"] <= t or share["fails"] >= SHARE_FAILS:
-            code, expires = new_code(), end_of_day()
-            tx.execute("UPDATE presenter_shares SET code = ?, code_expires_at = ?, fails = 0 WHERE class_id = ?",
-                       (code, expires, class_id))
-            auth.audit(tx, "share.code", class_id)
-        else:
-            code, expires = share["code"], share["code_expires_at"]
-        views = tx.execute("SELECT COUNT(*) AS n FROM presenter_views WHERE class_id = ?", (class_id,)).fetchone()["n"]
-    base = (current_app.config.get("PUBLIC_URL") or request.host_url).rstrip("/")
-    return jsonify(url=f"{base}/{share['slug']}", code=code, expires=expires, views=views)
-
-
-def share_by_slug(slug):
-    with auth.db().transaction() as tx:
-        share = tx.execute("SELECT s.*, c.json FROM presenter_shares s JOIN classrooms c ON c.id = s.class_id "
-                           "WHERE s.slug = ?", (slug,)).fetchone()
-    if not share:
-        abort(404)
-    return share
-
-
-def share_page(share, status=200, error=None, gone=False):
-    teacher = teacher_of(json.loads(share["json"]).get("name") or "") or "the teacher"
-    return auth.page("presenter_code.html", status, slug=share["slug"], label=class_label(json.loads(share["json"]).get("name") or ""),
-                     teacher=teacher, error=error, gone=gone, length=SHARE_LEN)
-
-
-def share_answer(share, status, error, gone=False):
-    if request.accept_mimetypes.best == "application/json":
-        return jsonify(error=error, gone=gone), status
-    return share_page(share, status, error, gone)
-
-
-@bp.get("/<slug>")
-def share_link(slug):
-    if not share_path("/" + slug):
-        abort(404)
-    return share_page(share_by_slug(slug))
-
-
-@bp.post("/<slug>/code")
-def share_code(slug):
-    """The visitor's code. Right: a view token for this tab, carried to the Presenter in the address's #fragment
-    (never sent to the server in a URL) and kept in the tab's sessionStorage, so closing the tab ends the view."""
-    if not share_path("/" + slug):
-        abort(404)
-    auth.check_form_token()
-    share = share_by_slug(slug)
-    typed = re.sub(r"[^A-Z0-9]", "", request.form.get("code", "").upper())
-    t = auth.now()
-    stopped = "This code has stopped working. Ask {} for the Presenter link and code again."
-    teacher = teacher_of(json.loads(share["json"]).get("name") or "") or "the teacher"
-    with auth.db().transaction() as tx:
-        live = tx.execute("SELECT code, code_expires_at, fails FROM presenter_shares WHERE slug = ?", (slug,)).fetchone()
-        if not live or not live["code"] or live["code_expires_at"] <= t or live["fails"] >= SHARE_FAILS:
-            return share_answer(share, 410, stopped.format(teacher), gone=True)
-        if not secrets.compare_digest(typed, live["code"]):
-            tx.execute("UPDATE presenter_shares SET fails = fails + 1 WHERE slug = ?", (slug,))
-            if live["fails"] + 1 >= SHARE_FAILS:
-                return share_answer(share, 410, stopped.format(teacher), gone=True)
-            return share_answer(share, 400, "That code isn't right. Check the code on the Presenter and try again.")
-        token = secrets.token_urlsafe(24)
-        tx.execute("INSERT INTO presenter_views (token_hash, class_id, created_at, last_seen_at) VALUES (?, ?, ?, ?)",
-                   (auth.token_hash(token), share["class_id"], t, t))
-    target = f"/{slug}/view#v={token}"
-    if request.accept_mimetypes.best == "application/json":
-        return jsonify(next=target)
-    return redirect(target)
-
-
-@bp.get("/<slug>/view")
-def share_view(slug):
-    if not share_path("/" + slug):
-        abort(404)
-    share_by_slug(slug)
-    return page()
-
-
-@bp.get("/<slug>/data")
-def share_data(slug):
-    """The shared Presenter's figures, for a tab holding a view token (X-View header)."""
-    if not share_path("/" + slug):
-        abort(404)
-    token = request.headers.get("X-View", "")
-    with auth.db().transaction() as tx:
-        view = token and len(token) < 100 and tx.execute(
-            "SELECT v.token_hash FROM presenter_views v JOIN presenter_shares s ON s.class_id = v.class_id "
-            "WHERE v.token_hash = ? AND s.slug = ?", (auth.token_hash(token), slug)).fetchone()
-        if not view:
-            return jsonify(error="Type the code to watch this Presenter."), 401
-        tx.execute("UPDATE presenter_views SET last_seen_at = ? WHERE token_hash = ?", (auth.now(), view["token_hash"]))
-        row = tx.execute("SELECT c.id, c.json FROM classrooms c JOIN presenter_shares s ON s.class_id = c.id WHERE s.slug = ?",
-                         (slug,)).fetchone()
-        rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
-    result = class_summary(row)
-    result["school"] = school_places(rows, row["id"])
-    result["shared"] = True
-    return jsonify(result)

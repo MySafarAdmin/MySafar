@@ -8,8 +8,7 @@
 // the boxes can show the answer first. A redirect means the code was right (the session cookie comes with it);
 // anything else is the page the server would have shown, and its message is shown here.
 //
-// A shared Presenter link (templates/presenter_code.html) uses the same boxes for its 4-character code: its form sets
-// data-codeboxes, data-len, data-chars="alnum" (letters and numbers, shown in capitals) and data-json, which asks the
+// Another form can use the same boxes for a shorter code: it sets data-codeboxes, data-len, data-chars="alnum" (letters and numbers, shown in capitals) and data-json, which asks the
 // server for a JSON answer ({next} when right, {error, gone} when not).
 (function () {
   var form = document.querySelector("form[data-codeboxes]") || document.querySelector('form[action="/login/code"]');

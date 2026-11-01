@@ -817,5 +817,6 @@ def prune(database, retention_days):
                    (t, t - SESSION_IDLE, t + SESSION_SHORT, t - SESSION_STAY_IDLE, t + SESSION_STAY))
         tx.execute("DELETE FROM user_tokens WHERE expires_at < ?", (t - DAY,))
         tx.execute("DELETE FROM login_codes WHERE expires_at < ?", (t,))
-        # Presenter views open longer than a week; a tab still open then asks for the code again.
-        tx.execute("DELETE FROM presenter_views WHERE created_at < ?", (t - 7 * DAY,))
+        # Presenter links never opened, or whose tab has gone quiet (closed); tv.py has the times.
+        tx.execute("DELETE FROM presenter_links WHERE (tab_hash IS NULL AND created_at < ?) OR last_seen_at < ?",
+                   (t - 10 * MINUTE, t - 12 * HOUR))

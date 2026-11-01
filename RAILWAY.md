@@ -134,6 +134,12 @@ one board like the TV's; and the month's stars of the
 week on one page. **Full screen** and **Close** show when the mouse moves;
 Close (or Escape) goes back to the class.
 
+Like a TV screen, the Presenter opens by link and needs no sign-in once open. Each press of
+Presenter makes a new link (`/present/<random>`) and opens it in a new tab. Only the tab that
+opened it can use it, and it keeps working there (signed in or not) until the tab is closed;
+press Presenter again for a new link. There is no sharing by link and code. A link nobody opens within 10 minutes stops working, as
+does one whose tab has been quiet for 12 hours, or whose teacher has been taken off the class.
+
 ## Variables for the MySafar service
 
 | Variable | Value |
