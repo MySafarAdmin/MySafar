@@ -38,6 +38,9 @@ SESSION_STAY_IDLE = 14 * DAY
 INVITE_TTL = 72 * HOUR
 RESET_TTL = HOUR
 LOGIN_CODE_TTL = 10 * MINUTE
+# After an admin types their emailed code with "Stay signed in" ticked, that browser is trusted for this long: their
+# password alone signs them in there, even after signing out, so the code is asked for about once a month.
+TRUSTED_DEVICE_TTL = 30 * DAY
 # Wrong codes allowed for one emailed code; after that the admin signs in again for a new one. Across codes, wrong
 # ones are limited per email and per IP address within LIMIT_WINDOW, so new codes can't be asked for to keep guessing.
 LOGIN_CODE_FAILS = 5
@@ -161,6 +164,38 @@ def code_cookie_name():
 
 def pre_cookie_name():
     return "__Host-safar-form" if current_app.config["COOKIE_SECURE"] else "safar-form"
+
+
+def device_cookie_name():
+    """Marks a browser where an admin finished the emailed code with "Stay signed in" (see trusted_device)."""
+    return "__Host-safar-device" if current_app.config["COOKIE_SECURE"] else "safar-device"
+
+
+def trusted_device(tx, user_id):
+    """True when this browser holds a trusted-device cookie for this user that hasn't expired."""
+    token = request.cookies.get(device_cookie_name(), "")
+    if not token or len(token) > 100:
+        return False
+    return bool(tx.execute("SELECT 1 FROM trusted_devices WHERE token_hash = ? AND user_id = ? AND expires_at > ?",
+                           (token_hash(token), user_id, now())).fetchone())
+
+
+def trust_device(tx, response, user_id):
+    token, t = secrets.token_urlsafe(32), now()
+    old = request.cookies.get(device_cookie_name(), "")
+    if old and len(old) <= 100:
+        tx.execute("DELETE FROM trusted_devices WHERE token_hash = ?", (token_hash(old),))
+    tx.execute("INSERT INTO trusted_devices (token_hash, user_id, created_at, expires_at) VALUES (?, ?, ?, ?)",
+               (token_hash(token), user_id, t, t + TRUSTED_DEVICE_TTL))
+    set_cookie(response, device_cookie_name(), token, TRUSTED_DEVICE_TTL)
+
+
+def forget_devices(tx, user_id, keep_this_one=False):
+    """Stops a user's browsers skipping the emailed code (password changed or reset, account turned off, or signed
+    out everywhere else). keep_this_one keeps the browser making the request."""
+    mine = request.cookies.get(device_cookie_name(), "") if keep_this_one else ""
+    tx.execute("DELETE FROM trusted_devices WHERE user_id = ? AND token_hash <> ?",
+               (user_id, token_hash(mine) if mine else ""))
 
 
 def set_cookie(response, name, value, max_age=None):
@@ -369,8 +404,13 @@ def login():
     if hasher.check_needs_rehash(user["password_hash"]):
         with db().transaction() as tx:
             tx.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hasher.hash(password), user["id"]))
+    trusted = False
     if user["role"] == "admin":
-        if not current_app.config.get("LOGIN_CODES"):
+        with db().transaction() as tx:
+            trusted = trusted_device(tx, user["id"])
+        if trusted:
+            current_app.logger.info("Admin %s signed in without an emailed code: trusted browser.", user["id"])
+        elif not current_app.config.get("LOGIN_CODES"):
             current_app.logger.info("Admin %s signed in without an emailed code: LOGIN_CODES is off.", user["id"])
         elif current_app.config["MAILER"].enabled:
             return send_login_code(dict(user), target, remember)
@@ -379,7 +419,7 @@ def login():
                                        "(RESEND_API_KEY and MAIL_FROM).", user["id"])
     with db().transaction() as tx:
         token, max_age = start_session(tx, user["id"], remember)
-        audit(tx, "login", user_id=user["id"])
+        audit(tx, "login", user_id=user["id"], detail={"trusted": True} if trusted else None)
     return signed_in_redirect(token, max_age, target)
 
 
@@ -442,7 +482,10 @@ def login_code():
         tx.execute("DELETE FROM login_codes WHERE token_hash = ?", (row["token_hash"],))
         token, max_age = start_session(tx, row["id"], remember)
         audit(tx, "login", user_id=row["id"])
-    response = signed_in_redirect(token, max_age, target)
+        response = signed_in_redirect(token, max_age, target)
+        # "Stay signed in" also means no emailed code in this browser for TRUSTED_DEVICE_TTL.
+        if remember:
+            trust_device(tx, response, row["id"])
     response.delete_cookie(code_cookie_name(), path="/", secure=current_app.config["COOKIE_SECURE"])
     return response
 
@@ -506,6 +549,7 @@ def set_password_page(token, purpose):
             return page("link_expired.html", 410, purpose=purpose)
         tx.execute("UPDATE users SET password_hash = ?, must_change = 0 WHERE id = ?", (hasher.hash(password), row["id"]))
         tx.execute("DELETE FROM sessions WHERE user_id = ?", (row["id"],))
+        forget_devices(tx, row["id"])
         audit(tx, "invite.accepted" if purpose == "invite" else "password.reset", user_id=row["id"])
         session_token, max_age = start_session(tx, row["id"])
     if purpose == "reset":
@@ -565,6 +609,7 @@ def change_password():
         tx.execute("UPDATE users SET password_hash = ?, must_change = 0 WHERE id = ?", (hasher.hash(password), g.user["id"]))
         # Any other device signed in with the old password is signed out.
         tx.execute("DELETE FROM sessions WHERE user_id = ? AND token_hash <> ?", (g.user["id"], g.session["token_hash"]))
+        forget_devices(tx, g.user["id"], keep_this_one=True)
         audit(tx, "password.changed")
     password_changed_notice(g.user, "changed")
     g.user["must_change"] = 0
@@ -576,6 +621,7 @@ def sign_out_others():
     check_form_token()
     with db().transaction() as tx:
         tx.execute("DELETE FROM sessions WHERE user_id = ? AND token_hash <> ?", (g.user["id"], g.session["token_hash"]))
+        forget_devices(tx, g.user["id"], keep_this_one=True)
         audit(tx, "logout.others")
     return page("account.html", others=0, notice="You've been signed out on all your other devices.")
 
@@ -727,6 +773,7 @@ def admin_access(user_id):
         tx.execute("UPDATE users SET disabled = ? WHERE id = ?", (1 if disable else 0, user_id))
         if disable:
             tx.execute("DELETE FROM sessions WHERE user_id = ?", (user_id,))
+            tx.execute("DELETE FROM trusted_devices WHERE user_id = ?", (user_id,))
             tx.execute("UPDATE user_tokens SET used_at = ? WHERE user_id = ? AND used_at IS NULL", (now(), user_id))
         audit(tx, "user.disabled" if disable else "user.enabled", detail={"user": user_id})
     return users_page(notice=f"{user['name']} can {'no longer' if disable else 'now'} sign in.")
@@ -798,5 +845,6 @@ def prune(database, retention_days):
                    (t, t - SESSION_IDLE, t + SESSION_SHORT, t - SESSION_STAY_IDLE, t + SESSION_STAY))
         tx.execute("DELETE FROM user_tokens WHERE expires_at < ?", (t - DAY,))
         tx.execute("DELETE FROM login_codes WHERE expires_at < ?", (t,))
+        tx.execute("DELETE FROM trusted_devices WHERE expires_at < ?", (t,))
         # Presenter views open longer than a week; a tab still open then asks for the code again.
         tx.execute("DELETE FROM presenter_views WHERE created_at < ?", (t - 7 * DAY,))
