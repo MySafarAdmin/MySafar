@@ -349,6 +349,42 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 ::view-transition-group(rail){z-index:1}::view-transition-group(navsel){z-index:2}::view-transition-group(navs){z-index:3}
 @media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}
 
+/* ---------- Side menu groups (static/menu.js) ----------
+   User management, Live Activity, Data handling and Links fold open and shut under their header, after React Bits'
+   BranchedMenu: a trunk runs down from the header's icon with a curved branch to each row, and the page you are on
+   lights its branch in white, drawn from the header down. The rows fold with the grid-rows trick, so nothing is
+   measured; the lines fade in a little after the rows open. Without the script every group stays open. */
+.ngrp{display:flex;flex-direction:column;--bm-x:34px;--bm-line:#5a83ab;--bm-ease:cubic-bezier(.23,1,.32,1)}
+.ngrp .nav{position:relative;z-index:1}
+.ngh .ngt{flex:1;min-width:0}
+.ngh>.ic:last-child{width:16px;height:16px;opacity:.7;transition:transform .3s var(--bm-ease),opacity .2s ease}
+.ngrp:not(.bm)>.ngh{pointer-events:none}
+.ngrp:not(.bm)>.ngh>.ic:last-child{display:none}
+.ngrp.open>.ngh{color:#fff}
+.ngrp.open>.ngh>.ic:last-child{transform:rotate(180deg);opacity:1}
+/* A folded group holding the page you are on shows a small white mark by its name. */
+.ngh::after{content:"";position:absolute;left:3px;top:50%;width:3px;height:16px;margin-top:-8px;border-radius:2px;background:#fff;opacity:0;transition:opacity .15s ease}
+.ngrp.has-cur:not(.open)>.ngh::after{opacity:1}
+.ngrp.has-cur:not(.open)>.ngh{color:#fff;font-weight:700}
+.ngb{display:grid;grid-template-rows:1fr}
+.ngrp.bm>.ngb{grid-template-rows:0fr}
+.ngrp.bm.open>.ngb{grid-template-rows:1fr}
+.ngrp.ready>.ngb{transition:grid-template-rows .3s var(--bm-ease)}
+.ngf{min-height:0;overflow:hidden}
+.ngi{position:relative;display:flex;flex-direction:column;gap:2px;padding:2px 0 6px}
+.ngl{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;z-index:2;opacity:0;transition:opacity .2s ease}
+.ngrp.open .ngl,.ngrp:not(.bm) .ngl{opacity:1;transition:opacity .25s ease .1s}
+.ngl path{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ngl .b{stroke:var(--bm-line)}
+.ngl .r{stroke:#fff;transition:stroke-dashoffset .4s var(--bm-ease)}
+.nav.nsub{margin-left:var(--bm-x);width:calc(100% - var(--bm-x));min-height:36px;padding:6px 10px;gap:8px;font-size:.875rem;color:var(--rail-mute)}
+.nav.nsub:hover,.nav.nsub:focus-visible{color:#fff}
+.nav.nsub[aria-current="page"]{color:var(--navy)}
+.nav.nsub .ic{width:16px;height:16px}
+@media (prefers-reduced-motion:reduce){
+ .ngrp.ready>.ngb,.ngl,.ngrp.open .ngl,.ngl .r,.ngh>.ic:last-child,.ngh::after{transition:none}
+}
+
 /* Dashboard screens. Shared tokens, shell, band, modules and controls are in src/tokens.css (inlined before this). */
 html{scroll-padding-top:calc(var(--topbar,0px) + 64px)}
 body{padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -1906,7 +1942,7 @@ html.fresh #vM .hrq{animation:none}body.enter #vM .hrq{animation-delay:1.3s}
   <button class="nav" id="nB" type="button" hidden title="Show a class's month on the big screen, in a new tab: tops, rankings and the house race"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="m10.5 7.8 4 2.2-4 2.2z"/><path d="M12 16v4"/><path d="M8 20h8"/></svg>Presenter</button>
   <button class="nav" id="nU" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 9 12 4.5 21.5 9 12 13.5z"/><path d="M6.5 11.2v4.3c1.5 1.5 3.4 2.2 5.5 2.2s4-.7 5.5-2.2v-4.3"/><path d="M21.5 9v5"/></svg>Students</button>
   <div id="adminNav"></div>
-  <a class="nav j2j j2jb" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer" title="Registers, homework and classroom learning"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></svg><span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
+  <div class="ngrp j2jb" data-g="links"><button type="button" class="nav ngh" aria-expanded="true" aria-controls="ng-links"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.1 1.1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.1-1.1"/></svg><span class="ngt">Links</span><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6.5 9.5 5.5 5.5 5.5-5.5"/></svg></button><div class="ngb" id="ng-links"><div class="ngf"><div class="ngi"><a class="nav nsub" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"/></svg><span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a><a class="nav nsub" href="https://safaracademy.yourpayroll.co.uk" target="_blank" rel="noopener noreferrer"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16.5 7.5A3.5 3.5 0 0 0 9.5 8v4.5c0 3-1 5-3 6.5h11"/><path d="M6.5 12.5h7"/></svg><span translate="no">Payroll</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a><a class="nav nsub" href="https://flickpermanentmakeupacademy.com/login/" target="_blank" rel="noopener noreferrer"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m10.2 8.8 5 3.2-5 3.2z"/></svg><span translate="no">FlickLearning</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a></div></div></div></div>
  </nav>
  <div class="me" id="me" hidden></div>
  </div>
@@ -2982,7 +3018,7 @@ function cname(n){n=String(n||"");if(CNM.hasOwnProperty(n))return CNM[n];var g=/
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?cname(n.name):PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):PAGE==="H"?"House points":PAGE==="K"?"Rankings":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  // The Presenter (the TV's scenes for one class) is served by the Railway server, in this tab.
- $("nB").hidden=!window.RAILWAY;
+ $("nB").hidden=!window.RAILWAY||!TEACHER;
  document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+(PAGE==="K"?"Rankings · ":"")+"MySafar"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
 function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":"C";closeDrawer();$("figP").hidden=!M;if(!M)$("figP").open=false;
@@ -3773,7 +3809,8 @@ var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduc
  // The side menu's marker sits under the first current item that is visible (a class's Settings marks both the
  // phone-only Class settings and Classes); only that item hands its pill to the marker.
  function rail(){var nav=$("nav");if(!nav)return;var on=null,m=nav.querySelector(":scope>.navi");
-  nav.querySelectorAll('.nav[aria-current="page"]').forEach(function(e){if(!on&&!e.hidden&&e.offsetWidth)on=e});
+  // Items inside a folding group (static/menu.js) keep their own pill, which folds away with the group.
+  nav.querySelectorAll('.nav[aria-current="page"]').forEach(function(e){if(!on&&!e.hidden&&e.offsetWidth&&!e.closest(".ngrp"))on=e});
   nav.querySelectorAll(".nav[data-i]").forEach(function(e){if(e!==on)e.removeAttribute("data-i")});
   if(!on){if(m)m.style.opacity="0";return}
   if(!m){m=document.createElement("span");m.className="navi";m.setAttribute("aria-hidden","true");nav.insertBefore(m,nav.firstChild);nav.classList.add("has-i")}
@@ -3795,11 +3832,13 @@ var MO=(function(){var RM=null;try{RM=matchMedia("(prefers-reduced-motion: reduc
  function slide(e,a,b,dir){while(a.length<b.length)a=" "+a;a=a.slice(a.length-b.length);var h="",D=[];
   for(var i=0;i<b.length;i++)h+=b[i]===a[i]?b[i]:'<span class="dg">'+b[i]+'</span>';e.innerHTML=h;
   e.querySelectorAll(".dg").forEach(function(g,j){g.animate([{transform:"translateY("+(dir*.55)+"em)",opacity:0,filter:"blur(3px)"},{transform:"none",opacity:1,filter:"blur(0)"}],{duration:420,easing:"cubic-bezier(.22,1,.36,1)",delay:j*40,fill:"backwards"})})}
+ // Where an item sits in its box: a menu group's rows are measured from their tree, so the tree's own place is added.
+ function at(e,box){var x=e.offsetLeft,y=e.offsetTop,p=e.offsetParent;while(p&&p!==box&&box.contains(p)){x+=p.offsetLeft;y+=p.offsetTop;p=p.offsetParent}return [x,y,e.offsetWidth,e.offsetHeight]}
  // One highlight per group that follows the pointer from item to item (Animate UI's motion highlight).
  function hover(box,item){if(!box)return;var m=null,on=false;
   box.addEventListener("pointerover",function(e){if(e.pointerType!=="mouse"||(RM&&RM.matches))return;var it=e.target.closest(item);if(!it||!box.contains(it))return;
    if(!m){m=document.createElement("span");m.className="mhl";m.setAttribute("aria-hidden","true");box.insertBefore(m,box.firstChild);box.classList.add("has-h")}
-   var pos=[it.offsetLeft,it.offsetTop,it.offsetWidth,it.offsetHeight].join();
+   var pos=at(it,box).join();
    if(!on){m.classList.remove("go");place(m,pos);m.getBoundingClientRect();m.classList.add("go");on=true}else place(m,pos);
    m.style.opacity=it.matches('[aria-current="page"],[aria-selected="true"]')?"0":"1"});
   box.addEventListener("pointerleave",function(){if(m){m.style.opacity="0";on=false}})}

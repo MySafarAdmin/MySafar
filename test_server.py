@@ -178,6 +178,24 @@ class DashboardTests:
                                  data={"photo": (io.BytesIO(self.picture()), "me.png")})
         self.assertEqual(reply.status_code, 400)
 
+    def test_side_menu_groups_and_links(self):
+        # Admin pages group the administration items, and everyone gets the Links group at the foot (static/menu.js).
+        page = self.client.get("/admin/import").get_data(as_text=True)
+        for text in ('data-g="users"', 'data-g="live"', 'data-g="data"', 'data-g="links"', ">Presenter<",
+                     "https://safaracademy.yourpayroll.co.uk", "https://flickpermanentmakeupacademy.com/login/",
+                     "https://journey2jannah.com", '<script src="/menu.js" defer>'):
+            self.assertIn(text, page)
+        self.assertNotIn("TV screens", page)
+        self.assertLess(page.index(">User management<"), page.index(">Live Activity<"))
+        self.assertLess(page.index(">Live Activity<"), page.index(">Data handling<"))
+        self.assertLess(page.index(">Data handling<"), page.index(">FAQs<"))
+        self.assertLess(page.index(">FAQs<"), page.index(">Presenter<"))
+        self.assertIn('src="/menu.js"></script>', self.client.get("/").get_data(as_text=True))
+        script = self.client.get("/menu.js")
+        self.assertEqual(script.status_code, 200)
+        self.assertEqual(script.mimetype, "text/javascript")
+        self.assertIn("Live Activity", self.client.get("/railway-storage.js").get_data(as_text=True))
+
     def test_first_admin_needs_admin_email(self):
         with self.assertRaisesRegex(RuntimeError, "ADMIN_EMAIL"):
             create_app(dict(self.config, DATABASE_URL=self.database_url(), DATA_DIR=Path(self.temp.name) / "new",

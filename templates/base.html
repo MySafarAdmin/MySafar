@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="/auth.css">
 {% if intro %}<script src="/intro.js" defer></script>{% endif %}
 {% block head %}{% endblock %}
-{% if user and (request.path == "/account" or request.path.startswith("/admin/")) %}<script src="/nav.js" defer></script>{% endif %}
+{% if user and (request.path == "/account" or request.path.startswith("/admin/")) %}<script src="/nav.js" defer></script><script src="/menu.js" defer></script>{% endif %}
 </head>
 {% set shell = user and not user.must_change and self.body_class() != "solo" %}
 <body class="{% block body_class %}app{% endblock %}{{ " cine" if intro }}">
@@ -26,29 +26,46 @@
   <div class="navw">
   <nav class="navs" aria-label="Main">
     {# The same items in the same order as the dashboard's menu (src/page.html and railway-storage.js). The page
-       you are on carries a .navsel pill, which glides from item to item as pages change (tokens.css). #}
-    {% macro nl(href, ic, label, on=False) -%}
-    <a class="nav" href="{{ href }}"{{ ' aria-current="page"'|safe if on }}>{% if on %}<span class="navsel" aria-hidden="true"></span>{% endif %}{{ icon(ic) }}{{ label }}</a>
+       you are on carries a .navsel pill, which glides from item to item as pages change (tokens.css). Groups
+       (.ngrp) fold open and shut with a branched line to each item (static/menu.js); without the script they stay open. #}
+    {% macro nl(href, ic, label, on=False, sub=False) -%}
+    <a class="nav{{ ' nsub' if sub }}" href="{{ href }}"{{ ' aria-current="page"'|safe if on }}>{% if on %}<span class="navsel" aria-hidden="true"></span>{% endif %}{{ icon(ic) }}{{ label }}</a>
+    {%- endmacro %}
+    {% macro grp(key, ic, label, cls="") -%}
+    <div class="ngrp{{ ' ' ~ cls if cls }}" data-g="{{ key }}"><button type="button" class="nav ngh" aria-expanded="true" aria-controls="ng-{{ key }}">{{ icon(ic) }}<span class="ngt">{{ label }}</span>{{ icon("chev") }}</button><div class="ngb" id="ng-{{ key }}"><div class="ngf"><div class="ngi">{{ caller() }}</div></div></div></div>
+    {%- endmacro %}
+    {% macro ext(href, ic, label) -%}
+    <a class="nav nsub" href="{{ href }}" target="_blank" rel="noopener noreferrer">{{ icon(ic) }}<span translate="no">{{ label }}</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
     {%- endmacro %}
     {{ nl("/", "home", "Overview") }}
     {% if user.role == "admin" %}{{ nl("/#record", "pen", "Record") }}{% endif %}
     {{ nl("/#classes", "grid", "Classes") }}
     {% if user.role == "admin" %}{{ nl("/#house-points", "pie", "House points") }}
     {{ nl("/#rankings", "trophy", "Rankings") }}
-    {{ nl("/#presenter", "presenter", "Presenter") }}
     <div class="navh" id="adminh">Administration</div>
-    {{ nl("/admin/users", "users", "Manage users", here == "/admin/users") }}
-    {{ nl("/#students", "students", "Students") }}
-    {{ nl("/admin/history", "history", "Class history", here.startswith("/admin/history")) }}
-    {{ nl("/admin/activity", "activity", "Activity", here == "/admin/activity") }}
-    {{ nl("/admin/tv", "tv", "TV screens", here == "/admin/tv") }}
-    {{ nl("/admin/house-points", "pie", "Counted coins", here == "/admin/house-points") }}
-    {{ nl("/admin/export", "sheet", "Spreadsheet", here == "/admin/export") }}
-    {{ nl("/admin/import", "upload", "Import", here.startswith("/admin/import")) }}
+    {% call grp("users", "idcard", "User management") %}
+    {{ nl("/#students", "students", "Students", sub=True) }}
+    {{ nl("/admin/users", "users", "Manage users", here == "/admin/users", sub=True) }}
+    {% endcall %}
+    {% call grp("live", "pulse", "Live Activity") %}
+    {{ nl("/admin/activity", "activity", "Activity", here == "/admin/activity", sub=True) }}
+    {{ nl("/admin/history", "history", "Class history", here.startswith("/admin/history"), sub=True) }}
+    {% endcall %}
+    {% call grp("data", "db", "Data handling") %}
+    {{ nl("/admin/house-points", "pie", "Counted coins", here == "/admin/house-points", sub=True) }}
+    {{ nl("/admin/export", "sheet", "Spreadsheet", here == "/admin/export", sub=True) }}
+    {{ nl("/admin/import", "upload", "Import", here.startswith("/admin/import"), sub=True) }}
+    {% endcall %}
     {{ nl("/admin/faqs", "faq", "FAQs", here == "/admin/faqs") }}
+    {{ nl("/admin/tv", "tv", "Presenter", here == "/admin/tv") }}
+    {% else %}{{ nl("/#presenter", "presenter", "Presenter") }}
     {% endif %}
-    {# Journey2Jannah sits at the foot of the menu, just above the signed-in name. #}
-    <a class="nav j2j j2jb" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
+    {# Links to the school's other sites sit at the foot of the menu, just above the signed-in name. #}
+    {% call grp("links", "link", "Links", "j2jb") %}
+    {{ ext("https://journey2jannah.com", "book", "Journey2Jannah") }}
+    {{ ext("https://safaracademy.yourpayroll.co.uk", "pay", "Payroll") }}
+    {{ ext("https://flickpermanentmakeupacademy.com/login/", "play", "FlickLearning") }}
+    {% endcall %}
   </nav>
   <div class="me">
     <div class="who">{{ avatar(user.id, user.name, user.avatar_at, 38) }}<div class="wt"><b>{{ user.name }}</b><span>{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></div></div>
