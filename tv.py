@@ -151,6 +151,14 @@ def levels_passed(student, month_key, today_key):
                and month_key <= str(t.get("d", "")) <= today_key)
 
 
+def last_month(now):
+    """Last calendar month: its name, its start and end in milliseconds, and its first and last days ("2026-09-30")."""
+    first = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    start = (first - timedelta(days=1)).replace(day=1)
+    end = first - timedelta(days=1)
+    return start.strftime("%B"), start.timestamp() * 1000, first.timestamp() * 1000, start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+
+
 def week_star(students, week):
     """A class's star of the week: the teacher's pick from the Quran tab, otherwise the most passes and merits.
 
@@ -175,6 +183,10 @@ def summary(rows, now=None, teachers=(), extra=None):
     last_week = day - timedelta(days=day.weekday() + 7)
     houses = {h: (extra or {}).get(h, 0) for h in HOUSES}
     books, stars, memo, qaidah = [], [], [], []
+    # Last month's winners, for the slide that looks back: Qaidah levels, each stage's top memorisation class, and
+    # the house that earned the most points that month.
+    past_name, past_start, past_end, past_first, past_last = last_month(now)
+    past = {"qaidah": [], "primary": [], "secondary": [], "houses": dict.fromkeys(HOUSES, 0)}
     # Every teacher named in the classrooms (Quran and Islamic Studies) as well as those with an account.
     # A title from a classroom name wins; teachers known only by their account are Ustadh unless the name says otherwise.
     names = {}
@@ -192,7 +204,7 @@ def summary(rows, now=None, teachers=(), extra=None):
             parts = teacher_parts(name)
             if parts and not (names.get(parts[1].lower()) or (None,))[0]:
                 names[parts[1].lower()] = parts
-        students, stages, class_memo, class_qaidah = [], [], 0, 0
+        students, stages, class_memo, class_qaidah, class_past = [], [], 0, 0, 0
         for s in state.get("S", []):
             name = short_name(s.get("name", ""))
             if not name:
@@ -200,6 +212,11 @@ def summary(rows, now=None, teachers=(), extra=None):
             house = s.get("house", "")
             if house in houses:
                 houses[house] += sum(len(s.get(k, [])) * v for k, v in TOKEN_POINTS.items())
+                past["houses"][house] += sum(between(s.get(k, []), past_start, past_end) * v for k, v in TOKEN_POINTS.items())
+            past_levels = levels_passed(s, past_first, past_last)
+            if past_levels:
+                past["qaidah"].append({"name": name, "class": label, "house": house, "n": past_levels})
+            class_past += between(s.get("log", []), past_start, past_end)
             # A book pass from the Record page, or a red token from before house points moved to physical coins.
             if book_passed(s, month):
                 books.append({"name": name, "class": label, "house": house})
@@ -218,6 +235,7 @@ def summary(rows, now=None, teachers=(), extra=None):
         if stage:
             tops["memo"][stage].append({"class": label, "n": class_memo})
             tops["qaidah"][stage].append({"class": label, "n": class_qaidah})
+            past[stage].append({"class": label, "n": class_past})
         star = week_star(students, last_week)
         if star:
             stars.append({"name": star[0], "house": star[1], "class": label, "week": last_week.strftime("%Y-%m-%d"),
@@ -231,6 +249,10 @@ def summary(rows, now=None, teachers=(), extra=None):
         "stars": sorted(stars, key=lambda s: natural(s["class"])),
         "teachers": [(title or "Ustadh") + " " + name for title, name in sorted(names.values(), key=lambda t: t[1].lower())],
         "month": now.strftime("%B"),
+        # First place only (everyone tied on it) in each category; empty lists when nobody scored.
+        "last": {"month": past_name, "qaidah": podium(past["qaidah"], places=1),
+                 "primary": podium(past["primary"], places=1), "secondary": podium(past["secondary"], places=1),
+                 "houses": podium([{"name": h, "house": h, "n": n} for h, n in past["houses"].items()], places=1)},
     }
 
 
