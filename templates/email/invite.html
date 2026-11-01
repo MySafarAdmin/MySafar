@@ -7,7 +7,7 @@
 {% call p() %}{{ by if by else "An administrator" }} has given you an account on the Safar Academy staff dashboard, where we record each student's Quran progress, merits and house points.{% endcall %}
 {% call p() %}Choose your password to get started:{% endcall %}
 {{ button(link, "Choose your password") }}
-{% set rows = [("Sign-in email", email), ("Role", "Administrator" if role == "admin" else "Teacher")] %}
+{% set rows = [("Sign-in email", email), ("Role", role_name(role))] %}
 {% if role == "teacher" and rooms %}{% set rows = rows + [("Your classrooms", rooms|join(", "))] %}{% endif %}
 {{ facts(rows) }}
 {% call p(True) %}The link works once and expires in {{ invite_hours }}. If it has expired, ask an administrator for a new invite, or use <a href="{{ forgot }}" style="color:#0b4a82">Forgotten your password?</a> on the sign-in page.{% endcall %}

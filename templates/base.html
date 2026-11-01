@@ -38,10 +38,17 @@
     <a class="nav nsub" href="{{ href }}" target="_blank" rel="noopener noreferrer">{{ icon(ic) }}<span translate="no">{{ label }}</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
     {%- endmacro %}
     {{ nl("/", "home", "Overview") }}
-    {% if user.role == "admin" %}{{ nl("/#record", "pen", "Record") }}{% endif %}
+    {% set all_classes = user.role in ("admin", "head") %}
+    {% if all_classes %}{{ nl("/#record", "pen", "Record") }}{% endif %}
     {{ nl("/#classes", "grid", "Classes") }}
-    {% if user.role == "admin" %}{{ nl("/#house-points", "pie", "House points") }}
+    {% if all_classes %}{{ nl("/#house-points", "pie", "House points") }}
     {{ nl("/#rankings", "trophy", "Rankings") }}
+    {% endif %}
+    {# Teachers and HeadTeachers open one class's Presenter; admins have the Presenter page (TV screens) below. #}
+    {% if user.role != "admin" %}{{ nl("/#presenter", "presenter", "Presenter") }}{% endif %}
+    {# A HeadTeacher has FAQs but none of the Administration pages. #}
+    {% if user.role == "head" %}{{ nl("/admin/faqs", "faq", "FAQs", here == "/admin/faqs") }}{% endif %}
+    {% if user.role == "admin" %}
     <div class="navh" id="adminh">Administration</div>
     {% call grp("users", "idcard", "User management") %}
     {{ nl("/#students", "students", "Students", sub=True) }}
@@ -58,7 +65,6 @@
     {% endcall %}
     {{ nl("/admin/faqs", "faq", "FAQs", here == "/admin/faqs") }}
     {{ nl("/admin/tv", "tv", "Presenter", here == "/admin/tv") }}
-    {% else %}{{ nl("/#presenter", "presenter", "Presenter") }}
     {% endif %}
     {# Links to the school's other sites sit at the foot of the menu, just above the signed-in name. #}
     {% call grp("links", "link", "Links", "j2jb") %}
@@ -68,7 +74,7 @@
     {% endcall %}
   </nav>
   <div class="me">
-    <div class="who">{{ avatar(user.id, user.name, user.avatar_at, 38) }}<div class="wt"><b>{{ user.name }}</b><span>{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></div></div>
+    <div class="who">{{ avatar(user.id, user.name, user.avatar_at, 38) }}<div class="wt"><b>{{ user.name }}</b><span>{{ role_name(user.role) }}</span></div></div>
     <div class="row">
       <a class="linkbtn" href="/account"{{ ' aria-current="page"'|safe if here == "/account" }}>Account</a>
       <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="linkbtn">Sign out</button></form>
@@ -80,7 +86,7 @@
   <label for="navt" class="dscrim" aria-hidden="true"></label>
   <nav class="dock" aria-label="Shortcuts">
     <a class="dk dk-home" href="/"><span class="dki">{{ icon("home") }}</span><span>Home</span></a>
-    {% if user.role == "admin" %}
+    {% if all_classes %}
     <a class="dk dk-classes" href="/#classes"><span class="dki">{{ icon("grid") }}</span><span>Classes</span></a>
     <a class="dk dk-record" href="/#record"><span class="dki">{{ icon("pen") }}</span><span>Record</span></a>
     {% else %}

@@ -18,6 +18,12 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
 - **Teachers** see and edit only the classrooms an administrator has ticked
   for them on **Manage users**. They can't upload CSVs, create classrooms or
   delete them. The server enforces this; the page only hides the buttons.
+- **HeadTeachers** see and record on every classroom, like an administrator, and
+  have Overview, Record, Classes, House points, Rankings, Presenter and
+  **FAQs** (where they can reply, but not delete). They have none of the
+  Administration pages: no Manage users, Students, Class history, Activity, TV
+  screens, Counted coins, Spreadsheet or Import, and they can't add or remove
+  students or classrooms. They sign in like teachers, without an emailed code.
 - New staff are invited from **Manage users**. They get a link (by email when
   email is set up, otherwise the admin copies it) to choose a password. Invite
   links expire after 72 hours, reset links after 1 hour; each works once.

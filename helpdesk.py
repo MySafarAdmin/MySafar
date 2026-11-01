@@ -101,13 +101,13 @@ def faqs_page(status=200, **context):
 
 
 @bp.get("/admin/faqs")
-@auth.admin_required
+@auth.staff_required
 def admin_faqs():
     return faqs_page()
 
 
 @bp.post("/admin/faqs/<int:item_id>/reply")
-@auth.admin_required
+@auth.staff_required
 def admin_reply(item_id):
     auth.check_form_token()
     reply = clean(request.form.get("reply"), REPLY_MAX)

@@ -481,8 +481,12 @@ def create_app(test_config=None):
     def is_admin():
         return g.user["role"] == "admin"
 
+    def sees_all():
+        """Admins and HeadTeachers see and record on every classroom."""
+        return g.user["role"] in auth.SEES_ALL
+
     def can_edit(db, class_id):
-        return is_admin() or db.execute("SELECT 1 FROM classroom_members WHERE class_id = ? AND user_id = ?",
+        return sees_all() or db.execute("SELECT 1 FROM classroom_members WHERE class_id = ? AND user_id = ?",
                                         (class_id, g.user["id"])).fetchone() is not None
 
     def record_history(db, class_id, revision, encoded):
@@ -500,7 +504,7 @@ def create_app(test_config=None):
     @app.get("/api/classes")
     def read_classes():
         with database.transaction() as db:
-            if is_admin():
+            if sees_all():
                 rows = db.execute("SELECT id, json, revision FROM classrooms ORDER BY id").fetchall()
             else:
                 rows = db.execute("SELECT c.id, c.json, c.revision FROM classrooms c JOIN classroom_members m "
@@ -566,8 +570,8 @@ def create_app(test_config=None):
                                          (class_id, document["revision"])).fetchone()
                     if current and any(len(json.loads(current["json"]).get(k, [])) != len(state.get(k, [])) for k in ("S", "X")):
                         return jsonify(error="Only an admin can add or remove students."), 403
-                    # House points are given by admins only (on the Record page and Counted coins).
-                    if current and coins(state) - coins(json.loads(current["json"])):
+                    # House points are given by admins and HeadTeachers only (on the Record page and Counted coins).
+                    if not sees_all() and current and coins(state) - coins(json.loads(current["json"])):
                         return jsonify(error="Only an admin can give house points."), 403
                 cursor = db.execute("UPDATE classrooms SET json = ?, revision = revision + 1 WHERE id = ? AND revision = ?",
                                     (encoded, class_id, document["revision"]))

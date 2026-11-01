@@ -2146,7 +2146,7 @@ function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];
  /* From Account: "Retake the tutorial" (the Tutorial, near the end). */
  if(h==="tour"){TOURQ=true;return ["M"]}
  /* From the Import page: Classes with "Upload students from a CSV file" open. */
- if(h==="upload-students"&&!TEACHER){setTimeout(function(){var u=$("up");if(u){u.open=true;u.scrollIntoView({block:"start"})}},0);return ["L"]}if(h==="students")return ["U"];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="rankings")return [TEACHER?"M":"K"];if(h==="record")return [TEACHER?"M":"R"];
+ if(h==="upload-students"&&!STAFF){setTimeout(function(){var u=$("up");if(u){u.open=true;u.scrollIntoView({block:"start"})}},0);return ["L"]}if(h==="students")return ["U"];if(h==="house-points")return [TEACHER?"M":"H"];if(h==="rankings")return [TEACHER?"M":"K"];if(h==="record")return [TEACHER?"M":"R"];
  /* From an admin page's menu: Presenter's class picker over the overview. */
  if(h==="presenter"){setTimeout(presenter,0);return ["M"]}
  var m=/^tab-([QTDHS])$/.exec(h);if(m){var c=lastC();return c?[c,m[1]]:CIDS.length||LOADED?["L"]:null}return ST[h]?[h]:null}
@@ -2362,7 +2362,7 @@ var EDD=false;
 function editor(i){var s=S[i];
  return '<div class="ed">'
   +'<div class="ed-a"><button class="btn sm" type="button" data-a="dd" data-i="'+i+'" aria-expanded="'+EDD+'" aria-controls="edd'+i+'">Details</button><button class="btn sm" type="button" data-a="dt" data-i="'+i+'">History</button></div>'
-  +'<div class="edd" id="edd'+i+'"'+(EDD?'':' hidden')+'><dl class="ddl">'+details(s)+'</dl><div class="ed-a"><button class="btn sm" type="button" data-a="rn" data-i="'+i+'">Rename</button>'+(TEACHER?'':'<button class="btn sm danger" type="button" data-a="rm" data-i="'+i+'">Remove student</button>')+'</div></div></div>'}
+  +'<div class="edd" id="edd'+i+'"'+(EDD?'':' hidden')+'><dl class="ddl">'+details(s)+'</dl><div class="ed-a"><button class="btn sm" type="button" data-a="rn" data-i="'+i+'">Rename</button>'+(STAFF?'':'<button class="btn sm danger" type="button" data-a="rm" data-i="'+i+'">Remove student</button>')+'</div></div></div>'}
 /* Replace a panel's content, keeping keyboard focus on the same control. */
 function refill(el,html){var a=document.activeElement,key=null;
  if(a&&el.contains(a))key=a.dataset.a?'[data-a="'+a.dataset.a+'"]':null;
@@ -2375,7 +2375,7 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
  var nm=fn(s);
  if(a==="dt"){student(i);return}
  if(a==="dd"){EDD=!EDD;var box=bt.closest(".ed");box.querySelector(".edd").hidden=!EDD;bt.setAttribute("aria-expanded",EDD);return}
- if(a==="rm"&&!TEACHER){ask(exAsk(s,c),"Remove student",function(){if(!same(c,i,s))return;exOut(c,s);if(DMODE==="mm")closeDrawer();render();toast(nm+" removed")},null,1);return}
+ if(a==="rm"&&!STAFF){ask(exAsk(s,c),"Remove student",function(){if(!same(c,i,s))return;exOut(c,s);if(DMODE==="mm")closeDrawer();render();toast(nm+" removed")},null,1);return}
  if(a==="rn"){ask("Rename "+s.name,"Save name",function(v){if(!same(c,i,s))return;var nv=v||"Student";if(nv!==s.name){s.xn=(s.xn||[]).concat([s.name]).slice(-10);s.ed=(s.ed||[]).filter(function(y){return y!=="name"}).concat(["name"])}s.name=nv;save();render();toast("Name updated")},"Student name",0,s.name)}});
 
 /* ---------- Record page (admins) ----------
@@ -2463,7 +2463,7 @@ function recPage(){var o=rStu(),s=o&&o.s,h='';
    +'<p class="cap">'+(RB?esc(fn(s))+' finished the '+esc(bkName(RB))+' today. It is logged as a pass, with no house points.':'Choose the book first.')+'</p>',0);
   refill($("recF"),'<div class="rsteps">'+h+'</div>'+rSide(o));return}
  if(RK==="h"){var lt=lvToday(s),c=!HPOFF&&RH&&hpr(RH),k=c&&htk(RH);if(HPOFF)RH="";if(RH==="lv"&&lt)RH="",c=k=null;
-  if(HPOFF)h+='<div class="rpause" role="note"><b>House points are paused</b><span>Teachers give physical house coins, students put them in the box at the office, and the admin counts them and adds each house\'s total on <a href="/admin/house-points">Counted coins</a>. Nothing can be given here, so no points go in by accident.</span></div>';
+  if(HPOFF)h+='<div class="rpause" role="note"><b>House points are paused</b><span>Teachers give physical house coins, students put them in the box at the office, and the admin counts them and adds each house\'s total on '+(HEAD?'Counted coins':'<a href="/admin/house-points">Counted coins</a>')+'. Nothing can be given here, so no points go in by accident.</span></div>';
   h+=rStep(3,'<p class="rl" id="rHl">What for</p><div class="rhp'+(HPOFF?' off':'')+'" role="group" aria-labelledby="rHl">'+HPR.map(function(x){var off=HPOFF||x[0]==="lv"&&lt,t=htk(x[0]);
    return '<button type="button" data-h="'+x[0]+'" aria-pressed="'+(RH===x[0])+'"'+(off?' disabled':'')+'><span class="hpn">'+esc(x[1])+(x[0]==="lv"&&off?'<small>Already given by today\'s level test</small>':'')+'</span>'+hpCoin(x[0])+'<b class="hv">'+t[3]+'<span> points</span></b></button>'}).join("")+'</div>',!!RH);
   h+=rStep(4,'<p class="rl">Give</p><div class="racts"><button type="button" class="btn primary" data-r="h"'+(c?'':' disabled')+'>'+(c?'Give '+k[3]+' house points':'Give house points')+'</button></div>'
@@ -2949,9 +2949,12 @@ function render(){
 /* ---------- Tabs ---------- */
 /* Recording happens on the Quran tab: scores in the sheet, and warnings, merits, house points and the student's
    record (passes, target, fails, rename, remove) from the menu on a student's name. */
-var TEACHER=!!(window.ME&&ME.role!=="admin");
-/* Only admins add and remove students, on the Students page; teachers can't (the server refuses it too). */
-function addBtn(){return TEACHER?'<span>An administrator adds students to your class.</span>':'<button type="button" class="btn sm" data-open="U">Add students on the Students page</button>'}
+/* TEACHER: a teacher, who sees only their own classrooms. HEAD: a HeadTeacher, who sees every classroom, Record,
+   House points, Rankings and Presenter like an admin, but none of the Administration pages (Students among them).
+   STAFF: either of them, who can't add or remove students or classrooms. */
+var TEACHER=!!(window.ME&&ME.role!=="admin"&&ME.role!=="head"),HEAD=!!(window.ME&&ME.role==="head"),STAFF=TEACHER||HEAD;
+/* Only admins add and remove students, on the Students page; teachers and HeadTeachers can't (the server refuses it too). */
+function addBtn(){return STAFF?'<span>An administrator adds students to your class.</span>':'<button type="button" class="btn sm" data-open="U">Add students on the Students page</button>'}
 $("qAdd").hidden=true;$("addRow").hidden=true
 var TABS=["Q","T","D","S"],CUR="Q";
 /* The selected tab is drawn by one marker (.tabi) that slides to the tab chosen, and the new page slides in from
@@ -3021,10 +3024,10 @@ function cname(n){n=String(n||"");if(CNM.hasOwnProperty(n))return CNM[n];var g=/
 function head(){var n=CID?ST[CID]:null;$("sName").textContent=n?n.name:"";
  $("ttl").textContent=n?cname(n.name):PAGE==="R"?"Record":PAGE==="L"?(TEACHER?"Your classes":"Classes"):PAGE==="U"?(TEACHER?"Your students":"Students"):PAGE==="H"?"House points":PAGE==="K"?"Rankings":TEACHER?"Class overview":"School overview";$("swc").hidden=!n||CIDS.length<2;hello();
  // The Presenter (the TV's scenes for one class) is served by the Railway server, in this tab.
- $("nB").hidden=!window.RAILWAY||!TEACHER;
+ $("nB").hidden=!window.RAILWAY||!STAFF;
  document.title=(n?cname(n.name)+" · ":PAGE==="R"?"Record · ":"")+(PAGE==="L"?"Classes · ":"")+(PAGE==="U"?"Students · ":"")+(PAGE==="H"?"House points · ":"")+(PAGE==="K"?"Rankings · ":"")+"MySafar"}
 function setClass(c){if(c!==LASTC){LASTC=c;try{localStorage.setItem("mysafar.lastClass",c)}catch(e){}}if(c!==CID){QF="";QX={};QMN=-1;MS=-1;MM="";MD=""}CID=c;S=ST[c].S;FCD=ST[c].fcd;$("fcd").value=FCD;EXP={};head();render()}
-function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":"C";closeDrawer();$("figP").hidden=!M;if(!M)$("figP").open=false;
+function go(c,keepTab){if((c==="R"||c==="U"||c==="H"||c==="K")&&TEACHER)c="M";if(c==="U"&&HEAD)c="M";if(c!=="M"&&c!=="R"&&c!=="L"&&c!=="U"&&c!=="H"&&c!=="K"&&!ST[c])c="M";var R=c==="R",M=c==="M",L=c==="L",U=c==="U",H=c==="H",K=c==="K";PAGE=R?"R":M?"M":L?"L":U?"U":H?"H":K?"K":"C";closeDrawer();$("figP").hidden=!M;if(!M)$("figP").open=false;
  $("vM").classList.toggle("hide",!M);$("vR").classList.toggle("hide",!R);$("vL").classList.toggle("hide",!L);$("vU").classList.toggle("hide",!U);$("vH").classList.toggle("hide",!H);$("vK").classList.toggle("hide",!K);$("sub").classList.toggle("hide",M||R||L||U||H||K);
  if(K){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();rkPage()}
  else if(H){CID=null;TABS.forEach(function(k){$("v"+k).classList.add("hide")});head();hpPage()}
@@ -3098,7 +3101,7 @@ function houseBoard(all){var T=window.HOUSE_TOTALS||houseTotals(all),V=HOUSES.ma
  return '<div class="mod gold hb"><div class="mod-h">'+ovT("H","House points")+'</div><div class="houses">'+O.map(function(h){var v=T[h]||0;return '<div class="house '+h+'"><span class="hn"><span class="hdot '+h+'"></span>'+h+(h===lead?' <span class="pill lead">Leading</span>':'')+'</span><span class="pts">'+v+'</span><div class="tr"><i style="width:'+(v/top*100)+'%"></i></div></div>'}).join("")+'</div></div>'}
 function classRows(per){return CIDS.map(function(c){var L=ST[c].S,n=L.length,p=per==="m"?sumOf(L,mpc):sumOf(L,function(s){return s.passes}),m=per==="m"?sumOf(L,mmc):sumOf(L,function(s){return s.merits});
  return {name:cname(ST[c].name),open:c,v:n?Math.round((p+m)/n*10)/10:0,sub:plural(p,"pass","passes")+", "+plural(m,"merit")+", "+plural(n,"student")}})}
-function master(){if(PAGE==="L"){dirTab();return}if(PAGE==="U"){stuPage();return}if(PAGE==="H"){hpPage();return}if(PAGE==="K"){rkPage();return}var K=school(),A=K.A,all=K.all,adm=!(window.ME&&ME.role!=="admin");
+function master(){if(PAGE==="L"){dirTab();return}if(PAGE==="U"){stuPage();return}if(PAGE==="H"){hpPage();return}if(PAGE==="K"){rkPage();return}var K=school(),A=K.A,all=K.all,adm=!STAFF;
  $("figs").innerHTML=CIDS.length?fig(A.length,A.length===1?"Student":"Students")+fig(CIDS.length,CIDS.length===1?"Class":"Classes")+fig(sumOf(all,mpc),"Passes this month")+fig(sumOf(all,mmc),"Merits this month")+fig(K.wr.length+K.mb.length,"With a warning",K.wr.length+K.mb.length?"alert":"")+fig(K.stale.length,"Overdue a pass",K.stale.length?"alert":""):"";
  if(!CIDS.length){$("mst").innerHTML=LOADED?'<div class="empty"><b>'+(adm?'No classrooms yet':'No classrooms have been given to you yet')+'</b>'+(adm?'Upload a CSV of your students to create them.<button type="button" class="btn sm p" data-open="L">Upload students</button>':'Ask an administrator to add you to your classrooms on Manage users.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b>This takes a moment on a slow connection.</div>';
   return}
@@ -3207,7 +3210,7 @@ function attnHtml(K){var G=AGR,k=akOf(AKIND)?AKIND:"lo",x=akOf(k),a=K[k],size=10
   +F.slice(p*size,(p+1)*size).map(function(o){return '<tr><td class="lead"><b>'+esc(o.s.name)+'</b></td><td data-label="Class">'+opener(o.c,esc(cname(ST[o.c].name)),x[5])+'</td>'+(col?'<td data-label="'+col+'">'+val(o)+'</td>':'')+'</tr>'}).join("")+'</tbody></table></div>'
   +pagerHtml("a"+k,a.length,size,"students")}
 /* Classes: the searchable directory, ten classes a page. */
-function dirTab(){if(!CIDS.length){$("dirW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>'+(TEACHER?'Ask an administrator to add you to your classrooms on Manage users.':'Upload a CSV of your students below to create them.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';if(LOADED&&!TEACHER)$("up").open=true;return}
+function dirTab(){if(!CIDS.length){$("dirW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>'+(STAFF?'Ask an administrator to add you to your classrooms on Manage users.':'Upload a CSV of your students below to create them.')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';if(LOADED&&!STAFF)$("up").open=true;return}
  if(!$("dirQ"))$("dirW").innerHTML='<div class="toolbar"><input type="search" id="dirQ" placeholder="Find a class or teacher…" aria-label="Find a class or teacher" autocomplete="off"><p class="cap" id="dirC"></p></div><div id="dirT"></div>';dirTable()}
 /* Classes as cards, after Journey2Jannah's "My Classes": a patterned banner, a tile with the year group, the class
    name, then the figures the table used to hold. Every class is on the one page; the page scrolls. */
@@ -3554,7 +3557,7 @@ var f=$("fcd");
 f.onchange=function(){if(!f.value||!CID)return;FCD=f.value;ST[CID].fcd=FCD;save();head();render();toast("First class day set")};
 $("bulkA").onclick=function(){if(!CID)return;var c=CID,n=$("bulk").value.split("\n").map(function(x){return x.trim()}).filter(Boolean);if(!n.length){toast("Type some names first",1);$("bulk").focus();return}
  nextSid(function(k){if(CID!==c)return;n.forEach(function(x,i){var s=blank(x);s.sid=sidFmt(k+i);S.push(s)});$("bulk").value="";save();render();toast(plural(n.length,"student")+" added, "+(n.length>1?sidFmt(k)+" to "+sidFmt(k+n.length-1):sidFmt(k)))})};
-$("nM").onclick=function(){go("M")};$("nL").onclick=function(){go("L")};$("nU").onclick=function(){go("U")};$("nR").onclick=function(){go("R")};$("nH").onclick=function(){go("H")};$("nK").onclick=function(){go("K")};if(TEACHER){$("nR").hidden=true;$("nU").hidden=true;$("nH").hidden=true;$("nK").hidden=true}$("home").onclick=function(e){e.preventDefault();go("M")};
+$("nM").onclick=function(){go("M")};$("nL").onclick=function(){go("L")};$("nU").onclick=function(){go("U")};$("nR").onclick=function(){go("R")};$("nH").onclick=function(){go("H")};$("nK").onclick=function(){go("K")};if(TEACHER){$("nR").hidden=true;$("nU").hidden=true;$("nH").hidden=true;$("nK").hidden=true}if(HEAD)$("nU").hidden=true;$("home").onclick=function(e){e.preventDefault();go("M")};
 $("swc").onclick=switcher;$("nB").onclick=presenter;
 $("dH").onclick=function(){go("M")};$("dL").onclick=function(){go("L")};$("dR").onclick=function(){go("R")};
 Object.keys(DKC).forEach(function(id){$(id).onclick=function(){var k=DKC[id];if(PAGE==="C"){tab(k);window.scrollTo(0,0);return}var c=lastC();if(c)go(c,k);else go("L")}});

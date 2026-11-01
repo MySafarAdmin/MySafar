@@ -9,6 +9,7 @@ Each migration runs once, in order, inside a transaction, and is recorded in
 that has already been deployed.
 """
 import os
+import re
 import sqlite3
 import time
 from contextlib import contextmanager
@@ -265,9 +266,34 @@ def _m15_trusted_devices(db, postgres):
         expires_at BIGINT NOT NULL)""")
 
 
+def _m16_head_teachers(db, postgres):
+    # A third role, "head" (shown as HeadTeacher): sees every classroom, Record, House points, Rankings, Presenter and
+    # FAQs, but not the Administration pages (see auth.py). The users table's CHECK on role must allow it.
+    allowed = "CHECK (role IN ('admin', 'head', 'teacher'))"
+    if postgres:
+        names = [r["conname"] for r in db.execute(
+            "SELECT conname FROM pg_constraint WHERE conrelid = 'users'::regclass AND contype = 'c' "
+            "AND pg_get_constraintdef(oid) LIKE '%role%'").fetchall()]
+        for name in names:
+            db.execute(f'ALTER TABLE users DROP CONSTRAINT "{name}"')
+        db.execute(f"ALTER TABLE users ADD CONSTRAINT users_role_check {allowed}")
+        return
+    # SQLite can't change a CHECK in place. Rebuilding the table would cascade-delete sessions and memberships, so the
+    # stored CREATE TABLE text is edited instead, as SQLite documents for loosening a CHECK (existing rows still pass).
+    sql = db.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'").fetchone()[0]
+    new = re.sub(r"CHECK \(role IN \([^)]*\)\)", allowed, sql)
+    if new == sql:
+        return
+    version = db.execute("PRAGMA schema_version").fetchone()[0]
+    db.execute("PRAGMA writable_schema = ON")
+    db.execute("UPDATE sqlite_master SET sql = ? WHERE type = 'table' AND name = 'users'", (new,))
+    db.execute(f"PRAGMA schema_version = {version + 1}")
+    db.execute("PRAGMA writable_schema = OFF")
+
+
 MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
               _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links, _m11_login_codes, _m12_stay_signed_in,
-              _m13_presenter_shares, _m14_presenter_links, _m15_trusted_devices]
+              _m13_presenter_shares, _m14_presenter_links, _m15_trusted_devices, _m16_head_teachers]
 
 
 class Database:

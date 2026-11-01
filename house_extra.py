@@ -99,7 +99,7 @@ def delete(entry_id):
 
 
 @bp.get("/api/house-extra")
-@auth.admin_required
+@auth.staff_required
 def api():
     with auth.db().transaction() as tx:
         return jsonify([{k: e[k] for k in ("id", "house", "coin", "n", "note", "given_at")} for e in entries(tx)])

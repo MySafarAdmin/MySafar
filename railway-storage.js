@@ -88,6 +88,14 @@
     adminNav.appendChild(link(["FAQs", "/admin/faqs", "faq"]));
     adminNav.appendChild(link(["Presenter", "/admin/tv", "tv"]));
   }
+  // A HeadTeacher has FAQs, after Presenter, but none of the Administration pages.
+  if (ME.role === "head") {
+    var faq = document.createElement("a");
+    faq.className = "nav"; faq.href = "/admin/faqs";
+    faq.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS.faq + "</svg>";
+    faq.appendChild(document.createTextNode("FAQs"));
+    document.getElementById("adminNav").appendChild(faq);
+  }
   var me = document.getElementById("me");
   var who = document.createElement("div");
   who.className = "who";
@@ -104,7 +112,7 @@
   var nameLine = document.createElement("b");
   nameLine.textContent = ME.name || "";
   var roleLine = document.createElement("span");
-  roleLine.textContent = ME.role === "admin" ? "Administrator" : "Teacher";
+  roleLine.textContent = ME.role === "admin" ? "Administrator" : ME.role === "head" ? "HeadTeacher" : "Teacher";
   text.appendChild(nameLine); text.appendChild(roleLine);
   who.appendChild(av); who.appendChild(text);
   var row = document.createElement("div");
@@ -207,7 +215,7 @@
       var before = JSON.stringify(window.HOUSE_TOTALS);
       window.HOUSE_TOTALS = totals;
       // Admins also get the points added by hand for a whole house, for the House points page.
-      if (window.ME && ME.role === "admin") {
+      if (window.ME && (ME.role === "admin" || ME.role === "head")) {
         var extra = await api("/api/house-extra"), had = JSON.stringify(window.HOUSE_EXTRA || null);
         window.HOUSE_EXTRA = extra;
         if (had !== JSON.stringify(extra)) before = "";
