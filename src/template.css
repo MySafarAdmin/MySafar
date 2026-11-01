@@ -703,6 +703,10 @@ label.inl{display:flex;align-items:center;gap:10px;font-weight:650;font-size:.93
 #vT[data-v="his"] .mrec,#vT[data-v="rec"] .mhis{display:none!important}
 .mtbar{margin-bottom:10px}
 .mlist{min-width:0;overflow:hidden auto;overscroll-behavior:contain;padding:2px 4px 8px 2px}
+/* Phones and tablets (<960px): the Quran sheet and Memo cards grow to full height and the page scrolls.
+   A scroll box that can't scroll still caught the swipe on Android Chrome (overscroll contain), so the page
+   wouldn't move. Clip sideways without making a scroll box, and let swipes go straight to the page. */
+@media (max-width:959.98px){.qbody,.mlist{overflow:visible;overflow-x:clip;overscroll-behavior:auto}}
 .mgrp+.mgrp{margin-top:18px}
 .mgh{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;margin-bottom:10px}
 .mgh:empty{display:none}
