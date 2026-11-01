@@ -1184,7 +1184,9 @@ class DashboardTests:
         self.write("Yr4-B", class_id="yr4-b")
         self.add_user("t@example.com", classes=["yr3-a"])
         teacher = self.sign_in("t@example.com", "teacher-password-1")
-        page = teacher.get("/presenter/yr3-a")
+        opened = teacher.get("/presenter/yr3-a")
+        self.assertEqual(opened.status_code, 302)
+        page = teacher.get(opened.headers["Location"])
         self.assertEqual(page.status_code, 200)
         self.assertIn("script-src 'self' 'nonce-", page.headers["Content-Security-Policy"])
         self.assertEqual(teacher.get("/api/presenter/yr3-a").get_json()["class"], "Yr3A")
@@ -1195,59 +1197,49 @@ class DashboardTests:
         self.assertEqual(self.client.get("/presenter/nope").status_code, 404)
         self.assertEqual(self.app.test_client().get("/api/presenter/yr3-a").status_code, 401)
 
-    def test_presenter_shared_by_link_and_code(self):
+    def test_presenter_opens_by_a_new_link_each_time(self):
         self.write("Yr3-A-QM-Br Faeez", class_id="yr3-a")
-        self.write("Yr5-B-QM-Br Faeez", class_id="yr5-b")
-        self.write("Yr4-B-QM-Sr Zainab", class_id="yr4-b")
+        self.write("Yr4-B-QM-Br Zainab", class_id="yr4-b")
         self.add_user("t@example.com", classes=["yr3-a"])
         teacher = self.sign_in("t@example.com", "teacher-password-1")
-        share = lambda client, cid, action="open": client.post(  # noqa: E731
-            f"/api/presenter/{cid}/share", json={"action": action}, headers=self.headers)
-        self.assertEqual(share(teacher, "yr4-b").status_code, 404)  # not one of theirs
-        first = share(teacher, "yr3-a").get_json()
-        self.assertEqual(first["url"], "http://localhost/ustdfaeez")
-        self.assertRegex(first["code"], r"^[A-HJKMNP-Z2-9]{4}$")
-        self.assertEqual(share(teacher, "yr3-a").get_json()["code"], first["code"])  # the same code all day
-        # A second class of the same teacher, and an Ustadha's class.
-        self.assertEqual(share(self.client, "yr5-b").get_json()["url"], "http://localhost/ustdfaeez5b")
-        self.assertEqual(share(self.client, "yr4-b").get_json()["url"], "http://localhost/ustdhazainab")
-        # Anyone with the link is asked for the code, with no sign-in.
-        visitor = self.app.test_client()
-        page = visitor.get("/ustdfaeez")
+        self.assertEqual(teacher.get("/presenter/yr4-b").status_code, 404)  # not one of theirs
+        link = teacher.get("/presenter/yr3-a").headers["Location"]
+        self.assertRegex(link, r"^/present/[\w-]{40,}$")
+        self.assertNotEqual(teacher.get("/presenter/yr3-a").headers["Location"], link)  # pressing again: a new link
+        # The link needs no sign-in, like a TV screen's: the first tab to open it claims it.
+        tab = self.app.test_client()
+        page = tab.get(link)
         self.assertEqual(page.status_code, 200)
-        self.assertIn("data-codeboxes", page.get_data(as_text=True))
-        self.assertIn("script-src 'self'", page.headers["Content-Security-Policy"])
-        self.assertEqual(visitor.get("/ustdnobody").status_code, 404)
-        self.assertEqual(visitor.get("/account").status_code, 302)  # other paths still need a sign-in
-        token = csrf_of(page)
-        code = lambda typed, client=visitor: client.post(  # noqa: E731
-            "/ustdfaeez/code", data={"csrf": token, "code": typed}, headers={"Accept": "application/json"})
-        self.assertEqual(visitor.get("/ustdfaeez/data").status_code, 401)
-        wrong = "".join("A" if c != "A" else "B" for c in first["code"])
-        self.assertEqual(code(wrong).status_code, 400)
-        right = code(first["code"].lower())
-        self.assertEqual(right.status_code, 200)
-        view = right.get_json()["next"].split("#v=")[1]
-        self.assertTrue(right.get_json()["next"].startswith("/ustdfaeez/view#v="))
-        self.assertEqual(visitor.get("/ustdfaeez/view").status_code, 200)
-        data = visitor.get("/ustdfaeez/data", headers={"X-View": view}).get_json()
-        self.assertEqual((data["class"], data["shared"]), ("Yr3A Ustadh Faeez", True))
-        self.assertEqual(visitor.get("/ustdfaeez5b/data", headers={"X-View": view}).status_code, 401)  # this class only
-        # A new code: the old one stops working, anyone watching keeps watching.
-        second = share(teacher, "yr3-a", "new").get_json()
-        self.assertNotEqual(second["url"], None)
-        self.assertEqual(visitor.get("/ustdfaeez/data", headers={"X-View": view}).status_code, 200)
-        if second["code"] != first["code"]:
-            self.assertEqual(code(first["code"]).status_code, 400)
-        # Too many wrong codes and the code stops working until the teacher makes a new one.
-        for _ in range(tv.SHARE_FAILS):
-            last = code(wrong if wrong != second["code"] else "2222")
-        self.assertEqual((last.status_code, last.get_json()["gone"]), (410, True))
-        self.assertEqual(code(second["code"]).status_code, 410)
-        # Stop sharing ends every open view and the link.
-        self.assertTrue(share(teacher, "yr3-a", "stop").get_json()["stopped"])
-        self.assertEqual(visitor.get("/ustdfaeez/data", headers={"X-View": view}).status_code, 401)
-        self.assertEqual(visitor.get("/ustdfaeez").status_code, 404)
+        self.assertIn("script-src 'self' 'nonce-", page.headers["Content-Security-Policy"])
+        self.assertEqual(tab.get(link + "/data").status_code, 410)  # not claimed by this tab yet
+        key = tab.post(link + "/open", json={}, headers=self.headers).get_json()["key"]
+        data = tab.get(link + "/data", headers={"X-View": key}).get_json()
+        self.assertEqual((data["id"], data["class"]), ("yr3-a", "Yr3A Ustadh Faeez"))
+        self.assertIn("school", data)
+        self.assertEqual(tab.get(link).status_code, 200)  # the tab can reload
+        # Nobody else can open it, or read it without the tab's key.
+        other = self.app.test_client()
+        self.assertEqual(other.post(link + "/open", json={}, headers=self.headers).status_code, 410)
+        self.assertEqual(other.get(link + "/data", headers={"X-View": "wrong"}).status_code, 410)
+        # There's no sharing by link and code any more.
+        self.assertEqual(teacher.post("/api/presenter/yr3-a/share", json={}, headers=self.headers).status_code, 404)
+        self.assertEqual(self.app.test_client().get("/ustdfaeez").status_code, 302)  # just a page that needs a sign-in
+        # A link nobody opens within 10 minutes ends; a tab quiet for 12 hours (closed) ends.
+        late = teacher.get("/presenter/yr3-a").headers["Location"]
+        with patch("auth.now", return_value=auth.now() + tv.LINK_OPEN + 1):
+            self.assertEqual(self.app.test_client().get(late).status_code, 404)
+        with patch("auth.now", return_value=auth.now() + tv.LINK_IDLE + 1):
+            self.assertEqual(tab.get(link + "/data", headers={"X-View": key}).status_code, 410)
+            auth.prune(self.app.config["DB"], 400)
+        self.assertEqual(tab.get(link + "/data", headers={"X-View": key}).status_code, 410)
+        # Taken off the class, the teacher's open Presenter stops.
+        teacher = self.sign_in("t@example.com", "teacher-password-1")  # the quiet 12 hours ended that sign-in too
+        link = teacher.get("/presenter/yr3-a").headers["Location"]
+        key = tab.post(link + "/open", json={}, headers=self.headers).get_json()["key"]
+        self.assertEqual(tab.get(link + "/data", headers={"X-View": key}).status_code, 200)
+        with self.app.config["DB"].transaction() as tx:
+            tx.execute("DELETE FROM classroom_members WHERE class_id = 'yr3-a'")
+        self.assertEqual(tab.get(link + "/data", headers={"X-View": key}).status_code, 410)
 
     def test_tv_screen_links(self):
         student = self.tv_student("Aisha Khan", house="Makkah", tg=[1])
