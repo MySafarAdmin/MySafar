@@ -441,10 +441,103 @@ def presenter_class(class_id, school=False):
     return (row, rows) if school else row
 
 
+# --- The teacher's Presenter, opened like a TV screen's link --------------------------------------------------------
+# Pressing Presenter on the dashboard opens /presenter/<class> in a new tab, which makes a new random link
+# (/present/<token>) for that class and sends the tab there. The first tab to open the link claims it and keeps its own
+# key in sessionStorage, so the Presenter keeps working in that tab, signed in or not, until the tab is closed. The
+# link doesn't open anywhere else; pressing Presenter again makes a new one. A link nobody opens within LINK_OPEN stops
+# working, as does a tab that hasn't fetched the figures for LINK_IDLE (it has been closed, or the computer has slept
+# through the night). The link only ever shows the class while whoever made it can still present it.
+LINK_OPEN = 10 * 60
+LINK_IDLE = 12 * 3600
+LINK_ENDED = "This Presenter link has ended. Press Presenter on the dashboard to open a new one."
+
+
 @bp.get("/presenter/<class_id>")
 def presenter_page(class_id):
     presenter_class(class_id)
+    token = secrets.token_urlsafe(32)
+    with auth.db().transaction() as tx:
+        tx.execute("INSERT INTO presenter_links (token_hash, class_id, created_by, created_at) VALUES (?, ?, ?, ?)",
+                   (auth.token_hash(token), class_id, g.user["id"], auth.now()))
+    return redirect("/present/" + token)
+
+
+def live_link(tx, token):
+    """The Presenter link for this token while it still works, with the user who made it."""
+    if len(token) > 100:
+        return None
+    t = auth.now()
+    row = tx.execute("SELECT l.*, u.role, u.disabled FROM presenter_links l JOIN users u ON u.id = l.created_by "
+                     "WHERE l.token_hash = ?", (auth.token_hash(token),)).fetchone()
+    if not row or row["disabled"] or (row["tab_hash"] is None and row["created_at"] < t - LINK_OPEN) or \
+            (row["tab_hash"] is not None and (row["last_seen_at"] or 0) < t - LINK_IDLE):
+        return None
+    if row["role"] != "admin" and not tx.execute("SELECT 1 FROM classroom_members WHERE class_id = ? AND user_id = ?",
+                                                 (row["class_id"], row["created_by"])).fetchone():
+        return None
+    return row
+
+
+def link_tab(tx, token):
+    """The link, when this request comes from the tab that opened it (its key in the X-View header)."""
+    row = live_link(tx, token)
+    key = request.headers.get("X-View", "")
+    if not row or not row["tab_hash"] or not key or len(key) > 100 or \
+            not secrets.compare_digest(auth.token_hash(key), row["tab_hash"]):
+        return None
+    return row
+
+
+@bp.get("/present/<token>")
+def link_page(token):
+    with auth.db().transaction() as tx:
+        row = live_link(tx, token)
+    if not row:
+        return auth.page("presenter_off.html", 404)
     return page()
+
+
+@bp.post("/present/<token>/open")
+def link_open(token):
+    """The first tab to open the link claims it: it gets a key of its own to keep in sessionStorage."""
+    with auth.db().transaction() as tx:
+        row = live_link(tx, token)
+        if not row or row["tab_hash"]:
+            return jsonify(error=LINK_ENDED if not row else
+                           "This Presenter link has already been opened. It only works in the tab that opened it, so "
+                           "press Presenter on the dashboard to open a new one."), 410
+        key, t = secrets.token_urlsafe(24), auth.now()
+        tx.execute("UPDATE presenter_links SET tab_hash = ?, last_seen_at = ? WHERE token_hash = ? AND tab_hash IS NULL",
+                   (auth.token_hash(key), t, row["token_hash"]))
+    return jsonify(key=key)
+
+
+@bp.get("/present/<token>/data")
+def link_data(token):
+    t = auth.now()
+    with auth.db().transaction() as tx:
+        row = link_tab(tx, token)
+        if not row:
+            return jsonify(error=LINK_ENDED), 410
+        if t - (row["last_seen_at"] or 0) >= 60:
+            tx.execute("UPDATE presenter_links SET last_seen_at = ? WHERE token_hash = ?", (t, row["token_hash"]))
+        room = tx.execute("SELECT id, json FROM classrooms WHERE id = ?", (row["class_id"],)).fetchone()
+        rows = tx.execute("SELECT id, json FROM classrooms").fetchall()
+    result = class_summary(room)
+    result["school"] = school_places(rows, room["id"])
+    return jsonify(result)
+
+
+@bp.post("/present/<token>/share")
+def link_share(token):
+    """The share button on a Presenter opened by link, acting for whoever made the link (see presenter_share)."""
+    with auth.db().transaction() as tx:
+        row = link_tab(tx, token)
+        room = row and tx.execute("SELECT id, json FROM classrooms WHERE id = ?", (row["class_id"],)).fetchone()
+    if not row or not room:
+        return jsonify(error=LINK_ENDED), 410
+    return share_action(room, row["created_by"])
 
 
 @bp.get("/api/presenter/<class_id>")
@@ -575,7 +668,11 @@ def new_code():
 def presenter_share(class_id):
     """The teacher's share button: {"action": "open"} gives the link and today's code (making them if needed), "new"
     a new code, "stop" ends the sharing and every open view."""
-    row = presenter_class(class_id)
+    return share_action(presenter_class(class_id), g.user["id"])
+
+
+def share_action(row, user_id):
+    class_id = row["id"]
     action = (request.get_json(silent=True) or {}).get("action", "open")
     if action not in ("open", "new", "stop"):
         abort(400)
@@ -586,19 +683,19 @@ def presenter_share(class_id):
             if share:
                 tx.execute("DELETE FROM presenter_views WHERE class_id = ?", (class_id,))
                 tx.execute("DELETE FROM presenter_shares WHERE class_id = ?", (class_id,))
-                auth.audit(tx, "share.stopped", class_id)
+                auth.audit(tx, "share.stopped", class_id, user_id=user_id)
             return jsonify(stopped=True)
         if not share:
             name = json.loads(row["json"]).get("name") or class_id
             taken = {r["slug"] for r in tx.execute("SELECT slug FROM presenter_shares").fetchall()}
             tx.execute("INSERT INTO presenter_shares (class_id, slug, created_by, created_at) VALUES (?, ?, ?, ?)",
-                       (class_id, share_slug(name, taken), g.user["id"], t))
+                       (class_id, share_slug(name, taken), user_id, t))
             share = tx.execute("SELECT * FROM presenter_shares WHERE class_id = ?", (class_id,)).fetchone()
         if action == "new" or not share["code"] or share["code_expires_at"] <= t or share["fails"] >= SHARE_FAILS:
             code, expires = new_code(), end_of_day()
             tx.execute("UPDATE presenter_shares SET code = ?, code_expires_at = ?, fails = 0 WHERE class_id = ?",
                        (code, expires, class_id))
-            auth.audit(tx, "share.code", class_id)
+            auth.audit(tx, "share.code", class_id, user_id=user_id)
         else:
             code, expires = share["code"], share["code_expires_at"]
         views = tx.execute("SELECT COUNT(*) AS n FROM presenter_views WHERE class_id = ?", (class_id,)).fetchone()["n"]

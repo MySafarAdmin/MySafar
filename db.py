@@ -238,9 +238,23 @@ def _m13_presenter_shares(db, postgres):
         last_seen_at BIGINT NOT NULL)""")
 
 
+def _m14_presenter_links(db, postgres):
+    t = _types(postgres)
+    # The teacher's Presenter, opened like a TV screen's link (see tv.py): each press of Presenter makes a new random
+    # link (stored only as a SHA-256 hash) that the first tab to open it claims. That tab holds its own key (tab_hash)
+    # in sessionStorage, so the link works there until the tab is closed, and nowhere else.
+    db.execute(f"""CREATE TABLE presenter_links (
+        token_hash TEXT PRIMARY KEY,
+        class_id TEXT NOT NULL REFERENCES classrooms (id) ON DELETE CASCADE,
+        created_by {t['ref']} NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        created_at BIGINT NOT NULL,
+        tab_hash TEXT,
+        last_seen_at BIGINT)""")
+
+
 MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
               _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links, _m11_login_codes, _m12_stay_signed_in,
-              _m13_presenter_shares]
+              _m13_presenter_shares, _m14_presenter_links]
 
 
 class Database:

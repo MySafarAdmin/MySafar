@@ -59,7 +59,7 @@ PUBLIC = {"/login", "/login/code", "/forgot", "/healthz", "/logo.png", "/auth.cs
 # for text and titles alike (see DESIGN.md).
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
 # /tv/<token> is a TV screen link; tv.py checks the token.
-PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/fonts/")
+PUBLIC_PREFIXES = ("/invite/", "/reset/", "/tv/", "/present/", "/fonts/")
 
 
 def coins(state):
@@ -361,7 +361,7 @@ def create_app(test_config=None):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["Referrer-Policy"] = "same-origin"
         share = tv.SHARE_PATH.fullmatch(request.path)
-        dashboard = request.path in ("/", "/tv") or ((request.path.startswith(("/tv/", "/presenter/")) or (share and share.group(2) == "view"))
+        dashboard = request.path in ("/", "/tv") or ((request.path.startswith(("/tv/", "/present/")) or (share and share.group(2) == "view"))
                                                         and response.mimetype == "text/html" and response.status_code == 200)
         if dashboard:
             nonce = secrets.token_urlsafe(16)

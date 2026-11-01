@@ -329,16 +329,19 @@ footer i.run{width:100%;transition:width linear}
 <script>
 (function(){
 var SLIDE_MS=30000,DATA_MS=60000;
-/* /presenter/<class> is a teacher's Presenter: the same scenes, for one class, with its students riding through. */
-var path=location.pathname.replace(/\/+$/,""),PRESENT=path.indexOf("/presenter/")===0,
+/* /present/<token> is a teacher's Presenter: the same scenes, for one class, with its students riding through. Like a
+   TV screen's link it needs no sign-in: the dashboard's Presenter button makes a new link each time, and the first tab
+   to open it claims it with a key kept in this tab's sessionStorage, so it works here until the tab is closed. */
+var path=location.pathname.replace(/\/+$/,""),LIVE=/^\/present\/([\w-]+)$/.exec(path),PRESENT=!!LIVE,LK=LIVE?"mysafar.present."+LIVE[1]:"",
  /* A shared Presenter link (/ustdfaeez/view): watched by anyone who typed the code, for as long as this tab is open.
     The code page hands over a view token in the address's #fragment; it is kept in this tab's sessionStorage. */
  SHARE=/^\/((?:ustd|class)[a-z0-9]*)\/view$/.exec(path),VIEW="",
- URL=path==="/tv"?"/api/tv":PRESENT?"/api"+path:SHARE?"/"+SHARE[1]+"/data":path+"/data";
+ URL=path==="/tv"?"/api/tv":SHARE?"/"+SHARE[1]+"/data":path+"/data";
 if(SHARE){var VK="mysafar.view."+SHARE[1],vm=/^#v=([\w-]+)$/.exec(location.hash);
  try{if(vm)sessionStorage.setItem(VK,vm[1]);VIEW=sessionStorage.getItem(VK)||""}catch(e){VIEW=vm?vm[1]:""}
  if(vm)try{history.replaceState(null,"",location.pathname)}catch(e){}
  if(!VIEW)location.replace("/"+SHARE[1])}
+if(LIVE)try{VIEW=sessionStorage.getItem(LK)||""}catch(e){}
 var CLASSY=PRESENT||!!SHARE; // the class's own slides, with its students riding through
 /* Test hooks for previews: ?slide=<id> keeps one slide on, ?focus=qaidah or memo plays only those. */
 var Q=new URLSearchParams(location.search),PIN=Q.get("slide"),FOCUS=Q.get("focus");
@@ -845,13 +848,21 @@ function show(){if(!data)return;clearTimeout(ST);clearInterval(PT);clearInterval
  if(CLASSY){var box=el.querySelector(".carriers"),kind=W[s.w].rider;setTimeout(function(){ride(box,kind)},1800);RT=setInterval(function(){ride(box,kind)},7000)}
  var p=$("prog");p.className="";p.style.transitionDuration="0ms";void p.offsetWidth;p.style.transitionDuration=SLIDE_MS+"ms";p.className="run";
  ST=setTimeout(show,SLIDE_MS)}
-function load(){fetch(URL,{credentials:"same-origin",cache:"no-store",headers:SHARE?{"X-View":VIEW}:{}}).then(function(r){
+function ended(t){$("off").style.display="flex";$("off").textContent=t||"This Presenter link has ended. Press Presenter on the dashboard to open a new one."}
+function load(){fetch(URL,{credentials:"same-origin",cache:"no-store",headers:SHARE||LIVE?{"X-View":VIEW}:{}}).then(function(r){
+  if(LIVE&&r.status===410){try{sessionStorage.removeItem(LK)}catch(e){}clearInterval(LT);ended();return null}
   // A shared view the teacher has stopped: back to the code page, which says what to do.
   if(SHARE&&(r.status===401||r.status===404)){try{sessionStorage.removeItem(VK)}catch(e){}location.replace("/"+SHARE[1]);return null}
-  if(r.status===404||r.status===401){$("off").style.display="flex";$("off").textContent=r.status===401?"Sign in to see the dashboard.":PRESENT?"This class isn't one of yours, or it has been deleted.":"This screen's link has been turned off. Ask an administrator for a new one.";return null}
+  if(r.status===404||r.status===401){$("off").style.display="flex";$("off").textContent=r.status===401?"Sign in to see the dashboard.":"This screen's link has been turned off. Ask an administrator for a new one.";return null}
   return r.ok?r.json():null}).then(function(d){if(d){var first=!data;data=d;$("off").style.display="none";
    if(CLASSY){$("brand").innerHTML=esc(d.class)+"<small>Safar Academy</small>";document.title=d.class+" · Presenter"}if(first)show()}}).catch(function(){/* keep showing the last data */})}
-clock();setInterval(clock,1000);if(!SHARE||VIEW){load();setInterval(load,DATA_MS)}
+var LT=0;function start(){load();LT=setInterval(load,DATA_MS)}
+clock();setInterval(clock,1000);
+/* A new Presenter link: claim it for this tab first. Opened anywhere else (or too late), it says so. */
+if(LIVE&&!VIEW)fetch(path+"/open",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-Dashboard-Request":"1"},body:"{}"})
+ .then(function(r){return r.json().then(function(d){if(!r.ok||!d.key)throw d;VIEW=d.key;try{sessionStorage.setItem(LK,VIEW)}catch(e){}start()})})
+ .catch(function(d){ended(d&&d.error)});
+else if(!SHARE||VIEW)start();
 /* The full-screen icon shows while the mouse moves, on a TV and in the Presenter. The Presenter runs on a teacher's
    screen, so it also has Close; Escape also closes. */
 (function(){var C=$("ctl"),CT=0,F=$("fs");C.hidden=false;
@@ -868,13 +879,13 @@ clock();setInterval(clock,1000);if(!SHARE||VIEW){load();setInterval(load,DATA_MS
  $("close").hidden=false;$("close").onclick=close;document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.fullscreenElement){if(!$("sharep").hidden)shareClose();else close()}});
  /* Share: the class's link is copied as the panel opens, with today's code. New code makes another (anyone already
     watching keeps watching); Stop sharing ends the link and every open view. */
- var P=$("sharep"),B=$("share"),cid=path.split("/")[2];B.hidden=false;
+ var P=$("sharep"),B=$("share");B.hidden=false;
  function say(t,bad){$("shL").textContent=t;$("shL").classList.toggle("bad",!!bad)}
  function shareClose(){if(P.hidden)return;P.classList.add("out");C.classList.remove("held");setTimeout(function(){P.hidden=true;P.classList.remove("out")},RM?0:240);B.focus()}
  function copy(u){var done=function(){say("Link copied. Share it with the code below.")},fail=function(){$("shU").select();say("Copy the link below.")};
   if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(u).then(done,fail);else{$("shU").select();try{document.execCommand("copy")?done():fail()}catch(e){fail()}}}
  function codeBoxes(c){$("shK").innerHTML=c.split("").map(function(ch,i){var d=(.15+i*.09).toFixed(2)+"s";return '<span><i style="animation-delay:'+d+'"></i><b style="animation-delay:'+d+'">'+esc(ch)+'</b></span>'}).join("");$("shK").setAttribute("aria-label","Code "+c.split("").join(" "))}
- function ask(action){return fetch("/api/presenter/"+cid+"/share",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-Dashboard-Request":"1"},body:JSON.stringify({action:action})})
+ function ask(action){return fetch(path+"/share",{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json","X-Dashboard-Request":"1","X-View":VIEW},body:JSON.stringify({action:action})})
   .then(function(r){if(!r.ok)throw r;return r.json()})}
  function fill(d,first){$("shU").value=d.url;codeBoxes(d.code);$("shN").disabled=$("shStop").disabled=false;if(first)copy(d.url);else say("New code ready. The link stays the same.")}
  B.onclick=function(){if(!P.hidden){shareClose();return}P.hidden=false;C.classList.add("held");say("Making the link…");$("shK").innerHTML="";
