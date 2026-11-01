@@ -898,8 +898,10 @@ function qPop(btn){qPopClose();var s=S[+btn.dataset.qi];if(!s)return;var cur=s.q
  if(B.classList.contains("qph")){p.className="qpop qsheet";p.removeAttribute("role");p.removeAttribute("aria-label");
   p.innerHTML='<div class="qsc" data-qx aria-hidden="true"></div><div class="qscard" role="group" aria-label="Score for '+esc(s.name)+'"><div class="qsh"><b>'+esc(s.name)+'</b><small>'+esc(qlab(QF))+'</small></div><div class="qsb">'+p.innerHTML+'</div></div>';
   B.appendChild(p);btn.setAttribute("aria-expanded","true");(p.querySelector('[aria-pressed="true"]')||p.querySelector("[data-qv]")).focus({preventScroll:true});return}
- B.appendChild(p);btn.setAttribute("aria-expanded","true");Array.prototype.forEach.call(B.querySelectorAll(".qcol:not(.on)>.qr:nth-child("+(+btn.dataset.qi+1)+"),.qhouses>.qn:nth-child("+(+btn.dataset.qi+1)+")"),function(e){e.classList.add("qhid")});var r=btn.getBoundingClientRect(),b=B.getBoundingClientRect(),x=r.right-b.left+8;if(x+p.offsetWidth>B.clientWidth)x=Math.max(0,r.left-b.left-p.offsetWidth-8);
- p.style.left=x+"px";p.style.top=Math.max(0,r.top-b.top+(r.height-p.offsetHeight)/2)+"px";(p.querySelector('[aria-pressed="true"]')||p.firstChild).focus()}
+ B.appendChild(p);btn.setAttribute("aria-expanded","true");var r=btn.getBoundingClientRect(),b=B.getBoundingClientRect(),x=r.right-b.left+8;if(x+p.offsetWidth>B.clientWidth)x=Math.max(0,r.left-b.left-p.offsetWidth-8);
+ p.style.left=x+"px";p.style.top=Math.max(0,r.top-b.top+(r.height-p.offsetHeight)/2)+"px";
+ /* Only the boxes the picker actually sits over step aside; the student's other days, usually the earlier ones, keep showing their scores. */
+ var pl=b.left+x,pr=pl+p.offsetWidth;Array.prototype.forEach.call(B.querySelectorAll(".qcol:not(.on)>.qr:nth-child("+(+btn.dataset.qi+1)+"),.qhouses>.qn:nth-child("+(+btn.dataset.qi+1)+")"),function(e){var c=(e.firstElementChild||e).getBoundingClientRect();if(c.width&&c.right>pl-4&&c.left<pr+4)e.classList.add("qhid")});(p.querySelector('[aria-pressed="true"]')||p.firstChild).focus()}
 function qSet(i,v,next){var s=S[i],d=QF;if(!s)return;if(s.q[d]!==undefined&&qTest(s,d)){toast(TEACHER?"That's a level test score, so only an admin can change it.":"That's a level test score. Change it on the Record page.",1);return}if(d>dk(Date.now())){toast("That class day hasn't happened yet",1);return}
  // No message for each score (the box shows it); only refusals above get one.
  if(v==="x"||s.q[d]===v)delete s.q[d];else s.q[d]=v;
