@@ -1,4 +1,4 @@
-// The side menu's groups (User management, Live Activity, Data handling, Links): each header folds its rows open and
+// The side menu's groups (User management, Live activity, Data handling, Links): each header folds its rows open and
 // shut, and a branched line runs from the header down to every row, as in React Bits' BranchedMenu, rebuilt here
 // without React. The page you are on lights its branch: a white line draws itself from the header to that row.
 // Groups remember being opened or shut in this browser; the group holding the page you are on always opens.

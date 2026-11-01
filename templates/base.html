@@ -54,7 +54,7 @@
     {{ nl("/#students", "students", "Students", sub=True) }}
     {{ nl("/admin/users", "users", "Manage users", here == "/admin/users", sub=True) }}
     {% endcall %}
-    {% call grp("live", "pulse", "Live Activity") %}
+    {% call grp("live", "pulse", "Live activity") %}
     {{ nl("/admin/activity", "activity", "Activity", here == "/admin/activity", sub=True) }}
     {{ nl("/admin/history", "history", "Class history", here.startswith("/admin/history"), sub=True) }}
     {% endcall %}
