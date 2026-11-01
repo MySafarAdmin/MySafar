@@ -8,8 +8,11 @@
   m.className = "mhl"; m.setAttribute("aria-hidden", "true");
   nav.insertBefore(m, nav.firstChild);
   nav.classList.add("has-h");
+  // A folding group's rows (menu.js) are measured from their tree, so the tree's own place is added.
   function place(it) {
-    m.style.transform = "translate(" + it.offsetLeft + "px," + it.offsetTop + "px)";
+    var x = it.offsetLeft, y = it.offsetTop, p = it.offsetParent;
+    while (p && p !== nav && nav.contains(p)) { x += p.offsetLeft; y += p.offsetTop; p = p.offsetParent; }
+    m.style.transform = "translate(" + x + "px," + y + "px)";
     m.style.width = it.offsetWidth + "px"; m.style.height = it.offsetHeight + "px";
   }
   nav.addEventListener("pointerover", function (e) {

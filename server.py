@@ -423,6 +423,10 @@ def create_app(test_config=None):
     def nav_js():
         return Response((ROOT / "static" / "nav.js").read_text(encoding="utf-8"), mimetype="text/javascript")
 
+    @app.get("/menu.js")
+    def menu_js():
+        return Response((ROOT / "static" / "menu.js").read_text(encoding="utf-8"), mimetype="text/javascript")
+
     @app.get("/fonts/<name>")
     def font(name):
         if name not in FONTS:
@@ -442,7 +446,7 @@ def create_app(test_config=None):
         html = (ROOT / "Master_Dashboard_standalone.html").read_text(encoding="utf-8")
         html = html.replace("<script>", f"<script>window.RAILWAY=true;window.ME={script_json(me)};{TAB_GUARD}</script>\n<script>", 1)
         html = html.replace("<header>", "<header inert>").replace("<main>", "<main inert>")
-        html = html.replace("</body>", '<script src="/railway-storage.js"></script></body>')
+        html = html.replace("</body>", '<script src="/railway-storage.js"></script><script src="/menu.js"></script></body>')
         response = Response(html, mimetype="text/html")
         if fresh:
             response.delete_cookie(auth.fresh_cookie_name(), path="/", secure=app.config["COOKIE_SECURE"])

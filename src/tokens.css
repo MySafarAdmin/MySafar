@@ -343,3 +343,39 @@ legend{font-weight:700;padding:0 6px;font-size:.9375rem}
 /* The rail's navy at the back, the pill over it, and the menu's words on top, so the pill never covers a label. */
 ::view-transition-group(rail){z-index:1}::view-transition-group(navsel){z-index:2}::view-transition-group(navs){z-index:3}
 @media (prefers-reduced-motion:reduce){@view-transition{navigation:none}}
+
+/* ---------- Side menu groups (static/menu.js) ----------
+   User management, Live Activity, Data handling and Links fold open and shut under their header, after React Bits'
+   BranchedMenu: a trunk runs down from the header's icon with a curved branch to each row, and the page you are on
+   lights its branch in white, drawn from the header down. The rows fold with the grid-rows trick, so nothing is
+   measured; the lines fade in a little after the rows open. Without the script every group stays open. */
+.ngrp{display:flex;flex-direction:column;--bm-x:34px;--bm-line:#5a83ab;--bm-ease:cubic-bezier(.23,1,.32,1)}
+.ngrp .nav{position:relative;z-index:1}
+.ngh .ngt{flex:1;min-width:0}
+.ngh>.ic:last-child{width:16px;height:16px;opacity:.7;transition:transform .3s var(--bm-ease),opacity .2s ease}
+.ngrp:not(.bm)>.ngh{pointer-events:none}
+.ngrp:not(.bm)>.ngh>.ic:last-child{display:none}
+.ngrp.open>.ngh{color:#fff}
+.ngrp.open>.ngh>.ic:last-child{transform:rotate(180deg);opacity:1}
+/* A folded group holding the page you are on shows a small white mark by its name. */
+.ngh::after{content:"";position:absolute;left:3px;top:50%;width:3px;height:16px;margin-top:-8px;border-radius:2px;background:#fff;opacity:0;transition:opacity .15s ease}
+.ngrp.has-cur:not(.open)>.ngh::after{opacity:1}
+.ngrp.has-cur:not(.open)>.ngh{color:#fff;font-weight:700}
+.ngb{display:grid;grid-template-rows:1fr}
+.ngrp.bm>.ngb{grid-template-rows:0fr}
+.ngrp.bm.open>.ngb{grid-template-rows:1fr}
+.ngrp.ready>.ngb{transition:grid-template-rows .3s var(--bm-ease)}
+.ngf{min-height:0;overflow:hidden}
+.ngi{position:relative;display:flex;flex-direction:column;gap:2px;padding:2px 0 6px}
+.ngl{position:absolute;left:0;top:0;overflow:visible;pointer-events:none;z-index:2;opacity:0;transition:opacity .2s ease}
+.ngrp.open .ngl,.ngrp:not(.bm) .ngl{opacity:1;transition:opacity .25s ease .1s}
+.ngl path{fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.ngl .b{stroke:var(--bm-line)}
+.ngl .r{stroke:#fff;transition:stroke-dashoffset .4s var(--bm-ease)}
+.nav.nsub{margin-left:var(--bm-x);width:calc(100% - var(--bm-x));min-height:36px;padding:6px 10px;gap:8px;font-size:.875rem;color:var(--rail-mute)}
+.nav.nsub:hover,.nav.nsub:focus-visible{color:#fff}
+.nav.nsub[aria-current="page"]{color:var(--navy)}
+.nav.nsub .ic{width:16px;height:16px}
+@media (prefers-reduced-motion:reduce){
+ .ngrp.ready>.ngb,.ngl,.ngrp.open .ngl,.ngl .r,.ngh>.ic:last-child,.ngh::after{transition:none}
+}
