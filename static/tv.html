@@ -825,7 +825,10 @@ clock();setInterval(clock,1000);if(!SHARE||VIEW){load();setInterval(load,DATA_MS
  F.onclick=function(){if(document.fullscreenElement)document.exitFullscreen();else if(document.documentElement.requestFullscreen)document.documentElement.requestFullscreen()};
  document.addEventListener("fullscreenchange",function(){var on=!!document.fullscreenElement,t=on?"Exit full screen":"Full screen";F.classList.toggle("full",on);F.setAttribute("aria-label",t);F.title=t});
  if(!PRESENT)return;
- function close(){location.href="/"+(data&&data.id?"#"+data.id:"")} // back to the class on the dashboard
+ // The Presenter opens in its own tab, so Close closes it. One opened in the dashboard's own tab (a blocked pop-up)
+ // can't be closed by script, so Close goes back to the class there instead.
+ function close(){if(window.opener){window.close();setTimeout(back,300)}else back()}
+ function back(){location.href="/"+(data&&data.id?"#"+data.id:"")}
  $("close").hidden=false;$("close").onclick=close;document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!document.fullscreenElement){if(!$("sharep").hidden)shareClose();else close()}});
  /* Share: the class's link is copied as the panel opens, with today's code. New code makes another (anyone already
     watching keeps watching); Stop sharing ends the link and every open view. */
