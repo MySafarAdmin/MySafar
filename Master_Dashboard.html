@@ -2832,8 +2832,8 @@ function fillSid(id){nextSid(function(n){var i=$(id);if(i&&!i.value&&document.ac
 /* Every student, ex students too, with their class: for Student IDs, which are never reused. */
 function eachStu(f){CIDS.forEach(function(c){ST[c].S.concat(ST[c].X||[]).forEach(function(s){f(s,c)})})}
 /* Removing a student makes them an ex student: they leave every list, the TV, rankings and house points, but their
-   records are kept with their class (ST[c].X, with the day they left) and they can be brought back from Students. */
-function exAsk(s,c){return "Remove "+s.name+" from "+cname(ST[c].name)+"? They move to Ex students with all of their records, and leave the class lists, TV, rankings and house points. You can bring them back from Students."}
+   records are kept with their class (ST[c].X, with the day they left) and they can be returned from Students. */
+function exAsk(s,c){return "Remove "+s.name+" from "+cname(ST[c].name)+"? They move to Ex students with all of their records, and leave the class lists, TV, rankings and house points. You can return them from Students."}
 function exOut(c,s){var i=ST[c].S.indexOf(s);if(i<0){toast("That student has already changed. Try again.",1);return false}ST[c].S.splice(i,1);s.left=dk(Date.now());ST[c].X.push(s);persist(c);return true}
 function exBack(c,s){var X=ST[c]&&ST[c].X,i=X?X.indexOf(s):-1;if(i<0){toast("That student has already changed. Try again.",1);return false}
  if(ST[c].S.some(function(o){return nkey(o.name)===nkey(s.name)})){toast("There is already a student called "+s.name+" in "+cname(ST[c].name)+". Rename one of them first.",1);return false}
@@ -3136,7 +3136,7 @@ function qhl(t,q){t=String(t||"");var i=q?t.toLowerCase().indexOf(q):-1;return i
 function stuRows(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return sfOk(o.s)}).filter(function(o){return !q||nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q});
  var ex=stuEx(),fon=q||SC||Object.keys(SF).some(function(k){return k!=="st"&&SF[k]}),tot=0,who=ex?"ex student":"student";CIDS.forEach(function(c){tot+=stuL(c).length});
  $("stuN").textContent=fon?A.length+" of "+plural(tot,who)+" match":plural(tot,who)+(CIDS.length<2||ex?"":" in "+plural(CIDS.length,"class","classes"));
- if(!A.length){$("stuL").innerHTML='<div class="empty"><b>'+(fon?'No '+who+' matches':ex?'No ex students':'No students yet')+'</b>'+(fon?'Check the spelling, or clear the filters.':ex?'Students you remove are kept here with all of their records, and can be brought back.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
+ if(!A.length){$("stuL").innerHTML='<div class="empty"><b>'+(fon?'No '+who+' matches':ex?'No ex students':'No students yet')+'</b>'+(fon?'Check the spelling, or clear the filters.':ex?'Students you remove are kept here with all of their records, and can be returned.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
  var p=pager("stu",A.length,SPG);
  $("stuL").innerHTML='<div class="tablewrap soft"><table class="tbl stackable stul"><thead><tr><th scope="col">Student</th><th scope="col">QM class</th><th scope="col">AI class</th><th scope="col">Year group</th><th scope="col">Student ID</th><th scope="col">Family ID</th><th scope="col">House</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>'
   +A.slice(p*SPG,(p+1)*SPG).map(function(o){var s=o.s;return '<tr data-c="'+esc(o.c)+'" data-i="'+stuL(o.c).indexOf(s)+'"'+(s===SNEW?' class="snew"':'')+'><td class="lead"><button type="button" class="spo" aria-label="Open '+esc(s.name)+'\'s profile"><b>'+qhl(s.name,q)+'</b></button>'+(ex&&s.left?'<span class="sleft">Left '+esc(dobText(s.left,1))+'</span>':'')+'</td>'
@@ -3146,7 +3146,7 @@ function stuRows(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return s
    +'<td data-label="Student ID" class="sm">'+(s.sid?qhl(s.sid,q):'<span class="zero">None</span>')+'</td>'
    +'<td data-label="Family ID" class="sm fi">'+(s.fid?esc(s.fid):'<span class="zero">None</span>')+'</td>'
    +'<td data-label="House" class="sm">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">Not set</span>')+'</td>'
-   +'<td class="act">'+(ex?'<button type="button" class="btn sm srb" aria-label="Bring back '+esc(s.name)+'" title="Bring back to '+esc(cname(ST[o.c].name))+'">'+BACKIC+'<span aria-hidden="true">Bring back</span></button>':'<button type="button" class="btn sm srm" aria-label="Remove '+esc(s.name)+'" title="Remove student">'+BINIC+'<span aria-hidden="true">Remove</span></button>')+'</td></tr>'}).join("")
+   +'<td class="act">'+(ex?'<button type="button" class="btn sm srb" aria-label="Return '+esc(s.name)+'" title="Return to '+esc(cname(ST[o.c].name))+'">'+BACKIC+'<span aria-hidden="true">Return</span></button>':'<button type="button" class="btn sm srm" aria-label="Remove '+esc(s.name)+'" title="Remove student">'+BINIC+'<span aria-hidden="true">Remove</span></button>')+'</td></tr>'}).join("")
   +'</tbody></table></div>'+pagerHtml("stu",A.length,SPG,"students");
  var nw=$("stuL").querySelector("tr.snew");SNEW=null;
  if(nw){nw.classList.remove("snew");if(nw.scrollIntoView)nw.scrollIntoView({block:"center"});if(!QM.matches&&nw.animate)nw.animate([{backgroundColor:"#edf3ee",boxShadow:"inset 3px 0 0 #4e7d5b"},{backgroundColor:"rgba(237,243,238,0)",boxShadow:"inset 3px 0 0 rgba(78,125,91,0)"}],{duration:1800,easing:"ease-out"})}}
@@ -3181,7 +3181,7 @@ function stuVals(me,err,L){var v={},dup=null,to=$("spcls").value;SPF.forEach(fun
  if(!ST[to])return no("That class no longer exists. Choose another.","spcls");
  if(!v.name)return no("Enter the student's name.","spname");
  if(ST[to][L].some(function(o){return o!==me&&nkey(o.name)===nkey(v.name)}))return no("There is already a"+(L==="X"?"n ex student":" student")+" called "+v.name+" in "+cname(ST[to].name)+".","spname");
- if(!me&&ST[to].X.some(function(o){return nkey(o.name)===nkey(v.name)}))return no(v.name+" is an ex student of "+cname(ST[to].name)+". To bring them back with their records, choose Show: Ex students under Filters.","spname");
+ if(!me&&ST[to].X.some(function(o){return nkey(o.name)===nkey(v.name)}))return no(v.name+" is an ex student of "+cname(ST[to].name)+". To return them with their records, choose Show: Ex students under Filters.","spname");
  if(v.sid)eachStu(function(o,k){if(!dup&&o!==me&&o.sid&&nkey(o.sid)===nkey(v.sid))dup=[o,k]});
  if(dup)return no("Student ID "+v.sid+" already belongs to "+(dup[1]&&ST[dup[1]].X.indexOf(dup[0])>=0?"ex student ":"")+dup[0].name+" in "+cname(ST[dup[1]].name)+".","spsid");
  if(v.dob&&(!/^\d{4}-\d{2}-\d{2}$/.test(v.dob)||v.dob>isoDay(new Date())))return no("Enter a date of birth that isn't in the future.","spdob");
@@ -3201,7 +3201,7 @@ $("drwB").addEventListener("submit",function(e){if(e.target.id!=="suF")return;e.
    or correct. A detail changed here is remembered in s.ed, and a later CSV upload leaves it as it is (its preview
    lists any the file disagrees with). A changed Student ID or name is kept in s.xid or s.xn, so the upload still
    recognises the student. Students with the same Family ID are listed as their family. An ex student's profile
-   says when they left and can bring them back. */
+   says when they left and can return them. */
 function stuProfile(c,s){SPS={c:c,s:s};var ex=ST[c].X.indexOf(s)>=0,fam=family(s),a=ageOn(s.dob),sub=[cname(ST[c].name)];if(a>=0&&a!==null)sub.push("Age "+a);if(s.house)sub.push(s.house);
  drawer(s.name,'<form class="addf spf" id="spF" novalidate>'
   +(ex?'<p class="spex"><b>Ex student</b>'+(s.left?' since '+esc(dobText(s.left,1)):'')+'. They are kept here with all of their records, but aren\'t on the class lists, TV, rankings or house points.</p>':'')
@@ -3209,7 +3209,7 @@ function stuProfile(c,s){SPS={c:c,s:s};var ex=ST[c].X.indexOf(s)>=0,fam=family(s
   +stuForm(s,c)
   +'<div class="spfam"><b>Family</b>'+(fam.length?'<ul>'+fam.map(function(o){return '<li><button type="button" class="lk" data-sp="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(o.s)+'">'+esc(o.s.name)+'</button> <span class="cap">'+esc(cname(ST[o.c].name))+(o.s.house?' · '+esc(o.s.house):'')+'</span></li>'}).join("")+'</ul>':'<span class="cap">'+(s.fid?'No one else has Family ID '+esc(s.fid)+'.':'Add a Family ID to see their brothers and sisters here.')+'</span>')+'</div>'
   +'<p class="cap">Details you change here stay as you set them when a CSV is uploaded again; its preview lists any the file disagrees with. A student moves class with all of their records.</p>'
-  +'<div class="acts"><p class="naerr" id="spE" role="alert"></p>'+(ex?'<button type="button" class="btn" id="spBack">Bring back</button>':'')+'<button type="submit" class="btn p">Save changes</button></div></form>',1);
+  +'<div class="acts"><p class="naerr" id="spE" role="alert"></p>'+(ex?'<button type="button" class="btn" id="spBack">Return</button>':'')+'<button type="submit" class="btn p">Save changes</button></div></form>',1);
  $("spname").focus()}
 function spSame(){return SPS&&ST[SPS.c]&&(ST[SPS.c].S.indexOf(SPS.s)>=0||ST[SPS.c].X.indexOf(SPS.s)>=0)}
 $("drwB").addEventListener("click",function(e){if(e.target.id==="spdobX"){$("spdob").value="";e.target.hidden=true;$("spdob").focus();return}
@@ -3540,7 +3540,7 @@ function planCSV(){var M=CSV.M,F=["name","year"].concat(["sid","fid","dob","gend
  // Earlier Student IDs and names, from a change on the profile, still find the student; their own come last and win.
  CIDS.forEach(function(c){byName[c]={};ST[c].S.forEach(function(s){(s.xid||[]).forEach(function(x){if(!byId[nkey(x)])byId[nkey(x)]={c:c,s:s}});(s.xn||[]).forEach(function(x){if(!byName[c][nkey(x)])byName[c][nkey(x)]=s})})});
  CIDS.forEach(function(c){ST[c].S.forEach(function(s){if(s.sid)byId[nkey(s.sid)]={c:c,s:s};byName[c][nkey(s.name)]=s})});
- // Ex students in the file stay ex students; they are brought back by hand on Students.
+ // Ex students in the file stay ex students; they are returned by hand on Students.
  var exId={},exName={},exs=[];CIDS.forEach(function(c){exName[c]={};(ST[c].X||[]).forEach(function(s){if(s.sid)exId[nkey(s.sid)]=1;exName[c][nkey(s.name)]=s})});
  function classOf(t){var k=nkey(t),cid=null;CIDS.forEach(function(id){if(!cid&&nkey(ST[id].name)===k)cid=id});return cid}
  var G={},order=[];
@@ -3571,7 +3571,7 @@ function showCSV(){var P=document.getElementById("csvP");if(!CSV)return;
  var h='<p><b>'+esc(CSV.file)+'</b>: '+nl+' students in '+p.groups.length+' classrooms.'+(p.empty?' '+p.empty+(p.empty>1?' rows':' row')+' without a name or Quran and Memorisation teacher '+(p.empty>1?'are':'is')+' left out.':'')+(p.dup?' '+p.dup+(p.dup>1?' repeated rows are':' repeated row is')+' counted once.':'')+'</p>'+colsHTML();
  if(!p.hasId)h+='<p class="warnline">This file has no Student ID column, so students are matched by name within their classroom.</p>';
  if(p.notes.length)h+='<ul class="csvl warnline">'+few(p.notes,10)+'</ul>';
- if(p.exs.length)h+='<p style="margin:0">'+plural(p.exs.length,"ex student")+' in this file '+(p.exs.length>1?'are':'is')+' left out. Anyone who has come back can be brought back on Students (Filters, Show: Ex students).</p><ul class="csvl">'+few(p.exs,10)+'</ul>';
+ if(p.exs.length)h+='<p style="margin:0">'+plural(p.exs.length,"ex student")+' in this file '+(p.exs.length>1?'are':'is')+' left out. Anyone who has come back can be returned on Students (Filters, Show: Ex students).</p><ul class="csvl">'+few(p.exs,10)+'</ul>';
  if(p.kept.length)h+='<p style="margin:0">'+plural(p.kept.length,"detail")+' changed by hand on a student\'s profile '+(p.kept.length>1?'stay':'stays')+' as '+(p.kept.length>1?'they are':'it is')+'. To use the file\'s value instead, change it on the student\'s profile under Students.</p><ul class="csvl">'+few(p.kept,10)+'</ul>';
  h+='<div class="tablewrap"><table class="tbl"><thead><tr><th>Classroom (Quran and Memorisation teacher)</th><th>In the file</th><th>New</th><th>Moving in</th><th>Details updated</th><th>No change</th></tr></thead><tbody>'+p.groups.map(function(g){return '<tr><td>'+esc(g.name)+(g.cid?'':' <span class="tg nw">New classroom</span>')+'</td><td>'+g.count+'</td><td>'+g.add.length+'</td><td>'+g.move.length+'</td><td>'+g.update.length+'</td><td>'+g.same+'</td></tr>'}).join("")+'</tbody></table></div>';
  var mv=[];p.groups.forEach(function(g){g.move.forEach(function(m){mv.push(m.o.name+": "+ST[m.from].name+" → "+g.name)})});
