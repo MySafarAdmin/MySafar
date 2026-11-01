@@ -186,15 +186,15 @@ class DashboardTests:
                      "https://journey2jannah.com", '<script src="/menu.js" defer>'):
             self.assertIn(text, page)
         self.assertNotIn("TV screens", page)
-        self.assertLess(page.index(">User management<"), page.index(">Live Activity<"))
-        self.assertLess(page.index(">Live Activity<"), page.index(">Data handling<"))
+        self.assertLess(page.index(">User management<"), page.index(">Live activity<"))
+        self.assertLess(page.index(">Live activity<"), page.index(">Data handling<"))
         self.assertLess(page.index(">Data handling<"), page.index(">FAQs<"))
         self.assertLess(page.index(">FAQs<"), page.index(">Presenter<"))
         self.assertIn('src="/menu.js"></script>', self.client.get("/").get_data(as_text=True))
         script = self.client.get("/menu.js")
         self.assertEqual(script.status_code, 200)
         self.assertEqual(script.mimetype, "text/javascript")
-        self.assertIn("Live Activity", self.client.get("/railway-storage.js").get_data(as_text=True))
+        self.assertIn("Live activity", self.client.get("/railway-storage.js").get_data(as_text=True))
 
     def test_first_admin_needs_admin_email(self):
         with self.assertRaisesRegex(RuntimeError, "ADMIN_EMAIL"):

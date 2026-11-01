@@ -62,7 +62,7 @@
     heading.textContent = "Administration";
     adminNav.appendChild(heading);
     [["users", "User management", "idcard", [null, ["Manage users", "/admin/users", "users"]]],
-     ["live", "Live Activity", "pulse", [["Activity", "/admin/activity", "activity"], ["Class history", "/admin/history", "history"]]],
+     ["live", "Live activity", "pulse", [["Activity", "/admin/activity", "activity"], ["Class history", "/admin/history", "history"]]],
      ["data", "Data handling", "db", [["Counted coins", "/admin/house-points", "pie"], ["Spreadsheet", "/admin/export", "sheet"], ["Import", "/admin/import", "upload"]]]
     ].forEach(function (gr) {
       var g = document.createElement("div");
