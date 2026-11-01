@@ -219,7 +219,8 @@ def _m12_stay_signed_in(db, postgres):
 
 def _m13_presenter_shares(db, postgres):
     t = _types(postgres)
-    # A class's Presenter shared by link (mysafar.org/ustdfaeez, see tv.py). The link stays the same for the class;
+    # No longer used: sharing a Presenter by link and code was removed (the Presenter now opens by its own link, see
+    # _m14_presenter_links). A class's Presenter shared by link (mysafar.org/ustdfaeez). The link stays the same for the class;
     # its 4-character code changes every day and when the teacher asks for a new one, and stops working after
     # SHARE_FAILS wrong tries. Each tab that typed the right code holds a random view token (stored only as a SHA-256
     # hash) until the tab is closed or the teacher stops sharing.
