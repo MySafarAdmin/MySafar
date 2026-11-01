@@ -55,7 +55,7 @@ TOKEN_POINTS = {"tg": 5, "tb": 20, "tr": 50}  # green, blue, red (book completio
 # House points given on the Record page, by what for, and the token each one gives (HPR in src/page.html).
 HOUSE_POINT_REASONS = {"bk": "tr", "lv": "tb", "hw": "tg", "ec": "tg", "cp": "tg"}
 # Reachable without signing in.
-PUBLIC = {"/login", "/login/code", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/favicon.png", "/favicon.ico"}
+PUBLIC = {"/login", "/login/code", "/forgot", "/healthz", "/logo.png", "/auth.css", "/intro.js", "/code.js", "/favicon.png", "/favicon.ico"}
 # Atkinson Hyperlegible Next stays for the TV display; the dashboard and admin pages use Figtree
 # for text and titles alike (see DESIGN.md).
 FONTS = {"atkinson-next-latin.woff2", "atkinson-next-latin-ext.woff2", "figtree-latin.woff2", "figtree-latin-ext.woff2"}
@@ -177,6 +177,9 @@ PAGE_CSP = ("default-src 'none'; style-src 'self'; img-src 'self'; font-src 'sel
 # The sign-in page also runs one script of ours, /intro.js, which focuses the email field after the opening; the
 # signed-in admin and account pages run /nav.js, which glides the menu's hover highlight as the dashboard does.
 LOGIN_CSP = PAGE_CSP + "; script-src 'self'"
+# The emailed sign-in code page (sent from POST /login and POST /login/code) runs /code.js, the animated code boxes,
+# which sends the finished code with fetch so the boxes can show whether it was right before the page moves on.
+CODE_CSP = LOGIN_CSP + "; connect-src 'self'"
 # The Account page runs /avatar.js, the profile picture cropper, which shows the chosen photo from a blob: address
 # and sends the cropped picture with fetch.
 ACCOUNT_CSP = PAGE_CSP.replace("img-src 'self'", "img-src 'self' blob:") + "; script-src 'self'; connect-src 'self'"
@@ -249,6 +252,9 @@ def create_app(test_config=None):
         RESEND_API_KEY=os.environ.get("RESEND_API_KEY", ""),
         MAIL_FROM=os.environ.get("MAIL_FROM", ""),
         MAIL_REDIRECT_TO=os.environ.get("MAIL_REDIRECT_TO", ""),
+        # Admins' emailed sign-in code (it also needs RESEND_API_KEY and MAIL_FROM). On unless LOGIN_CODES=off,
+        # for a time when email can't be sent.
+        LOGIN_CODES=os.environ.get("LOGIN_CODES", "on").strip().lower() not in ("0", "off", "false", "no"),
         # Where replies to the dashboard's emails go. Defaults to SUPPORT_EMAIL.
         MAIL_REPLY_TO=os.environ.get("MAIL_REPLY_TO", "").strip(),
         RETENTION_DAYS=int(os.environ.get("RETENTION_DAYS", "14")),
@@ -267,6 +273,9 @@ def create_app(test_config=None):
     database.migrate()
     auth.bootstrap_admin(database, app.config["ADMIN_EMAIL"], app.config["DASHBOARD_PASSWORD"])
     app.config["DB"] = database
+    if not app.config.get("TESTING"):
+        with database.transaction() as db:
+            memo_import.log_summary(db, "at startup")
     app.config.setdefault("MAILER", Mailer(app.config["RESEND_API_KEY"].strip(), app.config["MAIL_FROM"].strip(),
                                            app.config["MAIL_REDIRECT_TO"].strip(),
                                            app.config["MAIL_REPLY_TO"] or app.config["SUPPORT_EMAIL"]))
@@ -361,7 +370,8 @@ def create_app(test_config=None):
         response.headers["Content-Security-Policy"] = DASHBOARD_CSP.format(nonce=nonce) if dashboard else \
             EMAIL_PREVIEW_CSP if request.path.startswith("/admin/email/preview/") else \
             ACCOUNT_CSP if request.path == "/account" else \
-            LOGIN_CSP if request.path == "/login" or request.path.startswith("/admin/") else PAGE_CSP
+            CODE_CSP if request.path in ("/login", "/login/code") else \
+            LOGIN_CSP if request.path.startswith("/admin/") else PAGE_CSP
         if app.config["COOKIE_SECURE"]:
             response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         return response
@@ -396,6 +406,10 @@ def create_app(test_config=None):
         css = (ROOT / "src" / "tokens.css").read_text(encoding="utf-8") + "\n" + \
             (ROOT / "static" / "auth.css").read_text(encoding="utf-8")
         return Response(css, mimetype="text/css")
+
+    @app.get("/code.js")
+    def code_js():
+        return Response((ROOT / "static" / "code.js").read_text(encoding="utf-8"), mimetype="text/javascript")
 
     @app.get("/intro.js")
     def intro_js():

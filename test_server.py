@@ -691,7 +691,7 @@ class DashboardTests:
         # Names are escaped in the HTML part.
         self.assertIn("Sr &lt;b&gt;Maryam&lt;/b&gt;", html)
         self.assertNotIn("<b>Maryam", html)
-        self.assertIn('src="https://mysafar.example/logo.png"', html)
+        self.assertIn('src="https://mysafar.example/logo.png?v=3"', html)
         self.assertIn("72 hours", html)
         # The admin who sent it is named.
         self.assertIn("Administrator has given you an account", text)
@@ -1302,6 +1302,11 @@ class DashboardTests:
         self.assertIn('<fieldset class="hold" disabled>', login.get_data(as_text=True))
         script = anonymous.get("/intro.js")
         self.assertEqual((script.status_code, script.mimetype), (200, "text/javascript"))
+        # The emailed code page runs /code.js, the animated code boxes, which sends the code with fetch.
+        script = anonymous.get("/code.js")
+        self.assertEqual((script.status_code, script.mimetype), (200, "text/javascript"))
+        self.assertIn("connect-src 'self'", anonymous.post("/login/code", data={}).headers["Content-Security-Policy"])
+        self.assertNotIn("connect-src", self.client.get("/admin/users").headers["Content-Security-Policy"])
         self.assertNotIn("script-src", anonymous.get("/forgot").headers["Content-Security-Policy"])
         self.assertEqual(self.client.get("/admin/users").headers["Cache-Control"], "no-store")
 
@@ -1417,8 +1422,18 @@ class DashboardTests:
 
     def admin_mailer(self):
         mailer = FakeMailer()
-        self.app.config["MAILER"] = mailer
+        self.app.config.update(MAILER=mailer, LOGIN_CODES=True)
         return mailer
+
+    def test_admins_sign_in_without_a_code_while_codes_are_off(self):
+        # LOGIN_CODES is on by default; LOGIN_CODES=off lets admins sign in with their password even when email works.
+        self.assertTrue(create_app(dict(self.config, DATA_DIR=Path(self.temp.name) / "codes")).config["LOGIN_CODES"])
+        mailer = FakeMailer()
+        self.app.config.update(MAILER=mailer, LOGIN_CODES=False)
+        client = self.sign_in(*ADMIN)
+        self.assertEqual(client.last.status_code, 302)
+        self.assertEqual(client.get("/api/classes").status_code, 200)
+        self.assertEqual(mailer.sent, [])
 
     def code_of(self, mailer):
         return re.search(r"\b(\d{6})\b", mailer.sent[-1][2]).group(1)
@@ -1426,6 +1441,7 @@ class DashboardTests:
     def test_admins_finish_signing_in_with_an_emailed_code(self):
         mailer = self.admin_mailer()
         client = self.sign_in(*ADMIN)
+        self.assertIn('src="/code.js"', client.last.get_data(as_text=True))
         # The password alone doesn't sign an admin in.
         self.assertEqual(client.last.status_code, 200)
         self.assertIn("Check your email", client.last.get_data(as_text=True))

@@ -369,10 +369,13 @@ def login():
         with db().transaction() as tx:
             tx.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hasher.hash(password), user["id"]))
     if user["role"] == "admin":
-        if current_app.config["MAILER"].enabled:
+        if not current_app.config.get("LOGIN_CODES"):
+            current_app.logger.info("Admin %s signed in without an emailed code: LOGIN_CODES is off.", user["id"])
+        elif current_app.config["MAILER"].enabled:
             return send_login_code(dict(user), target, remember)
-        current_app.logger.warning("Admin %s signed in without an emailed code: email isn't set up (RESEND_API_KEY "
-                                   "and MAIL_FROM).", user["id"])
+        else:
+            current_app.logger.warning("Admin %s signed in without an emailed code: email isn't set up "
+                                       "(RESEND_API_KEY and MAIL_FROM).", user["id"])
     with db().transaction() as tx:
         token, max_age = start_session(tx, user["id"], remember)
         audit(tx, "login", user_id=user["id"])

@@ -268,6 +268,30 @@ def plan(db, kind, text, picks=None):
     return [tuple(c) for c in classes if c[4]], report, list(choices.items()), removed
 
 
+def log_summary(db, why):
+    """Prints, for the Railway logs, how many memo passes, fails and Qaidah level tests each class holds now, and
+    when memo passes were last imported. Counts only, no names. Never raises: it is a check, not part of a save."""
+    try:
+        lines, totals = [], [0, 0, 0, 0]
+        for row in db.execute("SELECT id, json, revision FROM classrooms ORDER BY id").fetchall():
+            students = json.loads(row["json"]).get("S", [])
+            counts = (len(students), sum(len(s.get("log", [])) for s in students),
+                      sum(len(s.get("fl", [])) for s in students),
+                      sum(1 for s in students for t in s.get("tests", []) if t.get("k") == "q"))
+            totals = [a + b for a, b in zip(totals, counts)]
+            lines.append(f"  {row['id']} (revision {row['revision']}): {counts[0]} students, {counts[1]} memo passes, "
+                         f"{counts[2]} fails, {counts[3]} Qaidah tests")
+        last = db.execute("SELECT at, detail FROM audit_log WHERE action = 'class.memo_passes_imported' "
+                          "ORDER BY id DESC LIMIT 1").fetchone()
+        when = datetime.fromtimestamp(last["at"] / (1000 if last["at"] > 10**11 else 1), auth.LONDON).strftime(
+            "%d %b %Y %H:%M") if last else "never"
+        print(f"[data check] {why}: {len(lines)} classes, {totals[0]} students, {totals[1]} memo passes, "
+              f"{totals[2]} fails, {totals[3]} Qaidah tests. Memo passes last imported: {when}.\n" + "\n".join(lines),
+              flush=True)
+    except Exception as e:  # noqa: BLE001
+        print(f"[data check] {why}: couldn't count ({e})", flush=True)
+
+
 ORDER = ("missing", "choose", "bad", "repeat", "fail", "add")
 
 
@@ -326,7 +350,13 @@ def apply(kind):
     done = 0
     try:
         with current_app.config["DB"].transaction() as db:
-            for class_id, revision, _, state, changed in plan(db, kind, text, picks)[0]:
+            changes, report, _, removed = plan(db, kind, text, picks)
+            counts = {k: sum(1 for r in report if r["status"] == k) for k in ORDER}
+            print(f"[data check] {kind} import by user {g.user['id']}: {len(report)} rows on the sheet; "
+                  f"{counts['add']} passes and {counts['fail']} fails added, {counts['repeat']} repeats left out, "
+                  f"{counts['missing']} no matching student, {counts['choose']} shared names not chosen, "
+                  f"{counts['bad']} unreadable; cleared first: {removed}", flush=True)
+            for class_id, revision, _, state, changed in changes:
                 current = db.execute("SELECT json FROM classrooms WHERE id = ?", (class_id,)).fetchone()["json"]
                 encoded = json.dumps(state, ensure_ascii=False, allow_nan=False, separators=(",", ":"))
                 # Keep the version from just before in Class history, then the imported one.
@@ -339,4 +369,6 @@ def apply(kind):
                 done += 1
     except ValueError as e:
         return _page(kind, error=str(e))
+    with current_app.config["DB"].transaction() as db:
+        log_summary(db, f"after the {kind} import")
     return _page(kind, done=done)
