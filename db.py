@@ -254,7 +254,19 @@ def _m14_presenter_links(db, postgres):
         last_seen_at BIGINT)""")
 
 
-def _m15_head_teachers(db, postgres):
+def _m15_trusted_devices(db, postgres):
+    t = _types(postgres)
+    # A browser where an admin typed their emailed code with "Stay signed in" ticked (see auth.py). For
+    # TRUSTED_DEVICE_TTL its password alone signs that admin in, even after signing out. token_hash is the SHA-256
+    # hash of the random token in that browser's cookie.
+    db.execute(f"""CREATE TABLE trusted_devices (
+        token_hash TEXT PRIMARY KEY,
+        user_id {t['ref']} NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+        created_at BIGINT NOT NULL,
+        expires_at BIGINT NOT NULL)""")
+
+
+def _m16_head_teachers(db, postgres):
     # A third role, "head" (shown as HeadTeacher): sees every classroom, Record, House points, Rankings, Presenter and
     # FAQs, but not the Administration pages (see auth.py). The users table's CHECK on role must allow it.
     allowed = "CHECK (role IN ('admin', 'head', 'teacher'))"
@@ -281,7 +293,7 @@ def _m15_head_teachers(db, postgres):
 
 MIGRATIONS = [_m1_classrooms, _m2_accounts, _m3_tv_screens, _m4_tv_settings, _m5_house_points, _m6_help_requests,
               _m7_avatars, _m8_tutorial, _m9_tutorial_again, _m10_board_links, _m11_login_codes, _m12_stay_signed_in,
-              _m13_presenter_shares, _m14_presenter_links, _m15_head_teachers]
+              _m13_presenter_shares, _m14_presenter_links, _m15_trusted_devices, _m16_head_teachers]
 
 
 class Database:

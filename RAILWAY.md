@@ -50,6 +50,10 @@ Current setup: project **triumphant-renewal**, service **MySafar** (deploys the
   browser restarts and new tabs for 30 days, ending sooner if the dashboard
   isn't opened for 14 days. Signing out or having the account turned off still
   ends it at once, and changing your password ends it on your other devices.
+  For admins it also trusts that browser for 30 days: after typing the emailed
+  code once with the box ticked, their password alone signs them in there, even
+  after signing out. Changing or resetting the password, "Sign out other
+  devices" and turning the account off stop other browsers being trusted.
 
 ## Help or Requests and FAQs
 

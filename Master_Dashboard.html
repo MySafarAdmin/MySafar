@@ -1878,6 +1878,17 @@ html.fresh #vM .hrq{animation:none}body.enter #vM .hrq{animation-delay:1.3s}
 .tour-card p{margin:0;font-size:.9375rem;line-height:1.5;color:var(--ink-2)}
 .tour-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
 .tour-acts .btn[hidden]{display:none}
+/* A student's profile and Add student: a tile in the middle of the screen over the page, blurred behind it. */
+.drawer.mid{justify-content:center;align-items:center;padding:24px;background:rgba(29,33,39,.28);-webkit-backdrop-filter:blur(10px) saturate(1.05);backdrop-filter:blur(10px) saturate(1.05)}
+.drawer.mid .dpanel{width:min(640px,100%);height:auto;max-height:min(860px,100%);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(29,33,39,.22),0 2px 6px rgba(29,33,39,.08)}
+.drawer.mid .dhead{padding:18px 24px;border-bottom:1px solid var(--line)}
+.drawer.mid .dbody{padding:18px 24px 24px}
+.drawer.mid .spf .acts{bottom:-24px;margin:0 -24px -24px;padding:14px 24px 18px;background:var(--surface);border-top:1px solid var(--line)}
+.drawer.mid .spf .acts .btn{flex:none}
+.spex{margin:0;padding:10px 14px;border-radius:12px;background:#fdf4e3;color:#6b4a12;font-size:.875rem;line-height:1.45}
+.sleft{display:block;font-size:.75rem;color:var(--mute);margin-top:2px;font-weight:500}
+.srb .ic{width:16px;height:16px}
+@media (max-width:560px){.drawer.mid{padding:12px}.drawer.mid .dhead{padding:14px 16px}.drawer.mid .dbody{padding:14px 16px 16px}.drawer.mid .spf .acts{bottom:-16px;margin:0 -16px -16px;padding:12px 16px 14px}}
 </style>
 <a class="skip" href="#main">Skip to main content</a>
 <div class="shell">
@@ -2079,7 +2090,7 @@ var PAGE="M",CIDS=[],ST={},CID=null,DB=null,LJ={},PU={},PD={},LOADED=false,DBST=
 var LS="sfd_",COL="classroom";
 function nkey(n){return String(n||"").replace(/\s+/g," ").trim().toLowerCase()}
 function sortC(){CIDS.sort(function(a,b){return ST[a].name.localeCompare(ST[b].name,undefined,{numeric:true,sensitivity:"base"})})}
-function addC(c,o){ST[c]={name:o.name||"Class",fcd:o.fcd||dk(Date.now()),S:fix(o.S||[],o.L)};if(CIDS.indexOf(c)<0)CIDS.push(c);sortC()}
+function addC(c,o){ST[c]={name:o.name||"Class",fcd:o.fcd||dk(Date.now()),S:fix(o.S||[],o.L),X:fix(o.X||[],o.L)};if(CIDS.indexOf(c)<0)CIDS.push(c);sortC()}
 function parseC(c,j){addC(c,JSON.parse(j))}
 function dropC(c){delete ST[c];var i=CIDS.indexOf(c);if(i>=0)CIDS.splice(i,1)}
 function newId(name){var b=nkey(name).normalize("NFKD").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,48)||"class",id=b,k=2;
@@ -2101,7 +2112,8 @@ function fromHash(h){if(!h)return null;if(h==="classes")return ["L"];
  if(h==="presenter"){setTimeout(presenter,0);return ["M"]}
  var m=/^tab-([QTDHS])$/.exec(h);if(m){var c=lastC();return c?[c,m[1]]:CIDS.length||LOADED?["L"]:null}return ST[h]?[h]:null}
 function setSt(t,s){var e=document.getElementById("st");if(e){e.textContent=t;e.setAttribute("data-s",s||(/couldn|can't|not saved|signed out|could not/i.test(t)?"bad":/saving|loading/i.test(t)?"busy":"ok"))}}
-function cj(c){return JSON.stringify({S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN})}
+/* Ex students ("X") ride along with their class only once there are any, so other classes save exactly as before. */
+function cj(c){var o={S:ST[c].S,name:ST[c].name,fcd:ST[c].fcd,L:LEVELS,Q:QN};if(ST[c].X&&ST[c].X.length)o.X=ST[c].X;return JSON.stringify(o)}
 function push(c){if(!DB||!ST[c])return;var j=cj(c);if(j===LJ[c])return;if(PU[c]){PD[c]=1;return}
  PU[c]=1;LJ[c]=j;DB.doc(COL+"/"+c).set({json:j,at:Date.now()}).then(function(){setSt("Saved online")},function(e){LJ[c]="";
   if(e&&e.code==="invalid_argument"){setSt("Not saved: you can view but not edit. Ask the owner for edit access.","bad");toast("Not saved online. You need edit access.",1)}
@@ -2200,6 +2212,7 @@ function rankList(key,items,o){o=o||{};var a=ranked(items),lim=o.limit||10,mx=a.
    so the real one is hidden at once and nothing that reads it has to wait. Off under reduced motion. */
 var FXRM=null;try{FXRM=matchMedia("(prefers-reduced-motion: reduce)")}catch(e){}
 var FXS="cubic-bezier(.22,1,.36,1)",FX={
+ tile:[".dpanel",[{opacity:0,transform:"translateY(18px) scale(.94)",filter:"blur(8px)"},{opacity:1,transform:"none",filter:"blur(0)"}],420],
  sheet:[".dpanel",[{opacity:0,transform:"translateX(56px)",filter:"blur(6px)"},{opacity:1,transform:"none",filter:"blur(0)"}],440],
  dialog:[".card",[{opacity:0,transform:"translateY(-14px) scale(.92)",filter:"blur(8px)"},{opacity:1,transform:"none",filter:"blur(0)"}],380],
  cal:[".ycard",[{opacity:0,transform:"translateY(-10px) scale(.95)",filter:"blur(8px)"},{opacity:1,transform:"none",filter:"blur(0)"}],400],
@@ -2216,8 +2229,9 @@ function fxOut(el,k,hide){if(!el||!fxOn()){hide();return}var f=FX[k],g=el.cloneN
 /* Only notes and errors show; plain "done" confirmations were removed at the school's request. */
 var tt;function toast(m,info){if(!info)return;var e=$("toast");e.textContent=m;e.className="on"+(info?" info":"");clearTimeout(tt);tt=setTimeout(function(){e.className=""},3200)}
 var DF=null;
-function drawer(title,html){DMODE="";$("drwT").textContent=title;$("drwB").innerHTML=html;var was=$("drw").hidden;if(was)DF=document.activeElement;$("drw").hidden=false;$("drwB").scrollTop=0;$("drwX").focus();if(was)fxIn($("drw"),"sheet")}
-function closeDrawer(){var mm=DMODE==="mm";DMODE="";if(mm){MS=-1;MD="";mMark()}if($("drw").hidden)return;fxOut($("drw"),"sheet",function(){$("drw").hidden=true;$("drwB").innerHTML=""});if(DF&&document.contains(DF))DF.focus();DF=null}
+/* mid: a tile in the middle of the screen over a blurred page (a student's profile, Add student) instead of the side sheet. */
+function drawer(title,html,mid){DMODE="";var d=$("drw"),was=d.hidden,k=mid?"tile":"sheet";$("drwT").textContent=title;$("drwB").innerHTML=html;if(was)DF=document.activeElement;if(!was&&d.classList.contains("mid")!==!!mid){d.hidden=true;was=true}d.classList.toggle("mid",!!mid);d.hidden=false;$("drwB").scrollTop=0;$("drwX").focus();if(was)fxIn(d,k)}
+function closeDrawer(){var mm=DMODE==="mm";DMODE="";if(mm){MS=-1;MD="";mMark()}var d=$("drw");if(d.hidden)return;fxOut(d,d.classList.contains("mid")?"tile":"sheet",function(){d.hidden=true;$("drwB").innerHTML=""});if(DF&&document.contains(DF))DF.focus();DF=null}
 $("drwX").onclick=closeDrawer;
 $("drw").addEventListener("click",function(e){if(e.target===this)closeDrawer()});
 var AK=null,AF=null;
@@ -2322,7 +2336,7 @@ document.addEventListener("click",function(e){var bt=e.target.closest("[data-a]"
  var nm=fn(s);
  if(a==="dt"){student(i);return}
  if(a==="dd"){EDD=!EDD;var box=bt.closest(".ed");box.querySelector(".edd").hidden=!EDD;bt.setAttribute("aria-expanded",EDD);return}
- if(a==="rm"&&!STAFF){ask("Remove "+s.name+" and all of their records?","Remove student",function(){if(!same(c,i,s))return;S.splice(i,1);if(DMODE==="mm")closeDrawer();save();render();toast(nm+" removed")},null,1);return}
+ if(a==="rm"&&!STAFF){ask(exAsk(s,c),"Remove student",function(){if(!same(c,i,s))return;exOut(c,s);if(DMODE==="mm")closeDrawer();render();toast(nm+" removed")},null,1);return}
  if(a==="rn"){ask("Rename "+s.name,"Save name",function(v){if(!same(c,i,s))return;var nv=v||"Student";if(nv!==s.name){s.xn=(s.xn||[]).concat([s.name]).slice(-10);s.ed=(s.ed||[]).filter(function(y){return y!=="name"}).concat(["name"])}s.name=nv;save();render();toast("Name updated")},"Student name",0,s.name)}});
 
 /* ---------- Record page (admins) ----------
@@ -2865,10 +2879,19 @@ $("cw").onclick=clearW;
    (teachers only load their own), so it has the last word; the standalone file goes by the classes on the page. */
 function sidNum(s){var m=/^SE(\d+)$/i.exec((s.sid||"").trim());return m?+m[1]:0}
 function sidFmt(n){var d=String(n);while(d.length<3)d="0"+d;return "SE"+d}
-function nextSid(cb){var n=0;CIDS.forEach(function(c){ST[c].S.forEach(function(s){n=Math.max(n,sidNum(s))})});
+function nextSid(cb){var n=0;eachStu(function(s){n=Math.max(n,sidNum(s))});
  if(!window.RAILWAY){cb(n+1);return}
  fetch("/api/last-sid",{credentials:"same-origin",cache:"no-store"}).then(function(r){return r.ok?r.json():{}}).then(function(j){cb(Math.max(n,+j.last||0)+1)},function(){cb(n+1)})}
 function fillSid(id){nextSid(function(n){var i=$(id);if(i&&!i.value&&document.activeElement!==i)i.value=sidFmt(n)})}
+/* Every student, ex students too, with their class: for Student IDs, which are never reused. */
+function eachStu(f){CIDS.forEach(function(c){ST[c].S.concat(ST[c].X||[]).forEach(function(s){f(s,c)})})}
+/* Removing a student makes them an ex student: they leave every list, the TV, rankings and house points, but their
+   records are kept with their class (ST[c].X, with the day they left) and they can be returned from Students. */
+function exAsk(s,c){return "Remove "+s.name+" from "+cname(ST[c].name)+"? They move to Ex students with all of their records, and leave the class lists, TV, rankings and house points. You can return them from Students."}
+function exOut(c,s){var i=ST[c].S.indexOf(s);if(i<0){toast("That student has already changed. Try again.",1);return false}ST[c].S.splice(i,1);s.left=dk(Date.now());ST[c].X.push(s);persist(c);return true}
+function exBack(c,s){var X=ST[c]&&ST[c].X,i=X?X.indexOf(s):-1;if(i<0){toast("That student has already changed. Try again.",1);return false}
+ if(ST[c].S.some(function(o){return nkey(o.name)===nkey(s.name)})){toast("There is already a student called "+s.name+" in "+cname(ST[c].name)+". Rename one of them first.",1);return false}
+ X.splice(i,1);delete s.left;ST[c].S.push(s);persist(c);if(c===CID)render();return true}
 function blank(n){return {name:n,target:1,passes:0,merits:0,hit:null,log:[],lt:[],lx:[],ml:[],fl:[],q:{},warn:0,tg:[],tb:[],tr:[]}}
 $("add").onclick=function(){addStudent()};
 $("rst").onclick=function(){var c=CID;ask("Reset all passes and merits for "+cname(ST[c].name)+"?","Reset scores",function(){if(CID!==c)return;S.forEach(function(s){s.passes=0;s.merits=0;s.ml=[];s.hit=null;s.log=[];s.lt=[];s.lx=[]});save();render();toast("All scores reset")},null,1)};
@@ -3163,10 +3186,14 @@ function dirTable(){var q=nkey(DQ),C=CIDS.filter(function(c){return !q||nkey(ST[
 /* Students (administrators only; teachers don't see it): every student on the dashboard in one list, with a
    search, a class filter, Add student into any class the viewer has, and Remove, which asks first. Every change
    is saved with the student's class straight away, as on the Quran tab. */
-var SQ="",SC="",SF={sy:"",house:"",gender:"",ist:"",miss:""},SNEW=null,SPG=25,
+var SQ="",SC="",SF={st:"",sy:"",house:"",gender:"",ist:"",miss:""},SNEW=null,SPG=25,
  ADDIC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9.5" cy="8" r="3.5"/><path d="M3 20c.8-3.6 3.3-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4"/><path d="M18.5 13.5v6M15.5 16.5h6"/></svg>',
+ BACKIC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>',
  BINIC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M9.5 7V4.5h5V7"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10.5 11v5.5M13.5 11v5.5"/></svg>';
-function stuAll(){var A=[];CIDS.forEach(function(c){if(SC&&c!==SC)return;ST[c].S.forEach(function(s){A.push({s:s,c:c})})});
+/* The list shows current students, or with Show set to Ex students, only the ones who were removed. */
+function stuEx(){return SF.st==="ex"}
+function stuL(c){return stuEx()?ST[c].X:ST[c].S}
+function stuAll(){var A=[];CIDS.forEach(function(c){if(SC&&c!==SC)return;stuL(c).forEach(function(s){A.push({s:s,c:c})})});
  return A.sort(function(a,b){return a.s.name.trim().localeCompare(b.s.name.trim(),undefined,{sensitivity:"base"})||ST[a.c].name.localeCompare(ST[b.c].name,undefined,{numeric:true,sensitivity:"base"})})}
 function stuPage(){if(!CIDS.length){$("stuW").innerHTML=LOADED?'<div class="empty"><b>No classrooms yet</b>'+(TEACHER?'Ask an administrator to add you to your classrooms on Manage users.':'Students belong to a class, so upload a CSV on Classes to create the classrooms first.<button type="button" class="btn sm p" data-open="L">Go to Classes</button>')+'</div>':'<div class="empty" role="status"><b>Loading class records…</b></div>';return}
  if(SC&&!ST[SC])SC="";
@@ -3177,13 +3204,14 @@ var FILTIC='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor
    lists only what the students have, A to Z. Filters in use show as chips under the search, each with a cross.
    Whatever is chosen, the list stays in name order. */
 var SFM=[["sid","Student ID"],["fid","Family ID"],["dob","date of birth"],["sy","year group"],["gender","gender"],["house","house"],["ist","AI class"]],
- SFK=["c","ist","sy","house","gender","miss"],SFL={c:"QM class",ist:"AI class",sy:"Year group",house:"House",gender:"Gender",miss:"Missing"};
+ SFK=["st","c","ist","sy","house","gender","miss"],SFL={st:"Show",c:"QM class",ist:"AI class",sy:"Year group",house:"House",gender:"Gender",miss:"Missing"};
 function yrKey(v){var m=/(\d+)/.exec(v||"");return /reception/i.test(v)?0:m?+m[1]:99}
 function sfGet(k){return k==="c"?SC:SF[k]}
 function sfSet(k,v){if(k==="c")SC=v;else SF[k]=v}
-function sfOpts(){var V={sy:{},gender:{},ist:{}};CIDS.forEach(function(c){ST[c].S.forEach(function(s){["sy","gender","ist"].forEach(function(k){if(s[k])V[k][s[k]]=1})})});
+function sfOpts(){var V={sy:{},gender:{},ist:{}};CIDS.forEach(function(c){stuL(c).forEach(function(s){["sy","gender","ist"].forEach(function(k){if(s[k])V[k][s[k]]=1})})});
  function az(k){return Object.keys(V[k]).sort(function(a,b){return (k==="sy"?yrKey(a)-yrKey(b):0)||a.localeCompare(b,undefined,{numeric:true,sensitivity:"base"})})}
- return {c:[CIDS.slice().sort(function(a,b){return cname(ST[a].name).localeCompare(cname(ST[b].name),undefined,{numeric:true,sensitivity:"base"})}).map(function(c){return [c,cname(ST[c].name)]}),"All",""],
+ return {st:[[["ex","Ex students"]],"Current students",""],
+  c:[CIDS.slice().sort(function(a,b){return cname(ST[a].name).localeCompare(cname(ST[b].name),undefined,{numeric:true,sensitivity:"base"})}).map(function(c){return [c,cname(ST[c].name)]}),"All",""],
   ist:[az("ist").map(function(v){return [v,cname(v)]}),"All","No AI class"],
   sy:[az("sy").map(function(v){return [v,v]}),"All","No year group"],
   house:[HOUSES.map(function(v){return [v,v]}),"All","No house yet"],
@@ -3206,44 +3234,22 @@ function sfOk(s){return ["sy","house","gender","ist"].every(function(k){var f=SF
 /* The letters typed in the search, picked out in light blue wherever they appear in a name or ID. */
 function qhl(t,q){t=String(t||"");var i=q?t.toLowerCase().indexOf(q):-1;return i<0?esc(t):esc(t.slice(0,i))+'<mark class="qhl">'+esc(t.slice(i,i+q.length))+'</mark>'+esc(t.slice(i+q.length))}
 function stuRows(){var q=nkey(SQ),all=stuAll(),A=all.filter(function(o){return sfOk(o.s)}).filter(function(o){return !q||nkey(o.s.name).indexOf(q)>=0||!!o.s.sid&&nkey(o.s.sid).indexOf(q)>=0||!!o.s.fid&&nkey(o.s.fid)===q});
- var fon=q||SC||Object.keys(SF).some(function(k){return SF[k]}),tot=0;CIDS.forEach(function(c){tot+=ST[c].S.length});
- $("stuN").textContent=fon?A.length+" of "+plural(tot,"student")+" match":plural(tot,"student")+(CIDS.length<2?"":" in "+plural(CIDS.length,"class","classes"));
- if(!A.length){$("stuL").innerHTML='<div class="empty"><b>'+(fon?'No student matches':'No students yet')+'</b>'+(fon?'Check the spelling, or clear the filters.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
+ var ex=stuEx(),fon=q||SC||Object.keys(SF).some(function(k){return k!=="st"&&SF[k]}),tot=0,who=ex?"ex student":"student";CIDS.forEach(function(c){tot+=stuL(c).length});
+ $("stuN").textContent=fon?A.length+" of "+plural(tot,who)+" match":plural(tot,who)+(CIDS.length<2||ex?"":" in "+plural(CIDS.length,"class","classes"));
+ if(!A.length){$("stuL").innerHTML='<div class="empty"><b>'+(fon?'No '+who+' matches':ex?'No ex students':'No students yet')+'</b>'+(fon?'Check the spelling, or clear the filters.':ex?'Students you remove are kept here with all of their records, and can be returned.':'<button type="button" class="btn sm p" id="stuA2">Add a student</button>')+'</div>';return}
  var p=pager("stu",A.length,SPG);
  $("stuL").innerHTML='<div class="tablewrap soft"><table class="tbl stackable stul"><thead><tr><th scope="col">Student</th><th scope="col">QM class</th><th scope="col">AI class</th><th scope="col">Year group</th><th scope="col">Student ID</th><th scope="col">Family ID</th><th scope="col">House</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead><tbody>'
-  +A.slice(p*SPG,(p+1)*SPG).map(function(o){var s=o.s;return '<tr data-c="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(s)+'"'+(s===SNEW?' class="snew"':'')+'><td class="lead"><button type="button" class="spo" aria-label="Open '+esc(s.name)+'\'s profile"><b>'+qhl(s.name,q)+'</b></button></td>'
+  +A.slice(p*SPG,(p+1)*SPG).map(function(o){var s=o.s;return '<tr data-c="'+esc(o.c)+'" data-i="'+stuL(o.c).indexOf(s)+'"'+(s===SNEW?' class="snew"':'')+'><td class="lead"><button type="button" class="spo" aria-label="Open '+esc(s.name)+'\'s profile"><b>'+qhl(s.name,q)+'</b></button>'+(ex&&s.left?'<span class="sleft">Left '+esc(dobText(s.left,1))+'</span>':'')+'</td>'
    +'<td data-label="QM class" class="sm"><span class="pfx">QM </span>'+opener(o.c,esc(cname(ST[o.c].name)))+'</td>'
    +'<td data-label="AI class" class="sm ai"><span class="pfx">AI </span>'+(s.ist?esc(cname(s.ist)):'<span class="zero">Not set</span>')+'</td>'
    +'<td data-label="Year group" class="sy">'+(s.sy?esc(s.sy):'<span class="zero">Not recorded</span>')+'</td>'
    +'<td data-label="Student ID" class="sm">'+(s.sid?qhl(s.sid,q):'<span class="zero">None</span>')+'</td>'
    +'<td data-label="Family ID" class="sm fi">'+(s.fid?esc(s.fid):'<span class="zero">None</span>')+'</td>'
    +'<td data-label="House" class="sm">'+(s.house?'<span class="hn"><span class="hdot '+esc(s.house)+'"></span>'+esc(s.house)+'</span>':'<span class="zero">Not set</span>')+'</td>'
-   +'<td class="act"><button type="button" class="btn sm srm" aria-label="Remove '+esc(s.name)+'" title="Remove student">'+BINIC+'<span aria-hidden="true">Remove</span></button></td></tr>'}).join("")
+   +'<td class="act">'+(ex?'<button type="button" class="btn sm srb" aria-label="Return '+esc(s.name)+'" title="Return to '+esc(cname(ST[o.c].name))+'">'+BACKIC+'<span aria-hidden="true">Return</span></button>':'<button type="button" class="btn sm srm" aria-label="Remove '+esc(s.name)+'" title="Remove student">'+BINIC+'<span aria-hidden="true">Remove</span></button>')+'</td></tr>'}).join("")
   +'</tbody></table></div>'+pagerHtml("stu",A.length,SPG,"students");
  var nw=$("stuL").querySelector("tr.snew");SNEW=null;
  if(nw){nw.classList.remove("snew");if(nw.scrollIntoView)nw.scrollIntoView({block:"center"});if(!QM.matches&&nw.animate)nw.animate([{backgroundColor:"#edf3ee",boxShadow:"inset 3px 0 0 #4e7d5b"},{backgroundColor:"rgba(237,243,238,0)",boxShadow:"inset 3px 0 0 rgba(78,125,91,0)"}],{duration:1800,easing:"ease-out"})}}
-function stuAdd(){var c0=SC||(LASTC&&ST[LASTC]?LASTC:CIDS[0]);if(!c0)return;
- drawer("Add a student",'<form class="addf" id="suF" novalidate><p class="cap">They are saved with their class straight away, and appear on its Quran, Memo and Progress pages.</p>'
-  +'<label>Name<input id="suN" maxlength="60" autocomplete="off" required></label>'
-  +'<label>Class<select id="suC">'+CIDS.map(function(c){return '<option value="'+esc(c)+'"'+(c===c0?' selected':'')+'>'+esc(cname(ST[c].name))+'</option>'}).join("")+'</select></label>'
-  +'<label>House<select id="suH"><option value="">Not set yet</option>'+HOUSES.map(function(h){return '<option>'+h+'</option>'}).join("")+'</select></label>'
-  +'<label>Student ID<input id="suI" maxlength="40" autocomplete="off"></label>'
-  +'<p class="naerr" id="suE" role="alert"></p><div class="acts"><button type="submit" class="btn p">Add student</button></div></form>');
- $("suN").focus();fillSid("suI")}
-$("drwB").addEventListener("submit",function(e){if(e.target.id!=="suF")return;e.preventDefault();
- var n=$("suN").value.replace(/\s+/g," ").trim(),c=$("suC").value,h=$("suH").value,id=$("suI").value.trim(),err=$("suE"),L=ST[c]&&ST[c].S,dup=null;
- if(!n){err.textContent="Enter the student's name.";$("suN").focus();return}
- if(!L){err.textContent="Choose a class.";$("suC").focus();return}
- if(L.some(function(s){return nkey(s.name)===nkey(n)})){err.textContent="There is already a student called "+n+" in "+cname(ST[c].name)+".";$("suN").focus();return}
- if(id)CIDS.forEach(function(k){ST[k].S.forEach(function(s){if(!dup&&s.sid&&nkey(s.sid)===nkey(id))dup=[s,k]})});
- if(dup){err.textContent="Student ID "+id+" already belongs to "+dup[0].name+" in "+ST[dup[1]].name+".";$("suI").focus();return}
- var s=blank(n),yr=safarYear(ST[c].name);if(h)s.house=h;if(id)s.sid=id;if(yr)s.year=yr;L.push(s);persist(c);closeDrawer();
- SQ="";if($("stuQ"))$("stuQ").value="";if(SC&&SC!==c)SC="";
- var k=0;stuAll().some(function(o,i){k=i;return o.s===s});PG.stu=Math.floor(k/SPG);SNEW=s;stuPage();toast(n+" added to "+cname(ST[c].name))});
-/* A student's profile, opened from their row on Students: every detail the school keeps about them, to fill in
-   or correct. A detail changed here is remembered in s.ed, and a later CSV upload leaves it as it is (its preview
-   lists any the file disagrees with). A changed Student ID or name is kept in s.xid or s.xn, so the upload still
-   recognises the student. Students with the same Family ID are listed as their family. */
 var SPF=[["name","Name"],["sid","Student ID"],["fid","Family ID"],["dob","Date of birth"],["gender","Gender"],["sy","Year group"],["house","House"],["ist","Arabic and Islamic Studies Class"]];
 function yrs(a,b){var L=[];for(var n=a;n<=b;n++)L.push("Year "+n);return L}
 function opts(L,v,none){var A=L.slice();if(v&&A.indexOf(v)<0)A.unshift(v);return '<option value="">'+none+'</option>'+A.map(function(x){return '<option'+(x===v?' selected':'')+'>'+esc(x)+'</option>'}).join("")}
@@ -3256,41 +3262,71 @@ var SPS=null;
    choices are every one found on the dashboard. */
 function aiClasses(){var D={};CIDS.forEach(function(c){ST[c].S.forEach(function(o){if(o.ist)D[o.ist]=1})});
  return Object.keys(D).sort(function(a,b){return a.localeCompare(b,undefined,{numeric:true,sensitivity:"base"})})}
-function stuProfile(c,s){SPS={c:c,s:s};var AIL=aiClasses();var fam=family(s),a=ageOn(s.dob),sub=[cname(ST[c].name)];if(a>=0&&a!==null)sub.push("Age "+a);if(s.house)sub.push(s.house);
- drawer(s.name,'<form class="addf spf" id="spF" novalidate><p class="cap">'+esc(sub.join(" · "))+'. Only the name is needed; every other detail can be left blank.</p>'
-  +'<label>Name<input id="spname" maxlength="60" autocomplete="off" required value="'+esc(s.name)+'"></label>'
-  +'<label>Quran and Memorisation Class<select id="spcls">'+CIDS.map(function(k){return '<option value="'+esc(k)+'"'+(k===c?' selected':'')+'>'+esc(cname(ST[k].name))+'</option>'}).join("")+'</select></label>'
-  +'<label>Arabic and Islamic Studies Class'+(AIL.length?'<select id="spist"><option value="">Not set</option>'+AIL.map(function(x){return '<option value="'+esc(x)+'"'+(x===(s.ist||"")?' selected':'')+'>'+esc(cname(x))+'</option>'}).join("")+'</select>':'<input id="spist" maxlength="80" autocomplete="off" value="">')+'</label>'
-  +'<div class="pf2"><label>Student ID<input id="spsid" maxlength="40" autocomplete="off" placeholder="SE…" value="'+esc(s.sid||"")+'"></label>'
+/* Add student and a student's profile share one form, in a tile in the middle of the screen: name, both classes,
+   Student and Family IDs, date of birth, gender, year group and house. Only the name is needed. */
+function stuForm(s,c){var AIL=aiClasses(),ist=s.ist||"";if(ist&&AIL.indexOf(ist)<0)AIL.push(ist);
+ return '<label>Name<input id="spname" maxlength="60" autocomplete="off" required value="'+esc(s.name||"")+'"></label>'
+  +'<div class="pf2"><label>Quran and Memorisation Class<select id="spcls">'+CIDS.map(function(k){return '<option value="'+esc(k)+'"'+(k===c?' selected':'')+'>'+esc(cname(ST[k].name))+'</option>'}).join("")+'</select></label>'
+  +'<label>Arabic and Islamic Studies Class'+(AIL.length?'<select id="spist"><option value="">Not set</option>'+AIL.map(function(x){return '<option value="'+esc(x)+'"'+(x===ist?' selected':'')+'>'+esc(cname(x))+'</option>'}).join("")+'</select>':'<input id="spist" maxlength="80" autocomplete="off" value="'+esc(ist)+'">')+'</label>'
+  +'<label>Student ID<input id="spsid" maxlength="40" autocomplete="off" placeholder="SE…" value="'+esc(s.sid||"")+'"></label>'
   +'<label>Family ID<input id="spfid" maxlength="40" autocomplete="off" placeholder="SP…" value="'+esc(s.fid||"")+'"></label>'
   +'<div class="spdob"><label>Date of birth<input id="spdob" type="date" max="'+isoDay(new Date())+'" value="'+esc(s.dob||"")+'"></label><button type="button" class="lk" id="spdobX"'+(s.dob?'':' hidden')+'>Clear date of birth</button></div>'
   +'<label>Gender<select id="spgender">'+opts(["Female","Male"],s.gender||"","Not recorded")+'</select></label>'
   +'<label>Year group<select id="spsy">'+opts(["Reception"].concat(yrs(1,13)),s.sy||"","Not recorded")+'</select></label>'
   +'<label>House<select id="sphouse">'+opts(HOUSES,s.house||"","Not set yet")+'</select></label>'
-  +'</div>'
+  +'</div>'}
+/* The form's values, tidied, or an error shown under it. me is the student being changed (none when adding). */
+function stuVals(me,err,L){var v={},dup=null,to=$("spcls").value;SPF.forEach(function(f){v[f[0]]=$("sp"+f[0]).value.replace(/\s+/g," ").trim()});
+ function no(m,id){err.textContent=m;$(id).focus();return null}
+ if(!ST[to])return no("That class no longer exists. Choose another.","spcls");
+ if(!v.name)return no("Enter the student's name.","spname");
+ if(ST[to][L].some(function(o){return o!==me&&nkey(o.name)===nkey(v.name)}))return no("There is already a"+(L==="X"?"n ex student":" student")+" called "+v.name+" in "+cname(ST[to].name)+".","spname");
+ if(!me&&ST[to].X.some(function(o){return nkey(o.name)===nkey(v.name)}))return no(v.name+" is an ex student of "+cname(ST[to].name)+". To return them with their records, choose Show: Ex students under Filters.","spname");
+ if(v.sid)eachStu(function(o,k){if(!dup&&o!==me&&o.sid&&nkey(o.sid)===nkey(v.sid))dup=[o,k]});
+ if(dup)return no("Student ID "+v.sid+" already belongs to "+(dup[1]&&ST[dup[1]].X.indexOf(dup[0])>=0?"ex student ":"")+dup[0].name+" in "+cname(ST[dup[1]].name)+".","spsid");
+ if(v.dob&&(!/^\d{4}-\d{2}-\d{2}$/.test(v.dob)||v.dob>isoDay(new Date())))return no("Enter a date of birth that isn't in the future.","spdob");
+ v.to=to;v.L=L;return v}
+function stuAdd(){var c0=SC||(LASTC&&ST[LASTC]?LASTC:CIDS[0]);if(!c0)return;SPS=null;
+ drawer("Add a student",'<form class="addf spf" id="suF" novalidate><p class="cap">Only the name is needed; every other detail can be filled in later. They are saved with their class straight away, and appear on its Quran, Memo and Progress pages.</p>'
+  +stuForm({},c0)
+  +'<div class="acts"><p class="naerr" id="suE" role="alert"></p><button type="button" class="btn" data-spx>Cancel</button><button type="submit" class="btn p">Add student</button></div></form>',1);
+ $("spname").focus();fillSid("spsid")}
+$("drwB").addEventListener("submit",function(e){if(e.target.id!=="suF")return;e.preventDefault();
+ var v=stuVals(null,$("suE"),"S");if(!v)return;var c=v.to,s=blank(v.name);
+ SPF.forEach(function(f){if(f[0]!=="name"&&v[f[0]])s[f[0]]=v[f[0]]});
+ var yr=safarYear(ST[c].name,s.ist);if(yr)s.year=yr;ST[c].S.push(s);persist(c);if(c===CID)render();closeDrawer();
+ SQ="";if($("stuQ"))$("stuQ").value="";if(SC&&SC!==c)SC="";if(stuEx()){SF.st="";stuFilters()}
+ var k=0;stuAll().some(function(o,i){k=i;return o.s===s});PG.stu=Math.floor(k/SPG);SNEW=s;stuPage();toast(s.name+" added to "+cname(ST[c].name))});
+/* A student's profile, opened from their row on Students: every detail the school keeps about them, to fill in
+   or correct. A detail changed here is remembered in s.ed, and a later CSV upload leaves it as it is (its preview
+   lists any the file disagrees with). A changed Student ID or name is kept in s.xid or s.xn, so the upload still
+   recognises the student. Students with the same Family ID are listed as their family. An ex student's profile
+   says when they left and can return them. */
+function stuProfile(c,s){SPS={c:c,s:s};var ex=ST[c].X.indexOf(s)>=0,fam=family(s),a=ageOn(s.dob),sub=[cname(ST[c].name)];if(a>=0&&a!==null)sub.push("Age "+a);if(s.house)sub.push(s.house);
+ drawer(s.name,'<form class="addf spf" id="spF" novalidate>'
+  +(ex?'<p class="spex"><b>Ex student</b>'+(s.left?' since '+esc(dobText(s.left,1)):'')+'. They are kept here with all of their records, but aren\'t on the class lists, TV, rankings or house points.</p>':'')
+  +'<p class="cap">'+esc(sub.join(" · "))+'. Only the name is needed; every other detail can be left blank.</p>'
+  +stuForm(s,c)
   +'<div class="spfam"><b>Family</b>'+(fam.length?'<ul>'+fam.map(function(o){return '<li><button type="button" class="lk" data-sp="'+esc(o.c)+'" data-i="'+ST[o.c].S.indexOf(o.s)+'">'+esc(o.s.name)+'</button> <span class="cap">'+esc(cname(ST[o.c].name))+(o.s.house?' · '+esc(o.s.house):'')+'</span></li>'}).join("")+'</ul>':'<span class="cap">'+(s.fid?'No one else has Family ID '+esc(s.fid)+'.':'Add a Family ID to see their brothers and sisters here.')+'</span>')+'</div>'
   +'<p class="cap">Details you change here stay as you set them when a CSV is uploaded again; its preview lists any the file disagrees with. A student moves class with all of their records.</p>'
-  +'<div class="acts"><p class="naerr" id="spE" role="alert"></p><button type="submit" class="btn p">Save changes</button></div></form>');
+  +'<div class="acts"><p class="naerr" id="spE" role="alert"></p>'+(ex?'<button type="button" class="btn" id="spBack">Return</button>':'')+'<button type="submit" class="btn p">Save changes</button></div></form>',1);
  $("spname").focus()}
-function spSame(){return SPS&&ST[SPS.c]&&ST[SPS.c].S.indexOf(SPS.s)>=0}
-$("drwB").addEventListener("click",function(e){if(e.target.id==="spdobX"){$("spdob").value="";e.target.hidden=true;$("spdob").focus();return}var b=e.target.closest("[data-sp]");if(!b)return;var c=b.dataset.sp,s=ST[c]&&ST[c].S[+b.dataset.i];if(s)stuProfile(c,s)});
+function spSame(){return SPS&&ST[SPS.c]&&(ST[SPS.c].S.indexOf(SPS.s)>=0||ST[SPS.c].X.indexOf(SPS.s)>=0)}
+$("drwB").addEventListener("click",function(e){if(e.target.id==="spdobX"){$("spdob").value="";e.target.hidden=true;$("spdob").focus();return}
+ if(e.target.closest("[data-spx]")){closeDrawer();return}
+ if(e.target.closest("#spBack")){if(!spSame()){$("spE").textContent="This student has been changed or removed elsewhere. Close this and open them again.";return}
+  var o=SPS;if(exBack(o.c,o.s)){closeDrawer();if($("stuL"))stuRows();toast(o.s.name+" is back in "+cname(ST[o.c].name))}return}
+ var b=e.target.closest("[data-sp]");if(!b)return;var c=b.dataset.sp,s=ST[c]&&ST[c].S[+b.dataset.i];if(s)stuProfile(c,s)});
 $("drwB").addEventListener("input",function(e){if(e.target.id==="spdob"&&$("spdobX"))$("spdobX").hidden=!e.target.value});
 $("drwB").addEventListener("submit",function(e){if(e.target.id!=="spF")return;e.preventDefault();var err=$("spE");
  if(!spSame()){err.textContent="This student has been changed or removed elsewhere. Close this and open them again.";return}
- var c=SPS.c,s=SPS.s,v={},dup=null,to=$("spcls").value;SPF.forEach(function(f){v[f[0]]=$("sp"+f[0]).value.replace(/\s+/g," ").trim()});
- if(!ST[to]){err.textContent="That class no longer exists. Choose another.";$("spcls").focus();return}
- if(!v.name){err.textContent="Enter the student's name.";$("spname").focus();return}
- if(ST[to].S.some(function(o){return o!==s&&nkey(o.name)===nkey(v.name)})){err.textContent="There is already a student called "+v.name+" in "+cname(ST[to].name)+".";$("spname").focus();return}
- if(v.sid)CIDS.forEach(function(k){ST[k].S.forEach(function(o){if(!dup&&o!==s&&o.sid&&nkey(o.sid)===nkey(v.sid))dup=[o,k]})});
- if(dup){err.textContent="Student ID "+v.sid+" already belongs to "+dup[0].name+" in "+cname(ST[dup[1]].name)+".";$("spsid").focus();return}
- if(v.dob&&(!/^\d{4}-\d{2}-\d{2}$/.test(v.dob)||v.dob>isoDay(new Date()))){err.textContent="Enter a date of birth that isn't in the future.";$("spdob").focus();return}
- var mv=to!==c;
+ var c=SPS.c,s=SPS.s,L=ST[c].X.indexOf(s)>=0?"X":"S",v=stuVals(s,err,L);if(!v)return;var to=v.to,mv=to!==c;
  var n=0;SPF.forEach(function(f){var k=f[0],was=s[k]||"";if(v[k]===was)return;n++;
   if(k==="sid"&&was||k==="name"){var x=k==="sid"?"xid":"xn";s[x]=(s[x]||[]).filter(function(y){return nkey(y)!==nkey(was)}).concat([was]).slice(-10)}
   if(v[k]||k==="name")s[k]=v[k];else delete s[k];
   s.ed=(s.ed||[]).filter(function(y){return y!==k}).concat([k])});
  // A move also takes the new class's Safar year, which the TV uses to group classes; it isn't shown here.
- if(mv){var yr=safarYear(ST[to].name,s.ist);if(yr)s.year=yr;ST[c].S.splice(ST[c].S.indexOf(s),1);ST[to].S.push(s);s.ed=(s.ed||[]).filter(function(y){return y!=="class"}).concat(["class"]);persist(to)}
+ if(mv){var yr=safarYear(ST[to].name,s.ist);if(yr)s.year=yr;ST[c][L].splice(ST[c][L].indexOf(s),1);ST[to][L].push(s);s.ed=(s.ed||[]).filter(function(y){return y!=="class"}).concat(["class"]);persist(to)}
  if(!n&&!mv){closeDrawer();return}
  persist(c);if(c===CID||to===CID)render();closeDrawer();if($("stuL"))stuRows();
  toast(mv?s.name+" moved to "+cname(ST[to].name):n===1?"Detail saved for "+s.name:n+" details saved for "+s.name)});
@@ -3304,13 +3340,12 @@ $("vU").addEventListener("click",function(e){if(e.target.closest("#stuA,#stuA2")
  var x=e.target.closest("[data-sfx]");if(x){sfSet(x.dataset.sfx,"");PG.stu=0;stuFilters();stuRows();var nx=$("stuF").querySelector("[data-sfx]");($("stuF").contains(nx)?nx:$("stuFB")).focus();return}
  if(e.target.id==="stuX"||e.target.id==="stuX2"){Object.keys(SF).forEach(function(k){SF[k]=""});SC="";PG.stu=0;stuFilters();stuRows();if(e.target.id==="stuX")$("stuFB").focus();return}
  if(e.target.closest(".sfw"))return;
- var b=e.target.closest(".srm"),r=e.target.closest(".stul tbody tr");
- if(!b&&r&&!e.target.closest("[data-open]")){var rs=ST[r.dataset.c]&&ST[r.dataset.c].S[+r.dataset.i];if(rs)stuProfile(r.dataset.c,rs);return}
- if(!b)return;var tr=b.closest("tr"),c=tr.dataset.c,s=ST[c]&&ST[c].S[+tr.dataset.i];if(!s)return;
- ask("Remove "+s.name+" from "+cname(ST[c].name)+"? Their passes, merits, warnings, house points and Quran scores are removed with them. This can't be undone.","Remove student",function(){
-  function done(){var i=ST[c]?ST[c].S.indexOf(s):-1;if(i<0){toast("That student has already changed. Try again.",1);stuRows();return}
-   ST[c].S.splice(i,1);persist(c);stuRows();toast(s.name+" removed from "+cname(ST[c].name));if($("stuQ"))$("stuQ").focus()}
-  if(QM.matches||!tr.animate||!document.contains(tr))done();else tr.animate([{opacity:1},{opacity:0,transform:"translateX(12px)"}],{duration:220,easing:"ease",fill:"forwards"}).onfinish=done},null,1)});
+ var b=e.target.closest(".srm,.srb"),r=e.target.closest(".stul tbody tr");
+ if(!b&&r&&!e.target.closest("[data-open]")){var rs=ST[r.dataset.c]&&stuL(r.dataset.c)[+r.dataset.i];if(rs)stuProfile(r.dataset.c,rs);return}
+ if(!b)return;var tr=b.closest("tr"),c=tr.dataset.c,s=ST[c]&&stuL(c)[+tr.dataset.i],back=b.classList.contains("srb");if(!s)return;
+ function go(){function done(){if(back?exBack(c,s):exOut(c,s)){stuFilters();stuRows();toast(back?s.name+" is back in "+cname(ST[c].name):s.name+" moved to Ex students")}else stuRows();if($("stuQ"))$("stuQ").focus()}
+  if(QM.matches||!tr.animate||!document.contains(tr))done();else tr.animate([{opacity:1},{opacity:0,transform:"translateX(12px)"}],{duration:220,easing:"ease",fill:"forwards"}).onfinish=done}
+ if(back)go();else ask(exAsk(s,c),"Remove student",go,null,1)});
 /* The overview's rankings: house points, the top three students for passes (teachers; the school overview has them
    by stage) and for merits, and passes per week. Each title opens the full list. */
 function rankHtml(K,school){var A=K.A,m=RP==="m",tm=m?"this month":"in total";
@@ -3605,6 +3640,8 @@ function planCSV(){var M=CSV.M,F=["name","year"].concat(["sid","fid","dob","gend
  // Earlier Student IDs and names, from a change on the profile, still find the student; their own come last and win.
  CIDS.forEach(function(c){byName[c]={};ST[c].S.forEach(function(s){(s.xid||[]).forEach(function(x){if(!byId[nkey(x)])byId[nkey(x)]={c:c,s:s}});(s.xn||[]).forEach(function(x){if(!byName[c][nkey(x)])byName[c][nkey(x)]=s})})});
  CIDS.forEach(function(c){ST[c].S.forEach(function(s){if(s.sid)byId[nkey(s.sid)]={c:c,s:s};byName[c][nkey(s.name)]=s})});
+ // Ex students in the file stay ex students; they are returned by hand on Students.
+ var exId={},exName={},exs=[];CIDS.forEach(function(c){exName[c]={};(ST[c].X||[]).forEach(function(s){if(s.sid)exId[nkey(s.sid)]=1;exName[c][nkey(s.name)]=s})});
  function classOf(t){var k=nkey(t),cid=null;CIDS.forEach(function(id){if(!cid&&nkey(ST[id].name)===k)cid=id});return cid}
  var G={},order=[];
  rows.forEach(function(o){if(o.skip)return;var key=nkey(o.teacher),g=G[key];
@@ -3615,6 +3652,7 @@ function planCSV(){var M=CSV.M,F=["name","year"].concat(["sid","fid","dob","gend
    // A student with a different Student ID is someone else with the same name.
    if(s&&(!o.sid||!s.sid||(s.xid||[]).some(function(x){return nkey(x)===nkey(o.sid)}))){hit=s;from=g.cid}}
   if(hit&&claimed.indexOf(hit)>=0)hit=null;
+  if(!hit&&(o.sid?exId[nkey(o.sid)]:g.cid&&exName[g.cid][nkey(o.name)])){g.count--;exs.push(o.name);return}
   if(!hit){g.add.push(o);return}
   claimed.push(hit);
   // A detail changed by hand on the profile stays as it is.
@@ -3624,7 +3662,7 @@ function planCSV(){var M=CSV.M,F=["name","year"].concat(["sid","fid","dob","gend
   if(F.some(function(k){return o[k]!==""&&(hit[k]||"")!==o[k]&&(hit.ed||[]).indexOf(k)<0}))g.update.push({o:o,s:hit});else g.same++});
  var gone=[];CIDS.forEach(function(c){ST[c].S.forEach(function(s){if(claimed.indexOf(s)<0)gone.push(s.name+" ("+cname(ST[c].name)+")")})});
  var groups=order.map(function(k){return G[k]}).sort(function(a,b){return a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:"base"})});
- return {groups:groups,F:F,empty:empty,dup:dup,notes:notes,kept:kept,gone:gone,hasId:M.sid!==undefined}}
+ return {groups:groups,F:F,empty:empty,dup:dup,notes:notes,kept:kept,gone:gone,exs:exs,hasId:M.sid!==undefined}}
 function sumG(p,k){return p.groups.reduce(function(t,g){return t+(k==="same"?g.same:g[k].length)},0)}
 function few(L,n){return L.slice(0,n).map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+(L.length>n?'<li>…and '+(L.length-n)+' more</li>':'')}
 function showCSV(){var P=document.getElementById("csvP");if(!CSV)return;
@@ -3633,6 +3671,7 @@ function showCSV(){var P=document.getElementById("csvP");if(!CSV)return;
  var h='<p><b>'+esc(CSV.file)+'</b>: '+nl+' students in '+p.groups.length+' classrooms.'+(p.empty?' '+p.empty+(p.empty>1?' rows':' row')+' without a name or Quran and Memorisation teacher '+(p.empty>1?'are':'is')+' left out.':'')+(p.dup?' '+p.dup+(p.dup>1?' repeated rows are':' repeated row is')+' counted once.':'')+'</p>'+colsHTML();
  if(!p.hasId)h+='<p class="warnline">This file has no Student ID column, so students are matched by name within their classroom.</p>';
  if(p.notes.length)h+='<ul class="csvl warnline">'+few(p.notes,10)+'</ul>';
+ if(p.exs.length)h+='<p style="margin:0">'+plural(p.exs.length,"ex student")+' in this file '+(p.exs.length>1?'are':'is')+' left out. Anyone who has come back can be returned on Students (Filters, Show: Ex students).</p><ul class="csvl">'+few(p.exs,10)+'</ul>';
  if(p.kept.length)h+='<p style="margin:0">'+plural(p.kept.length,"detail")+' changed by hand on a student\'s profile '+(p.kept.length>1?'stay':'stays')+' as '+(p.kept.length>1?'they are':'it is')+'. To use the file\'s value instead, change it on the student\'s profile under Students.</p><ul class="csvl">'+few(p.kept,10)+'</ul>';
  h+='<div class="tablewrap"><table class="tbl"><thead><tr><th>Classroom (Quran and Memorisation teacher)</th><th>In the file</th><th>New</th><th>Moving in</th><th>Details updated</th><th>No change</th></tr></thead><tbody>'+p.groups.map(function(g){return '<tr><td>'+esc(g.name)+(g.cid?'':' <span class="tg nw">New classroom</span>')+'</td><td>'+g.count+'</td><td>'+g.add.length+'</td><td>'+g.move.length+'</td><td>'+g.update.length+'</td><td>'+g.same+'</td></tr>'}).join("")+'</tbody></table></div>';
  var mv=[];p.groups.forEach(function(g){g.move.forEach(function(m){mv.push(m.o.name+": "+ST[m.from].name+" → "+g.name)})});
