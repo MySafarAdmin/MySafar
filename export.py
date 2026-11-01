@@ -215,8 +215,8 @@ def gather(db):
     sheets["stars"].rows.sort(key=lambda r: r[0], reverse=True)
     for u in users:
         status = "Turned off" if u["disabled"] else "Invited" if not u["password_hash"] else "Active"
-        sheets["staff"].add(u["name"], u["email"], "Administrator" if u["role"] == "admin" else "Teacher",
-                            "All classes" if u["role"] == "admin" else
+        sheets["staff"].add(u["name"], u["email"], {"admin": "Administrator", "head": "HeadTeacher"}.get(u["role"], "Teacher"),
+                            "All classes" if u["role"] in ("admin", "head") else
                             ", ".join(sorted((names.get(c, c) for c in member_of.get(u["id"], [])), key=natural)),
                             status, when(u["created_at"] * 1000).date() if u["created_at"] else None)
     figures = [("Classes", len(classes)), ("Students", len(sheets["students"].rows)),

@@ -49,7 +49,11 @@ EMAIL_FAILS, IP_FAILS = 5, 20
 EMAIL_RESETS, IP_RESETS = 3, 10
 PASSWORD_MIN = 12
 EMAIL = re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+")
-ROLES = ("admin", "teacher")
+ROLES = ("admin", "head", "teacher")
+# A HeadTeacher ("head") sees every classroom and records on any of them (Record, House points, Rankings, Presenter,
+# FAQs), but has none of the Administration pages: no accounts, students, imports or classroom changes.
+ROLE_NAMES = {"admin": "Administrator", "head": "HeadTeacher", "teacher": "Teacher"}
+SEES_ALL = ("admin", "head")
 COMMON_PASSWORDS = {
     "123456789012", "1234567890123", "qwertyuiopas", "passwordpassword", "password1234", "password12345",
     "password123!", "iloveyou1234", "adminadminadmin", "welcome12345", "letmein12345", "safaracademy",
@@ -80,6 +84,11 @@ ACTIONS = {
     "login.code_failed": "Typed a wrong sign-in code",
     "share.code": "Shared a Presenter link", "share.stopped": "Stopped sharing a Presenter link",
 }
+
+
+@bp.app_template_global("role_name")
+def role_name(role):
+    return ROLE_NAMES.get(role, "Teacher")
 
 
 @bp.app_template_filter("when")
@@ -274,6 +283,16 @@ def admin_required(view):
     @wraps(view)
     def wrapper(*args, **kwargs):
         if not g.user or g.user["role"] != "admin":
+            abort(403)
+        return view(*args, **kwargs)
+    return wrapper
+
+
+def staff_required(view):
+    """Admins and HeadTeachers."""
+    @wraps(view)
+    def wrapper(*args, **kwargs):
+        if not g.user or g.user["role"] not in SEES_ALL:
             abort(403)
         return view(*args, **kwargs)
     return wrapper
@@ -621,7 +640,7 @@ def chosen_classes(tx):
 
 def set_classes(tx, user_id, role, classes):
     tx.execute("DELETE FROM classroom_members WHERE user_id = ?", (user_id,))
-    # Admins see every classroom, so they are not assigned any.
+    # Admins and HeadTeachers see every classroom, so they are not assigned any.
     if role == "teacher":
         for class_id in classes:
             tx.execute("INSERT INTO classroom_members VALUES (?, ?)", (class_id, user_id))

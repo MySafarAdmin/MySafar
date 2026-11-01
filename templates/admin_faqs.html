@@ -19,8 +19,8 @@
     <div class="faqa"><button class="btn primary">Send reply</button></div>
   </form>
   {% if answered %}</details>{% endif %}
-  <details class="confirm faqdel"><summary class="btn sm quiet">Delete<span class="sr-only"> {{ r.name }}'s message</span></summary>
-  <form method="post" action="/admin/faqs/{{ r.id }}/delete"><p>This removes the message{{ " and its reply" if answered }} for everyone, {{ r.name }} included.</p><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn sm danger solid">Yes, delete it</button></form></details>
+  {% if user.role == "admin" %}<details class="confirm faqdel"><summary class="btn sm quiet">Delete<span class="sr-only"> {{ r.name }}'s message</span></summary>
+  <form method="post" action="/admin/faqs/{{ r.id }}/delete"><p>This removes the message{{ " and its reply" if answered }} for everyone, {{ r.name }} included.</p><input type="hidden" name="csrf" value="{{ csrf }}"><button class="btn sm danger solid">Yes, delete it</button></form></details>{% endif %}
 </article>
 {% endmacro %}
 {% block content %}

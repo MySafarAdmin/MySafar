@@ -539,6 +539,58 @@ class DashboardTests:
         self.assertNotIn(b'href="/#rankings"', teacher.get("/account").data)
         self.assertIn(b'href="/#rankings"', self.client.get("/account").data)
 
+    def test_head_teachers_see_every_classroom_but_no_administration(self):
+        student = {"name": "Musa Khan", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                   "ml": [], "q": {}, "house": "Makkah", "tg": [], "tb": [], "tr": []}
+        self.write(class_id="yr3-a", state=dict(self.state, S=[student]))
+        self.write("Yr4-B", class_id="yr4-b")
+        # Admins make HeadTeachers on Manage users, from the invite form or by changing a role.
+        page = self.client.get("/admin/users").get_data(as_text=True)
+        self.assertIn('<option value="head">HeadTeacher</option>', page)
+        self.form(self.client, "/admin/users", "/admin/users/invite", name="Head", email="head@example.com",
+                  role="head", classes=["yr3-a"])
+        row = self.query("SELECT id, role FROM users WHERE email = ?", ("head@example.com",))[0]
+        self.assertEqual(row["role"], "head")
+        # They see every classroom, so none are ticked for them.
+        self.assertEqual(self.query("SELECT * FROM classroom_members WHERE user_id = ?", (row["id"],)), [])
+        self.assertIn("HeadTeacher", self.client.get("/admin/users").get_data(as_text=True))
+        with self.app.config["DB"].transaction() as tx:
+            tx.execute("UPDATE users SET password_hash = ? WHERE id = ?", (auth.hasher.hash("head-password-12"), row["id"]))
+        head = self.sign_in("head@example.com", "head-password-12")
+        self.assertIn(b'"role": "head"', head.get("/").data)
+        self.assertEqual(sorted(self.records(head)), ["yr3-a", "yr4-b"])
+        # They record on any class, house points included, but can't add or remove students or classrooms.
+        given = dict(self.state, S=[dict(student, tg=[1])])
+        self.assertEqual(self.write("Yr4-B", revision=1, class_id="yr4-b", client=head).status_code, 200)
+        self.assertEqual(self.write(revision=1, state=given, client=head).status_code, 200)
+        self.assertEqual(self.write(revision=2, state=dict(self.state, S=[]), client=head).status_code, 403)
+        self.assertEqual(self.write("New", class_id="yr5-c", client=head).status_code, 403)
+        self.assertEqual(self.delete(2, client=head).status_code, 403)
+        self.assertEqual(head.get("/api/house-extra").status_code, 200)
+        # FAQs: they read and reply, but only admins delete.
+        faqs = head.get("/admin/faqs")
+        self.assertEqual(faqs.status_code, 200)
+        self.assertIn(b'href="/admin/faqs"', faqs.data)
+        for path in ("/admin/users", "/admin/history", "/admin/activity", "/admin/tv", "/admin/house-points",
+                     "/admin/export", "/admin/import"):
+            self.assertEqual(head.get(path).status_code, 403, path)
+        menu = head.get("/account").get_data(as_text=True)
+        for link in ('href="/#record"', 'href="/#classes"', 'href="/#house-points"', 'href="/#rankings"',
+                     'href="/#presenter"', 'href="/admin/faqs"'):
+            self.assertIn(link, menu)
+        for link in ('href="/#students"', 'href="/admin/users"', "Administration"):
+            self.assertNotIn(link, menu)
+        self.assertIn("<span>HeadTeacher</span>", menu)
+        # Presenter for any class.
+        self.assertEqual(head.get("/presenter/yr4-b").status_code, 200)
+
+    def test_head_teacher_role_is_allowed_and_others_are_not(self):
+        # Migration 14 loosened the users table's CHECK on role; the admin's session survived it.
+        self.assertEqual(self.client.get("/admin/users").status_code, 200)
+        self.add_user("h@example.com", role="head")
+        with self.assertRaises(server.DB_ERRORS):
+            self.add_user("x@example.com", role="owner")
+
     def test_tutorial_starts_once_for_everyone(self):
         self.add_user("t@example.com")
         teacher = self.sign_in("t@example.com", "teacher-password-1")

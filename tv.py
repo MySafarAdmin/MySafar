@@ -394,7 +394,7 @@ def data(settings=None):
         extra = house_extra.totals(tx)
         # Teachers' names drift through the scenes; summary() adds everyone named in the classrooms.
         teachers = [r["name"] for r in tx.execute(
-            "SELECT name FROM users WHERE role = 'teacher' AND disabled = 0 ORDER BY name").fetchall()]
+            "SELECT name FROM users WHERE role IN ('teacher', 'head') AND disabled = 0 ORDER BY name").fetchall()]
     result = summary(rows, teachers=teachers, extra=extra)
     result["focus"] = focus(settings or {})
     return jsonify(result)
@@ -428,10 +428,10 @@ def staff_data():
 
 
 def presenter_class(class_id, school=False):
-    """The class a signed-in teacher may present: one of their own; an admin may present any. With school=True, also
+    """The class a signed-in teacher may present: one of their own; an admin or HeadTeacher may present any. With school=True, also
     every classroom, to place the class in the school."""
     with auth.db().transaction() as tx:
-        if g.user["role"] != "admin" and not tx.execute(
+        if g.user["role"] not in auth.SEES_ALL and not tx.execute(
                 "SELECT 1 FROM classroom_members WHERE class_id = ? AND user_id = ?", (class_id, g.user["id"])).fetchone():
             abort(404)
         row = tx.execute("SELECT id, json FROM classrooms WHERE id = ?", (class_id,)).fetchone()

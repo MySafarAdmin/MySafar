@@ -31,11 +31,16 @@
     <a class="nav" href="{{ href }}"{{ ' aria-current="page"'|safe if on }}>{% if on %}<span class="navsel" aria-hidden="true"></span>{% endif %}{{ icon(ic) }}{{ label }}</a>
     {%- endmacro %}
     {{ nl("/", "home", "Overview") }}
-    {% if user.role == "admin" %}{{ nl("/#record", "pen", "Record") }}{% endif %}
+    {% set all_classes = user.role in ("admin", "head") %}
+    {% if all_classes %}{{ nl("/#record", "pen", "Record") }}{% endif %}
     {{ nl("/#classes", "grid", "Classes") }}
-    {% if user.role == "admin" %}{{ nl("/#house-points", "pie", "House points") }}
+    {% if all_classes %}{{ nl("/#house-points", "pie", "House points") }}
     {{ nl("/#rankings", "trophy", "Rankings") }}
     {{ nl("/#presenter", "presenter", "Presenter") }}
+    {% endif %}
+    {# A HeadTeacher has FAQs but none of the Administration pages. #}
+    {% if user.role == "head" %}{{ nl("/admin/faqs", "faq", "FAQs", here == "/admin/faqs") }}{% endif %}
+    {% if user.role == "admin" %}
     <div class="navh" id="adminh">Administration</div>
     {{ nl("/admin/users", "users", "Manage users", here == "/admin/users") }}
     {{ nl("/#students", "students", "Students") }}
@@ -51,7 +56,7 @@
     <a class="nav j2j j2jb" href="https://journey2jannah.com" target="_blank" rel="noopener noreferrer">{{ icon("book") }}<span translate="no">Journey2Jannah</span><span class="ext" aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
   </nav>
   <div class="me">
-    <div class="who">{{ avatar(user.id, user.name, user.avatar_at, 38) }}<div class="wt"><b>{{ user.name }}</b><span>{{ "Administrator" if user.role == "admin" else "Teacher" }}</span></div></div>
+    <div class="who">{{ avatar(user.id, user.name, user.avatar_at, 38) }}<div class="wt"><b>{{ user.name }}</b><span>{{ role_name(user.role) }}</span></div></div>
     <div class="row">
       <a class="linkbtn" href="/account"{{ ' aria-current="page"'|safe if here == "/account" }}>Account</a>
       <form method="post" action="/logout"><input type="hidden" name="csrf" value="{{ csrf }}"><button class="linkbtn">Sign out</button></form>
@@ -63,7 +68,7 @@
   <label for="navt" class="dscrim" aria-hidden="true"></label>
   <nav class="dock" aria-label="Shortcuts">
     <a class="dk dk-home" href="/"><span class="dki">{{ icon("home") }}</span><span>Home</span></a>
-    {% if user.role == "admin" %}
+    {% if all_classes %}
     <a class="dk dk-classes" href="/#classes"><span class="dki">{{ icon("grid") }}</span><span>Classes</span></a>
     <a class="dk dk-record" href="/#record"><span class="dki">{{ icon("pen") }}</span><span>Record</span></a>
     {% else %}

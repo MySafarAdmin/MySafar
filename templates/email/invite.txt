@@ -6,7 +6,7 @@ Choose your password here:
 {{ link }}
 
 Sign-in email: {{ email }}
-Role: {{ "Administrator" if role == "admin" else "Teacher" }}
+Role: {{ role_name(role) }}
 {% if role == "teacher" and rooms %}Your classrooms: {{ rooms|join(", ") }}
 {% endif %}
 The link works once and expires in {{ invite_hours }}. If it has expired, ask an administrator for a new invite, or use "Forgotten your password?" on the sign-in page: {{ forgot }}
