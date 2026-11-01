@@ -208,6 +208,7 @@ fieldset.hold:disabled input{opacity:1;-webkit-text-fill-color:currentColor}
 .rail .navs>.mhl.go{transition:transform .34s cubic-bezier(.22,1,.36,1),width .34s cubic-bezier(.22,1,.36,1),height .34s cubic-bezier(.22,1,.36,1),opacity .2s ease}
 .rail .navs.has-h>.nav{position:relative;z-index:1}
 .rail .navs.has-h>.nav:not([aria-current]):hover{background:none}
+.rail .navs.has-h .ngi>.nav:not([aria-current]):hover,.rail .navs.has-h .ngh:hover{background:none}
 
 /* FAQs: Help or Requests from staff, each a card with its reply form. */
 .faqs-h{display:flex;align-items:center;gap:8px;margin:24px 0 10px}

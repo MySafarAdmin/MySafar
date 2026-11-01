@@ -39,24 +39,54 @@
     upload: '<path d="M12 15V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v4.5h16V15"/>',
     faq: '<path d="M20.5 12a8.5 8.5 0 0 1-12.3 7.6L3.5 20.5l1-4.4A8.5 8.5 0 1 1 20.5 12z"/><path d="M9.8 9.6a2.3 2.3 0 0 1 4.4.9c0 1.5-2.2 2-2.2 3.2"/><path d="M12 16.4h.01"/>'
   };
+  ICONS.idcard = '<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="11" r="2.2"/><path d="M5.8 16c.6-1.6 1.8-2.4 3.2-2.4s2.6.8 3.2 2.4"/><path d="M15 10h3"/><path d="M15 13.5h3"/>';
+  ICONS.pulse = '<path d="M3 12h4l2.5-6 5 12 2.5-6h4"/>';
+  ICONS.db = '<ellipse cx="12" cy="5.5" rx="7.5" ry="2.5"/><path d="M4.5 5.5v13c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5v-13"/><path d="M4.5 12c0 1.4 3.4 2.5 7.5 2.5s7.5-1.1 7.5-2.5"/>';
+  ICONS.chev = '<path d="m6.5 9.5 5.5 5.5 5.5-5.5"/>';
+  function svg(name) {
+    return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[name] + "</svg>";
+  }
+  function link(l, sub) {
+    var a = document.createElement("a");
+    a.className = sub ? "nav nsub" : "nav"; a.href = l[1];
+    a.innerHTML = svg(l[2]);
+    a.appendChild(document.createTextNode(l[0]));
+    return a;
+  }
   if (ME.role === "admin") {
+    // The same groups, items and order as the admin pages' menu (templates/base.html). The groups fold open and
+    // shut (static/menu.js, loaded after this script).
     var adminNav = document.getElementById("adminNav");
     var heading = document.createElement("div");
     heading.className = "navh";
     heading.textContent = "Administration";
     adminNav.appendChild(heading);
-    [["Manage users", "/admin/users", "users"], ["Class history", "/admin/history", "history"],
-     ["Activity", "/admin/activity", "activity"], ["TV screens", "/admin/tv", "tv"], ["Counted coins", "/admin/house-points", "pie"],
-     ["Spreadsheet", "/admin/export", "sheet"], ["Import", "/admin/import", "upload"], ["FAQs", "/admin/faqs", "faq"]].forEach(function (l) {
-      var a = document.createElement("a");
-      a.className = "nav"; a.href = l[1];
-      a.innerHTML = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + ICONS[l[2]] + "</svg>";
-      a.appendChild(document.createTextNode(l[0]));
-      adminNav.appendChild(a);
-      // Students sits under Manage users for admins.
-      var stu = document.getElementById("nU");
-      if (l[2] === "users" && stu) adminNav.appendChild(stu);
+    [["users", "User management", "idcard", [null, ["Manage users", "/admin/users", "users"]]],
+     ["live", "Live Activity", "pulse", [["Activity", "/admin/activity", "activity"], ["Class history", "/admin/history", "history"]]],
+     ["data", "Data handling", "db", [["Counted coins", "/admin/house-points", "pie"], ["Spreadsheet", "/admin/export", "sheet"], ["Import", "/admin/import", "upload"]]]
+    ].forEach(function (gr) {
+      var g = document.createElement("div");
+      g.className = "ngrp"; g.setAttribute("data-g", gr[0]);
+      var head = document.createElement("button");
+      head.type = "button"; head.className = "nav ngh";
+      head.setAttribute("aria-expanded", "true"); head.setAttribute("aria-controls", "ng-" + gr[0]);
+      var label = document.createElement("span");
+      label.className = "ngt"; label.textContent = gr[1];
+      head.innerHTML = svg(gr[2]); head.appendChild(label); head.insertAdjacentHTML("beforeend", svg("chev"));
+      var body = document.createElement("div"), fold = document.createElement("div"), tree = document.createElement("div");
+      body.className = "ngb"; body.id = "ng-" + gr[0]; fold.className = "ngf"; tree.className = "ngi";
+      gr[3].forEach(function (l) {
+        // Students (the dashboard's own page) opens User management.
+        if (!l) {
+          var stu = document.getElementById("nU");
+          if (stu) { stu.classList.add("nsub"); tree.appendChild(stu); }
+        } else tree.appendChild(link(l, true));
+      });
+      fold.appendChild(tree); body.appendChild(fold); g.appendChild(head); g.appendChild(body);
+      adminNav.appendChild(g);
     });
+    adminNav.appendChild(link(["FAQs", "/admin/faqs", "faq"]));
+    adminNav.appendChild(link(["Presenter", "/admin/tv", "tv"]));
   }
   // A HeadTeacher has FAQs, after Presenter, but none of the Administration pages.
   if (ME.role === "head") {
