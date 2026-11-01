@@ -3698,29 +3698,19 @@ var TOUR=(function(){
  function phone(){return innerWidth<960}
  function cls(){return lastC()}
  // where: "M" (overview) or a class tab letter. el: a selector, or a function giving one element or several.
+ // soft: still shown (in the middle, no glow) when its part isn't there, e.g. the welcome for a teacher with no classes yet.
+ // Kept short on purpose: only what a teacher needs on day one (the rest is easy to find).
  var STEPS=[
-  {where:"M",t:"Welcome to MySafar",b:"A quick look at what each part of the dashboard does. It takes about a minute."},
-  {where:"M",el:function(){return phone()?$("dH"):$("nM")},t:"Overview",b:"Your home page. How your classes are doing, at a glance."},
-  {where:"M",el:"#vMS .attn",t:"Needs attention",b:"Students struggling or excelling in Quran, overdue or advancing in memorisation, and anyone on a warning. Tap a box to see who."},
-  {where:"M",el:"#vMS .tsr",t:"Rankings",b:"House points, most passes and most merits, for this month or all time."},
-  {where:"M",el:"#figP>summary",t:"Figures",b:"Quick numbers for your classes: students, passes and merits this month."},
+  {where:"M",el:"#vMS .attn",soft:true,t:"Welcome to MySafar",b:"This is your home page. Needs attention shows which students need you. Tap a box to see who."},
   {where:"M",el:".hrq",t:"Need a hand?",b:"Ask the office for help or make a request. Their replies come back here."},
-  {where:"M",el:function(){return phone()?document.querySelector("#hello .track"):$("nL")},t:"Classes",
+  {where:"M",el:function(){return phone()?document.querySelector("#hello .track"):$("nL")},t:"Your classes",
    b:function(){return phone()?"Open tracker takes you straight to your class.":"All your classes. Open one to record and follow its students."}},
-  {where:"Q",el:function(){return phone()?[$("dQ"),$("dT")]:$("sub")},t:"Class pages",
-   b:function(){return phone()?"Your class's Quran and Memo pages are always here at the bottom.":"Each class has Quran, Memo, Progress and Settings pages."}},
   {where:"Q",el:function(){return [document.querySelector("#qB .qdh.on"),document.querySelector("#qB .qcol.on")]},t:"Quran scores",
    b:"The highlighted day is the class you're recording. Tap a student's box and choose a score from 0 to 5."},
   {where:"Q",el:"#qB .qnb",t:"Student menu",b:"Tap a name for warnings, merits and the student's current target."},
-  {where:"Q",el:function(){return [document.querySelector("#vQ .qnav"),$("qCal")]},t:"Class days",b:"The arrows move between class days. The calendar jumps straight to one."},
-  {where:"Q",el:"#qStar",t:"Star of the week",b:"Choose your class's star of the week."},
-  {where:"Q",el:"#swc",t:"Switch class",
-   b:function(){return phone()?"Jump to another of your classes.":"Jump to another of your classes. Presenter, in the menu, shows this class's month on the big screen."}},
-  {where:"T",el:"#mL .mgrp",t:"Memo",b:"Each card is a student and their current target. Concern lists students due a pass. Tap a card for their pass calendar."},
-  {where:"D",desk:true,el:"#vD .grp",t:"Progress",b:"Where each student is in the book. Pass history shows their passes week by week."},
-  {where:"M",el:function(){return phone()?document.querySelector(".dock .dk-more"):$("me")},t:"Your account",
-   b:function(){return (phone()?"Tap More, then Account,":"Use Account")+" to change your picture or password, or retake this tutorial."}},
-  {where:"M",t:"You're all set",b:"That's everything. You can retake this tutorial any time from Account."}];
+  {where:"T",el:"#mL .mgrp",t:"Memo",b:"Each card is a student and their current target. Tap a card for their pass calendar."},
+  {where:"M",el:function(){return phone()?document.querySelector(".dock .dk-more"):$("me")},t:"You're all set",
+   b:function(){return (phone()?"Tap More, then Account,":"Use Account")+" to change your picture or password, or retake this tutorial."}}];
  var root=null,veil,ring,card,bar,num,ttl,txt,back,next,skip,i=0,R=null,tw=0,fol=0,running=false,cur=null;
  function list(x){return (Array.isArray(x)?x:[x]).filter(function(e){return e&&e.isConnected&&e.getClientRects().length&&e.offsetWidth})}
  function els(s){if(!s.el)return [];return list(typeof s.el==="function"?s.el():Array.prototype.slice.call(document.querySelectorAll(s.el),0,1))}
@@ -3783,11 +3773,11 @@ var TOUR=(function(){
   if(s.where==="M"){if(CID||PAGE!=="M")go("M");return true}
   if(!c)return false;if(CID!==c)go(c,s.where);else if(CUR!==s.where)tab(s.where);return true}
  function usable(s){if(s.where!=="M"&&!cls()||s.desk&&phone())return false;if(!s.el)return true;
-  var page=s.where==="M"?(!CID&&PAGE==="M"):(CID===cls()&&CUR===s.where);if(page)return els(s).length>0;
+  var page=s.where==="M"?(!CID&&PAGE==="M"):(CID===cls()&&CUR===s.where);if(page)return els(s).length>0||!!s.soft;
   return true}
  function show(k,dir){i=k;var s=STEPS[i];if(!visit(s)){move(dir||1);return}
   // Drawn pages arrive with a short animation: measure once they've settled.
-  setTimeout(function(){if(!running||STEPS[i]!==s)return;var E=els(s);if(s.el&&!E.length){move(dir||1);return}cur=s;
+  setTimeout(function(){if(!running||STEPS[i]!==s)return;var E=els(s);if(s.el&&!E.length&&!s.soft){move(dir||1);return}cur=s;
    if(E.length){var r=E[0].getBoundingClientRect(),lr=E[E.length-1].getBoundingClientRect();
     if(r.top<70||lr.bottom>innerHeight-(phone()?110:20))E[0].scrollIntoView({block:Math.max(lr.bottom,r.bottom)-r.top>innerHeight*.55?"start":"center"})}
    var b=box(E)||none(),n=STEPS.filter(function(x){return usable(x)}).length,at=STEPS.slice(0,i+1).filter(function(x){return usable(x)}).length;
