@@ -1475,6 +1475,57 @@ class DashboardTests:
         self.assertIn(f"Max-Age={auth.SESSION_STAY}", response.headers.get_all("Set-Cookie")[0])
         self.assertIn({"remember": 1}, self.query("SELECT remember FROM sessions"))
 
+    def test_stay_signed_in_trusts_the_browser_for_the_code(self):
+        # With "Stay signed in", the emailed code isn't asked for again in that browser, even after signing out.
+        mailer = self.admin_mailer()
+        client = self.sign_in(*ADMIN, remember=True)
+        response = client.post("/login/code", data={"csrf": csrf_of(client.last), "code": self.code_of(mailer),
+                                                    "remember": "1"})
+        self.assertTrue(any(c.startswith("safar-device=") and f"Max-Age={auth.TRUSTED_DEVICE_TTL}" in c
+                            for c in response.headers.get_all("Set-Cookie")))
+        page = client.get("/account")
+        client.post("/logout", data={"csrf": csrf_of(page)})
+        self.assertEqual(client.get("/api/classes").status_code, 401)
+        sent = len(mailer.sent)
+        page = client.get("/login")
+        response = client.post("/login", data={"csrf": csrf_of(page), "email": ADMIN[0], "password": ADMIN[1]})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(mailer.sent), sent)
+        self.assertEqual(client.get("/api/classes").status_code, 200)
+        # Another browser still needs the code, and so does this one once the trust has run out.
+        self.assertEqual(self.sign_in(*ADMIN).last.status_code, 200)
+        with self.app.config["DB"].transaction() as tx:
+            tx.execute("UPDATE trusted_devices SET expires_at = ?", (int(time.time()) - 1,))
+        page = client.get("/account")
+        client.post("/logout", data={"csrf": csrf_of(page)})
+        page = client.get("/login")
+        response = client.post("/login", data={"csrf": csrf_of(page), "email": ADMIN[0], "password": ADMIN[1]})
+        self.assertIn("Check your email", response.get_data(as_text=True))
+        auth.prune(self.app.config["DB"], 365)
+        self.assertEqual(self.query("SELECT COUNT(*) AS n FROM trusted_devices"), [{"n": 0}])
+
+    def test_without_stay_signed_in_the_code_is_asked_each_time(self):
+        mailer = self.admin_mailer()
+        client = self.sign_in(*ADMIN)
+        client.post("/login/code", data={"csrf": csrf_of(client.last), "code": self.code_of(mailer)})
+        self.assertEqual(self.query("SELECT COUNT(*) AS n FROM trusted_devices"), [{"n": 0}])
+
+    def test_signing_out_everywhere_forgets_trusted_browsers(self):
+        mailer = self.admin_mailer()
+        clients = []
+        for _ in range(2):
+            client = self.sign_in(*ADMIN, remember=True)
+            client.post("/login/code", data={"csrf": csrf_of(client.last), "code": self.code_of(mailer), "remember": "1"})
+            clients.append(client)
+        self.assertEqual(self.query("SELECT COUNT(*) AS n FROM trusted_devices"), [{"n": 2}])
+        page = clients[0].get("/account")
+        clients[0].post("/account/signout-others", data={"csrf": csrf_of(page)})
+        self.assertEqual(self.query("SELECT COUNT(*) AS n FROM trusted_devices"), [{"n": 1}])
+        # The other browser needs the code again.
+        page = clients[1].get("/login")
+        response = clients[1].post("/login", data={"csrf": csrf_of(page), "email": ADMIN[0], "password": ADMIN[1]})
+        self.assertIn("Check your email", response.get_data(as_text=True))
+
     def test_wrong_sign_in_codes_are_limited(self):
         mailer = self.admin_mailer()
         client = self.sign_in(*ADMIN)
