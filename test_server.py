@@ -1114,6 +1114,32 @@ class DashboardTests:
         self.assertEqual(tv.focus(window, at(0, 10)), ["memo"])
         self.assertEqual(tv.focus({}, at(16, 30)), None)
 
+    def test_tv_last_month_winners(self):
+        now = datetime(2026, 10, 3, 12, tzinfo=auth.LONDON)  # just into October: the slide looks back at September
+        ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
+        test = lambda d: {"d": d, "k": "q", "n": 2, "sc": 4, "ok": True}  # noqa: E731
+        sep, aug, octo = ms(2026, 9, 30, 23), ms(2026, 8, 31, 9), ms(2026, 10, 1, 0)
+        rows = [{"id": "a", "json": json.dumps({"name": "Yr3-A-QM-Br Ahmed", "S": [
+                    self.tv_student("Amina Rahman", house="Makkah", tests=[test("2026-09-02"), test("2026-09-30"), test("2026-10-01")],
+                                    log=[sep] * 2 + [octo] * 9, tg=[sep], tb=[octo]),
+                    self.tv_student("Bilal Hussain", house="Madinah", tests=[test("2026-09-10"), test("2026-08-31")], log=[aug] * 5,
+                                    tb=[sep])]})},
+                {"id": "b", "json": json.dumps({"name": "Yr4-B-QM-Sr Zainab", "S": [
+                    self.tv_student("Hana Ali", house="Al-Aqsa", tests=[test("2026-09-05"), test("2026-09-06")], log=[sep] * 2, tg=[sep] * 4)]})},
+                {"id": "c", "json": json.dumps({"name": "Yr8-A", "S": [self.tv_student("Idle")]})}]
+        last = tv.summary(rows, now)["last"]
+        self.assertEqual(last["month"], "September")
+        # Qaidah: Amina and Hana tie on 2 levels in September; Bilal's August pass and Amina's October one don't count.
+        self.assertEqual([(s["n"], [w["name"] for w in s["who"]]) for s in last["qaidah"]], [(2, ["Amina R.", "Hana A."])])
+        # The two primary classes tie on September's memorisation passes; nobody in Year 8 passed, so no secondary winner.
+        self.assertEqual([(s["n"], [w["class"] for w in s["who"]]) for s in last["primary"]],
+                         [(2, ["Yr3A Ustadh Ahmed", "Yr4B Ustadha Zainab"])])
+        self.assertEqual(last["secondary"], [])
+        # Houses: points earned in September only (Amina's October blue token is left out).
+        self.assertEqual([(s["n"], [w["house"] for w in s["who"]]) for s in last["houses"]], [(20, ["Al-Aqsa", "Madinah"])])
+        # In January the slide looks back at December.
+        self.assertEqual(tv.summary([], datetime(2027, 1, 1, 0, 5, tzinfo=auth.LONDON))["last"]["month"], "December")
+
     def test_presenter_shows_one_class_to_its_teachers(self):
         now = datetime(2026, 10, 22, 12, tzinfo=auth.LONDON)  # a Thursday in the fourth week
         ms = lambda *args: datetime(*args, tzinfo=auth.LONDON).timestamp() * 1000  # noqa: E731
