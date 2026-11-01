@@ -273,6 +273,9 @@ def create_app(test_config=None):
     database.migrate()
     auth.bootstrap_admin(database, app.config["ADMIN_EMAIL"], app.config["DASHBOARD_PASSWORD"])
     app.config["DB"] = database
+    if not app.config.get("TESTING"):
+        with database.transaction() as db:
+            memo_import.log_summary(db, "at startup")
     app.config.setdefault("MAILER", Mailer(app.config["RESEND_API_KEY"].strip(), app.config["MAIL_FROM"].strip(),
                                            app.config["MAIL_REDIRECT_TO"].strip(),
                                            app.config["MAIL_REPLY_TO"] or app.config["SUPPORT_EMAIL"]))
