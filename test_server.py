@@ -619,6 +619,31 @@ class DashboardTests:
         self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=1, tg=[1760400000000]), other]), revision=3).status_code, 200)
         self.assertEqual(self.write(state=dict(self.state, S=[dict(student, merits=2, tg=[1760400000000]), other]), revision=4, client=teacher).status_code, 200)
 
+    def test_ex_students_are_kept_but_not_counted(self):
+        student = {"name": "Musa Khan", "target": 1, "passes": 0, "merits": 0, "warn": 0, "log": [], "lt": [], "lx": [],
+                   "ml": [], "fl": [], "q": {}, "tg": [1760400000000], "tb": [], "tr": [], "house": "Madinah", "sid": "SE0270"}
+        other = dict(student, name="Aisha Ali", sid="SE0012", tg=[])
+        left = dict(student, left="2026-11-01")
+        # An ex student needs the day they left; a current one is checked as before.
+        self.assertFalse(valid_state(dict(self.state, X=[student])))
+        self.assertFalse(valid_state(dict(self.state, X=[dict(student, left=20261101)])))
+        self.assertFalse(valid_state(dict(self.state, X=[dict(left, target=0)])))
+        self.assertFalse(valid_state(dict(self.state, X={})))
+        self.assertTrue(valid_state(dict(self.state, S=[other], X=[left])))
+        self.assertEqual(self.write(state=dict(self.state, S=[student, other])).status_code, 200)
+        self.add_user("t@example.com", classes=["yr3-a"])
+        teacher = self.sign_in("t@example.com", "teacher-password-1")
+        # Only an admin removes a student, now by moving them to the ex students.
+        response = self.write(state=dict(self.state, S=[other], X=[left]), revision=1, client=teacher)
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.write(state=dict(self.state, S=[other], X=[left]), revision=1).status_code, 200)
+        self.assertEqual(self.write(state=dict(self.state, S=[dict(other, merits=1)], X=[]), revision=2, client=teacher).status_code, 403)
+        # Their coins no longer count for the house, but their Student ID is never given out again.
+        self.assertEqual(self.client.get("/api/houses").get_json()["Madinah"], 0)
+        self.assertEqual(self.client.get("/api/last-sid").get_json()["last"], 270)
+        saved = json.loads(self.records()["yr3-a"]["json"])
+        self.assertEqual([s["name"] for s in saved["X"]], ["Musa Khan"])
+
     def test_invite_without_email(self):
         self.write()
         response = self.form(self.client, "/admin/users", "/admin/users/invite", name="Sr Maryam",
